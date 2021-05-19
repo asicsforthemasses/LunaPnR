@@ -8,4 +8,7 @@ For more information, please visit the [homepage](https://www.asicsforthemasses.
 * GCC 9.3 or higher
 * CMake 3.16 or higher
 * Ninja-build
-* Qt5.12 or higher
+* Qt 5.12 or higher
+* libboost-test-dev (for running tests)
+* libboost-filesystem-dev (for running tests)
+* cppcheck 2.4.1 or higher (optional)

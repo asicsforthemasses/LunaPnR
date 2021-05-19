@@ -1,10 +1,9 @@
-
-#ifndef mainwindow_h
-#define mainwindow_h
+#pragma once
 
 #include <vector>
 #include <string>
 
+#include <QObject>
 #include <QMainWindow>
 #include <QMenu>
 #include <QMenuBar>
@@ -27,5 +26,3 @@ protected:
     QMenuBar    *m_menuBar;
     QSplitter   *m_splitter;
 };
-
-#endif
