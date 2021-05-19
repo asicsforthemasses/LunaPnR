@@ -13,7 +13,7 @@ addons:
       - g++-9
       - build-essential
       - ninja-build
-      - qt5-default
+      - qt5-default 
 
 # only build when a tag is present
 if: tag IS present
