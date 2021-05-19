@@ -15,9 +15,6 @@ addons:
       - ninja-build
       - qt5-default 
 
-# only build when a tag is present
-if: tag IS present
-
 script:
   - cmake --version
   - ninja --version
