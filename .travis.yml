@@ -20,7 +20,8 @@ addons:
 script:
   - cmake --version
   - ninja --version
-  - ./bootstrap.sh
+  - mkdir -p build
   - cd build
+  - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUseCPPCHECK=OFF ..
   - ninja
   - ctest -V
