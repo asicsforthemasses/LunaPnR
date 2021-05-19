@@ -2,10 +2,12 @@ dist: focal
 language: cpp
 compiler: gcc
 
+branches:
+  only:
+  - stable
+
 addons:
   apt:
-    sources:
-      - ubuntu-toolchain-r-test      
     packages:
       - cmake
       - g++-9
@@ -13,9 +15,12 @@ addons:
       - ninja-build
       - qt5-default
 
+# only build when a tag is present
+if: tag IS present
+
 script:
   - cmake --version
-  - ninja -v
+  - ninja --version
   - ./bootstrap.sh
   - cd build
   - ninja
