@@ -4,5 +4,5 @@
 
 */
 
-#define BOOST_TEST_MODULE "C++ Unit Tests for ChipDB"
+#define BOOST_TEST_MODULE "C++ Unit Tests for LunaCore"
 #include <boost/test/included/unit_test.hpp>

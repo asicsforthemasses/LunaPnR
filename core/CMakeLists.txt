@@ -19,4 +19,8 @@ find_program(CMAKE_CXX_CPPCHECK NAMES cppcheck)
 endif()
 
 add_library(lunacore 
-    dummy.cpp)
+    common/logging.cpp
+    import/verilog/veriloglexer.cpp
+    import/verilog/verilogparser.cpp)
+
+target_include_directories(lunacore PRIVATE common)

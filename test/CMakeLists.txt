@@ -24,11 +24,12 @@ add_custom_target(iitcells DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/files/iit_stdcell
 # test executable
 add_executable(core_test ${SOURCES})
 target_link_libraries(core_test lunacore stdc++fs ${Boost_LIBRARIES})
+target_include_directories(core_test PRIVATE ../core/include)
 add_dependencies(core_test iitcells)
 
 add_test(
     NAME core_test
-    #COMMAND ${CMAKE_SOURCE_DIR}/build/tests/core
-    COMMAND core_test
-    #WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+    COMMAND ${CMAKE_SOURCE_DIR}/build/test/core_test
+    #COMMAND core_test
+    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     )
