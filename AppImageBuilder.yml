@@ -1,0 +1,95 @@
+# appimage-builder recipe see https://appimage-builder.readthedocs.io for details
+version: 1
+AppDir:
+  path: ./AppDir
+  app_info:
+    id: lunapnr
+    name: lunapnr
+    icon: lunapnr
+    version: latest
+    exec: usr/bin/lunapnr
+    exec_args: $@
+
+  apt:
+    arch: amd64
+    allow_unauthenticated: true
+    sources:
+    - sourceline: deb http://nl.archive.ubuntu.com/ubuntu/ focal main restricted
+    - sourceline: deb http://nl.archive.ubuntu.com/ubuntu/ focal-updates main restricted
+    - sourceline: deb http://nl.archive.ubuntu.com/ubuntu/ focal universe
+    - sourceline: deb http://nl.archive.ubuntu.com/ubuntu/ focal-updates universe
+    - sourceline: deb http://nl.archive.ubuntu.com/ubuntu/ focal multiverse
+    - sourceline: deb http://nl.archive.ubuntu.com/ubuntu/ focal-updates multiverse
+    - sourceline: deb http://nl.archive.ubuntu.com/ubuntu/ focal-backports main restricted
+        universe multiverse
+    - sourceline: deb http://security.ubuntu.com/ubuntu focal-security main restricted
+    - sourceline: deb http://security.ubuntu.com/ubuntu focal-security universe
+    - sourceline: deb http://security.ubuntu.com/ubuntu focal-security multiverse
+    - sourceline: deb http://ppa.launchpad.net/inkscape.dev/stable/ubuntu focal main
+    - sourceline: deb http://ppa.launchpad.net/kicad/kicad-5.1-releases/ubuntu focal
+        main
+    - sourceline: deb [arch=amd64,arm64,armhf] http://packages.microsoft.com/repos/code
+        stable main
+    include:
+    - libjpeg-turbo8
+    - libxxf86vm1
+    - libcanberra-gtk3-module
+    - libxdmcp6
+    - libxcb-xkb1
+    - libqt5svg5
+    - libxinerama1
+    - libxext6
+    - language-pack-gnome-en-base
+    - libxcb-xinerama0
+    - libxrender1
+    - libxfixes3
+    - yaru-theme-icon
+    - libxshmfence1
+    - libpcre2-8-0
+    - libxcb-sync1
+    - yaru-theme-gtk
+    - libxau6
+    - language-selector-common
+    - libsm6
+    - gvfs
+    - libgcrypt20
+    - qt5-gtk-platformtheme
+    - liblz4-1
+    - libxcb-render-util0
+    exclude: []
+  files:
+    include:
+    - /usr/lib/x86_64-linux-gnu/libgcc_s.so.1
+    - /usr/lib/x86_64-linux-gnu/libc-2.31.so
+    - /usr/lib/x86_64-linux-gnu/libm-2.31.so
+    - /usr/lib/x86_64-linux-gnu/libpthread-2.31.so
+    - /usr/lib/x86_64-linux-gnu/libz.so.1.2.11
+    - /usr/lib/x86_64-linux-gnu/libdl-2.31.so
+    - /usr/lib/x86_64-linux-gnu/libpcre.so.3.13.3
+    - /usr/lib/x86_64-linux-gnu/libexpat.so.1.6.11
+    - /usr/lib/x86_64-linux-gnu/libuuid.so.1.3.0
+    - /usr/lib/x86_64-linux-gnu/libdbus-1.so.3.19.11
+    - /usr/lib/x86_64-linux-gnu/libsystemd.so.0.28.0
+    - /usr/lib/x86_64-linux-gnu/librt-2.31.so
+    - /usr/lib/x86_64-linux-gnu/liblzma.so.5.2.4
+    - /usr/lib/x86_64-linux-gnu/libgpg-error.so.0.28.0
+    - /usr/lib/x86_64-linux-gnu/libmount.so.1.1.0
+    - /usr/lib/x86_64-linux-gnu/libselinux.so.1
+    - /usr/lib/x86_64-linux-gnu/libresolv-2.31.so
+    - /usr/lib/x86_64-linux-gnu/libblkid.so.1.1.0
+    - /usr/share/mime/mime.cache
+    - /usr/share/mime/types
+    - /usr/share/mime/image/png.xml
+    - /usr/lib/x86_64-linux-gnu/libtinfo.so.6.2
+    - /usr/lib/x86_64-linux-gnu/libnss_files-2.31.so
+    exclude:
+    - usr/share/man
+    - usr/share/doc/*/README.*
+    - usr/share/doc/*/changelog.*
+    - usr/share/doc/*/NEWS.*
+    - usr/share/doc/*/TODO.*
+
+AppImage:
+  arch: x86_64
+  update-information: guess
+  sign-key: None

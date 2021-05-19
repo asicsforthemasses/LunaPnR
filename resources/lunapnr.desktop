@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=LunaPnR
+Comment=Luna Place and Route
+TryExec=lunapnr
+Exec=lunapnr
+Icon=lunapnr
+MimeType=image/x-foo;
+Categories=Electronics;
