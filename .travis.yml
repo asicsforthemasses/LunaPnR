@@ -11,6 +11,7 @@ addons:
       - g++-9
       - build-essential
       - ninja-build
+      - qt5-default
 
 script:
   - cmake --version
