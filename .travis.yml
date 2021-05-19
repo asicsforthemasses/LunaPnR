@@ -16,6 +16,6 @@ addons:
 script:
   - cmake --version
   - ninja -v
-  - bootstrap.sh
+  - ./bootstrap.sh
   - cd build
   - ninja
