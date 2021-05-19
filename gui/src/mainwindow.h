@@ -21,6 +21,7 @@ public:
 
 public slots:
     void onQuit();
+    void onAbout();
     
 protected:
     QMenuBar    *m_menuBar;
