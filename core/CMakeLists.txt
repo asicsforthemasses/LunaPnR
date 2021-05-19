@@ -2,11 +2,11 @@ project(lunacore)
 
 set(CMAKE_CXX_STANDARD 17)
 
-option(UseCPPCHECK "UseCPPCHECK" ON)
-set(CMAKE_CXX_CPPCHECK "cppcheck")
+option(UseCPPCHECK "UseCPPCHECK")
 
 # CPPCHECK static analysis support
-if (CMAKE_CXX_CPPCHECK AND UseCPPCHECK)
+if (UseCPPCHECK)
+set(CMAKE_CXX_CPPCHECK "cppcheck")
 find_program(CMAKE_CXX_CPPCHECK NAMES cppcheck)
     list(
         APPEND CMAKE_CXX_CPPCHECK 
