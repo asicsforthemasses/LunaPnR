@@ -1,0 +1,20 @@
+dist: focal
+language: cpp
+compiler: gcc
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test      
+    packages:
+      - cmake
+      - g++-9
+      - build-essential
+      - ninja-build
+
+script:
+  - cmake --version
+  - ninja -v
+  - bootstrap.sh
+  - cd build
+  - ninja
