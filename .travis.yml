@@ -2,6 +2,10 @@ dist: focal
 language: cpp
 compiler: gcc
 
+branches:
+  only:
+  - stable
+
 addons:
   apt:
     packages:
@@ -10,9 +14,6 @@ addons:
       - build-essential
       - ninja-build
       - qt5-default 
-
-# only build when a tag is present
-if: tag IS present
 
 script:
   - cmake --version

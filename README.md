@@ -1,7 +1,8 @@
 # Luna Place and Route
 
-For more information, please visit the [homepage](https://www.asicsforthemasses.com "Luna PnR homepage").
+[![Build Status](https://www.travis-ci.com/asicsforthemasses/LunaPnR.svg?branch=stable)](https://www.travis-ci.com/asicsforthemasses/LunaPnR)
 
+For more information, please visit the [homepage](https://www.asicsforthemasses.com "Luna PnR homepage").
 
 ## Build requirements
 * GCC 9.3 or higher
