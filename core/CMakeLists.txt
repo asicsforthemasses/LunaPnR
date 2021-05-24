@@ -20,7 +20,12 @@ endif()
 
 add_library(lunacore 
     common/logging.cpp
+    common/dbtypes.cpp
+    netlist/design.cpp
+    netlist/netlist.cpp
+    celllib/celllib.cpp
     import/verilog/veriloglexer.cpp
-    import/verilog/verilogparser.cpp)
+    import/verilog/verilogparser.cpp
+    import/verilog/verilogreader.cpp)
 
-target_include_directories(lunacore PRIVATE common)
+target_include_directories(lunacore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

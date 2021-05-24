@@ -1,7 +1,7 @@
 
 #include <algorithm>
 #include "veriloglexer.h"
-#include "logging.h"
+#include "common/logging.h"
 
 using namespace ChipDB::Verilog;
 

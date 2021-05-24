@@ -2,7 +2,7 @@
 #include <sstream>
 #include <iostream>
 #include "verilogparser.h"
-#include "logging.h"
+#include "common/logging.h"
 
 using namespace ChipDB::Verilog;
 

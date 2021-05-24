@@ -13,6 +13,7 @@ namespace ChipDB::Verilog
 class Parser
 {
 public:
+    Parser() : m_idx(0), m_tokens(nullptr) {}
 
     bool execute(const std::vector<Lexer::token> &tokens);
 
