@@ -129,12 +129,16 @@ void ReaderImpl::onInstance(const std::string &modName, const std::string &insNa
     if (cellPtr != nullptr)
     {           
         auto insPtr = new CellInstance(cellPtr);
+        insPtr->m_insName = insName;
+
         if (!m_currentModule->addInstance(insName, insPtr))
         {            
             std::stringstream ss;
             ss << "Failed to create instance " << insName << "\n";
             doLog(LOG_ERROR, ss.str());
         }
+
+        m_currentInstance = insPtr;
 
         return;
     }
@@ -143,12 +147,17 @@ void ReaderImpl::onInstance(const std::string &modName, const std::string &insNa
     if (modulePtr != nullptr)
     {
         auto insPtr = new ModuleInstance(modulePtr);
+        insPtr->m_insName = modName;
+        
         if (!m_currentModule->addInstance(insName, insPtr))
         {
             std::stringstream ss;
             ss << "Failed to create module instance " << insName << "\n";
             doLog(LOG_ERROR, ss.str());            
         }
+
+        m_currentInstance = insPtr;
+
         return;
     }
 

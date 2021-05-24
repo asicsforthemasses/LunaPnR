@@ -87,6 +87,21 @@ CellLib::~CellLib()
     }
 }
 
+Cell* CellLib::createCell(const std::string &name)
+{
+    auto cell = lookup(name);
+    if (cell != nullptr)
+    {
+        return cell;
+    }   
+
+    cell = new Cell();
+    cell->m_name = name;
+
+    m_cells.add(name, cell);
+    return cell;
+}
+
 Cell* CellLib::lookup(const std::string &name) const
 {
     auto iter = std::find_if(m_cells.begin(), m_cells.end(),
@@ -125,10 +140,20 @@ Module* ModuleLib::lookup(const std::string &name) const
     return *iter;    
 }
 
-Module* ModuleLib::create(const std::string &name)
+Module* ModuleLib::createModule(const std::string &name)
 {
     auto newModule = new Module();
     newModule->m_name = name;
     m_modules.push_back(newModule);
     return newModule;
+}
+
+Module* ModuleLib::at(size_t index)
+{
+    return m_modules.at(index);
+}
+
+const Module* ModuleLib::at(size_t index) const
+{
+    return m_modules.at(index);
 }

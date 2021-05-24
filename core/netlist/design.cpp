@@ -5,7 +5,7 @@ using namespace ChipDB;
 
 Module* Design::createModule(const std::string &name)
 {
-    auto newModule = m_moduleLib.create(name);
+    auto newModule = m_moduleLib.createModule(name);
     return newModule;
 }
 

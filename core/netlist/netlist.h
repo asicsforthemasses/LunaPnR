@@ -55,6 +55,11 @@ public:
 
     std::string m_insName;
     std::vector<Pin> m_pins;
+
+    virtual bool isModule() const
+    {
+        return false;
+    }
 };
 
 
@@ -74,6 +79,16 @@ public:
     virtual const Pin* lookupPin(size_t pinIndex) const override;
     virtual Pin* lookupPin(const std::string &name);
     virtual Pin* lookupPin(size_t pinIndex);    
+
+    virtual bool isModule() const
+    {
+        return false;
+    }
+
+    const Cell* getCell() const
+    {
+        return m_cell;
+    }
 
 protected:
     const Cell *m_cell;   // weak ptr to cell
@@ -96,6 +111,11 @@ public:
     virtual const Pin* lookupPin(size_t pinIndex) const override;
     virtual Pin* lookupPin(const std::string &name);
     virtual Pin* lookupPin(size_t pinIndex);       
+
+    virtual bool isModule() const
+    {
+        return true;
+    }
 
 protected:
     const Module *m_module;

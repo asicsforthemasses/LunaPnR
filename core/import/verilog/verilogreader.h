@@ -77,9 +77,9 @@ protected:
     void throwOnDesignIsNullptr();
     void throwOnCurInstanceIsNullptr();
 
-    Design          *m_design;
-    Module          *m_currentModule;
-    CellInstance    *m_currentInstance;
+    Design              *m_design;
+    Module              *m_currentModule;
+    AbstractInstance    *m_currentInstance;
 };
 
 /// \endcond

@@ -16,6 +16,10 @@ public:
     std::string             m_name;
     std::vector<PinInfo>    m_pins;
 
+    double          m_area;         // area in um^2
+    double          m_leakagePower; // in Watts
+    Coord64         m_size;         // size in nm
+
     PinInfo&    createPin(const std::string &name);
     PinInfo*    lookupPin(const std::string &name);
     ssize_t     lookupPinIndex(const std::string &name) const;
@@ -53,6 +57,7 @@ public:
         return m_cells.size();
     };
 
+    Cell* createCell(const std::string &name);
     Cell* lookup(const std::string &name) const;
 };
 
@@ -68,8 +73,10 @@ public:
         return m_modules.size();
     };
 
+    Module* at(size_t index);
+    const Module* at(size_t index) const;
     Module* lookup(const std::string &name) const;
-    Module* create(const std::string &name);
+    Module* createModule(const std::string &name);
 };
 
 };
