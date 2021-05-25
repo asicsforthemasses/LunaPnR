@@ -24,6 +24,9 @@ add_library(lunacore
     netlist/design.cpp
     netlist/netlist.cpp
     celllib/celllib.cpp
+    import/liberty/libparser.cpp
+    import/liberty/libreader.cpp
+    import/liberty/libreaderimpl.cpp
     import/lef/lefparser.cpp
     import/lef/lefreaderimpl.cpp
     import/lef/lefreader.cpp

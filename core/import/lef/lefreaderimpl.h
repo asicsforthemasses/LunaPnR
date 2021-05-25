@@ -51,7 +51,7 @@ public:
     virtual void onSize(int64_t sx, int64_t sy) override;
 
     /** callback for SYMMETRY within a macro */
-    //virtual void onSymmetry(const SymmetryType &symmetry) override;
+    virtual void onSymmetry(const SymmetryFlags &symmetry) override;
 
     /** callback for SITE within a macro */
     virtual void onMacroSite(const std::string &site) override;

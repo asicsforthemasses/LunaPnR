@@ -278,7 +278,20 @@ namespace ChipDB
         ORIENT_MY90
     };
 
+    struct SymmetryFlags
+    {
+        SymmetryFlags() : m_flags(0) {}
+
+        uint8_t m_flags;
+
+        static constexpr uint8_t SYM_UNKNOWN = 0;
+        static constexpr uint8_t SYM_X = 1;
+        static constexpr uint8_t SYM_Y = 2;
+        static constexpr uint8_t SYM_R90 = 4;
+    };
 };
+
+ChipDB::SymmetryFlags& operator+=(ChipDB::SymmetryFlags &lhs, const uint8_t &rhs);
 
 std::ostream& operator<<(std::ostream& os, const ChipDB::Coord64& r);
 std::ostream& operator<<(std::ostream& os, const ChipDB::Rect64& r);

@@ -64,7 +64,7 @@ void ReaderImpl::onMacroSite(const std::string &site)
     if (!checkPtr(m_curCell))
         return;
 
-    //cell->m_site = site;
+    m_curCell->m_site = site;
 }
 
 void ReaderImpl::onPin(const std::string &pinName)
@@ -294,16 +294,13 @@ void ReaderImpl::onClass(const std::string &className,
 #endif
 }
 
-#if 0
-void ReaderImpl::onSymmetry(const SymmetryType &symmetry)
+void ReaderImpl::onSymmetry(const SymmetryFlags &symmetry)
 {
-    auto cell = m_design->cellLib()->cell(m_cellIndex);
-    if (!checkPtr(cell))
+    if (!checkPtr(m_curCell))
         return;
 
-    cell->m_symmetry = symmetry;
+    m_curCell->m_symmetry = symmetry;
 }
-#endif
 
 void ReaderImpl::onRect(int64_t x1, int64_t y1, int64_t x2, int64_t y2)
 {

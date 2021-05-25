@@ -91,7 +91,7 @@ public:
     virtual void onSize(int64_t sx, int64_t sy) {}
 
     /** callback for SYMMETRY within a macro */
-    //virtual void onSymmetry(const SymmetryType &symmetry) {}
+    virtual void onSymmetry(const SymmetryFlags &symmetry) {};
 
     /** callback for SITE within a macro */
     virtual void onMacroSite(const std::string &site) {}

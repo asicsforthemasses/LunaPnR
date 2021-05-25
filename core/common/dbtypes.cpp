@@ -3,6 +3,12 @@
 #include <iostream>
 #include "dbtypes.h"
 
+ChipDB::SymmetryFlags& operator+=(ChipDB::SymmetryFlags &lhs, const uint8_t &rhs)
+{
+    lhs.m_flags |= rhs;
+    return lhs;
+}
+
 std::ostream& operator<<(std::ostream& os, const ChipDB::Coord64& r)
 {
     os << "(" << r.m_x << "," << r.m_y << ")";
