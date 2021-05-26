@@ -4,62 +4,45 @@
 
 using namespace ChipDB;
 
+// **********************************************************************
+//   Cell
+// **********************************************************************
+
 PinInfo& Cell::createPin(const std::string &name)
 {
-    auto iter = std::find_if(m_pins.begin(), m_pins.end(),
-        [name](const auto p)
-        {
-            return p.m_name == name;
-        }
-    );
-
-    if (iter == m_pins.end())
-    {
-        // pin does not exist, so we create it
-        m_pins.emplace_back(PinInfo());
-        m_pins.back().m_name = name;
-        return m_pins.back();
-    }
-    else
-    {
-        return *iter;
-    }
+    return m_pins.createPin(name);
 }
 
 PinInfo* Cell::lookupPin(const std::string &name)
 {
-    auto iter = std::find_if(m_pins.begin(), m_pins.end(),
-    [name](const auto p)
-        {
-            return p.m_name == name;
-        }
-    );
+    return m_pins.lookup(name);
+}
 
-    if (iter == m_pins.end())
-    {
-        // pin does not exist
-        return nullptr;
-    }
-    else
-    {
-        return &(*iter);
-    }    
+const PinInfo* Cell::lookupPin(const std::string &name) const
+{
+    return m_pins.lookup(name);
 }
 
 ssize_t Cell::lookupPinIndex(const std::string &name) const
 {
-    for(size_t i=0; i<m_pins.size(); i++)
-    {
-        if (m_pins[i].m_name == name)
-        {
-            return i;
-        }
-    }
-
-    return -1;
+    return m_pins.lookupIndex(name);
 }
 
-bool Module::addInstance(const std::string &insName, AbstractInstance* insPtr)
+PinInfo* Cell::lookupPin(ssize_t index)
+{
+    return m_pins[index];
+}
+
+const PinInfo* Cell::lookupPin(ssize_t index) const
+{
+    return m_pins[index];
+}
+
+// **********************************************************************
+//   Module
+// **********************************************************************
+
+bool Module::addInstance(const std::string &insName, Instance* insPtr)
 {
     return m_instances.add(insName, insPtr);
 }
@@ -78,6 +61,9 @@ Net* Module::createNet(const std::string &netName)
     return myNet;
 }
 
+// **********************************************************************
+//   CellLib
+// **********************************************************************
 
 CellLib::~CellLib()
 {
@@ -116,6 +102,11 @@ Cell* CellLib::lookup(const std::string &name) const
 
     return *iter;
 }
+
+
+// **********************************************************************
+//   ModuleLib
+// **********************************************************************
 
 ModuleLib::~ModuleLib()
 {

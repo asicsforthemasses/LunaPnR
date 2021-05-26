@@ -19,6 +19,7 @@
 #include <sstream>
 #include <algorithm>
 #include "common/logging.h"
+#include "netlist/instance.h"
 #include "verilogreader.h"
 
 using namespace ChipDB::Verilog;
@@ -128,8 +129,8 @@ void ReaderImpl::onInstance(const std::string &modName, const std::string &insNa
     auto const cellPtr = m_design->m_cellLib.lookup(modName);
     if (cellPtr != nullptr)
     {           
-        auto insPtr = new CellInstance(cellPtr);
-        insPtr->m_insName = insName;
+        auto insPtr = new Instance(cellPtr);
+        insPtr->m_name = insName;
 
         if (!m_currentModule->addInstance(insName, insPtr))
         {            
@@ -146,8 +147,8 @@ void ReaderImpl::onInstance(const std::string &modName, const std::string &insNa
     auto modulePtr = m_design->m_moduleLib.lookup(modName);
     if (modulePtr != nullptr)
     {
-        auto insPtr = new ModuleInstance(modulePtr);
-        insPtr->m_insName = modName;
+        auto insPtr = new Instance(modulePtr);
+        insPtr->m_name = modName;
         
         if (!m_currentModule->addInstance(insName, insPtr))
         {
@@ -309,24 +310,21 @@ void ReaderImpl::onInstanceNamedPort(const std::string &pinName, const std::stri
     auto netPtr  = m_currentModule->m_nets.lookup(netName);    
     if (netPtr == nullptr)
     {
-        doLog(LOG_WARN,"Cannot connect %s:%s to net %s -- net not found\n", m_currentInstance->m_insName.c_str(), 
+        doLog(LOG_WARN,"Cannot connect %s:%s to net %s -- net not found\n", m_currentInstance->m_name.c_str(), 
             pinName.c_str(), netName.c_str());
         return;
     }
 
-    ssize_t insPinIndex = m_currentInstance->lookupPinIndex(pinName);
-
-    if (insPinIndex < 0)
+    auto pin = m_currentInstance->pin(pinName);
+    if (!pin.isValid())
     {
-        doLog(LOG_WARN,"Cannot connect %s:%s to net %s -- pin not found\n", m_currentInstance->m_insName.c_str(), 
+        doLog(LOG_WARN,"Cannot connect %s:%s to net %s -- pin not found\n", m_currentInstance->m_name.c_str(), 
             pinName.c_str(), netName.c_str());
-        return;        
+        return;
     }
 
-    auto insPinPtr = m_currentInstance->lookupPin(insPinIndex);
-
-    insPinPtr->m_net = netPtr;
-    netPtr->addConnection(m_currentInstance, insPinIndex);
+    m_currentInstance->connect(pin.m_pinIndex, netPtr);
+    netPtr->addConnection(m_currentInstance, pin.m_pinIndex);
 }
 
 void ReaderImpl::onAssign(const std::string &left, const std::string &right)

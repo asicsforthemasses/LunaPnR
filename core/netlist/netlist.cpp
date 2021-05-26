@@ -3,149 +3,166 @@
 
 using namespace ChipDB;
 
-void Net::addConnection(AbstractInstance *instance, size_t pinIndex)
-{
-    auto iter = std::find_if(m_connections.begin(), m_connections.end(),
-        [instance, pinIndex](auto conn)
-        {
-            return (conn.m_instance == instance) && (conn.m_pinIndex == pinIndex);
-        }
-    );
 
-    if (iter != m_connections.end())
+#if 0
+// ************************************************************************
+//   CellInstance
+// ************************************************************************
+
+bool CellInstance::connectPin(size_t pinIndex, Net *net)
+{
+    if (pinIndex < m_pinToNet.size())
     {
-        // connection does not yet exist -> add it
-        NetConnect conn = {.m_instance = instance, .m_pinIndex = pinIndex};
-        m_connections.push_back(conn);
+        m_pinToNet[pinIndex] = net;
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }
 
-Pin* CellInstance::lookupPin(const std::string &pinName)
+AbstractInstance::PinConnection CellInstance::pin(const std::string &pinName)
 {
     // lookup pin index
-
     ssize_t pinIndex = m_cell->lookupPinIndex(pinName);
     if (pinIndex < 0)
     {
-        return nullptr;
+        return AbstractInstance::PinConnection();
     }
 
-    if (pinIndex < m_pins.size())
+    if (pinIndex < m_pinToNet.size())
     {
-        return &m_pins[pinIndex];
+        return AbstractInstance::PinConnection(&m_cell->m_pins.at(pinIndex), pinIndex, m_pinToNet[pinIndex]);
     }
 
     // pin not found!
-    return nullptr;
+    return AbstractInstance::PinConnection();
 }
 
-const Pin* CellInstance::lookupPin(const std::string &pinName) const
+const AbstractInstance::PinConnection CellInstance::pin(const std::string &pinName) const
 {
     // lookup pin index
-
     ssize_t pinIndex = m_cell->lookupPinIndex(pinName);
     if (pinIndex < 0)
     {
-        return nullptr;
+        return AbstractInstance::PinConnection();
     }
 
-    if (pinIndex < m_pins.size())
+    if (pinIndex < m_pinToNet.size())
     {
-        return &m_pins[pinIndex];
+        return AbstractInstance::PinConnection(&m_cell->m_pins.at(pinIndex), pinIndex, m_pinToNet[pinIndex]);
     }
 
     // pin not found!
-    return nullptr;
+    return AbstractInstance::PinConnection();
 }
 
-Pin* CellInstance::lookupPin(size_t pinIndex)
+AbstractInstance::PinConnection CellInstance::pin(size_t pinIndex)
 {
-    if (pinIndex < m_pins.size())
+    if (pinIndex < m_pinToNet.size())
     {
-        return &m_pins[pinIndex];
+        return AbstractInstance::PinConnection(&m_cell->m_pins.at(pinIndex), pinIndex, m_pinToNet[pinIndex]);
     }
 
     // pin not found!
-    return nullptr;
+    return AbstractInstance::PinConnection();
 }
 
-const Pin* CellInstance::lookupPin(size_t pinIndex) const
+const AbstractInstance::PinConnection CellInstance::pin(size_t pinIndex) const
 {
-    if (pinIndex < m_pins.size())
+    if (pinIndex < m_pinToNet.size())
     {
-        return &m_pins[pinIndex];
+        return AbstractInstance::PinConnection(&m_cell->m_pins.at(pinIndex), pinIndex, m_pinToNet[pinIndex]);
     }
 
     // pin not found!
-    return nullptr;
+    return AbstractInstance::PinConnection();
 }
 
-ssize_t CellInstance::lookupPinIndex(const std::string &pinName) const
+ssize_t CellInstance::pinIndex(const std::string &pinName) const
 {
     return m_cell->lookupPinIndex(pinName);
 }
 
-const Pin* ModuleInstance::lookupPin(const std::string &pinName) const
+
+// ************************************************************************
+//   ModuleInstance
+// ************************************************************************
+
+bool ModuleInstance::connectPin(size_t pinIndex, Net *net)
+{
+    if (pinIndex < m_pinToNet.size())
+    {
+        m_pinToNet[pinIndex] = net;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+const AbstractInstance::PinConnection ModuleInstance::pin(const std::string &pinName) const
 {
     // lookup pin index
-
     ssize_t pinIndex = m_module->lookupPinIndex(pinName);
     if (pinIndex < 0)
     {
-        return nullptr;
+        return AbstractInstance::PinConnection();
     }
 
-    if (pinIndex < m_pins.size())
+    if (pinIndex < m_pinToNet.size())
     {
-        return &m_pins[pinIndex];
+        return AbstractInstance::PinConnection(&m_module->m_pins.at(pinIndex), pinIndex, m_pinToNet[pinIndex]);
     }
 
     // pin not found!
-    return nullptr;
+    return AbstractInstance::PinConnection();
 }
 
-const Pin* ModuleInstance::lookupPin(size_t pinIndex) const
+const AbstractInstance::PinConnection ModuleInstance::pin(size_t pinIndex) const
 {
-    if (pinIndex < m_pins.size())
+    if (pinIndex < m_pinToNet.size())
     {
-        return &m_pins[pinIndex];
+        return AbstractInstance::PinConnection(&m_module->m_pins.at(pinIndex), pinIndex, m_pinToNet[pinIndex]);
     }
 
     // pin not found!
-    return nullptr;
+    return AbstractInstance::PinConnection();
 }
 
-Pin* ModuleInstance::lookupPin(const std::string &pinName)
+AbstractInstance::PinConnection ModuleInstance::pin(const std::string &pinName)
 {
     // lookup pin index
-
     ssize_t pinIndex = m_module->lookupPinIndex(pinName);
     if (pinIndex < 0)
     {
-        return nullptr;
+        return AbstractInstance::PinConnection();
     }
 
-    if (pinIndex < m_pins.size())
+    if (pinIndex < m_pinToNet.size())
     {
-        return &m_pins[pinIndex];
+        return AbstractInstance::PinConnection(&m_module->m_pins.at(pinIndex), pinIndex, m_pinToNet[pinIndex]);
     }
 
     // pin not found!
-    return nullptr;    
+    return AbstractInstance::PinConnection();   
 }
 
-Pin* ModuleInstance::lookupPin(size_t pinIndex)
+AbstractInstance::PinConnection ModuleInstance::pin(size_t pinIndex)
 {
-    if (pinIndex < m_pins.size())
+    if (pinIndex < m_pinToNet.size())
     {
-        return &m_pins[pinIndex];
+        return AbstractInstance::PinConnection(&m_module->m_pins.at(pinIndex), pinIndex, m_pinToNet[pinIndex]);
     }
 
     // pin not found!
-    return nullptr;
+    return AbstractInstance::PinConnection();
 }
 
-ssize_t ModuleInstance::lookupPinIndex(const std::string &pinName) const
+ssize_t ModuleInstance::pinIndex(const std::string &pinName) const
 {
     return m_module->lookupPinIndex(pinName);
 }
+#endif

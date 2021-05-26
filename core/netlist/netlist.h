@@ -4,40 +4,14 @@
 #include <string>
 #include "celllib/celllib.h"
 #include "common/visitor.h"
+#include "net.h"
 
 namespace ChipDB
 {
 
+#if 0
+
 class AbstractInstance; // pre-declaration
-class Net;
-
-struct Pin
-{
-    Net    *m_net;      ///< connected net
-};
-
-class Net
-{
-public:
-    std::string m_name;         ///< net name
-    bool        m_isPortNet;    ///< when true, this net connectes to a module port
-
-    void setPortNet(bool isPortNet)
-    {
-        m_isPortNet = isPortNet;
-    }
-
-    struct NetConnect
-    {
-        AbstractInstance *m_instance;
-        size_t           m_pinIndex;
-    };
-
-    /** connect the net to the instance pin */
-    void addConnection(AbstractInstance *instance, size_t pinIndex);
-
-    std::vector<NetConnect> m_connections;
-};
 
 class AbstractInstance
 {
@@ -47,14 +21,27 @@ public:
 
     IMPLEMENT_ACCEPT;
 
+    struct Pin
+    {
+        Net* m_connection;
+    };
+
     virtual ssize_t lookupPinIndex(const std::string &name) const = 0;
     virtual const Pin* lookupPin(const std::string &name) const = 0;
     virtual const Pin* lookupPin(size_t pinIndex) const = 0;
     virtual Pin* lookupPin(const std::string &name) = 0;
     virtual Pin* lookupPin(size_t pinIndex) = 0;
 
-    std::string m_insName;
-    std::vector<Pin> m_pins;
+    std::string         m_insName;
+    std::vector<Net*>   m_pinToNet;     ///< pin connection to net
+
+    virtual const PinInfo& lookupPinInfo(size_t pinIndex) const = 0;
+
+    /** get the underlying cell or module name */
+    virtual std::string getArchetypeName() const
+    {
+        return "";
+    }
 
     virtual bool isModule() const
     {
@@ -80,6 +67,8 @@ public:
     virtual Pin* lookupPin(const std::string &name);
     virtual Pin* lookupPin(size_t pinIndex);    
 
+    virtual const PinInfo& lookupPinInfo(size_t pinIndex) const = 0;
+
     virtual bool isModule() const
     {
         return false;
@@ -88,6 +77,14 @@ public:
     const Cell* getCell() const
     {
         return m_cell;
+    }
+
+    virtual std::string getArchetypeName() const
+    {
+        if (m_cell != nullptr)
+            return m_cell->m_name;
+        else
+            return "UNKNOWN";
     }
 
 protected:
@@ -117,9 +114,23 @@ public:
         return true;
     }
 
+    virtual std::string getArchetypeName() const
+    {
+        if (m_module != nullptr)
+            return m_module->m_name;
+        else
+            return "UNKNOWN";
+    }
+
+    const Module* getModule() const
+    {
+        return m_module;
+    }
+
 protected:
     const Module *m_module;
 };
+#endif
 
 class Netlist
 {

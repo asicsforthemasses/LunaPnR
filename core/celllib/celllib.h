@@ -18,25 +18,39 @@ public:
     {
     }
 
-    std::string             m_name;
-    std::vector<PinInfo>    m_pins;
+    std::string             m_name; ///< name of the cell
+    PinInfoList             m_pins; ///< pin information
 
-    double          m_area;         // area in um^2
-    double          m_leakagePower; // in Watts
-    Coord64         m_size;         // size in nm
-    Coord64         m_offset;       // placement offset in nm
+    double          m_area;         ///< area in um^2
+    double          m_leakagePower; ///< in Watts
+    Coord64         m_size;         ///< size in nm
+    Coord64         m_offset;       ///< placement offset in nm
 
     SymmetryFlags   m_symmetry;
     std::string     m_site;
 
+    /** create a pin, or return an already existing pin with the name */
     PinInfo&    createPin(const std::string &name);
-    PinInfo*    lookupPin(const std::string &name);
+
+    /** returns nullptr for non-existing pins */
+    PinInfo*        lookupPin(const std::string &name);
+
+    /** returns nullptr for non-existing pins */
+    const PinInfo*  lookupPin(const std::string &name) const;
+
+    /** returns nullptr for non-existing pins */
+    PinInfo*        lookupPin(ssize_t index);
+
+    /** returns nullptr for non-existing pins */
+    const PinInfo*  lookupPin(ssize_t index) const;
+
     ssize_t     lookupPinIndex(const std::string &name) const;
 
     virtual bool isModule() const
     {
         return false;
     };
+
 };
 
 class Module : public Cell
@@ -47,11 +61,12 @@ public:
         return true;
     }
 
-    bool addInstance(const std::string &insName, AbstractInstance* insPtr);
+    bool addInstance(const std::string &insName, Instance* insPtr);
     Net* createNet(const std::string &netName);
 
-    NamedStorage<AbstractInstance*> m_instances;
-    NamedStorage<Net*>  m_nets;
+    //FIXME: shouldn't this be netlist?
+    NamedStorage<Instance*> m_instances;
+    NamedStorage<Net*>      m_nets;
 };
 
 class CellLib

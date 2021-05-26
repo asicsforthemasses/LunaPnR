@@ -39,13 +39,13 @@ BOOST_AUTO_TEST_CASE(can_read_netlist)
     {
         if (ins->isModule())
         {
-            auto modIns = dynamic_cast<ChipDB::ModuleInstance*>(ins);
-            std::cout << "    module " << modIns->m_insName << "\n";
+            //auto modIns = dynamic_cast<ChipDB::ModuleInstance*>(ins);
+            std::cout << "    module " << ins->m_name << "\n";
         }
         else
         {
-            auto cellIns = dynamic_cast<ChipDB::CellInstance*>(ins);
-            std::cout << "    cell " << cellIns->m_insName << " " << cellIns->getCell()->m_name << "\tarea: " << cellIns->getCell()->m_area << " um²\n";
+            //auto cellIns = dynamic_cast<ChipDB::CellInstance*>(ins);
+            std::cout << "    cell " << ins->m_name << " " << ins->cell()->m_name << "\tarea: " << ins->cell()->m_area << " um²\n";
         }
     }
     

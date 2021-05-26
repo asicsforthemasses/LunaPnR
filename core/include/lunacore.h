@@ -6,6 +6,9 @@
 #include "../common/visitor.h"
 #include "../celllib/celllib.h"
 #include "../celllib/pin.h"
+#include "../netlist/instance.h"
+#include "../netlist/net.h"
+#include "../netlist/netlist.h"
 #include "../import/liberty/libparser.h"
 #include "../import/liberty/libreaderimpl.h"
 #include "../import/liberty/libreader.h"
@@ -15,3 +18,5 @@
 #include "../import/verilog/verilogparser.h"
 #include "../import/verilog/veriloglexer.h"
 #include "../import/verilog/verilogreader.h"
+#include "../export/dot/dotwriter.h"
+
