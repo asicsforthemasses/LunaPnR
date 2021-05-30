@@ -278,6 +278,14 @@ namespace ChipDB
         ORIENT_MY90
     };
 
+    enum PlacementInfo : uint8_t
+    {
+        PLACEMENT_IGNORE = 0,       ///< ignore instance during placement
+        PLACEMENT_UNPLACED,         ///< instance unplaced
+        PLACEMENT_PLACED,           ///< instance placed but still movable
+        PLACEMENT_PLACEDANDFIXED,   ///< instance placed and not movable
+    };
+
     struct SymmetryFlags
     {
         SymmetryFlags() : m_flags(0) {}

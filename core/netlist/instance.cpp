@@ -58,6 +58,18 @@ const ssize_t Instance::getPinIndex(const std::string &pinName) const
     return m_cell->lookupPinIndex(pinName);
 }
 
+const size_t Instance::getNumberOfPins() const
+{
+    // check if the cell is present
+    if (m_cell == nullptr)
+    {
+        // nope..
+        return 0;
+    }   
+
+    return m_cell->m_pins.size();
+}
+
 Net* Instance::getConnectedNet(ssize_t pinIndex)
 {
     if (pinIndex < 0)

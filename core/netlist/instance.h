@@ -14,14 +14,21 @@ class Net;  // pre-declaration
 class Instance
 {
 public:
-    Instance(const Cell *cell) : m_cell(cell) 
+    Instance(const Cell *cell) : m_parent(nullptr), m_cell(cell), m_orientation(ORIENT_R0), m_flags(0)
+    {
+        m_pinToNet.resize(cell->m_pins.size());
+    }
+
+    Instance(const Cell *cell, Instance *parent) : m_parent(parent), m_cell(cell), m_orientation(ORIENT_R0), m_flags(0)
     {
         m_pinToNet.resize(cell->m_pins.size());
     }
 
     IMPLEMENT_ACCEPT;
 
-    std::string m_name; ///< name of instance
+    std::string m_name;     ///< name of instance
+
+    Instance    *m_parent;  ///< parent instance (must be a module, used for flat netlist name resolution)
 
     /** get access to the cell/module */
     const Cell* cell() const
@@ -29,9 +36,10 @@ public:
         return m_cell;
     }
 
-    /** return the cell/module name */
+    /** return the underlying cell/module name */
     virtual std::string getArchetypeName() const;
 
+    /** returns true if the instance is a module */
     bool isModule() const;
     
     /** get pin information from the underlying cell or module 
@@ -44,10 +52,12 @@ public:
     */
     const PinInfo* getPinInfo(const std::string &pinName) const;
 
-
     /** get pin index by name. returns -1 when not found. 
     */
     const ssize_t getPinIndex(const std::string &pinName) const;
+
+    /** get the number of pins on this instance */
+    const size_t getNumberOfPins() const;
 
     /** connect pin with specified index to the given net. 
      *  returns true if succesful.
@@ -59,6 +69,9 @@ public:
     */    
     bool connect(const std::string &pinName, Net *net);
 
+    /** returns the net connected to a pin with a given index.
+     *  if the pin does not exist, it return nullptr.
+    */
     Net* getConnectedNet(ssize_t pinIndex);
 
     struct ConnectionIterator
@@ -113,20 +126,28 @@ public:
         const Cell *m_cell;
     };
 
+    /** returns an iterable object to the connections of the instance */
     auto connections()
     {
         return ConnectionIterator(*this);
     }
 
+    /** returns an iterable object to the connections of the instance */
     auto connections() const
     {
         return ConstConnectionIterator(*this);
     }
 
+    /** returns an iterable object to the pin information of the instance */
     auto pinInfos() const
     {
         return PinInfoIterator(m_cell);
     }
+
+    Coord64     m_pos;          ///< lower-left position of the instance
+    Orientation m_orientation;  ///< orientation of the cell instance
+
+    uint32_t    m_flags;        ///< non-persistent generic flags that can be used by algorithms
 
 protected:
     std::vector<Net*>   m_pinToNet;  ///< connections from pin to net

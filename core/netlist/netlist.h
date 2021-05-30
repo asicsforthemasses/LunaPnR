@@ -17,7 +17,6 @@ public:
     
     IMPLEMENT_ACCEPT;
 
-    //FIXME: shouldn't this be netlist?
     NamedStorage<Instance*> m_instances;
     NamedStorage<Net*>      m_nets;        
 };
