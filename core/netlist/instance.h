@@ -14,7 +14,7 @@ class Net;  // pre-declaration
 class Instance
 {
 public:
-    Instance(Cell *cell) : m_cell(cell) 
+    Instance(const Cell *cell) : m_cell(cell) 
     {
         m_pinToNet.resize(cell->m_pins.size());
     }
@@ -34,105 +34,103 @@ public:
 
     bool isModule() const;
     
-    struct Pin
-    {
-        Pin() : m_pinIndex(-1), m_connection(nullptr), m_info(nullptr) {}
+    /** get pin information from the underlying cell or module 
+     *  returns nullptr if pin not found.
+    */
+    const PinInfo* getPinInfo(ssize_t pinIndex) const;
 
-        bool isValid() const
-        {
-            return m_pinIndex >= 0;
-        }
+    /** get pin information from the underlying cell or module 
+     *  returns nullptr if pin not found.
+    */
+    const PinInfo* getPinInfo(const std::string &pinName) const;
 
-        ssize_t          m_pinIndex;
-        const Net       *m_connection;
-        const PinInfo   *m_info;
-    };
 
-    const Pin pin(ssize_t pinIndex) const;
-    const Pin pin(const std::string &pinName) const;
+    /** get pin index by name. returns -1 when not found. 
+    */
+    const ssize_t getPinIndex(const std::string &pinName) const;
 
+    /** connect pin with specified index to the given net. 
+     *  returns true if succesful.
+    */
     bool connect(ssize_t pinIndex, Net *net);
+
+    /** connect pin with specified name to the given net. 
+     *  returns true if succesful.
+    */    
     bool connect(const std::string &pinName, Net *net);
 
+    Net* getConnectedNet(ssize_t pinIndex);
 
-    class PinConstIterator
+    struct ConnectionIterator
     {
-    public:
-        using iterator_category = std::forward_iterator_tag;
-        using value_type = Pin;
-        using difference_type = std::ptrdiff_t;
-        using pointer = value_type*;
-        using reference = value_type&;
+        ConnectionIterator(Instance &ins) : m_ins(ins) {}
 
-        PinConstIterator(const std::vector<Net*> &s1, const PinInfoList &s2, size_t index) 
-        : m_s1(s1), m_s2(s2), m_index(index)
+        auto begin()
         {
+            return m_ins.m_pinToNet.begin();
         }
 
-        PinConstIterator(const PinConstIterator &iter) :
-            m_s1(iter.m_s1), m_s2(iter.m_s2), m_index(iter.m_index)
+        auto end()
         {
-        } 
-
-        PinConstIterator operator++(int)
-        {
-            auto temp(*this);
-            if (m_index < m_s1.size())
-                ++m_index;
-
-            return temp;
+            return m_ins.m_pinToNet.end();
         }
 
-        PinConstIterator& operator++()
-        {
-            if (m_index < m_s1.size())
-                ++m_index;
-
-            return (*this);
-        }
-
-        bool operator==(const PinConstIterator& iter) const {return (m_index == iter.m_index);}
-        bool operator!=(const PinConstIterator& iter) const {return (m_index != iter.m_index);}
-
-        const value_type operator*()
-        {
-            Pin p;
-            p.m_pinIndex   = m_index;
-            p.m_connection = m_s1[m_index];
-            p.m_info       = m_s2[m_index];
-
-            return p;
-        }
-
-        const value_type operator->()
-        {
-            Pin p;
-            p.m_pinIndex   = m_index;
-            p.m_connection = m_s1[m_index];
-            p.m_info       = m_s2[m_index];
-
-            return p;
-        }
-
-    protected:
-        const std::vector<Net*>&    m_s1;
-        const PinInfoList&          m_s2;
-        ssize_t m_index;
+        Instance& m_ins;
     };
 
-    PinConstIterator begin() const
+
+    struct ConstConnectionIterator
     {
-        return PinConstIterator(m_pinToNet, m_cell->m_pins, 0);
+        ConstConnectionIterator(const Instance &ins) : m_ins(ins) {}
+
+        auto begin() const
+        {
+            return m_ins.m_pinToNet.begin();
+        }
+
+        auto end() const
+        {
+            return m_ins.m_pinToNet.end();
+        }
+
+        const Instance& m_ins;
+    };
+
+    struct PinInfoIterator
+    {
+        PinInfoIterator(const Cell *cell) : m_cell(cell) {}
+
+        auto begin() const
+        {
+            return m_cell->m_pins.begin();
+        }
+
+        auto end() const
+        {
+            return m_cell->m_pins.end();
+        }
+
+        const Cell *m_cell;
+    };
+
+    auto connections()
+    {
+        return ConnectionIterator(*this);
     }
 
-    PinConstIterator end() const
+    auto connections() const
     {
-        return PinConstIterator(m_pinToNet, m_cell->m_pins, m_cell->m_pins.size());
+        return ConstConnectionIterator(*this);
+    }
+
+    auto pinInfos() const
+    {
+        return PinInfoIterator(m_cell);
     }
 
 protected:
     std::vector<Net*>   m_pinToNet;  ///< connections from pin to net
-    Cell* m_cell;
+    const Cell* m_cell;
 };
 
 };

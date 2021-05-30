@@ -64,13 +64,13 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
 
         for(auto const& conn : net->m_connections)
         {          
-            auto pin = conn.m_instance->pin(conn.m_pinIndex);
-            if (pin.isValid())
+            auto pinInfo = conn.m_instance->getPinInfo(conn.m_pinIndex);
+            if (pinInfo != nullptr)
             {
-                if (pin.m_info->isOutput())
+                if (pinInfo->isOutput())
                 {
                     // net driver pin
-                    driverPinName = pin.m_info->m_name;
+                    driverPinName = pinInfo->m_name;
                     driverName = conn.m_instance->m_name;
                     driverIdx  = idx;
                 }
@@ -99,8 +99,8 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
         {
             if (driverIdx != idx)
             {            
-                auto dstPin = conn.m_instance->pin(conn.m_pinIndex);
-                if (dstPin.isValid())
+                auto dstPinInfo = conn.m_instance->getPinInfo(conn.m_pinIndex);
+                if (dstPinInfo != nullptr)
                 {
                     if (driverIdx != tlpinIdx)
                     {
@@ -113,8 +113,8 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
                         os << "  " << escapeString(driverPinName) << "->";
                     }
 
-                    auto dstIns = dstPin.m_info->m_name;
-                    os << escapeString(conn.m_instance->m_name) << ":" << escapeString(dstPin.m_info->m_name) << ";\n";
+                    auto dstIns = dstPinInfo->m_name;
+                    os << escapeString(conn.m_instance->m_name) << ":" << escapeString(dstPinInfo->m_name) << ";\n";
                 }
             }
 
@@ -180,19 +180,19 @@ void Writer::writeInputs(std::ostream &os, const ChipDB::Instance *ins)
         return;
 
     bool first = true;
-    for(auto pin : *ins)
+    for(auto pinInfo : ins->pinInfos())
     {
         // skip power/ground pins
-        if (pin.m_info->isPGPin())
+        if (pinInfo.isPGPin())
             continue;
 
-        if (pin.m_info->isInput())
+        if (pinInfo.isInput())
         {
             if (!first)
                 os << "|";
 
             first = false;
-            os << "<" << escapeString(pin.m_info->m_name) << "> " << escapeString(pin.m_info->m_name);
+            os << "<" << escapeString(pinInfo.m_name) << "> " << escapeString(pinInfo.m_name);
         }
     }
 }
@@ -203,20 +203,19 @@ void Writer::writeOutputs(std::ostream &os, const ChipDB::Instance *ins)
         return;
 
     bool first = true;
-    for(auto pin : *ins)
+    for(auto const& pinInfo : ins->pinInfos())
     {
         // skip power/ground pins
-        if (pin.m_info->isPGPin())
+        if (pinInfo.isPGPin())
             continue;
 
-        if (pin.m_info->isOutput())
+        if (pinInfo.isOutput())
         {
             if (!first)
                 os << "|";
 
             first = false;
-            os << "<" << escapeString(pin.m_info->m_name) << "> " << escapeString(pin.m_info->m_name);
-
+            os << "<" << escapeString(pinInfo.m_name) << "> " << escapeString(pinInfo.m_name);
         }
     }
 }

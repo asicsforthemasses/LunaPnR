@@ -15,40 +15,58 @@ bool Instance::isModule() const
     return m_cell->isModule();
 }
 
-const Instance::Pin Instance::pin(ssize_t pinIndex) const
+const PinInfo* Instance::getPinInfo(ssize_t pinIndex) const
 {
-    auto pinInfoPtr = m_cell->m_pins[pinIndex];
-
-    // check if the pin exists
-    if (pinInfoPtr == nullptr)
+    // check if the cell is present
+    if (m_cell == nullptr)
     {
         // nope, return an invalid pin
-        return Pin();
+        return nullptr;
     }
 
-    Pin p;
-    p.m_pinIndex = pinIndex;
-    p.m_info = pinInfoPtr;
-    p.m_connection = m_pinToNet[pinIndex];
-
-    return p;
+    return m_cell->m_pins[pinIndex];
 }
 
-const Instance::Pin Instance::pin(const std::string &pinName) const
+const PinInfo* Instance::getPinInfo(const std::string &pinName) const
 {
+    // check if the cell is present
+    if (m_cell == nullptr)
+    {
+        // nope, return an invalid pin
+        return nullptr;
+    }
+
     auto pinIndex = m_cell->m_pins.lookupIndex(pinName);
     if (pinIndex < 0)
     {
         // the pin does not exist!
-        return Instance::Pin();
+        return nullptr;
     }
 
-    Pin p;
-    p.m_pinIndex = pinIndex;
-    p.m_info     = m_cell->m_pins[pinIndex];
-    p.m_connection = m_pinToNet[pinIndex];
+    return m_cell->m_pins[pinIndex];
+}
 
-    return p;
+const ssize_t Instance::getPinIndex(const std::string &pinName) const
+{
+    // check if the cell is present
+    if (m_cell == nullptr)
+    {
+        // nope, return an invalid pin
+        return -1;
+    }
+
+    return m_cell->lookupPinIndex(pinName);
+}
+
+Net* Instance::getConnectedNet(ssize_t pinIndex)
+{
+    if (pinIndex < 0)
+        return nullptr;
+
+    if (pinIndex < m_pinToNet.size())
+        return m_pinToNet[pinIndex];
+
+    return nullptr;  // pin not found - index out of bounds
 }
 
 bool Instance::connect(ssize_t pinIndex, Net *net)

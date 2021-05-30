@@ -129,6 +129,7 @@ public:
         return m_pins.end();
     }
 
+    /** access pin directly with bounds checking */
     PinInfo* operator[](const ssize_t index)
     {
         if ((index < m_pins.size()) && (index >= 0))
@@ -137,6 +138,7 @@ public:
         return nullptr;
     }
 
+    /** access pin directly with bounds checking */
     const PinInfo* operator[](const ssize_t index) const
     {
         if ((index < m_pins.size()) && (index >= 0))

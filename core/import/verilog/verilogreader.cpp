@@ -316,16 +316,19 @@ void ReaderImpl::onInstanceNamedPort(const std::string &pinName, const std::stri
         return;
     }
 
-    auto pin = m_currentInstance->pin(pinName);
-    if (!pin.isValid())
+    auto pinIndex = m_currentInstance->getPinIndex(pinName);
+    if (pinIndex < 0)
     {
         doLog(LOG_WARN,"Cannot connect %s:%s to net %s -- pin not found\n", m_currentInstance->m_name.c_str(), 
             pinName.c_str(), netName.c_str());
         return;
     }
 
-    m_currentInstance->connect(pin.m_pinIndex, netPtr);
-    netPtr->addConnection(m_currentInstance, pin.m_pinIndex);
+    auto pinInfo       = m_currentInstance->getPinInfo(pinIndex);
+    auto pinConnection = m_currentInstance->getConnectedNet(pinIndex);
+
+    m_currentInstance->connect(pinIndex, netPtr);
+    netPtr->addConnection(m_currentInstance, pinIndex);
 }
 
 void ReaderImpl::onAssign(const std::string &left, const std::string &right)
