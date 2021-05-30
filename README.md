@@ -4,8 +4,6 @@
 
 For more information, please visit the [homepage](https://www.asicsforthemasses.com "Luna PnR homepage").
 
-This project is supported by [NLnet](https://nlnet.nl/).
-
 ## Build requirements
 * GCC 9.3 or higher
 * CMake 3.16 or higher
@@ -19,3 +17,9 @@ This project is supported by [NLnet](https://nlnet.nl/).
 * execute './bootstrap.sh', this will generate a ./build directory.
 * enter the build directory and type 'ninja'.
 * LunaPnR application will be available in ./gui/lunapnr
+
+<br/><br/>
+## Sponsors
+This project is supported by [NLnet](https://nlnet.nl/).
+
+<img src="https://nlnet.nl/logo/banner.svg">
