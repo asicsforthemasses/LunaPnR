@@ -25,7 +25,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
     os << "  label=\"" << escapeString(m_module->m_name) << "\";\n";
 
     // write all instances as nodes
-    for(auto const ins : m_module->m_instances)
+    for(auto const ins : m_module->m_netlist.m_instances)
     {
         os << "  " << escapeString(ins->m_name) << " [label = \"{{";
         writeInputs(os, ins);
@@ -49,7 +49,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
     }
 
     // stream out all the connections
-    for(auto const net : m_module->m_nets)
+    for(auto const net : m_module->m_netlist.m_nets)
     {   
         if (net == nullptr)
             continue;

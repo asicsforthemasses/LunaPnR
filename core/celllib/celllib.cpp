@@ -1,6 +1,7 @@
 #include <algorithm>
 #include "celllib.h"
 #include "netlist/netlist.h"
+#include "netlist/net.h"
 
 using namespace ChipDB;
 
@@ -44,19 +45,19 @@ const PinInfo* Cell::lookupPin(ssize_t index) const
 
 bool Module::addInstance(const std::string &insName, Instance* insPtr)
 {
-    return m_instances.add(insName, insPtr);
+    return m_netlist.m_instances.add(insName, insPtr);
 }
 
 Net* Module::createNet(const std::string &netName)
 {
     // if the net already exists, return that one.
-    auto myNet = m_nets.lookup(netName);
+    auto myNet = m_netlist.m_nets.lookup(netName);
     if (myNet != nullptr)
         return myNet;
 
     myNet = new Net;
     myNet->m_name = netName;
-    m_nets.add(netName, myNet);
+    m_netlist.m_nets.add(netName, myNet);
 
     return myNet;
 }

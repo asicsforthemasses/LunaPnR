@@ -5,6 +5,7 @@
 #include "common/dbtypes.h"
 #include "common/namedstorage.h"
 #include "pin.h"
+#include "netlist/netlist.h"
 
 namespace ChipDB
 {
@@ -64,9 +65,7 @@ public:
     bool addInstance(const std::string &insName, Instance* insPtr);
     Net* createNet(const std::string &netName);
 
-    //FIXME: shouldn't this be netlist?
-    NamedStorage<Instance*> m_instances;
-    NamedStorage<Net*>      m_nets;
+    Netlist m_netlist;
 };
 
 class CellLib

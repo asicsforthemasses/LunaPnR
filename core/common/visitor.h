@@ -5,12 +5,10 @@ namespace ChipDB
 {
 
 // pre-declarations
-//class AbstractInstance;
-//class CellInstance;
-//class ModuleInstance;
 class Instance;
 class PinInfo;
 class Netlist;
+class Net;
 
 class Visitor
 {
@@ -18,6 +16,7 @@ public:
     virtual void visit(Instance *instance) = 0;
     virtual void visit(PinInfo *pin) = 0;
     virtual void visit(Netlist *nl) = 0;
+    virtual void visit(Net *net) = 0;
 };
 
 class ConstVisitor
@@ -26,6 +25,7 @@ public:
     virtual void visit(const Instance *instance) = 0;
     virtual void visit(const PinInfo *pin) = 0;
     virtual void visit(const Netlist *nl) = 0;
+    virtual void visit(const Net *net) = 0;
 };
 
 

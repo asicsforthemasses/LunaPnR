@@ -285,7 +285,7 @@ void ReaderImpl::onInstancePort(uint32_t pinIndex, const std::string &netName)
     throwOnDesignIsNullptr();
     throwOnModuleIsNullptr();
 
-    auto netPtr = m_currentModule->m_nets.lookup(netName);
+    auto netPtr = m_currentModule->m_netlist.m_nets.lookup(netName);
     if (netPtr == nullptr)
     {
         std::stringstream ss;
@@ -293,10 +293,11 @@ void ReaderImpl::onInstancePort(uint32_t pinIndex, const std::string &netName)
         doLog(LOG_ERROR, ss.str());
     }
 
+    //FIXME: we should connect to a special port instance..
+
     //auto netIndex = myModulePtr->nets().indexOf(netName);
     //auto pinPtr   = &myInstancePtr->pins()[pinIndex];
-    
-    //net->connect(m_curInstance.id, pinIndex);
+    //netPtr->addConnection(m_currentInstance, pinIndex);
     //m_curInstance->connect(pinIndex, net.id);
 }
 
@@ -307,7 +308,7 @@ void ReaderImpl::onInstanceNamedPort(const std::string &pinName, const std::stri
     throwOnModuleIsNullptr();
     throwOnCurInstanceIsNullptr();
 
-    auto netPtr  = m_currentModule->m_nets.lookup(netName);    
+    auto netPtr  = m_currentModule->m_netlist.m_nets.lookup(netName);    
     if (netPtr == nullptr)
     {
         doLog(LOG_WARN,"Cannot connect %s:%s to net %s -- net not found\n", m_currentInstance->m_name.c_str(), 
