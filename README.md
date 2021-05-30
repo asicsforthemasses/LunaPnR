@@ -15,7 +15,7 @@ This project is supported by [NLnet](https://nlnet.nl/).
 * libboost-filesystem-dev (for running tests)
 * cppcheck 2.4.1 or higher (optional)
 
-## Building
+## Building on Linux
 * execute './bootstrap.sh', this will generate a ./build directory.
 * enter the build directory and type 'ninja'.
 * LunaPnR application will be available in ./gui/lunapnr
