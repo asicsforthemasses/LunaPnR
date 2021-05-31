@@ -100,11 +100,18 @@ public:
 
     T at(size_t index)
     {
+        #if 0
         if (index >= m_objects.size())
         {
             std::stringstream ss;
             ss << "NamedStorage out of range: max=" << m_objects.size()-1 << " requested=" << index;
             throw std::out_of_range(ss.str());
+        }
+        #endif
+
+        if (index >= m_objects.size())
+        {
+            return nullptr;
         }
 
         return m_objects.at(index);

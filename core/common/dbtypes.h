@@ -297,6 +297,45 @@ namespace ChipDB
         static constexpr uint8_t SYM_Y = 2;
         static constexpr uint8_t SYM_R90 = 4;
     };
+
+    enum CellClass : uint8_t
+    {
+        CLASS_CORE = 0,
+        CLASS_COVER,
+        CLASS_RING,
+        CLASS_PAD,
+        CLASS_ENDCAP,
+        CLASS_BLOCK
+    };
+
+    enum CellSubclass : uint8_t
+    {
+        SUBCLASS_NONE = 0,
+        SUBCLASS_BUMP,          ///< COVER subtype
+        SUBCLASS_BLACKBOX,      ///< BLOCK subtype
+        SUBCLASS_SOFT,          ///< BLOCK subtype
+        SUBCLASS_INPUT,         ///< PAD subtype
+        SUBCLASS_OUTPUT,        ///< PAD subtype
+        SUBCLASS_INOUT,         ///< PAD subtype
+        SUBCLASS_POWER,         ///< PAD subtype
+        SUBCLASS_SPACER,        ///< PAD or CORE subtype
+        SUBCLASS_AREAIO,        ///< PAD subtype
+        SUBCLASS_FEEDTHRU,      ///< CORE subtype
+        SUBCLASS_TIEHIGH,       ///< CORE subtype
+        SUBCLASS_TIELOW,        ///< CORE subtype
+        SUBCLASS_ANTENNACELL,   ///< CORE subtype
+        SUBCLASS_WELLTAP,       ///< CORE subtype
+        SUBCLASS_PRE,           ///< ENDCAP subtype
+        SUBCLASS_POST,          ///< ENDCAP subtype
+        SUBCLASS_TOPLEFT,       ///< ENDCAP subtype
+        SUBCLASS_TOPRIGHT,      ///< ENDCAP subtype
+        SUBCLASS_BOTTOMLEFT,    ///< ENDCAP subtype
+        SUBCLASS_BOTTOMRIGHT,   ///< ENDCAP subtype
+    };
+
+    std::string toString(const CellSubclass &v);
+    std::string toString(const CellClass &v);
+
 };
 
 ChipDB::SymmetryFlags& operator+=(ChipDB::SymmetryFlags &lhs, const uint8_t &rhs);

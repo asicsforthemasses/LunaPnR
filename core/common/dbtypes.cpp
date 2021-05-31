@@ -1,6 +1,7 @@
 #include "dbtypes.h"
 
 #include <iostream>
+#include <array>
 #include "dbtypes.h"
 
 ChipDB::SymmetryFlags& operator+=(ChipDB::SymmetryFlags &lhs, const uint8_t &rhs)
@@ -53,4 +54,42 @@ ChipDB::Rect64 ChipDB::unionRect(const ChipDB::Rect64 &r1, const ChipDB::Rect64 
     result.m_ll.m_y = std::max(r1.m_ll.m_y, r2.m_ll.m_y);
     result.m_ur.m_y = std::min(r1.m_ur.m_y, r2.m_ur.m_y);    
     return std::move(result);
+}
+
+std::string ChipDB::toString(const CellSubclass &v)
+{
+    constexpr const std::array<const char*, 21> names = 
+    {{
+        "NONE", "BUMP", "BLACKBOX", "SOFT", "INPUT", "OUTPUT",
+        "INOUT", "POWER", "SPACER", "AREAIO", "FEEDTHRU",
+        "TIEHIGH", "TIELOW", "ANTENNACELL", "WELLTAP",
+        "PRE", "POST","TOPLEFT", "TOPRIGHT", "BOTTOMLEFT",
+        "BOTTOMRIGHT"
+    }};
+
+    if (v < names.size())
+    {
+        return std::string(names[v]);
+    }
+    else
+    {
+        return std::string("?");
+    }
+}
+
+std::string ChipDB::toString(const CellClass &v)
+{
+    constexpr const std::array<const char*, 6> names = 
+    {{
+        "CORE", "COVER", "RING", "PAD", "ENDCAP", "BLOCK"
+    }};
+
+    if (v < names.size())
+    {
+        return std::string(names[v]);
+    }
+    else
+    {
+        return std::string("?");
+    }
 }

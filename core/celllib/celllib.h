@@ -15,7 +15,7 @@ class Net;  // predeclaration
 class Cell
 {
 public:
-    Cell() : m_area(0), m_leakagePower(0)
+    Cell() : m_area(0), m_leakagePower(0), m_class(CLASS_CORE), m_subclass(SUBCLASS_NONE)
     {
     }
 
@@ -28,6 +28,8 @@ public:
     Coord64         m_offset;       ///< placement offset in nm
 
     SymmetryFlags   m_symmetry;
+    CellClass       m_class;
+    CellSubclass    m_subclass;
     std::string     m_site;
 
     /** create a pin, or return an already existing pin with the name */

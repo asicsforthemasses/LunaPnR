@@ -12,7 +12,7 @@ class Instance; // pre-declaration
 class Net
 {
 public:
-    Net() : m_flags(0), m_isPortNet(false) {}
+    Net() : m_flags(0), m_isPortNet(false), m_isClockNet(false) {}
     
     IMPLEMENT_ACCEPT;
 

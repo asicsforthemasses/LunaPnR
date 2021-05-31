@@ -21,6 +21,10 @@ BOOST_AUTO_TEST_CASE(check_Coord64)
 
     ChipDB::NamedStorage<MyObject*> storage;
 
+    // at() does not throw!
+    BOOST_CHECK_NO_THROW(storage.at(0));
+    BOOST_CHECK(storage.at(0) == nullptr);
+
     auto obj1 = new MyObject();
     obj1->m_name = "Obj #1";
 

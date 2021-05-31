@@ -10,6 +10,10 @@
 #include <QTableWidget>
 #include <QSplitter>
 
+#include "../console/mmconsole.h"
+#include "../cellbrowser/cellbrowser.h"
+#include "lunacore.h"
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -25,4 +29,10 @@ public slots:
 protected:
     QMenuBar    *m_menuBar;
     QSplitter   *m_splitter;
+    QTabWidget  *m_mainTabWidget;
+    
+    GUI::MMConsole      *m_console;
+    GUI::CellBrowser    *m_cellBrowser;
+    
+    ChipDB::Design      m_design;   ///< current design
 };
