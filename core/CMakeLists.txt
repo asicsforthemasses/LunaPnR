@@ -27,6 +27,7 @@ add_library(lunacore
     netlist/netlist.cpp
     celllib/pin.cpp
     celllib/celllib.cpp
+    techlib/techlib.cpp
     import/liberty/libparser.cpp
     import/liberty/libreader.cpp
     import/liberty/libreaderimpl.cpp

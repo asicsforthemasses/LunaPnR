@@ -25,7 +25,7 @@
 using namespace ChipDB::LEF;
 
 ReaderImpl::ReaderImpl(Design *design) 
-    : m_design(design),
+    : m_design(design),    
       m_activeObsLayerIdx(0),
       m_activePinLayerIdx(0)  
 {
@@ -33,6 +33,17 @@ ReaderImpl::ReaderImpl(Design *design)
 
     m_curCell = nullptr;
     m_curPinInfo = nullptr;
+    m_curLayerInfo = nullptr;
+}
+
+std::string ReaderImpl::toUpper(const std::string &txt) const
+{
+    std::string result = txt;
+    for(auto &c : result)
+    {
+        c = std::toupper(c);
+    }
+    return result;
 }
 
 void ReaderImpl::onMacro(const std::string &macroName)
@@ -126,26 +137,28 @@ void ReaderImpl::onClass(const std::string &className)
 {
     if (!checkPtr(m_curCell))
         return;
-#if 0
-    if (className == "CORE")
+    
+    std::string classNameUpper = toUpper(className);
+
+    if (classNameUpper == "CORE")
     {
-        cell->m_class = "C_CORE";
+        m_curCell->m_class = CLASS_CORE;
     }
-    else if (className == "COVER")
+    else if (classNameUpper == "COVER")
     {
-        cell->m_class = "C_COVER";
+        m_curCell->m_class = CLASS_COVER;
     }
-    else if (className == "PAD")
+    else if (classNameUpper == "PAD")
     {
-        cell->m_class = "C_PAD";
+        m_curCell->m_class = CLASS_PAD;
     }
-    else if (className == "ENDCAP")
+    else if (classNameUpper == "ENDCAP")
     {
-        cell->m_class = "C_ENDCAP";
+        m_curCell->m_class = CLASS_ENDCAP;
     }
-    else if (className == "RING")
+    else if (classNameUpper == "RING")
     {
-        cell->m_class = "C_RING";
+        m_curCell->m_class = CLASS_RING;
     }
     else
     {
@@ -153,7 +166,7 @@ void ReaderImpl::onClass(const std::string &className)
         ss << "Unknown macro class '"<< className << "' found";
         error(ss.str());
     }
-#endif
+
 }
 
 void ReaderImpl::onClass(const std::string &className,
@@ -162,39 +175,41 @@ void ReaderImpl::onClass(const std::string &className,
     if (!checkPtr(m_curCell))
         return;
 
-#if 0
-    if (className == "CORE")
+    std::string classNameUpper = toUpper(className);
+    std::string subclassUpper = toUpper(subclass);
+
+    if (classNameUpper == "CORE")
     {
-        cell->m_subclass = "ST_NONE";
-        const std::array<std::string, 6> optstr =
-        {
+        m_curCell->m_subclass = SUBCLASS_NONE;
+        constexpr const std::array<const char*, 6> optstr
+        {{
             "FEEDTHRU","TIEHIGH","TIELOW","SPACER","ANTENNACELL","WELLTAP"
-        };
+        }};
         
-        const std::array<std::string, 6> optval
-        {
-            "ST_FEEDTHRU",
-            "ST_TIEHIGH",
-            "ST_TIELOW",
-            "ST_SPACER",
-            "ST_ANTENNACELL",
-            "ST_WELLTAP"
-        };
+        constexpr const std::array<CellSubclass, 6> optval
+        {{
+            SUBCLASS_FEEDTHRU,
+            SUBCLASS_TIEHIGH,
+            SUBCLASS_TIELOW,
+            SUBCLASS_SPACER,
+            SUBCLASS_ANTENNACELL,
+            SUBCLASS_WELLTAP
+        }};
 
         for(uint32_t i=0; i<optstr.size(); i++)
         {
-            if (optstr[i] == subclass)
+            if (optstr[i] == subclassUpper)
             {
-                cell->m_subclass = optval[i];
+                m_curCell->m_subclass = optval[i];
                 break;
             }
         }        
         
-        cell->m_class = "C_CORE";
+        m_curCell->m_class = CLASS_CORE;
     }
-    else if (className == "COVER")
+    else if (classNameUpper == "COVER")
     {
-        cell->m_class = "C_COVER";
+        m_curCell->m_class = CLASS_COVER;
         if (subclass != "BUMP")
         {
             std::stringstream ss;
@@ -203,87 +218,87 @@ void ReaderImpl::onClass(const std::string &className,
         }
         else
         {
-            cell->m_subclass = "ST_BUMP";
+            m_curCell->m_subclass = SUBCLASS_BUMP;
         }
     }
-    else if (className == "PAD")
+    else if (classNameUpper == "PAD")
     {
-        cell->m_subclass = "ST_NONE";
-        const std::array<std::string, 6> optstr =
-        {
+        m_curCell->m_subclass = SUBCLASS_NONE;
+        constexpr const std::array<const char*, 6> optstr =
+        {{
             "INPUT","OUTPUT","INOUT","POWER","SPACER","AREAIO"
-        };
+        }};
         
-        const std::array<std::string, 6> optval
+        constexpr const std::array<CellSubclass, 6> optval
         {
-            "ST_INPUT",
-            "ST_OUTPUT",
-            "ST_INOUT",
-            "ST_POWER",
-            "ST_SPACER",
-            "ST_AREAIO"
+            SUBCLASS_INPUT,
+            SUBCLASS_OUTPUT,
+            SUBCLASS_INOUT,
+            SUBCLASS_POWER,
+            SUBCLASS_SPACER,
+            SUBCLASS_AREAIO
         };
 
         for(uint32_t i=0; i<optstr.size(); i++)
         {
-            if (optstr[i] == subclass)
+            if (optstr[i] == subclassUpper)
             {
-                cell->m_subclass = optval[i];
+                m_curCell->m_subclass = optval[i];
                 break;
             }
         }
 
-        cell->m_class = "C_PAD";
+        m_curCell->m_class = CLASS_PAD;
     }
-    else if (className == "ENDCAP")
+    else if (classNameUpper == "ENDCAP")
     {
-        cell->m_subclass = "ST_NONE";
-        const std::array<std::string, 6> optstr =
-        {
+        m_curCell->m_subclass = SUBCLASS_NONE;
+        constexpr const std::array<const char*, 6> optstr =
+        {{
             "PRE","POST","TOPLEFT","TOPRIGHT","BOTTOMLEFT","BOTTOMRIGHT"
-        };
+        }};
         
-        const std::array<std::string, 6> optval
+        constexpr const std::array<CellSubclass, 6> optval
         {
-            "ST_PRE",
-            "ST_POST",
-            "ST_TOPLEFT",
-            "ST_TOPRIGHT",
-            "ST_BOTTOMLEFT",
-            "ST_BOTTOMRIGHT"
+            SUBCLASS_PRE,
+            SUBCLASS_POST,
+            SUBCLASS_TOPLEFT,
+            SUBCLASS_TOPRIGHT,
+            SUBCLASS_BOTTOMLEFT,
+            SUBCLASS_BOTTOMRIGHT
         };
 
         for(uint32_t i=0; i<optstr.size(); i++)
         {
-            if (optstr[i] == subclass)
+            if (optstr[i] == subclassUpper)
             {
-                cell->m_subclass = optval[i];
+                m_curCell->m_subclass = optval[i];
                 break;
             }
         }          
-        cell->m_class = "C_ENDCAP";
+        m_curCell->m_class = CLASS_ENDCAP;
     }
-    else if (className == "RING")
+    else if (classNameUpper == "RING")
     {
         // RING does not have any subclasses!
         error("RING cannot have a sub class!");
-        cell->m_subclass = "ST_NONE";
-        cell->m_class = "C_RING";
+        m_curCell->m_subclass = SUBCLASS_NONE;
+        m_curCell->m_class = CLASS_RING;
     }
-    else if (className == "BLOCK")
+    else if (classNameUpper == "BLOCK")
     {
-        cell->m_subclass = "ST_NONE";
+        m_curCell->m_subclass = SUBCLASS_NONE;
         if (subclass == "BLACKBOX")
-            cell->m_subclass = "ST_BLACKBOX";
+            m_curCell->m_subclass = SUBCLASS_BLACKBOX;
         else if (subclass == "SOFT")
-            cell->m_subclass = "ST_SOFT";
+            m_curCell->m_subclass = SUBCLASS_SOFT;
         else
         {
             std::stringstream ss;
             ss << "Unknown sub class " << subclass << " for BLOCK";
             error(ss.str());
         }
-        cell->m_class = "C_BLOCK";
+        m_curCell->m_class = CLASS_BLOCK;
     }    
     else
     {
@@ -291,7 +306,7 @@ void ReaderImpl::onClass(const std::string &className,
         ss << "Unknown macro class '"<< className << "' found";
         error(ss.str());
     }
-#endif
+
 }
 
 void ReaderImpl::onSymmetry(const SymmetryFlags &symmetry)
@@ -386,6 +401,7 @@ void ReaderImpl::onPolygon(const std::vector<Coord64> &points)
 
 void ReaderImpl::onPortLayer(const std::string &layerName)
 {
+    //FIXME:
 #if 0
     auto layerInfoIndex = m_design->techLib()->layerInfos().indexOf(layerName);
     if (layerInfoIndex >= 0)
@@ -407,6 +423,7 @@ void ReaderImpl::onObstruction()
 
 void ReaderImpl::onObstructionLayer(const std::string &layerName)
 {
+    //FIXME:
     #if 0
     auto layerInfoIndex = m_design->techLib()->layerInfos().indexOf(layerName);
     if (layerInfoIndex >= 0)
@@ -423,139 +440,110 @@ void ReaderImpl::onObstructionLayer(const std::string &layerName)
 
 void ReaderImpl::onLayer(const std::string &layerName)
 {
-    #if 0
     doLog(LOG_VERBOSE,"LEF LAYER: %s\n", layerName.c_str());
 
-    m_layerIndex = m_design->createLayerInfo(layerName);
+    m_curLayerInfo = m_design->m_techLib.createLayer(layerName);
 
-    auto layerPtr = m_design->layerInfos().lookup(layerName);
-    if (layerPtr == nullptr)
-    {
-        doLog(LOG_ERROR,"Cannot find layer info %s\n", layerName.c_str());
-        return;
-    }
-
-    layerPtr->m_dir = "UNDEFINED";
-
-    // set some sensible defaults
-    layerPtr->m_maxWidth = 0;
-    layerPtr->m_pitch    = {0,0};
-    layerPtr->m_spacing  = 0;
-    layerPtr->m_width    = 0;
-    layerPtr->m_offset   = {0,0};
-    layerPtr->m_type = "UNDEFINED";
-#endif
 }
 
 
 void ReaderImpl::onEndLayer(const std::string &layerName)
 {
-    //m_layerIndex = -1;
+    m_curLayerInfo = nullptr;
 }
 
 /** callback for layer type */
 void ReaderImpl::onLayerType(const std::string &layerType)
 {
-#if 0
-    //FIXME: make NPContainer return a pointer on []
-    auto layerPtr = &m_design->layerInfos()[m_layerIndex];
-    if (layerPtr == nullptr)
+    if (m_curLayerInfo == nullptr)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
     }
 
-    const std::vector<std::string> validOptions = {"ROUTING","CUT","MASTERSLICE","OVERLAP"};
-    
-    auto iter = std::find(validOptions.begin(), validOptions.end(), layerType);
+    using OptionPair = std::pair<const char *, LayerType>;
 
-    if (iter != validOptions.end())
+    constexpr const std::array<OptionPair, 4> validOptions = {{ 
+        {"ROUTING", LAYER_ROUTING},
+        {"CUT", LAYER_CUT},
+        {"MASTERSLICE", LAYER_MASTERSLICE},
+        {"OVERLAP", LAYER_OVERLAP}
+    }};
+    
+    std::string layerTypeUpper = toUpper(layerType);
+
+    for(auto option : validOptions)
     {
-        layerPtr->m_type = layerType;
+        if (layerTypeUpper == option.first)
+        {
+            m_curLayerInfo->m_type = option.second;
+            return;
+        }
     }
-    else
-    {
-        doLog(LOG_WARN, "Unknown layer type in LEF file: %s\n", layerType.c_str());
-    }
-#endif
+
+    m_curLayerInfo->m_type = LAYER_UNDEFINED;
+
+    doLog(LOG_WARN, "Unknown layer type in LEF file: %s\n", layerType.c_str());
 }
 
 void ReaderImpl::onPinUse(const std::string &use)
 {
-    m_pinUse = use;
+    m_pinUse = toUpper(use);
 }
 
 void ReaderImpl::onPinDirection(const std::string &direction)
 {
-    m_pinDirection = direction;
+    m_pinDirection = toUpper(direction);
 }
 
 void ReaderImpl::onLayerPitch(int64_t pitchx, int64_t pitchy)
 {
-#if 0    
-    //FIXME: make NPContainer return a pointer on []
-    auto layerPtr = &m_design->layerInfos()[m_layerIndex];
-    if (layerPtr == nullptr)
+    if (m_curLayerInfo == nullptr)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
     }
 
-    layerPtr->m_pitch = {pitchx, pitchy};
-#endif
+    m_curLayerInfo->m_pitch = {pitchx, pitchy};
 }
 
 void ReaderImpl::onLayerSpacing(int64_t spacing)
 {
-#if 0
-    //FIXME: make NPContainer return a pointer on []
-    auto layerPtr = &m_design->layerInfos()[m_layerIndex];
-    if (layerPtr == nullptr)
+    if (m_curLayerInfo == nullptr)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
     }
 
-    layerPtr->m_spacing = static_cast<int32_t>(spacing);
-#endif
+    m_curLayerInfo->m_spacing = static_cast<int32_t>(spacing);
+
 }
 
 void ReaderImpl::onLayerSpacingRange(int64_t value1, int64_t value2)
 {
-    #if 0
-    //FIXME: make NPContainer return a pointer on []
-    auto layerPtr = &m_design->layerInfos()[m_layerIndex];
-    if (layerPtr == nullptr)
+    if (m_curLayerInfo == nullptr)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
     }
 
-    //TODO:
-#endif
+    //FIXME: implement this.
 }
 
 void ReaderImpl::onLayerOffset(int64_t offsetx, int64_t offsety)
 {
-#if 0
-    //FIXME: make NPContainer return a pointer on []
-    auto layerPtr = &m_design->layerInfos()[m_layerIndex];
-    if (layerPtr == nullptr)
+    if (m_curLayerInfo == nullptr)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
     }
 
-    layerPtr->m_offset = {offsetx, offsety};
-#endif
+    m_curLayerInfo->m_offset = {offsetx, offsety};
 }
 
 void ReaderImpl::onLayerDirection(const std::string &direction)
 {
-#if 0
-    //FIXME: make NPContainer return a pointer on []
-    auto layerPtr = &m_design->layerInfos()[m_layerIndex];
-    if (layerPtr == nullptr)
+    if (m_curLayerInfo == nullptr)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
@@ -563,132 +551,109 @@ void ReaderImpl::onLayerDirection(const std::string &direction)
 
     if (direction == "HORIZONTAL")
     {
-        layerPtr->m_dir = "HORIZONTAL";
+        m_curLayerInfo->m_dir = LAYERDIR_HORIZONTAL;
     }
     else if (direction == "VERTICAL")
     {
-        layerPtr->m_dir = "VERTICAL";
+        m_curLayerInfo->m_dir = LAYERDIR_VERTICAL;
     }
     else
     {
         doLog(LOG_WARN,"Layer direction undefined - got %s\n", direction.c_str());
-        layerPtr->m_dir = "UNDEFINED";
+        m_curLayerInfo->m_dir = LAYERDIR_UNDEFINED;
     }
+    
     // Other routing directions are not supported.
-#endif
 }
 
 void ReaderImpl::onLayerWidth(int64_t width)
 {
-#if 0
-    //FIXME: make NPContainer return a pointer on []
-    auto layerPtr = &m_design->layerInfos()[m_layerIndex];
-    if (layerPtr == nullptr)
+    if (m_curLayerInfo == nullptr)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
     }
 
-    layerPtr->m_width = static_cast<int32_t>(width);
-#endif
+    m_curLayerInfo->m_width = static_cast<int32_t>(width);
 }
 
 void ReaderImpl::onLayerMaxWidth(int64_t maxWidth)
 {
-#if 0
-    //FIXME: make NPContainer return a pointer on []
-    auto layerPtr = &m_design->layerInfos()[m_layerIndex];
-    if (layerPtr == nullptr)
+    if (m_curLayerInfo == nullptr)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
     }
 
-    layerPtr->m_maxWidth = static_cast<int32_t>(maxWidth);
-#endif
+    m_curLayerInfo->m_maxWidth = static_cast<int32_t>(maxWidth);
 }
 
 void ReaderImpl::onManufacturingGrid(int64_t grid)
 {
-#if 0
-    m_design->techLib()->setManufacturingGrid(grid);
-#endif
+    if (m_design == nullptr)
+    {
+        doLog(LOG_ERROR,"Design is nullptr\n");
+        return;
+    }
+
+    m_design->m_techLib.m_manufacturingGrid = grid;
 }
 
 
 void ReaderImpl::onLayerResistancePerSq(double ohms)
 {
-#if 0
-    //FIXME: make NPContainer return a pointer on []
-    auto layerPtr = &m_design->layerInfos()[m_layerIndex];
-    if (layerPtr == nullptr)
+    if (m_curLayerInfo == nullptr)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
     }
 
-    layerPtr->m_resistance = ohms;
-#endif
+    m_curLayerInfo->m_resistance = ohms;
 }
 
 void ReaderImpl::onLayerCapacitancePerSq(double farads)
 {
-    #if 0
-    //FIXME: make NPContainer return a pointer on []
-    auto layerPtr = &m_design->layerInfos()[m_layerIndex];
-    if (layerPtr == nullptr)
+    if (m_curLayerInfo == nullptr)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
     }
 
-    layerPtr->m_capacitance = farads;
-#endif    
+    m_curLayerInfo->m_capacitance = farads;
 }
 
 void ReaderImpl::onLayerEdgeCapacitance(double farads)
 {
-#if 0
-    //FIXME: make NPContainer return a pointer on []
-    auto layerPtr = &m_design->layerInfos()[m_layerIndex];
-    if (layerPtr == nullptr)
+    if (m_curLayerInfo == nullptr)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
     }
 
-    layerPtr->m_edgeCapacitance = farads;
-#endif
+    m_curLayerInfo->m_edgeCapacitance = farads;
+
 }
 
 void ReaderImpl::onLayerThickness(double thickness)
 {
-#if 0
-    //FIXME: make NPContainer return a pointer on []
-    auto layerPtr = &m_design->layerInfos()[m_layerIndex];
-    if (layerPtr == nullptr)
+    if (m_curLayerInfo == nullptr)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
     }
 
-    layerPtr->m_thickness = thickness;
-#endif
+    m_curLayerInfo->m_thickness = thickness;
 }
 
 void ReaderImpl::onLayerMinArea(double minArea)
 {
-#if 0
-    //FIXME: make NPContainer return a pointer on []
-    auto layerPtr = &m_design->layerInfos()[m_layerIndex];
-    if (layerPtr == nullptr)
+    if (m_curLayerInfo == nullptr)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
     }
 
-    layerPtr->m_minArea = minArea;
-#endif
+    m_curLayerInfo->m_minArea = minArea;
 }
 
 void ReaderImpl::onSite(const std::string &site)

@@ -163,6 +163,8 @@ public:
 protected:
     constexpr bool checkPtr(void*ptr) const {return (ptr != nullptr); }
 
+    std::string toUpper(const std::string &txt) const;
+
     enum context_t
     {
         CONTEXT_PIN,
@@ -174,6 +176,7 @@ protected:
 
     Cell*       m_curCell;
     PinInfo*    m_curPinInfo;
+    LayerInfo*  m_curLayerInfo;
 
     //PinIndex        m_pinIndex;      ///< current pin being processed, owned by cell.
     //LayerInfoIndex  m_layerIndex;    ///< current layer being processed, owned by tech library.

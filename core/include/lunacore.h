@@ -6,6 +6,7 @@
 #include "../common/visitor.h"
 #include "../celllib/celllib.h"
 #include "../celllib/pin.h"
+#include "../techlib/techlib.h"
 #include "../netlist/instance.h"
 #include "../netlist/net.h"
 #include "../netlist/netlist.h"

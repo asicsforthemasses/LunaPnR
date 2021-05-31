@@ -10,3 +10,4 @@ wget https://raw.githubusercontent.com/JulianKemmerer/Drexel-ECEC575/master/Enco
 wget https://raw.githubusercontent.com/JulianKemmerer/Drexel-ECEC575/master/Encounter/NangateOpenCellLibrary/Front_End/Liberty/NangateOpenCellLibrary_functional.lib -O nangate/ocl_functional.lib
 wget https://raw.githubusercontent.com/JulianKemmerer/Drexel-ECEC575/master/Encounter/NangateOpenCellLibrary/Back_End/lef/NangateOpenCellLibrary.lef -O nangate/ocl.lef
 wget https://github.com/JulianKemmerer/Drexel-ECEC575/raw/master/Encounter/NangateOpenCellLibrary/Back_End/gds/NangateOpenCellLibrary.gds -O nangate/ocl.gds
+wget https://raw.githubusercontent.com/JulianKemmerer/Drexel-ECEC575/master/Encounter/NangateOpenCellLibrary/Back_End/lef/NangateOpenCellLibrary.tech.lef -O nangate/ocl.tech.lef

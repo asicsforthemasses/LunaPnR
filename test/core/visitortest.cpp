@@ -21,6 +21,7 @@ public:
     virtual void visit(const ChipDB::Cell *cell) override {};
     virtual void visit(const ChipDB::PinInfo *pinfo) override {};
     virtual void visit(const ChipDB::Netlist *nl) override {};
+    virtual void visit(const ChipDB::LayerInfo *layer) override {};
 
     virtual void visit(const ChipDB::Net *net) override
     {

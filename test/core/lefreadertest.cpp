@@ -81,4 +81,29 @@ BOOST_AUTO_TEST_CASE(can_read_lef2)
     BOOST_CHECK(design.m_cellLib.size() == 134);
 }
 
+BOOST_AUTO_TEST_CASE(can_read_techlef2)
+{
+    std::cout << "--== LEF READER NANGATE TECH ==--\n";
+    
+    std::ifstream leffile("test/files/nangate/ocl.tech.lef");
+    BOOST_CHECK(leffile.good());
+
+    if (!leffile.good())
+    {
+        std::cout << " skipping test because LEF fould could not be loaded\n";
+        return;
+    }
+
+    ChipDB::Design design;
+    BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
+
+    std::cout << "  Found " << design.m_techLib.getNumberOfLayers() << " layers:\n";
+    BOOST_CHECK(design.m_techLib.getNumberOfLayers() == 22);
+
+    for(auto layer : design.m_techLib)
+    {
+        std::cout << "    " << layer->m_name << "\n";
+    }
+}
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -11,6 +11,7 @@ class Instance;
 class PinInfo;
 class Netlist;
 class Net;
+class LayerInfo;
 
 class Visitor
 {
@@ -21,6 +22,7 @@ public:
     virtual void visit(PinInfo *pin) = 0;
     virtual void visit(Netlist *nl) = 0;
     virtual void visit(Net *net) = 0;
+    virtual void visit(LayerInfo *layer) = 0;
 };
 
 class ConstVisitor
@@ -32,6 +34,7 @@ public:
     virtual void visit(const PinInfo *pin) = 0;
     virtual void visit(const Netlist *nl) = 0;
     virtual void visit(const Net *net) = 0;
+    virtual void visit(const LayerInfo *layer) = 0;
 };
 
 
