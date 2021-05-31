@@ -19,6 +19,8 @@ enum PinIOType : uint8_t
     IO_GROUND
 };
 
+std::string toString(const PinIOType &iotype);
+
 struct PinInfo
 {
 PinInfo() :

@@ -15,6 +15,8 @@ int main(int argc, char *argv[]) {
     std::locale::global(std::locale("C"));  // for C++
     std::cout.imbue(std::locale());
 
+    QLocale::setDefault(QLocale::C);
+
     MainWindow window;
 
     QDesktopWidget widget;
