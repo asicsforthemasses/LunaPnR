@@ -40,4 +40,57 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty)
     }    
 }
 
+BOOST_AUTO_TEST_CASE(can_read_Liberty2)
+{
+    std::cout << "--== LIBERTY READER NANGATE==--\n";
+    
+    std::ifstream libertyfile("test/files/nangate/lpocl_functional.lib");
+    BOOST_CHECK(libertyfile.good());
+
+    if (!libertyfile.good())
+    {
+        std::cout << "  !! skipping test: liberty file not present!\n";
+    }
+
+    ChipDB::Design design;
+    BOOST_CHECK(ChipDB::Liberty::Reader::load(&design, libertyfile));
+
+    std::cout << "  Found " << design.m_cellLib.size() << " cells:\n";
+    BOOST_CHECK(design.m_cellLib.size() == 36);
+
+#if 0
+    for(auto cell : design.m_cellLib)
+    {
+        std::cout << "  " << cell->m_name << "\n";
+    }
+#endif
+}
+
+BOOST_AUTO_TEST_CASE(can_read_Liberty3)
+{
+    std::cout << "--== LIBERTY READER NANGATE 2==--\n";
+    
+    std::ifstream libertyfile("test/files/nangate/ocl_functional.lib");
+    BOOST_CHECK(libertyfile.good());
+
+    if (!libertyfile.good())
+    {
+        std::cout << "  !! skipping test: liberty file not present!\n";
+    }
+
+    ChipDB::Design design;
+    BOOST_CHECK(ChipDB::Liberty::Reader::load(&design, libertyfile));
+
+    std::cout << "  Found " << design.m_cellLib.size() << " cells:\n";
+    BOOST_CHECK(design.m_cellLib.size() == 134);
+
+#if 0
+    for(auto cell : design.m_cellLib)
+    {
+        std::cout << "  " << cell->m_name << "\n";
+    }
+#endif
+}
+
+
 BOOST_AUTO_TEST_SUITE_END()

@@ -158,6 +158,9 @@ public:
     /** callback for layer trace min width */    
     virtual void onLayerMinWidth(int64_t minWidth) {}
 
+    /** callback for layer resistance (per cut, in ohms) */
+    virtual void onLayerResistance(double ohms) {}
+
     /** callback for layer resistance per square (in ohms) */
     virtual void onLayerResistancePerSq(double ohms) {}
 

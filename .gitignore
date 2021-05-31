@@ -3,5 +3,6 @@ AppDir
 appimage-builder-cache
 build
 test/files/iit_stdcells
+test/files/nangate
 test/files/results
 noshare

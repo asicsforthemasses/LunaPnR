@@ -5,6 +5,7 @@
 #include <QListView>
 #include <QTableView>
 #include <QGroupBox>
+#include <QFrame>
 #include <QHBoxLayout>
 #include "../models/celllibmodel.h"
 #include "../models/cellpinmodel.h"
@@ -46,7 +47,7 @@ protected:
     
     QHBoxLayout     *m_layout;
     QVBoxLayout     *m_layout2;
-    QGroupBox       *m_pinGroup;
+    QFrame          *m_pinGroup;
     QTableView      *m_cellTableView;
     CellLayoutView  *m_cellLayoutView;
     QListView       *m_pinListView;

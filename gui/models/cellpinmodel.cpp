@@ -169,6 +169,8 @@ QVariant PinInfoTableModel::data(const QModelIndex &index, int role) const
                 return "Cap (pF)";
             case 5:
                 return "Max cap (pF)";
+            case 6:
+                return "Clock pin";
             default:
                 return "";
             }
@@ -189,6 +191,8 @@ QVariant PinInfoTableModel::data(const QModelIndex &index, int role) const
                 return m_pinInfo->m_cap * 1.0e12;
             case 5:
                 return m_pinInfo->m_maxCap * 1.0e12;
+            case 6:
+                return m_pinInfo->m_clock;
             default:
                 return "";
             }            

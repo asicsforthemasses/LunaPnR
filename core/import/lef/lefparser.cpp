@@ -32,6 +32,7 @@ bool Parser::isAlpha(char c) const
     if (((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z')))
         return true;
 
+    
     if ((c == '_') || (c == '!'))
         return true;
 
@@ -50,7 +51,8 @@ bool Parser::isAlphaNumeric(char c) const
 
 bool Parser::isExtendedAlphaNumeric(char c) const
 {
-    return (isAlpha(c) || isDigit(c) || (c==']') || (c=='['));
+    // LEF apparently allows '-' to be part of a string.. 
+    return (isAlpha(c) || isDigit(c) || (c==']') || (c=='[') || (c=='-'));
 }
 
 bool Parser::match(char c)
@@ -1944,7 +1946,7 @@ bool Parser::parseVia()
             error("Expected via name after END\n");
             return false;
         }
-    } while(m_tokstr == viaName);
+    } while(m_tokstr != viaName);
     
     m_curtok = tokenize(m_tokstr);
     if (m_curtok != TOK_EOL)
@@ -2187,8 +2189,22 @@ bool Parser::parseManufacturingGrid()
 
 bool Parser::parseLayerResistance()
 {
+    // if this is a CUT type layer,
+    // the resistance does not have a 'RPERSQ' token
+    // but is directly followed by a number
     m_curtok = tokenize(m_tokstr);
-    if ((m_curtok != TOK_IDENT) || (m_tokstr != "RPERSQ"))
+
+    if (m_curtok == TOK_NUMBER)
+    {
+        // assume this is a CUT type layer and accept the
+        // resistance as-is.
+        double resistance = std::stod(m_tokstr);
+        onLayerResistance(resistance);
+        
+        m_curtok = tokenize(m_tokstr);
+        return true;
+    }
+    else if ((m_curtok != TOK_IDENT) || (m_tokstr != "RPERSQ"))
     {
         error("Expected RPERSQ after RESISTANCE\n");
         return false;

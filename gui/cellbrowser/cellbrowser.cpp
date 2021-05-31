@@ -1,5 +1,6 @@
 #include "cellbrowser.h"
 #include <QHeaderView>
+#include <QLabel>
 
 using namespace GUI;
 
@@ -20,8 +21,10 @@ CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
     m_cellTableView->setModel(m_cellModel.get());
 
     // pin group box
-    m_pinGroup = new QGroupBox("Pins");
-
+    m_pinGroup = new QFrame();
+    //m_pinGroup->setFrameStyle(QFrame::Plain);
+    m_pinGroup->setFrameStyle(QFrame::StyledPanel);
+    
     // pin list view
     m_pinListView = new QListView();
     m_pinListView->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -41,6 +44,7 @@ CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
     m_pinInfoTable->setModel(m_pinInfoModel.get());
 
     m_layout2 = new QVBoxLayout();
+    m_layout2->addWidget(new QLabel("Pins"),0);
     m_layout2->addWidget(m_pinListView,1);
     m_layout2->addWidget(m_pinInfoTable,1);
 

@@ -56,6 +56,32 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     // Temporarily load the LEF and LIB files from the test
     // directory. This will only work is lunapnr is started
     // from the top level dir.
+#define nangate
+#ifdef nangate
+
+    std::ifstream libertyfile("test/files/nangate/ocl_functional.lib");
+    if (!libertyfile.good())
+    {
+        doLog(LOG_WARN,"liberty file 'test/files/nangate/ocl_functional.lib' not found\n");
+    }
+    else
+    {
+        ChipDB::Liberty::Reader::load(&m_design, libertyfile);
+        m_cellBrowser->setCellLib(&m_design.m_cellLib); // populate!
+    }
+
+    std::ifstream leffile("test/files/nangate/ocl.lef");
+    if (!leffile.good())
+    {
+        doLog(LOG_WARN,"LEF file './test/files/nangate/ocl.lef' not found\n");
+    }
+    else
+    {
+        ChipDB::LEF::Reader::load(&m_design, leffile);
+        m_cellBrowser->setCellLib(&m_design.m_cellLib); // populate!
+    }
+
+#else
 
     std::ifstream libertyfile("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib");
     if (!libertyfile.good())
@@ -78,6 +104,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         ChipDB::LEF::Reader::load(&m_design, leffile);
         m_cellBrowser->setCellLib(&m_design.m_cellLib); // populate!
     }
+
+#endif
 
 }
 

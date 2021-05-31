@@ -132,6 +132,10 @@ void ReaderImpl::onSimpleAttribute(const std::string &name, const std::string &v
         {
             m_curPin->m_maxCap = std::stof(value) * m_capacitanceUnit;
         }
+        else if (name == "max_fanout")
+        {
+            m_curPin->m_maxFanOut = std::stof(value);
+        }
         else if (name == "function")
         {
             m_curPin->m_function = value;
