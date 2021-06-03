@@ -4,6 +4,16 @@
 #include <array>
 #include "dbtypes.h"
 
+std::string ChipDB::toUpper(const std::string &txt)
+{
+    std::string result = txt;
+    for(auto &c : result)
+    {
+        c = std::toupper(c);
+    }
+    return result;
+}
+
 ChipDB::SymmetryFlags& operator+=(ChipDB::SymmetryFlags &lhs, const uint8_t &rhs)
 {
     lhs.m_flags |= rhs;

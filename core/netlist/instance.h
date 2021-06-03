@@ -144,6 +144,14 @@ public:
         return PinInfoIterator(m_cell);
     }
 
+    const Coord64 cellSize() const
+    {
+        if (m_cell == nullptr)
+            return Coord64{0,0};
+            
+        return m_cell->m_size;
+    }
+
     Coord64     m_pos;          ///< lower-left position of the instance
     Orientation m_orientation;  ///< orientation of the cell instance
 

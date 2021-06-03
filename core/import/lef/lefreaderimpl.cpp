@@ -31,19 +31,10 @@ ReaderImpl::ReaderImpl(Design *design)
 {
     m_context = CONTEXT_PIN;
 
-    m_curCell = nullptr;
-    m_curPinInfo = nullptr;
-    m_curLayerInfo = nullptr;
-}
-
-std::string ReaderImpl::toUpper(const std::string &txt) const
-{
-    std::string result = txt;
-    for(auto &c : result)
-    {
-        c = std::toupper(c);
-    }
-    return result;
+    m_curCell       = nullptr;
+    m_curPinInfo    = nullptr;
+    m_curLayerInfo  = nullptr;
+    m_curSiteInfo   = nullptr;
 }
 
 void ReaderImpl::onMacro(const std::string &macroName)
@@ -210,7 +201,7 @@ void ReaderImpl::onClass(const std::string &className,
     else if (classNameUpper == "COVER")
     {
         m_curCell->m_class = CLASS_COVER;
-        if (subclass != "BUMP")
+        if (subclassUpper != "BUMP")
         {
             std::stringstream ss;
             ss << "Unknown COVER subclass '"<< subclass << "' found";
@@ -288,9 +279,9 @@ void ReaderImpl::onClass(const std::string &className,
     else if (classNameUpper == "BLOCK")
     {
         m_curCell->m_subclass = SUBCLASS_NONE;
-        if (subclass == "BLACKBOX")
+        if (subclassUpper == "BLACKBOX")
             m_curCell->m_subclass = SUBCLASS_BLACKBOX;
-        else if (subclass == "SOFT")
+        else if (subclassUpper == "SOFT")
             m_curCell->m_subclass = SUBCLASS_SOFT;
         else
         {
@@ -658,77 +649,62 @@ void ReaderImpl::onLayerMinArea(double minArea)
 
 void ReaderImpl::onSite(const std::string &site)
 {
-#if 0
-    m_siteIndex = m_design->techLib()->createSiteInfo(site);
+    m_curSiteInfo = m_design->m_techLib.createSiteInfo(site);
     doLog(LOG_VERBOSE,"LEF SITE: %s\n", site.c_str());
-#endif
 }
 
 void ReaderImpl::onEndSite(const std::string &site)
 {
-#if 0
-    //FIXME: make NPContainer return a pointer on []
-    auto sitePtr = &m_design->siteInfos()[m_siteIndex];
-    if (sitePtr == nullptr)
+    if (m_curSiteInfo == nullptr)
     {
         doLog(LOG_ERROR,"Site is nullptr\n");
         return;
     }
-#endif
+
+    m_curSiteInfo = nullptr;
 }
 
 void ReaderImpl::onSiteSize(int64_t x, int64_t y)
 {
-#if 0
-    //FIXME: make NPContainer return a pointer on []
-    auto sitePtr = &m_design->siteInfos()[m_siteIndex];
-    if (sitePtr == nullptr)
+    if (m_curSiteInfo == nullptr)
     {
         doLog(LOG_ERROR,"Site is nullptr\n");
         return;
     }
 
-    Coord64 s{x,y};
-    sitePtr->m_size = s;
-#endif
+    m_curSiteInfo->m_size = Coord64{x,y};
 }
 
-#if 0
-void ReaderImpl::onSiteSymmetry(const SymmetryType &symmetry)
+
+void ReaderImpl::onSiteSymmetry(const SymmetryFlags &symmetry)
 {
-
-    //FIXME: make NPContainer return a pointer on []
-    auto sitePtr = &m_design->siteInfos()[m_siteIndex];
-    if (sitePtr == nullptr)
+    if (m_curSiteInfo == nullptr)
     {
         doLog(LOG_ERROR,"Site is nullptr\n");
         return;
     }
 
-    sitePtr->m_symmetry = symmetry;
-
+    m_curSiteInfo->m_symmetry = symmetry;
 }
-#endif
+
 
 void ReaderImpl::onSiteClass(const std::string &siteClass)
 {
-#if 0
-    //FIXME: make NPContainer return a pointer on []
-    auto sitePtr = &m_design->siteInfos()[m_siteIndex];
-    if (sitePtr == nullptr)
+    if (m_curSiteInfo == nullptr)
     {
         doLog(LOG_ERROR,"Site is nullptr\n");
         return;
     }
 
+    //std::string siteClassUpper = toUpper(siteClass);
+
     if (siteClass == "CORE")
     {
-        sitePtr->m_class = "CORE";
+        m_curSiteInfo->m_class = SC_CORE;
     }
     else if (siteClass == "PAD")
     {
-        sitePtr->m_class = "PAD";
+        m_curSiteInfo->m_class = SC_PAD;
     }
-#endif
-}
 
+}

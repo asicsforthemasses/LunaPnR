@@ -34,7 +34,7 @@ CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
     m_pinListView->setModel(m_pinModel.get());
 
     // pin info table view
-
+#if 0
     m_pinInfoTable = new QTableView();
     m_pinInfoTable->horizontalHeader()->setStretchLastSection(true);
     m_pinInfoTable->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -42,11 +42,15 @@ CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
 
     m_pinInfoModel.reset(new PinInfoTableModel(nullptr));
     m_pinInfoTable->setModel(m_pinInfoModel.get());
+#else
+    m_pinInfoView = new PropertyView();
 
+#endif
     m_layout2 = new QVBoxLayout();
     m_layout2->addWidget(new QLabel("Pins"),0);
     m_layout2->addWidget(m_pinListView,1);
-    m_layout2->addWidget(m_pinInfoTable,1);
+    //m_layout2->addWidget(m_pinInfoTable,1);
+    m_layout2->addWidget(m_pinInfoView,1);
 
     m_pinGroup->setLayout(m_layout2);
 

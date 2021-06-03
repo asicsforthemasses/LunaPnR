@@ -12,6 +12,8 @@
 
 #include "../console/mmconsole.h"
 #include "../cellbrowser/cellbrowser.h"
+#include "../floorplanview/floorplanview.h"
+
 #include "lunacore.h"
 
 class MainWindow : public QMainWindow
@@ -33,6 +35,7 @@ protected:
     
     GUI::MMConsole      *m_console;
     GUI::CellBrowser    *m_cellBrowser;
-    
+    GUI::FloorplanView  *m_floorplanView;
+
     ChipDB::Design      m_design;   ///< current design
 };

@@ -37,7 +37,7 @@ std::string ChipDB::toString(const LayerDirection &ldir)
 
 LayerInfo* TechLib::createLayer(const std::string &name)
 {
-    auto layer = lookup(name);
+    auto layer = lookupLayer(name);
     if (layer != nullptr)
     {
         return layer;
@@ -50,17 +50,27 @@ LayerInfo* TechLib::createLayer(const std::string &name)
     return layer;
 }
 
-LayerInfo* TechLib::lookup(const std::string &name) const
+LayerInfo* TechLib::lookupLayer(const std::string &name) const
 {
-    auto iter = std::find_if(m_layers.begin(), m_layers.end(),
-        [name](auto ptr)
-        {
-            return ptr->m_name == name;
-        }
-    );
+    return m_layers.lookup(name);
+}
 
-    if (iter == m_layers.end())
-        return nullptr;
+SiteInfo* TechLib::createSiteInfo(const std::string &name)
+{
+    auto siteInfo = lookupSiteInfo(name);
+    if (siteInfo != nullptr)
+    {
+        return siteInfo;
+    }   
 
-    return *iter;
+    siteInfo = new SiteInfo();
+    siteInfo->m_name = name;
+
+    m_sites.add(name, siteInfo);
+    return siteInfo;
+}
+
+SiteInfo* TechLib::lookupSiteInfo(const std::string &name) const
+{
+    return m_sites.lookup(name);
 }

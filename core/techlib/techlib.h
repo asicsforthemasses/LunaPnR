@@ -102,33 +102,45 @@ struct SiteClass : public StrEnum<SiteClass>
 
 struct SiteInfo : public NamedObject
 {
-    SiteInfo()
-    : NamedObject(""),
-      m_size{0,0},
-      m_class("UNDEFINED") {}
-    
-    SiteInfo(const std::string &name) 
-    : NamedObject(name),
-      m_size{0,0},
-      m_class("UNDEFINED") {}
 
-    IMPLEMENT_ACCEPT;
-
-    Coord64         m_size;
-    SiteClass       m_class;
-    SymmetryType    m_symmetry;
 };
 
 #endif
 
+enum SiteClass : uint8_t
+{
+    SC_UNDEFINED = 0,
+    SC_PAD,
+    SC_CORE
+};
+
+struct SiteInfo
+{
+    SiteInfo()
+    : m_size{0,0},
+      m_class(SC_UNDEFINED) {}
+    
+    SiteInfo(const std::string &name) 
+    : m_name(name),
+      m_size{0,0},
+      m_class(SC_UNDEFINED) {}
+
+    //IMPLEMENT_ACCEPT;
+
+    std::string     m_name;         ///< name of the site
+    Coord64         m_size;         ///< cell size of the site
+    SiteClass       m_class;        ///< class type
+    SymmetryFlags   m_symmetry;     ///< supported symmetries
+};
+
+
 class TechLib
 {
 public:
-    TechLib() : 
-        m_manufacturingGrid(0)
-        {}
+    TechLib() : m_manufacturingGrid(0) {}
 
     NamedStorage<LayerInfo*> m_layers;
+    NamedStorage<SiteInfo*>  m_sites;
     int32_t                  m_manufacturingGrid; // in nm.
 
     size_t getNumberOfLayers() const
@@ -136,32 +148,16 @@ public:
         return m_layers.size();
     };
 
-    auto begin() const
+    size_t getNumberOfSites() const
     {
-        return m_layers.begin();
-    }
-
-    auto end() const
-    {
-        return m_layers.end();
-    }
+        return m_sites.size();
+    };
 
     LayerInfo* createLayer(const std::string &name);
-    LayerInfo* lookup(const std::string &name) const;
+    LayerInfo* lookupLayer(const std::string &name) const;
 
-#if 0
-    SiteInfoIndex createSiteInfo(const std::string &name);
-
-    constexpr auto& siteInfos()
-    {
-        return m_siteInfos;
-    }
-
-    constexpr auto const& siteInfos() const
-    {
-        return m_siteInfos;
-    }
-#endif   
+    SiteInfo* createSiteInfo(const std::string &name);
+    SiteInfo* lookupSiteInfo(const std::string &name) const; 
 };
 
 };

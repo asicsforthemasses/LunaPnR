@@ -1814,19 +1814,25 @@ bool Parser::parseSiteClass()
 {
     // CLASS name ';'
 
-    std::string className;
-
     m_curtok = tokenize(m_tokstr);
     if (m_curtok != TOK_IDENT)
     {
         error("Expected SITE CLASS name\n");
         return false;
     }    
-        
-    onSiteClass(m_tokstr);
+
+    std::string className = toUpper(m_tokstr);
+
+    onSiteClass(className);
 
     // read ;
     m_curtok = tokenize(m_tokstr);
+
+    if (m_curtok != TOK_SEMICOL)
+    {
+        error("Expected ; after Site class\n");
+        return false;        
+    }
 
     return true;
 }
@@ -1846,29 +1852,27 @@ bool Parser::parseSiteSymmetry()
         m_curtok = tokenize(m_tokstr);
     }
 
-    bool symmetryX = false;
-    //SymmetryType symmetryEnum;
+    symmetry = toUpper(symmetry);
+
+    SymmetryFlags flags;
+    flags.m_flags = SymmetryFlags::SYM_NONE;
 
     if (symmetry.find('X') != symmetry.npos)
     {
-        symmetryX = true;
-        //symmetryEnum  = "X";
+        flags.m_flags |= SymmetryFlags::SYM_X;
     }
         
     if (symmetry.find('Y') != symmetry.npos)
     {
-        //if (symmetryX)
-        //    symmetryEnum = "XY";
-        //else
-        //    symmetryEnum = "Y";
+        flags.m_flags |= SymmetryFlags::SYM_Y;
     }
     
     if (symmetry.find("R90") != symmetry.npos)
     {
-        //symmetryEnum = "R90";
+        flags.m_flags |= SymmetryFlags::SYM_R90;
     }
 
-    //onSiteSymmetry(symmetryEnum);
+    onSiteSymmetry(flags);
     return true;
 }
 

@@ -1,6 +1,6 @@
 #include "guihelpers.h"
 
-void GUI::drawCenteredText(QPainter *painter, const QPointF &pos, const std::string &txt,
+void GUI::drawCenteredText(QPainter &painter, const QPointF &pos, const std::string &txt,
     const QFont &font,
     const QBrush &style)
 {
@@ -13,12 +13,12 @@ void GUI::drawCenteredText(QPainter *painter, const QPointF &pos, const std::str
 
     pp += QPointF(-pixelsWide/2.0f, pixelsHigh/2.0f);
     QRectF fillRect(pp - QPointF(0,fm.ascent()), QSize(pixelsWide, fm.height()));
-    painter->fillRect(fillRect, style);
-    painter->drawText(pp, str);
+    painter.fillRect(fillRect, style);
+    painter.drawText(pp, str);
 }
 
 
-void GUI::drawLeftText(QPainter *painter, const QPointF &pos, const std::string &txt,
+void GUI::drawLeftText(QPainter &painter, const QPointF &pos, const std::string &txt,
     const QFont &font,
     const QBrush &style)
 {
@@ -31,6 +31,6 @@ void GUI::drawLeftText(QPainter *painter, const QPointF &pos, const std::string 
 
     pp += QPointF(0.0f, pixelsHigh/2.0f);
     QRectF fillRect(pp - QPointF(0,fm.ascent()), QSize(pixelsWide, fm.height()));
-    painter->fillRect(fillRect, style);
-    painter->drawText(pp, str);    
+    painter.fillRect(fillRect, style);
+    painter.drawText(pp, str);    
 }

@@ -37,6 +37,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_cellBrowser->setCellLib(&m_design.m_cellLib);
     m_mainTabWidget->addTab(m_cellBrowser, "Cell Browser");
 
+    m_floorplanView = new GUI::FloorplanView(this);
+    m_mainTabWidget->addTab(m_floorplanView, "Floorplan");
+
+    // create console
     m_console = new GUI::MMConsole(this);
 
     m_splitter = new QSplitter(Qt::Vertical, this);
@@ -56,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     // Temporarily load the LEF and LIB files from the test
     // directory. This will only work is lunapnr is started
     // from the top level dir.
-#define nangate
+//#define nangate
 #ifdef nangate
 
     std::ifstream libertyfile("test/files/nangate/ocl_functional.lib");
@@ -105,7 +109,28 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         m_cellBrowser->setCellLib(&m_design.m_cellLib); // populate!
     }
 
+    std::ifstream verilogfile("test/files/verilog/nerv_tsmc018.v");
+    if (!verilogfile.good())
+    {
+        doLog(LOG_WARN,"Verilog file './test/files/verilog/nerv_tsmc018.v' not found\n");
+    }
+    else
+    {
+        ChipDB::Verilog::Reader::load(&m_design, verilogfile);
+        auto nervModule = m_design.m_moduleLib.lookup("nerv");
+        if (nervModule != nullptr)
+        {
+            m_floorplanView->setFloorplan(&nervModule->m_netlist);
+        }
+        //m_cellBrowser->setCellLib(&m_design.m_cellLib); // populate!
+
+        LunaCore::SimpleCellPlacer::place(&nervModule->m_netlist, 
+            ChipDB::Rect64{{10000,10000}, {80000,80000}}, 10000);
+    }
+
 #endif
+
+    m_floorplanView->update();
 
 }
 

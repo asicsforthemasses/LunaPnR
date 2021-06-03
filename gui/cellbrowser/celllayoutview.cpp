@@ -223,7 +223,7 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
         painter.drawRect(p1.x(),p1.y(),p2.x()-p1.x(),p2.y()-p1.y());
 
         // draw the cell name at the top
-        drawCenteredText(&painter, QPointF(width()/2, 20), m_cell->m_name, font());
+        drawCenteredText(painter, QPointF(width()/2, 20), m_cell->m_name, font());
 
         // draw the horizontal dimensions of the cell
         //
@@ -244,7 +244,7 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
         char txtbuf[20];
         snprintf(txtbuf, sizeof(txtbuf), "%ld.%03ld um", um, nm);
         
-        drawCenteredText(&painter, txtrect.center(), txtbuf, font(), Qt::black);
+        drawCenteredText(painter, txtrect.center(), txtbuf, font(), Qt::black);
 
         // draw the vertical dimensions of the cell
         QRectF txtrect2(0, p1.y(), dimWidth, p2.y());
@@ -259,7 +259,7 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
 
         snprintf(txtbuf, sizeof(txtbuf), "%ld.%03ld um", um2, nm2);
         QPointF txtpoint(2, (p1.y()+p2.y())/2);
-        drawLeftText(&painter, txtpoint, txtbuf, font(), Qt::black);
+        drawLeftText(painter, txtpoint, txtbuf, font(), Qt::black);
 #endif
 
         // draw pins

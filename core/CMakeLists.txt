@@ -25,6 +25,7 @@ add_library(lunacore
     netlist/net.cpp
     netlist/instance.cpp
     netlist/netlist.cpp
+    cellplacer/cellplacer.cpp
     celllib/pin.cpp
     celllib/celllib.cpp
     techlib/techlib.cpp

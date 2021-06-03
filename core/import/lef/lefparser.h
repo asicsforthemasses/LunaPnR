@@ -201,7 +201,7 @@ public:
 
     virtual void onSiteClass(const std::string &siteClass) {}
 
-    //virtual void onSiteSymmetry(const SymmetryType &symmetry) {}
+    virtual void onSiteSymmetry(const SymmetryFlags &symmetry) {};
 
     virtual void onSiteSize(int64_t x, int64_t y) {}
 

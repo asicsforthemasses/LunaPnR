@@ -10,6 +10,7 @@
 #include "../netlist/instance.h"
 #include "../netlist/net.h"
 #include "../netlist/netlist.h"
+#include "../cellplacer/cellplacer.h"
 #include "../import/liberty/libparser.h"
 #include "../import/liberty/libreaderimpl.h"
 #include "../import/liberty/libreader.h"

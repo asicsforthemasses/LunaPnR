@@ -100,10 +100,24 @@ BOOST_AUTO_TEST_CASE(can_read_techlef2)
     std::cout << "  Found " << design.m_techLib.getNumberOfLayers() << " layers:\n";
     BOOST_CHECK(design.m_techLib.getNumberOfLayers() == 22);
 
-    for(auto layer : design.m_techLib)
+    for(auto const layer : design.m_techLib.m_layers)
     {
         std::cout << "    " << layer->m_name << "\n";
     }
+
+    std::cout << "  Found " << design.m_techLib.getNumberOfSites() << " sites:\n";
+    BOOST_CHECK(design.m_techLib.getNumberOfSites() == 1);
+    for(auto const site : design.m_techLib.m_sites)
+    {
+        std::cout << "    " << site->m_name << "\n";
+    }
+
+    // check site parameters
+    BOOST_CHECK(design.m_techLib.m_sites.at(0)->m_name == "FreePDK45_38x28_10R_NP_162NW_34O");
+    BOOST_CHECK(design.m_techLib.m_sites.at(0)->m_symmetry.m_flags == ChipDB::SymmetryFlags::SYM_Y);
+    BOOST_CHECK(design.m_techLib.m_sites.at(0)->m_class == ChipDB::SC_CORE);
+    BOOST_CHECK((design.m_techLib.m_sites.at(0)->m_size == ChipDB::Coord64{190,1400}));
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()

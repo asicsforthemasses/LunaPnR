@@ -9,6 +9,7 @@
 #include <QHBoxLayout>
 #include "../models/celllibmodel.h"
 #include "../models/cellpinmodel.h"
+#include "../propertyview/propertyview.h"
 #include "celllayoutview.h"
 
 namespace GUI
@@ -51,7 +52,8 @@ protected:
     QTableView      *m_cellTableView;
     CellLayoutView  *m_cellLayoutView;
     QListView       *m_pinListView;
-    QTableView      *m_pinInfoTable;
+    //QTableView      *m_pinInfoTable;
+    PropertyView    *m_pinInfoView;
 };
 
 };  // namespace

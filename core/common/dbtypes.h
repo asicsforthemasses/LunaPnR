@@ -293,6 +293,7 @@ namespace ChipDB
         uint8_t m_flags;
 
         static constexpr uint8_t SYM_UNKNOWN = 0;
+        static constexpr uint8_t SYM_NONE = 0;
         static constexpr uint8_t SYM_X = 1;
         static constexpr uint8_t SYM_Y = 2;
         static constexpr uint8_t SYM_R90 = 4;
@@ -336,6 +337,8 @@ namespace ChipDB
     std::string toString(const CellSubclass &v);
     std::string toString(const CellClass &v);
 
+    /** create a new string with upper case characters */
+    std::string toUpper(const std::string &txt);
 };
 
 ChipDB::SymmetryFlags& operator+=(ChipDB::SymmetryFlags &lhs, const uint8_t &rhs);

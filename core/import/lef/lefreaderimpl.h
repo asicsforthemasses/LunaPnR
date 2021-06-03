@@ -153,7 +153,7 @@ public:
 
     virtual void onSiteSize(int64_t x, int64_t y) override;
 
-    //virtual void onSiteSymmetry(const SymmetryType &symmetry) override;
+    virtual void onSiteSymmetry(const SymmetryFlags &symmetry) override;
 
     virtual void onSiteClass(const std::string &siteClass) override;
 
@@ -162,8 +162,6 @@ public:
 
 protected:
     constexpr bool checkPtr(void*ptr) const {return (ptr != nullptr); }
-
-    std::string toUpper(const std::string &txt) const;
 
     enum context_t
     {
@@ -177,11 +175,8 @@ protected:
     Cell*       m_curCell;
     PinInfo*    m_curPinInfo;
     LayerInfo*  m_curLayerInfo;
+    SiteInfo*   m_curSiteInfo;
 
-    //PinIndex        m_pinIndex;      ///< current pin being processed, owned by cell.
-    //LayerInfoIndex  m_layerIndex;    ///< current layer being processed, owned by tech library.
-    //CellIndex       m_cellIndex;     ///< current cell being processed, owned by cell library.
-    //SiteInfoIndex   m_siteIndex;     ///< current site being processed, owned by tech library;
     Design          *m_design;
 
     size_t m_activePinLayerIdx;
