@@ -1,3 +1,4 @@
+#include <algorithm>
 #include "cellplacer.h"
 #include "netlist/instance.h"
 #include "common/dbtypes.h"
@@ -36,4 +37,40 @@ void SimpleCellPlacer::place(ChipDB::Netlist *nl, const ChipDB::Rect64 &regionRe
     {
         doLog(LOG_ERROR, "SimpleCellPlacer: not enough room in region for all instances\n");
     }
+}
+
+int64_t HPWLCalculator::calc(ChipDB::Netlist *nl)
+{
+    int64_t hpwl = 0;
+    for(auto const net : nl->m_nets)
+    {
+        auto iter = net->m_connections.begin();
+
+        // skip if there are no connection on this net.
+        if (iter == net->m_connections.end())
+            continue;
+
+        // get first cell
+        auto center = iter->m_instance->getCenter();
+        ChipDB::Coord64 minCoord{center.m_x, center.m_y};
+        ChipDB::Coord64 maxCoord{center.m_x, center.m_y};
+        ++iter;
+
+        // process next cells
+        while(iter != net->m_connections.end())
+        {
+            center = iter->m_instance->getCenter();
+            minCoord.m_x = std::min(minCoord.m_x, center.m_x);
+            minCoord.m_y = std::min(minCoord.m_y, center.m_y);
+            maxCoord.m_x = std::max(maxCoord.m_x, center.m_x);
+            maxCoord.m_y = std::max(maxCoord.m_y, center.m_y);            
+            ++iter;
+        }
+
+        // calculate final hpwl from the net extents
+        auto delta = maxCoord - minCoord;
+        hpwl += delta.m_x + delta.m_y;
+    }
+
+    return hpwl;
 }

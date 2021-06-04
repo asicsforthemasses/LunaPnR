@@ -94,7 +94,7 @@ namespace ChipDB
         bool operator!=(const Coord64& other) const noexcept
         {
             return (m_x != other.m_x) || (m_y != other.m_y);
-        }           
+        }
     };
 
     

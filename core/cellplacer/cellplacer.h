@@ -13,4 +13,10 @@ public:
     static void place(ChipDB::Netlist *nl, const ChipDB::Rect64 &regionRect, const int64_t rowHeight);
 };
 
+class HPWLCalculator
+{
+public:
+    static int64_t calc(ChipDB::Netlist *nl);
+};
+
 };

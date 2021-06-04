@@ -144,12 +144,22 @@ public:
         return PinInfoIterator(m_cell);
     }
 
+    /** return the cell size of the instance */
     const Coord64 cellSize() const
     {
         if (m_cell == nullptr)
             return Coord64{0,0};
             
         return m_cell->m_size;
+    }
+
+    /** return the center position of the instance */
+    Coord64 getCenter() const
+    {
+        if (m_cell != nullptr)
+            return Coord64{m_pos.m_x + m_cell->m_size.m_x/2, m_pos.m_y + m_cell->m_size.m_y/2};
+        else
+            return m_pos;
     }
 
     Coord64     m_pos;          ///< lower-left position of the instance

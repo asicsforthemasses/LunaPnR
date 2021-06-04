@@ -13,6 +13,8 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+    setLogLevel(LOG_VERBOSE);
+
     m_menuBar = new QMenuBar();
     setMenuBar(m_menuBar);
 
@@ -126,6 +128,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
         LunaCore::SimpleCellPlacer::place(&nervModule->m_netlist, 
             ChipDB::Rect64{{1000,1000}, {99000,99000}}, 10000);
+
+        auto hpwl = LunaCore::HPWLCalculator::calc(&nervModule->m_netlist);
+        doLog(LOG_INFO, "HPWL = %lld\n", hpwl);
     }
 
 #endif
