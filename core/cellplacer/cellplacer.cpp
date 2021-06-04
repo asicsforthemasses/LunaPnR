@@ -15,7 +15,7 @@ void SimpleCellPlacer::place(ChipDB::Netlist *nl, const ChipDB::Rect64 &regionRe
         auto cellSize = ins->cellSize();
 
         // is there space for the next cell in the current row?
-        if (cellSize.m_x + curPos.m_x > regionRect.m_ur.m_x)
+        if ((cellSize.m_x + curPos.m_x) > regionRect.m_ur.m_x)
         {
             // no, got to next row
             curPos.m_x = regionRect.m_ll.m_x;
@@ -35,7 +35,10 @@ void SimpleCellPlacer::place(ChipDB::Netlist *nl, const ChipDB::Rect64 &regionRe
 
     if (curPos.m_y >= regionRect.m_ur.m_y)
     {
-        doLog(LOG_ERROR, "SimpleCellPlacer: not enough room in region for all instances\n");
+        std::stringstream ss;
+        ss << "SimpleCellPlacer: not enough room in region for all instances\n";
+        ss << "  need at least " << (curPos.m_y - regionRect.m_ur.m_y) << " nm more height\n";
+        doLog(LOG_ERROR, ss);
     }
 }
 
