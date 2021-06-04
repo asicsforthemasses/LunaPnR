@@ -30,8 +30,6 @@ protected:
 
     void drawInstance(QPainter &p, const ChipDB::Instance *ins);
 
-    //constexpr QPointF toScreen(const ChipDB::Coord64 &p) const;
-
     const ChipDB::Netlist *m_netlist;
     bool  m_dirty;
 };

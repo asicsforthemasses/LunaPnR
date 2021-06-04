@@ -125,7 +125,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         //m_cellBrowser->setCellLib(&m_design.m_cellLib); // populate!
 
         LunaCore::SimpleCellPlacer::place(&nervModule->m_netlist, 
-            ChipDB::Rect64{{10000,10000}, {80000,80000}}, 10000);
+            ChipDB::Rect64{{1000,1000}, {99000,99000}}, 10000);
     }
 
 #endif

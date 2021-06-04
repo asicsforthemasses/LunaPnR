@@ -6,6 +6,7 @@
 namespace LunaCore
 {
 
+/** stupidly simple placed - just places cells in order */
 class SimpleCellPlacer
 {
 public:

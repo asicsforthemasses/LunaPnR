@@ -91,7 +91,27 @@ void FloorplanView::drawInstance(QPainter &p, const ChipDB::Instance *ins)
         cellRect.setTopRight(toScreen(ins->m_pos + ins->cellSize(), width(), height()));
         p.drawRect(cellRect);
 
-        // check if there is enough room to display text
+        switch(ins->m_orientation)
+        {
+        case ChipDB::ORIENT_R0: // aka North
+            {
+                auto p1 = cellRect.bottomLeft() - QPointF{0, cellRect.height() / 2};
+                auto p2 = cellRect.bottomLeft() + QPointF{cellRect.width() / 2, 0};
+                p.drawLine(p1, p2);
+            }
+            break;
+        case ChipDB::ORIENT_MX: // aka flipped South
+            {
+                auto p1 = cellRect.topLeft() + QPointF{0, cellRect.height() / 2};
+                auto p2 = cellRect.topLeft() + QPointF{cellRect.width() / 2, 0};
+                p.drawLine(p1, p2);
+            }            
+            break;
+        default:
+            break;            
+        }
+
+        // check if there is enough room to display the cell type
         // if so, draw the instance name and archetype
         QFontMetrics fm(font());
         int textWidth = fm.horizontalAdvance(QString::fromStdString(ins->getArchetypeName()));
@@ -100,5 +120,16 @@ void FloorplanView::drawInstance(QPainter &p, const ChipDB::Instance *ins)
         {
             drawCenteredText(p, cellRect.center(), ins->getArchetypeName(), font());
         }
+
+        textWidth = fm.horizontalAdvance(QString::fromStdString(ins->m_name));
+
+        if (cellRect.width() > textWidth)
+        {
+            auto txtpoint = cellRect.center();
+            txtpoint += {0, static_cast<qreal>(fm.height())};
+            drawCenteredText(p, txtpoint, ins->m_name, font());
+        }
+
+
     }
 }

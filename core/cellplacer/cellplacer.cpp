@@ -7,6 +7,7 @@ using namespace LunaCore;
 
 void SimpleCellPlacer::place(ChipDB::Netlist *nl, const ChipDB::Rect64 &regionRect, const int64_t rowHeight)
 {
+    bool flip = false;
     ChipDB::Coord64 curPos = regionRect.m_ll;
     for(auto ins : nl->m_instances)
     {
@@ -18,12 +19,19 @@ void SimpleCellPlacer::place(ChipDB::Netlist *nl, const ChipDB::Rect64 &regionRe
             // no, got to next row
             curPos.m_x = regionRect.m_ll.m_x;
             curPos.m_y += rowHeight;
+
+            flip = !flip;
         }
 
         ins->m_pos = curPos;
         curPos.m_x += cellSize.m_x;
+
+        if (flip)
+            ins->m_orientation = ChipDB::ORIENT_MX;
+        else
+            ins->m_orientation = ChipDB::ORIENT_R0;
     }
-    
+
     if (curPos.m_y >= regionRect.m_ur.m_y)
     {
         doLog(LOG_ERROR, "SimpleCellPlacer: not enough room in region for all instances\n");
