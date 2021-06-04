@@ -696,8 +696,6 @@ void ReaderImpl::onSiteClass(const std::string &siteClass)
         return;
     }
 
-    //std::string siteClassUpper = toUpper(siteClass);
-
     if (siteClass == "CORE")
     {
         m_curSiteInfo->m_class = SC_CORE;
@@ -706,5 +704,10 @@ void ReaderImpl::onSiteClass(const std::string &siteClass)
     {
         m_curSiteInfo->m_class = SC_PAD;
     }
-
+    else
+    {
+        std::stringstream ss;
+        ss << "Unrecognised site class '" << siteClass << "'in LEF\n";
+        doLog(LOG_WARN, ss);
+    }
 }
