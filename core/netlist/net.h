@@ -7,7 +7,7 @@
 namespace ChipDB
 {
 
-class Instance; // pre-declaration
+class InstanceBase; // pre-declaration
 
 class Net
 {
@@ -33,15 +33,15 @@ public:
 
     struct NetConnect
     {
-        Instance *m_instance;
-        size_t    m_pinIndex;
+        InstanceBase *m_instance;
+        size_t        m_pinIndex;
     };
 
     /** connect the net to the instance pin.
      *  it checks if the requested connection already exists
      *  and if it does, ignores it.
     */
-    void addConnection(Instance *instance, size_t pinIndex);
+    void addConnection(InstanceBase *instance, size_t pinIndex);
 
     std::vector<NetConnect> m_connections;
 };

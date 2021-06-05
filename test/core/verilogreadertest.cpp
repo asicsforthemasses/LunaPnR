@@ -37,15 +37,23 @@ BOOST_AUTO_TEST_CASE(can_read_netlist)
 
     for(auto ins : mod->m_netlist.m_instances)
     {
-        if (ins->isModule())
+        switch(ins->m_insType)
         {
-            //auto modIns = dynamic_cast<ChipDB::ModuleInstance*>(ins);
+        case ChipDB::InstanceBase::INS_MODULE:
             std::cout << "    module " << ins->m_name << "\n";
-        }
-        else
-        {
-            //auto cellIns = dynamic_cast<ChipDB::CellInstance*>(ins);
-            std::cout << "    cell " << ins->m_name << " " << ins->cell()->m_name << "\tarea: " << ins->cell()->m_area << " um²\n";
+            break;
+        case ChipDB::InstanceBase::INS_CELL:
+            {
+                std::cout << "    cell " << ins->m_name << " " << ins->getArchetypeName() << "\tarea: " << ins->getArea() << " um²\n";
+            }
+            break;
+        case ChipDB::InstanceBase::INS_PIN:
+            {
+                std::cout << "    pin  " << ins->m_name << " " << ins->getArchetypeName() << "\tarea: " << ins->getArea() << " um²\n";
+            }
+            break;
+        default:
+            break;            
         }
     }
     
@@ -62,6 +70,12 @@ BOOST_AUTO_TEST_CASE(can_read_netlist)
     {
         std::cout << "    " << pin.m_name << "\n";
     }
+
+    // check that module pins have a __pin instance in the netlist
+    for(auto const& modPin : mod->m_pins)
+    {
+        BOOST_CHECK(mod->m_netlist.m_instances.lookup(modPin.m_name) != nullptr);
+    }    
 }
 
 BOOST_AUTO_TEST_CASE(can_read_nerv32)
@@ -96,11 +110,17 @@ BOOST_AUTO_TEST_CASE(can_read_nerv32)
         std::cout << "  module has " << mod->m_pins.size() << " pins\n";
         BOOST_CHECK(mod->m_pins.size() != 0);                
 
+        // check that module pins have a __pin instance in the netlist
+        for(auto const& modPin : mod->m_pins)
+        {
+            BOOST_CHECK(mod->m_netlist.m_instances.lookup(modPin.m_name) != nullptr);
+        }
+
         // determine cell area
         double area = 0;
         for(auto ins : mod->m_netlist.m_instances)
         {
-            area += ins->cell()->m_area;
+            area += ins->getArea();
         }
 
         std::cout << "  module area " << area << " um²\n";        
@@ -139,11 +159,17 @@ BOOST_AUTO_TEST_CASE(can_read_picorv32)
         std::cout << "  module has " << mod->m_pins.size() << " pins\n";
         BOOST_CHECK(mod->m_pins.size() != 0);       
 
+        // check that module pins have a __pin instance in the netlist
+        for(auto const& modPin : mod->m_pins)
+        {
+            BOOST_CHECK(mod->m_netlist.m_instances.lookup(modPin.m_name) != nullptr);
+        }
+
         // determine cell area
         double area = 0;
         for(auto ins : mod->m_netlist.m_instances)
         {
-            area += ins->cell()->m_area;
+            area += ins->getArea();
         }
 
         std::cout << "  module area " << area << " um²\n";

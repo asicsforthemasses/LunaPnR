@@ -64,7 +64,7 @@ public:
         return true;
     }
 
-    bool addInstance(const std::string &insName, Instance* insPtr);
+    bool addInstance(const std::string &insName, InstanceBase* insPtr);
     Net* createNet(const std::string &netName);
 
     Netlist m_netlist;

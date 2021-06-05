@@ -4,7 +4,7 @@
 
 using namespace ChipDB;
 
-void Net::addConnection(Instance *instance, size_t pinIndex)
+void Net::addConnection(InstanceBase *instance, size_t pinIndex)
 {
     auto iter = std::find_if(m_connections.begin(), m_connections.end(),
         [instance, pinIndex](auto conn)

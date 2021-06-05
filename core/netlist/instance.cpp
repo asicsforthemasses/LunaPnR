@@ -2,12 +2,24 @@
 
 using namespace ChipDB;
 
+// **********************************************************************
+//  Instance implementation
+// **********************************************************************
+
 std::string Instance::getArchetypeName() const
 {
     if (m_cell != nullptr)
         return m_cell->m_name;
     else
         return "UNKNOWN";
+}
+
+double Instance::getArea() const
+{
+    if (m_cell != nullptr)
+        return 0.0;
+    else
+        return m_cell->m_area;
 }
 
 const PinInfo* Instance::getPinInfo(ssize_t pinIndex) const
@@ -97,4 +109,68 @@ bool Instance::connect(const std::string &pinName, Net *net)
         return false;   // pin not found
         
     return Instance::connect(pinIndex, net);
+}
+
+// **********************************************************************
+//  PinInstance implementation
+// **********************************************************************
+
+std::string PinInstance::getArchetypeName() const
+{
+    return "__PIN";
+}
+
+const PinInfo* PinInstance::getPinInfo(ssize_t pinIndex) const
+{
+    if (pinIndex == 0)
+        return &m_pinInfo;
+    else 
+        return nullptr;
+}
+
+const PinInfo* PinInstance::getPinInfo(const std::string &pinName) const
+{
+    if (m_name == pinName)
+        return &m_pinInfo;
+    
+    return nullptr;
+}
+
+const ssize_t PinInstance::getPinIndex(const std::string &pinName) const
+{
+    if (m_name == pinName)
+        return 0;
+
+    return -1;
+}
+
+const size_t PinInstance::getNumberOfPins() const
+{
+    return 1;
+}
+
+Net* PinInstance::getConnectedNet(ssize_t pinIndex)
+{
+    if (pinIndex == 0)
+        return m_connectedNet;
+
+    return nullptr;  // pin not found - index out of bounds
+}
+
+bool PinInstance::connect(ssize_t pinIndex, Net *net)
+{   
+    if (pinIndex != 0)
+        return false;   // invalid pin
+
+    m_connectedNet = net;
+    return true;
+}
+
+bool PinInstance::connect(const std::string &pinName, Net *net)
+{
+    if (m_name != pinName)
+        return false;   // invalid pin
+        
+    m_connectedNet = net;
+    return true;
 }

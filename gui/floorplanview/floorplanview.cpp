@@ -82,7 +82,7 @@ constexpr const QPointF toScreen(const ChipDB::Coord64 &p, double sw, double sh)
     return QPointF{sx, sy};
 }
 
-void FloorplanView::drawInstance(QPainter &p, const ChipDB::Instance *ins)
+void FloorplanView::drawInstance(QPainter &p, const ChipDB::InstanceBase *ins)
 {
     if (ins != nullptr)
     {

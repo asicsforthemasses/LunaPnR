@@ -27,11 +27,16 @@ public:
 
     virtual ~InstanceBase() {}
 
+    IMPLEMENT_ACCEPT
+
     /** returns true if the instance is a module */
     bool isModule() const
     {
         return m_insType == INS_MODULE;
     }
+
+    /** get area in um² */
+    virtual double getArea() const = 0;
 
     /** return the underlying cell/module name */
     virtual std::string getArchetypeName() const = 0;
@@ -104,9 +109,11 @@ public:
             m_insType = INS_CELL;
 
         m_pinToNet.resize(cell->m_pins.size());
-    }
+    }    
 
-    IMPLEMENT_ACCEPT;
+    virtual ~Instance() {};
+
+    IMPLEMENT_ACCEPT_OVERRIDE;
 
     /** get access to the cell/module */
     const Cell* cell() const
@@ -124,13 +131,16 @@ public:
     }
 
     /** return the center position of the instance */
-    Coord64 getCenter() const
+    Coord64 getCenter() const override
     {
         if (m_cell != nullptr)
             return Coord64{m_pos.m_x + m_cell->m_size.m_x/2, m_pos.m_y + m_cell->m_size.m_y/2};
         else
             return m_pos;
     }
+
+    /** get area in um² */
+    double getArea() const override;
 
     /** return the underlying cell/module name */
     virtual std::string getArchetypeName() const override;
@@ -170,6 +180,93 @@ public:
 protected:
     std::vector<Net*>   m_pinToNet;  ///< connections from pin to net
     const Cell* m_cell;
+};
+
+class PinInstance : public InstanceBase
+{
+public:
+    
+    PinInstance(const std::string &name)
+    {
+        m_name = name;
+        m_insType = INS_PIN;
+        m_connectedNet = nullptr;
+        m_pinInfo.m_name = name;
+    }
+
+    PinInstance(const std::string &name, InstanceBase *parent) : InstanceBase(parent)
+    {
+        m_name = name;
+        m_insType = INS_PIN;
+        m_connectedNet = nullptr;
+        m_pinInfo.m_name = name;
+    }
+
+    virtual ~PinInstance() {};
+
+    IMPLEMENT_ACCEPT_OVERRIDE;
+
+    /** return {0,0} for pins */
+    const Coord64 instanceSize() const override
+    {
+        return Coord64{0,0};
+    }
+
+    /** return the position of the pin */
+    Coord64 getCenter() const override
+    {
+        return m_pos;
+    }
+
+    /** get area in um² */
+    double getArea() const override
+    {
+        return 0.0;
+    }
+
+    /** return the underlying cell/module name */
+    virtual std::string getArchetypeName() const override;
+    
+    /** get pin information from the underlying cell or module 
+     *  returns nullptr if pin not found.
+    */
+    virtual const PinInfo* getPinInfo(ssize_t pinIndex) const override;
+
+    /** get pin information from the underlying cell or module 
+     *  returns nullptr if pin not found.
+    */
+    virtual const PinInfo* getPinInfo(const std::string &pinName) const override;
+
+    /** get pin index by name. returns -1 when not found. 
+    */
+    virtual const ssize_t getPinIndex(const std::string &pinName) const override;
+
+    /** get the number of pins on this instance */
+    virtual const size_t getNumberOfPins() const override;
+
+    /** connect pin with specified index to the given net. 
+     *  returns true if succesful.
+    */
+    virtual bool connect(ssize_t pinIndex, Net *net) override;
+
+    /** connect pin with specified name to the given net. 
+     *  returns true if succesful.
+    */    
+    virtual bool connect(const std::string &pinName, Net *net) override;
+
+    /** returns the net connected to a pin with a given index.
+     *  if the pin does not exist, it return nullptr.
+    */
+    virtual Net* getConnectedNet(ssize_t pinIndex) override;
+
+    void setPinIOType(PinIOType iotype)
+    {
+        m_pinInfo.m_iotype = iotype;
+    }
+
+protected:
+    PinInfo m_pinInfo;
+    Net*    m_connectedNet;  ///< connection from pin to net
 };
 
 };

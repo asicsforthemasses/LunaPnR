@@ -27,25 +27,24 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
     // write all instances as nodes
     for(auto const ins : m_module->m_netlist.m_instances)
     {
-        os << "  " << escapeString(ins->m_name) << " [label = \"{{";
-        writeInputs(os, ins);
-        os << "}|" << escapeString(ins->m_name) << "\\n" << escapeString(ins->getArchetypeName()) << "|{";
-        writeOutputs(os, ins);
-        os << "}} \";";
-
-        if (decorator != nullptr)
+        if (ins->m_insType == ChipDB::InstanceBase::INS_PIN)
         {
-            decorator->decorate(ins, os);
+            os << "  " << escapeString(ins->m_name) << " [shape=\"circle\", label = \""  << ins->m_name << "\"];\n";
         }
+        else
+        {
+            os << "  " << escapeString(ins->m_name) << " [label = \"{{";
+            writeInputs(os, ins);
+            os << "}|" << escapeString(ins->m_name) << "\\n" << escapeString(ins->getArchetypeName()) << "|{";
+            writeOutputs(os, ins);
+            os << "}} \";";
+            if (decorator != nullptr)
+            {
+                decorator->decorate(ins, os);
+            }
 
-        os << "];\n";
-    }
-
-    // write all pins of the module
-    for(auto const& pin : m_module->m_pins)
-    {
-        auto const pinName = pin.m_name;
-        os << "  " << escapeString(pinName) << " [shape=\"circle\", label = \""  << pinName << "\"];\n";
+            os << "];\n";            
+        }
     }
 
     // stream out all the connections
@@ -57,11 +56,10 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
         // find the driver on the net
         std::string driverName;
         std::string driverPinName;
-        ssize_t driverIdx = -1;
-        ssize_t idx = 0;
-        
-        constexpr ssize_t tlpinIdx = SSIZE_MAX;
+        ChipDB::Instance::InstanceType driverInsType = ChipDB::Instance::INS_ABSTRACT;
 
+        ssize_t driverIdx = -1;
+        ssize_t idx = 0;        
         for(auto const& conn : net->m_connections)
         {          
             auto pinInfo = conn.m_instance->getPinInfo(conn.m_pinIndex);
@@ -71,24 +69,12 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
                 {
                     // net driver pin
                     driverPinName = pinInfo->m_name;
-                    driverName = conn.m_instance->m_name;
+                    driverName    = conn.m_instance->m_name;
+                    driverInsType = conn.m_instance->m_insType;
                     driverIdx  = idx;
                 }
             }
             idx++;
-        }
-
-        // if no driver was found, perhaps it was a top-level pin?
-        if (driverIdx == -1)
-        {
-            auto pinInfo = m_module->lookupPin(net->m_name);
-
-            // top level inputs are circuit level outputs!
-            if (pinInfo->isInput())
-            {
-                driverPinName = net->m_name;
-                driverIdx = tlpinIdx;
-            }
         }
 
         // write out all connections from net driver
@@ -102,25 +88,26 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
                 auto dstPinInfo = conn.m_instance->getPinInfo(conn.m_pinIndex);
                 if (dstPinInfo != nullptr)
                 {
-                    if (driverIdx != tlpinIdx)
+                    if (driverInsType != ChipDB::InstanceBase::INS_PIN)
                     {
-                        // non top-level pin driver                        
                         os << "  " << escapeString(driverName) << ":" << escapeString(driverPinName) << "->";
                     }
                     else
                     {
-                        // top-level pin driver
                         os << "  " << escapeString(driverPinName) << "->";
                     }
 
-                    auto dstIns = dstPinInfo->m_name;
-                    os << escapeString(conn.m_instance->m_name) << ":" << escapeString(dstPinInfo->m_name) << ";\n";
+                    if (conn.m_instance->m_insType != ChipDB::InstanceBase::INS_PIN)
+                        os << escapeString(conn.m_instance->m_name) << ":" << escapeString(dstPinInfo->m_name) << ";\n";
+                    else
+                        os << escapeString(conn.m_instance->m_name) << ";\n";
                 }
             }
 
             idx++;
         }
 
+#if 0
         // check if the net is a top-level net
         // and make a connection from the net driver to the top-level pin
         if ((driverIdx != tlpinIdx) && (driverIdx != -1) && net->m_isPortNet)
@@ -128,6 +115,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
             os << "  " << escapeString(driverName) << ":" << escapeString(driverPinName) << "->";
             os << escapeString(net->m_name) << ";\n";
         }
+#endif
     }
 
     os << "\n}\n";
@@ -174,7 +162,7 @@ bool Writer::write(const ChipDB::Module *module,
     return writer->execute(os, decorator);
 }
 
-void Writer::writeInputs(std::ostream &os, const ChipDB::Instance *ins)
+void Writer::writeInputs(std::ostream &os, const ChipDB::InstanceBase *ins)
 {
     if (ins == nullptr)
         return;
@@ -202,7 +190,7 @@ void Writer::writeInputs(std::ostream &os, const ChipDB::Instance *ins)
     }
 }
 
-void Writer::writeOutputs(std::ostream &os, const ChipDB::Instance *ins)
+void Writer::writeOutputs(std::ostream &os, const ChipDB::InstanceBase *ins)
 {
     if (ins == nullptr)
         return;

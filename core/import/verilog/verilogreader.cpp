@@ -207,6 +207,12 @@ void ReaderImpl::onInput(const std::string &netname)
     // add a top-level pin
     auto& pin = m_currentModule->createPin(netname);
     pin.m_iotype = IO_INPUT;
+
+    auto pinInstance = new PinInstance(netname);
+    pinInstance->setPinIOType(IO_OUTPUT);    // input ports have output pins!
+    pinInstance->connect(0, netPtr);
+    netPtr->addConnection(pinInstance, 0);
+    m_currentModule->addInstance(netname, pinInstance);    
 }
 
 void ReaderImpl::onInput(const std::string &netname, uint32_t start, uint32_t stop)
@@ -232,6 +238,13 @@ void ReaderImpl::onInput(const std::string &netname, uint32_t start, uint32_t st
         // add a top-level pin
         auto& pin = m_currentModule->createPin(ss.str());
         pin.m_iotype = IO_INPUT;
+
+        // add a PinInstance for each pin to the netlist
+        auto pinInstance = new PinInstance(netname);
+        pinInstance->setPinIOType(IO_OUTPUT);    // input ports have output pins!
+        pinInstance->connect(0, netPtr);
+        netPtr->addConnection(pinInstance, 0);
+        m_currentModule->addInstance(netname, pinInstance);
     }
 
     doLog(LOG_VERBOSE,"Expanded input net %s\n", netname.c_str());
@@ -249,6 +262,13 @@ void ReaderImpl::onOutput(const std::string &netname)
     // add a top-level pin
     auto& pin = m_currentModule->createPin(netname);
     pin.m_iotype = IO_OUTPUT;
+
+    // add a PinInstance for each pin to the netlist
+    auto pinInstance = new PinInstance(netname);
+    pinInstance->setPinIOType(IO_INPUT);    // output ports have input pins!
+    pinInstance->connect(0, netPtr);
+    netPtr->addConnection(pinInstance, 0);    
+    m_currentModule->addInstance(netname, pinInstance);
 }
 
 void ReaderImpl::onOutput(const std::string &netname, uint32_t start, uint32_t stop)
@@ -267,13 +287,19 @@ void ReaderImpl::onOutput(const std::string &netname, uint32_t start, uint32_t s
         std::stringstream ss;
         ss << netname << "[" << i << "]";
         
-        // This callback is only single wires.
         auto netPtr = m_currentModule->createNet(ss.str());
         netPtr->setPortNet(true);
 
         // add a top-level pin
         auto& pin = m_currentModule->createPin(ss.str());
         pin.m_iotype = IO_OUTPUT;
+
+        // add a PinInstance for each pin to the netlist
+        auto pinInstance = new PinInstance(netname);
+        pinInstance->setPinIOType(IO_INPUT);    // output ports have input pins!
+        pinInstance->connect(0, netPtr);
+        netPtr->addConnection(pinInstance, 0);
+        m_currentModule->addInstance(ss.str(), pinInstance);
     }
 
     doLog(LOG_VERBOSE,"Expanded output net %s\n", netname.c_str());
@@ -291,14 +317,11 @@ void ReaderImpl::onInstancePort(uint32_t pinIndex, const std::string &netName)
         std::stringstream ss;
         ss << "Cannot find net " << netName << " in module " << m_currentModule->m_name << "\n";
         doLog(LOG_ERROR, ss.str());
+        return;
     }
 
-    //FIXME: we should connect to a special port instance..
-
-    //auto netIndex = myModulePtr->nets().indexOf(netName);
-    //auto pinPtr   = &myInstancePtr->pins()[pinIndex];
-    //netPtr->addConnection(m_currentInstance, pinIndex);
-    //m_curInstance->connect(pinIndex, net.id);
+    m_currentInstance->connect(pinIndex, netPtr);
+    netPtr->addConnection(m_currentInstance, pinIndex);        
 }
 
 /** callback for each module instance in the netlist */

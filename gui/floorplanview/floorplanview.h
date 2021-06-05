@@ -28,7 +28,7 @@ protected:
 
     void paintEvent(QPaintEvent *event) override;
 
-    void drawInstance(QPainter &p, const ChipDB::Instance *ins);
+    void drawInstance(QPainter &p, const ChipDB::InstanceBase *ins);
 
     const ChipDB::Netlist *m_netlist;
     bool  m_dirty;

@@ -43,7 +43,7 @@ const PinInfo* Cell::lookupPin(ssize_t index) const
 //   Module
 // **********************************************************************
 
-bool Module::addInstance(const std::string &insName, Instance* insPtr)
+bool Module::addInstance(const std::string &insName, InstanceBase* insPtr)
 {
     return m_netlist.m_instances.add(insName, insPtr);
 }
