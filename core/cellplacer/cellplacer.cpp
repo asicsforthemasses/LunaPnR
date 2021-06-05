@@ -77,3 +77,16 @@ int64_t HPWLCalculator::calc(ChipDB::Netlist *nl)
 
     return hpwl;
 }
+
+double CellAreaCalculator::calc(ChipDB::Netlist *nl)
+{
+    double um2 = 0.0;
+    for(auto const ins : nl->m_instances)
+    {
+        double sx = static_cast<double>(ins->cellSize().m_x) / 1000.0;
+        double sy = static_cast<double>(ins->cellSize().m_y) / 1000.0;
+        um2 += sx*sy;
+    }
+
+    return um2;
+}

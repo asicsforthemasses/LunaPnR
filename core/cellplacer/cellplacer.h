@@ -19,4 +19,11 @@ public:
     static int64_t calc(ChipDB::Netlist *nl);
 };
 
+class CellAreaCalculator
+{
+public:
+    /** returns the total cell area in um² */
+    static double calc(ChipDB::Netlist *nl);
+};
+
 };

@@ -32,6 +32,10 @@ BOOST_AUTO_TEST_CASE(check_simplecellplacer)
     auto hpwl = LunaCore::HPWLCalculator::calc(&mod->m_netlist);
     BOOST_CHECK(hpwl > 0);
     std::cout << "  HPWL = " << hpwl << " nm\n";
+
+    auto area = LunaCore::CellAreaCalculator::calc(&mod->m_netlist);
+    BOOST_CHECK(area > 0.0);
+    std::cout << "  Area = " << area << " um²\n";
 };
 
 
