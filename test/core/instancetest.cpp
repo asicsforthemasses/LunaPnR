@@ -37,9 +37,10 @@ BOOST_AUTO_TEST_CASE(various_instance_tests)
     cell.createPin("Z");
 
     size_t pinCount = 0;
-    for(auto const& pinInfo : ins.pinInfos())
+    for(auto pinIndex=0; pinIndex < ins.getNumberOfPins(); pinIndex++)
     {
-        pinCount++;
+        if (ins.getPinInfo(pinIndex) != nullptr)
+            pinCount++;
     }
     BOOST_CHECK(pinCount == 3);
 

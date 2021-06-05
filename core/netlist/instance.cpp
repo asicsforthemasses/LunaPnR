@@ -10,11 +10,6 @@ std::string Instance::getArchetypeName() const
         return "UNKNOWN";
 }
 
-bool Instance::isModule() const
-{
-    return m_cell->isModule();
-}
-
 const PinInfo* Instance::getPinInfo(ssize_t pinIndex) const
 {
     // check if the cell is present

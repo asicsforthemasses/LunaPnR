@@ -88,7 +88,7 @@ void FloorplanView::drawInstance(QPainter &p, const ChipDB::Instance *ins)
     {
         QRectF cellRect;
         cellRect.setBottomLeft(toScreen(ins->m_pos, width(), height()));
-        cellRect.setTopRight(toScreen(ins->m_pos + ins->cellSize(), width(), height()));
+        cellRect.setTopRight(toScreen(ins->m_pos + ins->instanceSize(), width(), height()));
         p.drawRect(cellRect);
 
         switch(ins->m_orientation)

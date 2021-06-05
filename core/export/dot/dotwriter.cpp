@@ -180,19 +180,24 @@ void Writer::writeInputs(std::ostream &os, const ChipDB::Instance *ins)
         return;
 
     bool first = true;
-    for(auto pinInfo : ins->pinInfos())
+    for(ssize_t pinIndex=0; pinIndex < ins->getNumberOfPins(); ++pinIndex)
     {
-        // skip power/ground pins
-        if (pinInfo.isPGPin())
+        auto pinInfo = ins->getPinInfo(pinIndex);
+
+        if (pinInfo == nullptr)
             continue;
 
-        if (pinInfo.isInput())
+        // skip power/ground pins
+        if (pinInfo->isPGPin())
+            continue;
+
+        if (pinInfo->isInput())
         {
             if (!first)
                 os << "|";
 
             first = false;
-            os << "<" << escapeString(pinInfo.m_name) << "> " << escapeString(pinInfo.m_name);
+            os << "<" << escapeString(pinInfo->m_name) << "> " << escapeString(pinInfo->m_name);
         }
     }
 }
@@ -203,19 +208,20 @@ void Writer::writeOutputs(std::ostream &os, const ChipDB::Instance *ins)
         return;
 
     bool first = true;
-    for(auto const& pinInfo : ins->pinInfos())
+    for(ssize_t pinIndex=0; pinIndex < ins->getNumberOfPins(); ++pinIndex)
     {
+        auto pinInfo = ins->getPinInfo(pinIndex);
         // skip power/ground pins
-        if (pinInfo.isPGPin())
+        if (pinInfo->isPGPin())
             continue;
 
-        if (pinInfo.isOutput())
+        if (pinInfo->isOutput())
         {
             if (!first)
                 os << "|";
 
             first = false;
-            os << "<" << escapeString(pinInfo.m_name) << "> " << escapeString(pinInfo.m_name);
+            os << "<" << escapeString(pinInfo->m_name) << "> " << escapeString(pinInfo->m_name);
         }
     }
 }
