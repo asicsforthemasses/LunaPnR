@@ -22,21 +22,24 @@ public:
         INS_PIN
     } m_insType;
 
-    InstanceBase() : m_parent(nullptr), m_insType(INS_ABSTRACT), m_orientation(ORIENT_R0), m_flags(0) {}
-    InstanceBase(InstanceBase *parent) : m_parent(parent), m_insType(INS_ABSTRACT), m_orientation(ORIENT_R0), m_flags(0) {}
+    InstanceBase() : m_parent(nullptr), m_insType(INS_ABSTRACT), m_orientation(ORIENT_R0), 
+        m_placementInfo(PLACEMENT_UNPLACED), m_flags(0) {}
+    
+    InstanceBase(InstanceBase *parent) : m_parent(parent), m_insType(INS_ABSTRACT), m_orientation(ORIENT_R0), 
+        m_placementInfo(PLACEMENT_UNPLACED), m_flags(0) {}
 
     virtual ~InstanceBase() {}
 
     IMPLEMENT_ACCEPT
 
     /** returns true if the instance is a module */
-    bool isModule() const
+    bool isModule() const noexcept
     {
         return m_insType == INS_MODULE;
     }
 
     /** get area in um² */
-    virtual double getArea() const = 0;
+    virtual double getArea() const noexcept = 0;
 
     /** return the underlying cell/module name */
     virtual std::string getArchetypeName() const = 0;
@@ -82,9 +85,10 @@ public:
     std::string m_name;     ///< name of the instance
     InstanceBase *m_parent; ///< parent instance
 
-    Coord64     m_pos;          ///< lower-left position of the instance
-    Orientation m_orientation;  ///< orientation of the cell instance
-    uint32_t    m_flags;        ///< non-persistent generic flags that can be used by algorithms
+    Coord64         m_pos;              ///< lower-left position of the instance
+    Orientation     m_orientation;      ///< orientation of the cell instance
+    PlacementInfo   m_placementInfo;    ///< placement status
+    uint32_t        m_flags;            ///< non-persistent generic flags that can be used by algorithms
 };
 
 class Instance : public InstanceBase
@@ -140,7 +144,7 @@ public:
     }
 
     /** get area in um² */
-    double getArea() const override;
+    double getArea() const noexcept override;
 
     /** return the underlying cell/module name */
     virtual std::string getArchetypeName() const override;
@@ -219,7 +223,7 @@ public:
     }
 
     /** get area in um² */
-    double getArea() const override
+    double getArea() const noexcept override
     {
         return 0.0;
     }

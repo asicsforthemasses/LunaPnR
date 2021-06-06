@@ -80,6 +80,11 @@ namespace ChipDB
             return Coord64{m_x - rhs.m_x, m_y - rhs.m_y};
         } 
 
+        constexpr int64_t manhattanLength() const noexcept
+        {
+            return m_x + m_y;
+        }
+
         // unary minus
         Coord64 operator-() const noexcept
         {

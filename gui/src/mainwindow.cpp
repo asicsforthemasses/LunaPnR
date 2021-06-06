@@ -127,7 +127,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         //m_cellBrowser->setCellLib(&m_design.m_cellLib); // populate!
 
         LunaCore::SimpleCellPlacer::place(&nervModule->m_netlist, 
-            ChipDB::Rect64{{1000,1000}, {99000,99000}}, 10000);
+            ChipDB::Rect64{{1000,1000}, {650000,650000}}, 10000);
 
         auto hpwl = LunaCore::HPWLCalculator::calc(&nervModule->m_netlist);
         doLog(LOG_INFO, "HPWL = %lld\n", hpwl);

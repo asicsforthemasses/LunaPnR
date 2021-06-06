@@ -14,9 +14,9 @@ std::string Instance::getArchetypeName() const
         return "UNKNOWN";
 }
 
-double Instance::getArea() const
+double Instance::getArea() const noexcept
 {
-    if (m_cell != nullptr)
+    if (m_cell == nullptr)
         return 0.0;
     else
         return m_cell->m_area;

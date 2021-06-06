@@ -12,6 +12,10 @@ void SimpleCellPlacer::place(ChipDB::Netlist *nl, const ChipDB::Rect64 &regionRe
     ChipDB::Coord64 curPos = regionRect.m_ll;
     for(auto ins : nl->m_instances)
     {
+        // do not place pins
+        if (ins->m_insType == ChipDB::InstanceBase::INS_PIN)
+            continue;
+            
         auto cellSize = ins->instanceSize();
 
         // is there space for the next cell in the current row?

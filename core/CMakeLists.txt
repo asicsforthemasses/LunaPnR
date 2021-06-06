@@ -29,6 +29,7 @@ add_library(lunacore
     celllib/pin.cpp
     celllib/celllib.cpp
     techlib/techlib.cpp
+    partitioner/fmpart.cpp
     import/liberty/libparser.cpp
     import/liberty/libreader.cpp
     import/liberty/libreaderimpl.cpp
