@@ -57,13 +57,24 @@ BOOST_AUTO_TEST_CASE(can_partition)
 
     partitioner.init(&mod->m_netlist);
 
-    std::cout << "  Pins:\n";
+    auto ofile = std::ofstream("test/files/results/partitioner.txt");
+
+    ofile << "  Pins:\n";
     for(auto ins : mod->m_netlist.m_instances)
     {
         if (ins->m_insType == ChipDB::Instance::INS_PIN)
         {
-            std::cout << "    pin " << ins->m_name << " " << toString(ins->getPinInfo(0)->m_iotype);
-            std::cout << "\tpos " << ins->m_pos << "    partition: " << partitioner.m_nodes[ins->m_flags].m_partitionId << "\n";
+            ofile << "    pin " << ins->m_name << " " << toString(ins->getPinInfo(0)->m_iotype);
+            ofile << "\tpos " << ins->m_pos << "    partition: " << partitioner.m_nodes[ins->m_flags].m_partitionId << "\n";
+        }
+    }
+
+    ofile << "  Instances:\n";
+    for(auto ins : mod->m_netlist.m_instances)
+    {
+        if (ins->m_insType == ChipDB::Instance::INS_CELL)
+        {
+            ofile << "    cell " << ins->m_name << " gain: " << partitioner.m_nodes[ins->m_flags].m_gain << "\n";
         }
     }
 }
