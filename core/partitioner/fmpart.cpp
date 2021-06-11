@@ -1,6 +1,6 @@
 #include <algorithm>
 #include "fmpart.h"
-
+#include "common/logging.h"
 #include "netlist/instance.h"
 
 using namespace LunaCore;
@@ -34,6 +34,9 @@ bool FMPart::init(ChipDB::Netlist *nl)
 
         /* use cell width as the weight, as the height of each cell is the same */
         m_nodes[id].m_weight = ins->instanceSize().m_x;
+        m_nodes[id].m_next   = -1;
+        m_nodes[id].m_prev   = -1;
+        m_nodes[id].m_self   = id;
 
         // check if the instance has a fixed position.
         // if so, assign the instance/node to the closest
@@ -41,7 +44,7 @@ bool FMPart::init(ChipDB::Netlist *nl)
 
         if (ins->m_placementInfo == ChipDB::PlacementInfo::PLACEMENT_PLACEDANDFIXED)
         {
-            if (distanceToPartition(m_part1, ins->m_pos) < distanceToPartition(m_part2, ins->m_pos))
+            if (distanceToPartition(m_partitions[0], ins->m_pos) < distanceToPartition(m_partitions[1], ins->m_pos))
             {
                 m_nodes[id].m_partitionId = 0;
             }
@@ -153,9 +156,84 @@ bool FMPart::init(ChipDB::Netlist *nl)
             }            
         }
 
+        addNodeToPartitionBucket(nodeId);
+
         nodeId++;
     }
 
     return true;
 }
 
+bool FMPart::addNodeToPartitionBucket(const NodeId nodeId)
+{
+    // this code assumes that the node was already unlinked
+
+    if (nodeId >= m_nodes.size())
+    {
+        // internal error! 
+        doLog(LOG_ERROR,"FMPart internal error: nodeId is out of range!\n");
+        return false;
+    }
+
+    auto& node = m_nodes.at(nodeId);
+    if (node.isLinked())
+    {
+        doLog(LOG_ERROR,"FMPart internal error: node is already linked!\n");
+        return false;
+    }
+
+    auto& partition = m_partitions.at(node.m_partitionId);
+
+    if (partition.m_buckets.find(node.m_gain) != partition.m_buckets.end())
+    {
+        // bucket with this gain already exist! -> move the new node
+        // to the head of the queue
+        auto oldNodeId = partition.m_buckets[node.m_gain];
+        auto& oldNode = m_nodes.at(oldNodeId);
+        oldNode.m_prev = nodeId;
+        node.m_next = oldNodeId;
+    }
+
+    partition.m_buckets[node.m_gain] = nodeId;
+    return true;
+}
+
+bool FMPart::removeNodeFromPartitionBucket(const NodeId nodeId)
+{
+    if (nodeId >= m_nodes.size())
+    {
+        // internal error! 
+        doLog(LOG_ERROR,"FMPart internal error: nodeId is out of range!\n");
+        return false;
+    }
+
+    auto& node = m_nodes.at(nodeId);
+    
+    if (node.m_next != -1)
+    {
+        // unlink the next node
+        auto& nextNode = m_nodes.at(node.m_next);
+        nextNode.m_prev = node.m_prev;
+    }
+
+    if (node.m_prev != -1)
+    {
+        // unlink the previous node
+        auto &prevNode = m_nodes.at(node.m_prev);
+        prevNode.m_next = node.m_next;
+    }
+
+    // check if the node was the head node
+    // and unlink from the bucket side
+    auto& partition = m_partitions.at(node.m_partitionId);
+    auto iter = partition.m_buckets.find(node.m_gain);
+    if (iter->second == nodeId)
+    {
+        iter->second = node.m_next;
+    }
+
+    node.m_next = -1;
+    node.m_prev = -1;
+
+    return true;
+}

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <map>
 #include <list>
+#include <array>
 #include "common/dbtypes.h"
 #include "netlist/netlist.h"
 
@@ -19,19 +20,21 @@ public:
     using NodeId    = int32_t;
     using GainType  = int32_t;
 
+    using BucketType = typename std::map<GainType, NodeId>;
+
     struct Partition
     {
         ChipDB::Rect64 m_region;
 
         // gain based buckets, each containing a doubly linked list
-        std::map<GainType, NodeId> m_buckets;
+        BucketType m_buckets;
     };
 
     struct Node
     {
-        std::vector<NetId>  m_nets;             ///< nets connected to this node
-        uint32_t            m_partitionId;      ///< current location of the node: partition 1 or 2
-        int64_t             m_weight;           ///< weight of the node (probably width as cell height is same for all cells)
+        std::vector<NetId>  m_nets;             ///< nets connected to this nodes
+        uint32_t            m_partitionId;      ///< current location of the node: partition 0 or 1
+        int64_t             m_weight;           ///< weight of the node (probably cell width instead of area)
         int64_t             m_gain;             ///< change in the number of net cuts when node is moved to the other partition
         bool                m_locked;           ///< if true, the node is unmovable
 
@@ -39,6 +42,11 @@ public:
         NodeId              m_next;
         NodeId              m_prev;
         NodeId              m_self;
+
+        constexpr bool isLinked() const noexcept
+        {
+            return (m_next != -1) || (m_prev != -1);
+        }
     };
 
     struct Net
@@ -48,24 +56,19 @@ public:
         int32_t             m_nodesInPartition[2];
     };
 
-    using bucket = std::list<NodeId>;
-    std::map<int32_t, bucket> m_gains;
-
-    enum CutState
-    {
-        NO_CHANGE,
-        WILL_BECOME_CUT,
-        WILL_BECOME_UNCUT
-    };
-
     bool init(ChipDB::Netlist *nl);
-    int64_t distanceToPartition(const Partition &part, const ChipDB::Coord64 &pos);
 
     std::vector<Node>       m_nodes;    ///< storage for all nodes in the netlist
     std::vector<Net>        m_nets;     ///< storage for all nets in the netlist
 
-    Partition m_part1;
-    Partition m_part2;
+    std::array<Partition, 2> m_partitions;
+
+protected:
+    int64_t distanceToPartition(const Partition &part, const ChipDB::Coord64 &pos);
+    
+    bool addNodeToPartitionBucket(const NodeId nodeId);
+    bool removeNodeFromPartitionBucket(const NodeId nodeId);
+
 };
 
 };
