@@ -6,54 +6,130 @@
 #include <array>
 #include "common/dbtypes.h"
 #include "netlist/netlist.h"
-
-namespace LunaCore
+#include "fmtypes.h"
+namespace LunaCore::Partitioner
 {
 
 class FMPart
 {
 public:
-
-    struct Net;         // predeclaration
-
-    using NetId     = int32_t;
-    using NodeId    = int32_t;
-    using GainType  = int32_t;
+    FMPart()
+    {
+        m_partitions.emplace_back(Partition(m_nodes));
+        m_partitions.emplace_back(Partition(m_nodes));
+    }
 
     using BucketType = typename std::map<GainType, NodeId>;
 
     struct Partition
     {
+        Partition(std::vector<Node> &nodes) : m_nodes(nodes) {}
+
         ChipDB::Rect64 m_region;
 
         // gain based buckets, each containing a doubly linked list
         BucketType m_buckets;
-    };
 
-    struct Node
-    {
-        std::vector<NetId>  m_nets;             ///< nets connected to this nodes
-        uint32_t            m_partitionId;      ///< current location of the node: partition 0 or 1
-        int64_t             m_weight;           ///< weight of the node (probably cell width instead of area)
-        int64_t             m_gain;             ///< change in the number of net cuts when node is moved to the other partition
-        bool                m_locked;           ///< if true, the node is unmovable
-
-        // IDs for gain based bucket list implementation
-        NodeId              m_next;
-        NodeId              m_prev;
-        NodeId              m_self;
-
-        constexpr bool isLinked() const noexcept
+        /** check if a bucket for a specific gain exists */
+        bool hasBucket(const GainType gain) const
         {
-            return (m_next != -1) || (m_prev != -1);
+            return (m_buckets.find(gain) != m_buckets.end());
         }
-    };
 
-    struct Net
+        /** remove a bucket for a specific gain 
+         *  note: does not unlink the nodes contained within!
+        */
+        void removeBucket(const GainType gain)
+        {
+            if (hasBucket(gain))
+            {
+                m_buckets.erase(m_buckets.find(gain));
+            }
+        }
+        class Iterator
+        {
+        public:
+            using iterator_category = std::forward_iterator_tag;
+            using value_type = Node*;
+            using difference_type = std::ptrdiff_t;
+            //using pointer = Node*;
+            //using reference = blDataType&;
+
+            Iterator(Partition &partition, bool atEnd) 
+                : m_partition(partition)
+            {
+                m_curNode = nullptr;
+                if (!atEnd)
+                {
+                    m_bucketIter = m_partition.m_buckets.begin();
+                    if (m_bucketIter != m_partition.m_buckets.end())
+                    {
+                        m_curNode = &m_partition.m_nodes.at(m_bucketIter->second);
+                    }
+                }
+            }
+
+            bool operator==(const Iterator &other) const
+            {
+                return m_curNode == other.m_curNode;
+            }
+
+            bool operator!=(const Iterator &other) const
+            {
+                return m_curNode != other.m_curNode;
+            }
+
+            Node* operator*()
+            {
+                return m_curNode;
+            }
+
+            Node* operator->()
+            {
+                return m_curNode;
+            }
+
+            Iterator& operator++()
+            {
+                if (m_curNode != nullptr)
+                {
+                    auto nextNodeId = m_curNode->m_next;
+                    if (nextNodeId == -1)
+                    {
+                        // end of current bucket..
+                        m_bucketIter++;
+                        if (m_bucketIter == m_partition.m_buckets.end())
+                        {
+                            m_curNode = nullptr;
+                            return (*this); // early exit for end situation
+                        }
+                        nextNodeId = m_bucketIter->second;
+                    }
+
+                    m_curNode = &m_partition.m_nodes.at(nextNodeId);
+                }
+
+                return (*this);
+            }
+
+        protected:
+            Partition               &m_partition;
+            BucketType::iterator    m_bucketIter;
+            Node                    *m_curNode;
+        };
+
+    auto begin() 
     {
-        std::vector<NodeId> m_nodes;
-        int32_t             m_weight;
-        int32_t             m_nodesInPartition[2];
+        return Iterator(*this, false);
+    }
+
+    auto end() 
+    {
+        return Iterator(*this, true);
+    }
+
+    protected:
+        std::vector<Node> &m_nodes;
     };
 
     bool init(ChipDB::Netlist *nl);
@@ -61,7 +137,7 @@ public:
     std::vector<Node>       m_nodes;    ///< storage for all nodes in the netlist
     std::vector<Net>        m_nets;     ///< storage for all nets in the netlist
 
-    std::array<Partition, 2> m_partitions;
+    std::vector<Partition> m_partitions;
 
 protected:
     int64_t distanceToPartition(const Partition &part, const ChipDB::Coord64 &pos);

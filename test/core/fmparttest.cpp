@@ -10,10 +10,122 @@
 
 BOOST_AUTO_TEST_SUITE(FMPartTest)
 
+class FMPartTestHelper : public LunaCore::Partitioner::FMPart
+{
+public:
+
+    bool addNodeToPartitionBucket(const LunaCore::Partitioner::NodeId nodeId)
+    {
+        return LunaCore::Partitioner::FMPart::addNodeToPartitionBucket(nodeId);
+    }
+
+    bool removeNodeFromPartitionBucket(const LunaCore::Partitioner::NodeId nodeId)
+    {
+        return LunaCore::Partitioner::FMPart::removeNodeFromPartitionBucket(nodeId);
+    }
+};
+
+BOOST_AUTO_TEST_CASE(test_buckets)
+{
+    std::cout << "--== FMPart (buckets) test ==--\n";
+
+    FMPartTestHelper helper;
+
+    BOOST_CHECK(helper.m_partitions.size() == 2);
+
+    helper.m_nodes.resize(3);
+    helper.m_nodes[0].reset(0);
+    helper.m_nodes[1].reset(1);
+    helper.m_nodes[2].reset(2);
+
+    BOOST_CHECK(helper.m_nodes[0].isLinked() == false);
+    BOOST_CHECK(helper.m_nodes[1].isLinked() == false);
+    BOOST_CHECK(helper.m_nodes[2].isLinked() == false);
+
+    helper.m_nodes[0].m_partitionId = 0;
+    helper.m_nodes[1].m_partitionId = 0;
+    helper.m_nodes[2].m_partitionId = 1;
+
+    // check that buckets for gain = 0 do not exist
+    BOOST_CHECK(!helper.m_partitions[0].hasBucket(0));
+    BOOST_CHECK(!helper.m_partitions[1].hasBucket(0));
+
+    helper.addNodeToPartitionBucket(0);
+    helper.addNodeToPartitionBucket(1);
+    helper.addNodeToPartitionBucket(2);
+
+    // check that buckets for gain = 0 exist
+    BOOST_CHECK(helper.m_partitions[0].hasBucket(0));
+    BOOST_CHECK(helper.m_partitions[1].hasBucket(0));
+    
+    // node 1 should be at the front of the only partition 0 bucket
+    BOOST_CHECK(helper.m_partitions[0].m_buckets[0 /* gain */] == 1);
+    
+    // node 2 should be at the front of the only partition 1 bucket for gain = 0
+    BOOST_CHECK(helper.m_partitions[1].m_buckets[0 /* gain */] == 2);
+
+    // check that node 1 is followed by node 2
+    BOOST_CHECK(helper.m_nodes[1].m_prev == -1); // node 1 is head so no previous node exists
+    BOOST_CHECK(helper.m_nodes[1].m_next == 0);  // node 0 comes after node 1
+    BOOST_CHECK(helper.m_nodes[0].m_prev == 1);  // node 1 comes before node 0
+    BOOST_CHECK(helper.m_nodes[0].m_next == -1); // there is no node after node 0 in the bucket
+
+    // check that node 2 is the only node in partition 2 bucket for gain = 0
+    BOOST_CHECK(helper.m_nodes[2].m_next == -1); // node 2 is alone..
+    BOOST_CHECK(helper.m_nodes[2].m_prev == -1); // node 2 is alone..
+
+    // now, remove node 1 (head node) from the partition bucket
+    helper.removeNodeFromPartitionBucket(1);
+
+    // check that node 1 is now unlinked
+    BOOST_CHECK(helper.m_nodes[1].isLinked() == false);
+
+    // check that node 0 is now the new head of the partition bucket
+    BOOST_CHECK(helper.m_partitions[0].m_buckets[0 /* gain */] == 0);
+
+    // check that node 0 is also unlinked (because it's the only node in the bucket)
+    BOOST_CHECK(helper.m_nodes[0].isLinked() == false);
+
+    // remove the last node from the partition 0 bucket
+    // and check that the bucket no longer exists
+    helper.removeNodeFromPartitionBucket(0);
+    BOOST_CHECK(!helper.m_partitions[0].hasBucket(0));
+
+    // remove the last node from the partition 1 bucket
+    // and check that the bucket no longer exists
+    helper.removeNodeFromPartitionBucket(2);
+    BOOST_CHECK(!helper.m_partitions[1].hasBucket(0));
+
+    // ==== check the partition iterator ====
+    helper.m_nodes.resize(5);
+    helper.m_nodes[3].reset(3);
+    helper.m_nodes[4].reset(4);    
+    helper.m_nodes[3].m_partitionId = 0;
+    helper.m_nodes[4].m_partitionId = 0;
+    helper.m_nodes[3].m_gain = 1;
+    helper.m_nodes[4].m_gain = 1;
+
+    helper.addNodeToPartitionBucket(0);
+    helper.addNodeToPartitionBucket(1);
+    helper.addNodeToPartitionBucket(2);
+    helper.addNodeToPartitionBucket(3);
+    helper.addNodeToPartitionBucket(4);
+
+    size_t count = 0;
+    std::cout << "  Partition 0 contains the following nodes:\n";
+    auto iter = helper.m_partitions[0].begin();
+    while(iter != helper.m_partitions[0].end())
+    {
+        std::cout << "  Id:" << iter->m_self << "   gain:"<< iter->m_gain << "\n";
+        count++;
+        ++iter;
+    }
+    BOOST_CHECK(count == 4);
+}
 
 BOOST_AUTO_TEST_CASE(can_partition)
 {
-    std::cout << "--== FMPart test ==--\n";
+    std::cout << "--== FMPart (partitioning) test ==--\n";
     
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_CHECK(leffile.good());
@@ -29,7 +141,7 @@ BOOST_AUTO_TEST_CASE(can_partition)
     auto mod = design.m_moduleLib.lookup("nerv");
 
     // nerv fits in approx 650x650 um    
-    LunaCore::FMPart partitioner;
+    LunaCore::Partitioner::FMPart partitioner;
     partitioner.m_partitions[0].m_region = {{0,0}, {650000/2, 650000}};             // left partition
     partitioner.m_partitions[1].m_region = {{650000/2, 650000}, {650000, 650000}};  // right partition
 

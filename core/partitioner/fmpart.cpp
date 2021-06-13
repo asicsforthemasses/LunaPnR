@@ -3,7 +3,7 @@
 #include "common/logging.h"
 #include "netlist/instance.h"
 
-using namespace LunaCore;
+using namespace LunaCore::Partitioner;
 
 int64_t FMPart::distanceToPartition(const Partition &part, const ChipDB::Coord64 &pos)
 {
@@ -230,6 +230,13 @@ bool FMPart::removeNodeFromPartitionBucket(const NodeId nodeId)
     if (iter->second == nodeId)
     {
         iter->second = node.m_next;
+
+        // if there is no next node
+        // destroy the bucket!
+        if (node.m_next == -1)
+        {
+            partition.removeBucket(node.m_gain);
+        }
     }
 
     node.m_next = -1;
