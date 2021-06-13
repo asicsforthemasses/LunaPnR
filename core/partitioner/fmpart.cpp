@@ -33,11 +33,9 @@ bool FMPart::init(ChipDB::Netlist *nl)
         ins->m_flags = id;
 
         /* use cell width as the weight, as the height of each cell is the same */
+        m_nodes[id].reset(id);
         m_nodes[id].m_weight = ins->instanceSize().m_x;
-        m_nodes[id].m_next   = -1;
-        m_nodes[id].m_prev   = -1;
-        m_nodes[id].m_self   = id;
-
+        
         // check if the instance has a fixed position.
         // if so, assign the instance/node to the closest
         // partition
@@ -156,7 +154,7 @@ bool FMPart::init(ChipDB::Netlist *nl)
             }            
         }
 
-        addNodeToPartitionBucket(nodeId);
+        m_partitions[node.m_partitionId].addNode(node);
 
         nodeId++;
     }
@@ -164,6 +162,7 @@ bool FMPart::init(ChipDB::Netlist *nl)
     return true;
 }
 
+#if 0
 bool FMPart::addNodeToPartitionBucket(const NodeId nodeId)
 {
     // this code assumes that the node was already unlinked
@@ -239,8 +238,8 @@ bool FMPart::removeNodeFromPartitionBucket(const NodeId nodeId)
         }
     }
 
-    node.m_next = -1;
-    node.m_prev = -1;
+    node.resetLinks();
 
     return true;
 }
+#endif

@@ -14,15 +14,15 @@ class FMPartTestHelper : public LunaCore::Partitioner::FMPart
 {
 public:
 
-    bool addNodeToPartitionBucket(const LunaCore::Partitioner::NodeId nodeId)
+    void addNode(LunaCore::Partitioner::NodeId nodeId)
     {
-        return LunaCore::Partitioner::FMPart::addNodeToPartitionBucket(nodeId);
+        LunaCore::Partitioner::FMPart::addNode(nodeId);
     }
 
-    bool removeNodeFromPartitionBucket(const LunaCore::Partitioner::NodeId nodeId)
+    void removeNode(LunaCore::Partitioner::NodeId nodeId)
     {
-        return LunaCore::Partitioner::FMPart::removeNodeFromPartitionBucket(nodeId);
-    }
+        LunaCore::Partitioner::FMPart::removeNode(nodeId);
+    }    
 };
 
 BOOST_AUTO_TEST_CASE(test_buckets)
@@ -50,9 +50,11 @@ BOOST_AUTO_TEST_CASE(test_buckets)
     BOOST_CHECK(!helper.m_partitions[0].hasBucket(0));
     BOOST_CHECK(!helper.m_partitions[1].hasBucket(0));
 
-    helper.addNodeToPartitionBucket(0);
-    helper.addNodeToPartitionBucket(1);
-    helper.addNodeToPartitionBucket(2);
+    // add all nodes
+    for(auto& node : helper.m_nodes)
+    {
+        helper.addNode(node.m_self);
+    }
 
     // check that buckets for gain = 0 exist
     BOOST_CHECK(helper.m_partitions[0].hasBucket(0));
@@ -75,7 +77,7 @@ BOOST_AUTO_TEST_CASE(test_buckets)
     BOOST_CHECK(helper.m_nodes[2].m_prev == -1); // node 2 is alone..
 
     // now, remove node 1 (head node) from the partition bucket
-    helper.removeNodeFromPartitionBucket(1);
+    helper.removeNode(1);
 
     // check that node 1 is now unlinked
     BOOST_CHECK(helper.m_nodes[1].isLinked() == false);
@@ -88,12 +90,12 @@ BOOST_AUTO_TEST_CASE(test_buckets)
 
     // remove the last node from the partition 0 bucket
     // and check that the bucket no longer exists
-    helper.removeNodeFromPartitionBucket(0);
+    helper.removeNode(0);
     BOOST_CHECK(!helper.m_partitions[0].hasBucket(0));
 
     // remove the last node from the partition 1 bucket
     // and check that the bucket no longer exists
-    helper.removeNodeFromPartitionBucket(2);
+    helper.removeNode(2);
     BOOST_CHECK(!helper.m_partitions[1].hasBucket(0));
 
     // ==== check the partition iterator ====
@@ -105,20 +107,36 @@ BOOST_AUTO_TEST_CASE(test_buckets)
     helper.m_nodes[3].m_gain = 1;
     helper.m_nodes[4].m_gain = 1;
 
-    helper.addNodeToPartitionBucket(0);
-    helper.addNodeToPartitionBucket(1);
-    helper.addNodeToPartitionBucket(2);
-    helper.addNodeToPartitionBucket(3);
-    helper.addNodeToPartitionBucket(4);
+    // add all nodes
+    for(auto& node : helper.m_nodes)
+    {
+        helper.addNode(node.m_self);
+    }
 
     size_t count = 0;
     std::cout << "  Partition 0 contains the following nodes:\n";
+
+    LunaCore::Partitioner::GainType lastGain = 100e6;
+
     auto iter = helper.m_partitions[0].begin();
     while(iter != helper.m_partitions[0].end())
     {
         std::cout << "  Id:" << iter->m_self << "   gain:"<< iter->m_gain << "\n";
+
+        // make sure the previous gain is higher or equal to the current gain
+        BOOST_CHECK(iter->m_gain <= lastGain);
+        lastGain = iter->m_gain;
+
         count++;
         ++iter;
+    }
+    BOOST_CHECK(count == 4);
+
+    // check if for(..) is supported by the iterator
+    count = 0;
+    for(auto node : helper.m_partitions[0])
+    {
+        count++;
     }
     BOOST_CHECK(count == 4);
 }
@@ -215,10 +233,24 @@ BOOST_AUTO_TEST_CASE(can_partition)
     ofile << "  P1 : " << widthP[1] << " nm\n";
     ofile << "\n\n";
 
+    // go thought the partition with the bucket iterator
+    ofile << "Bucket iterator test:\n";
+    size_t partCount = 0;
+    for(auto& partition : partitioner.m_partitions)
+    {
+        ofile << "  Partition " << partCount << "\n";
+        for(auto node : partition)
+        {
+            ofile << "  ID: " << node->m_self << "    gain = " << node->m_gain << "  " << "\n";
+            BOOST_CHECK(!node->m_locked);
+        }
+        partCount++;
+    }
+
+    ofile << "\n\n";
     std::time_t result = std::time(nullptr);
     ofile << "Produced: " << std::ctime(&result);
-    
-    
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()
