@@ -1,5 +1,6 @@
 #include <algorithm>
 #include "fmpart.h"
+#include <assert.h>
 #include "common/logging.h"
 #include "netlist/instance.h"
 
@@ -104,142 +105,314 @@ bool FMPart::init(ChipDB::Netlist *nl)
     }
 
     // calculate gains per instance
-    ssize_t nodeId = 0;
     for(auto& node : m_nodes)
+    {        
+        calcNodeGain(node);
+        if (!node.m_locked) 
+            addNode(node.m_self);
+    }
+
+    return true;
+}
+
+void FMPart::calcNodeGain(Node &node)
+{
+    node.m_gain = 0;
+
+    // don't calculate gain for unmovable nodes.
+    if (node.m_locked)
     {
-        node.m_gain = 0;
+        return;
+    }
 
-        // don't calculate gain for unmovable nodes.
-        if (node.m_locked)
+    uint32_t fromPartitionIndex = 0;
+    uint32_t toPartitionIndex   = 0;
+    if (node.m_partitionId == 0)
+    {
+        toPartitionIndex   = 1;            
+    }
+    else if (node.m_partitionId == 1)
+    {
+        fromPartitionIndex = 1;
+    }
+    else
+    {
+        // error -> m_partitionId not correct init'd
+    }
+
+    for(auto netId : node.m_nets)
+    {
+        auto const& net = m_nets[netId];
+
+        // the net is not critical when it has more than two nodes
+        // in each partition. Non-critical nets cannot change the
+        // gain of a node.
+
+        if (net.m_nodesInPartition[fromPartitionIndex] == 1)
         {
-            nodeId++;
-            continue;
+            // moving the last node in a partition to 
+            // the other side will uncut the net.
+            node.m_gain++;
         }
 
-        uint32_t fromPartitionIndex = 0;
-        uint32_t toPartitionIndex   = 0;
-        if (node.m_partitionId == 0)
+        if (net.m_nodesInPartition[toPartitionIndex] == 0)
         {
-            toPartitionIndex   = 1;            
-        }
-        else if (node.m_partitionId == 1)
-        {
-            fromPartitionIndex = 1;
-        }
-        else
-        {
-            // error -> m_partitionId not correct init'd
-        }
+            // moving a node from an uncut net to
+            // another partition will cut the net.
+            node.m_gain--;
+        }            
+    }
+}
 
-        for(auto netId : node.m_nets)
+GainType FMPart::cycle()
+{
+    struct FreeListType
+    {
+        NodeId      m_nodeId;
+        GainType    m_totalGain;
+    };
+
+    std::vector<FreeListType> freeNodes;
+
+    freeNodes.resize(m_nodes.size());
+
+    size_t      freeNodeIdx = 0;
+    GainType    totalGain = 0;
+    bool updated = false;
+    do
+    {
+        updated = false;
+        // for now, we try to balance each partition by selecting the largest
+        // partition
+        auto partitionId = (m_partitions[1].getTotalWeight() > m_partitions[0].getTotalWeight()) ? 1 : 0;
+
+        // find the node with the most gain
+        auto iter = m_partitions[partitionId].begin();
+        if (iter != m_partitions[partitionId].end())
         {
-            auto const& net = m_nets[netId];
+            updated = true;
+            auto nodeId = iter->m_self;
+            totalGain += iter->m_gain;
 
-            // the net is not critical when it has more than two nodes
-            // in each partition. Non-critical nets cannot change the
-            // gain of a node.
+            assert(!iter->m_locked);
 
-            if (net.m_nodesInPartition[fromPartitionIndex] == 1)
+            try{
+                freeNodes.at(freeNodeIdx).m_nodeId    = nodeId;  // save the node ID in the free list
+                freeNodes.at(freeNodeIdx).m_totalGain = totalGain;
+            }
+            catch(...)
             {
-                // moving the last node in a partition to 
-                // the other side will uncut the net.
-                node.m_gain++;
+                while(1) {};
             }
 
-            if (net.m_nodesInPartition[toPartitionIndex] == 0)
+            freeNodeIdx++;
+
+            try
             {
-                // moving a node from an uncut net to
-                // another partition will cut the net.
-                node.m_gain--;
-            }            
+                removeNode(nodeId);
+            }
+            catch(...)
+            {
+                while(1) {};
+            }
+
+            // update the gains of the connected nodes
+            try
+            {
+                moveNodeAndUpdateNeighbours(nodeId);
+            }
+            catch(...)
+            {
+                while(1) {};
+            }
         }
 
-        m_partitions[node.m_partitionId].addNode(node);
+    } while(updated);
 
-        nodeId++;
-    }
+    // ****************************************************
+    // ** find the largest value of the cummulative gain **
+    // ****************************************************
 
-    return true;
-}
+    GainType maxTotalGain     = 0;
+    ssize_t  maxTotalGainIdx  = -1;
 
-#if 0
-bool FMPart::addNodeToPartitionBucket(const NodeId nodeId)
-{
-    // this code assumes that the node was already unlinked
-
-    if (nodeId >= m_nodes.size())
+    ssize_t itemIdx = 0;
+    for(ssize_t idx=0; idx < freeNodeIdx; idx++)
     {
-        // internal error! 
-        doLog(LOG_ERROR,"FMPart internal error: nodeId is out of range!\n");
-        return false;
-    }
+        auto& item = freeNodes.at(idx);
 
-    auto& node = m_nodes.at(nodeId);
-    if (node.isLinked())
-    {
-        doLog(LOG_ERROR,"FMPart internal error: node is already linked!\n");
-        return false;
-    }
-
-    auto& partition = m_partitions.at(node.m_partitionId);
-
-    if (partition.m_buckets.find(node.m_gain) != partition.m_buckets.end())
-    {
-        // bucket with this gain already exist! -> move the new node
-        // to the head of the queue
-        auto oldNodeId = partition.m_buckets[node.m_gain];
-        auto& oldNode = m_nodes.at(oldNodeId);
-        oldNode.m_prev = nodeId;
-        node.m_next = oldNodeId;
-    }
-
-    partition.m_buckets[node.m_gain] = nodeId;
-    return true;
-}
-
-bool FMPart::removeNodeFromPartitionBucket(const NodeId nodeId)
-{
-    if (nodeId >= m_nodes.size())
-    {
-        // internal error! 
-        doLog(LOG_ERROR,"FMPart internal error: nodeId is out of range!\n");
-        return false;
-    }
-
-    auto& node = m_nodes.at(nodeId);
-    
-    if (node.m_next != -1)
-    {
-        // unlink the next node
-        auto& nextNode = m_nodes.at(node.m_next);
-        nextNode.m_prev = node.m_prev;
-    }
-
-    if (node.m_prev != -1)
-    {
-        // unlink the previous node
-        auto &prevNode = m_nodes.at(node.m_prev);
-        prevNode.m_next = node.m_next;
-    }
-
-    // check if the node was the head node
-    // and unlink from the bucket side
-    auto& partition = m_partitions.at(node.m_partitionId);
-    auto iter = partition.m_buckets.find(node.m_gain);
-    if (iter->second == nodeId)
-    {
-        iter->second = node.m_next;
-
-        // if there is no next node
-        // destroy the bucket!
-        if (node.m_next == -1)
+        if (item.m_totalGain > maxTotalGain)
         {
-            partition.removeBucket(node.m_gain);
+            maxTotalGain    = item.m_totalGain;
+            maxTotalGainIdx = itemIdx;
         }
+        itemIdx++;
     }
 
-    node.resetLinks();
+    try
+    {
+        // undo the movement of the nodes
+        // that come after the maximum gain node in the free list
+        for(ssize_t idx=maxTotalGainIdx+1; idx < freeNodeIdx; idx++)
+        {
+            auto& item = freeNodes.at(idx);            
+            auto& node = m_nodes.at(item.m_nodeId);
 
-    return true;
+            size_t fromPartition = 0;
+            size_t toPartition   = 0;
+            if (node.m_partitionId == 0)
+            {
+                toPartition = 1;
+            }
+            else
+            {
+                fromPartition = 1;
+            }
+
+            node.m_partitionId = toPartition;
+            for(auto netId : node.m_nets)
+            {
+                m_nets[netId].m_nodesInPartition[fromPartition]--;
+                m_nets[netId].m_nodesInPartition[toPartition]++;
+            }
+        }
+    }
+    catch(...)
+    {
+        while(1) {};
+    }
+    
+    // add all the nodes in the free list back into their
+    // partition buckets
+    for(ssize_t idx=0; idx < freeNodeIdx; idx++)
+    {
+        auto& item = freeNodes.at(idx);
+        auto& node = m_nodes.at(item.m_nodeId);
+        
+        assert(m_partitions[node.m_partitionId].hasNode(node.m_self) == false);
+
+        calcNodeGain(node);
+        addNode(item.m_nodeId);
+
+        // unlock the node
+        m_nodes.at(item.m_nodeId).m_locked = false;
+    }
+
+    return maxTotalGain;
 }
-#endif
+
+void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
+{
+    auto& node = m_nodes.at(nodeId);
+
+    size_t fromPartitionIndex = 0;
+    size_t toPartitionIndex   = 0;
+
+    if (node.m_partitionId == 0)
+    {
+        toPartitionIndex   = 1;
+    }
+    else if (node.m_partitionId == 1)
+    {
+        fromPartitionIndex = 1;
+    }
+    else
+    {
+        // error -> m_partitionId not correct init'd
+        throw std::out_of_range("Partition ID of out range");
+    }
+
+    node.m_locked = true;
+    node.m_partitionId = toPartitionIndex;    // move node
+    
+    for(auto netId : node.m_nets)
+    {
+        auto& net = m_nets[netId];
+
+        // check critical net before the move
+        if (net.m_nodesInPartition[toPartitionIndex] == 0)
+        {
+            // increment the gains on all the free cells on the net
+            for(auto netNodeId : net.m_nodes)
+            {
+                auto& netNode = m_nodes.at(netNodeId);
+                if (!netNode.m_locked)
+                {                                        
+                    removeNode(netNodeId);
+                    netNode.m_gain++;
+                    addNode(netNodeId);
+                }
+            }
+        }
+        else if (net.m_nodesInPartition[toPartitionIndex] == 1)
+        {
+            // decrement the gain of the only T cell on the net
+            // if it's free
+            size_t count = 0;
+            for(auto netNodeId : net.m_nodes)
+            {
+                auto& netNode = m_nodes.at(netNodeId);
+                if ((netNode.m_partitionId == toPartitionIndex) &&
+                    !netNode.m_locked)
+                {
+                    removeNode(netNodeId);
+                    netNode.m_gain--;
+                    addNode(netNodeId);
+                    count++;
+                }
+            }
+
+            // check: count should be 1 or 0
+            if (count > 1)     
+            {
+                doLog(LOG_ERROR,"FMPart::moveNodeAndUpdateNeightbours internal error: count != 1\n");
+            }
+        }
+
+        // update the net information
+        net.m_nodesInPartition[toPartitionIndex]++;
+        net.m_nodesInPartition[fromPartitionIndex]--;
+
+        assert(net.m_nodesInPartition[toPartitionIndex] >= 0);
+        assert(net.m_nodesInPartition[fromPartitionIndex] >= 0);
+
+        // check critical net after the move
+        if (net.m_nodesInPartition[fromPartitionIndex] == 0)
+        {
+            // decrement gains of all free cells on the net
+            for(auto netNodeId : net.m_nodes)
+            {
+                auto& netNode = m_nodes.at(netNodeId);
+                if (!netNode.m_locked)
+                {                    
+                    removeNode(netNodeId);
+                    netNode.m_gain--;
+                    addNode(netNodeId);
+                }
+            }
+        }
+        else if (net.m_nodesInPartition[fromPartitionIndex] == 1)
+        {
+            // increment gain of the only F cell on the net
+            // if it's free
+            size_t count = 0;
+            for(auto netNodeId : net.m_nodes)
+            {                
+                auto& netNode = m_nodes.at(netNodeId);
+                if ((netNode.m_partitionId == fromPartitionIndex) &&
+                    !netNode.m_locked)
+                {                    
+                    removeNode(netNodeId);
+                    netNode.m_gain++;
+                    addNode(netNodeId);               
+                }
+            }    
+
+            // check: count should be 1 or 0
+            if (count > 1)
+            {
+                doLog(LOG_ERROR,"FMPart::moveNodeAndUpdateNeightbours internal error: count != 1\n");
+            }                                      
+        }
+    }
+}

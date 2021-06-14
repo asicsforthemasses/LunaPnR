@@ -188,6 +188,39 @@ BOOST_AUTO_TEST_CASE(can_partition)
 
     partitioner.init(&mod->m_netlist);
 
+    // check that no nodes appear more than once
+    std::vector<int32_t> nodeCount;
+    nodeCount.resize(partitioner.m_nodes.size());
+
+    for(auto partition : partitioner.m_partitions)
+    {
+        for(auto nodePtr : partition)
+        {
+            BOOST_CHECK(nodeCount.at(nodePtr->m_self)==0);
+            nodeCount.at(nodePtr->m_self)++;
+        }
+    }
+    nodeCount.clear();
+
+    // check that node 'self' ids are consistent
+    ssize_t testIdx = 0;
+    for(auto const& node : partitioner.m_nodes)
+    {
+        BOOST_CHECK(node.m_self == testIdx);
+        testIdx++;
+    }
+
+    // check that all nodes appear in the correct bucket
+    for(auto& partition : partitioner.m_partitions)
+    {
+        auto iter = partition.begin();
+        while(iter != partition.end())
+        {
+            BOOST_CHECK(iter->m_gain == iter.getBucketGain());
+            ++iter;
+        }
+    }
+
     auto ofile = std::ofstream("test/files/results/partitioner.txt");
 
     ofile << "  Pins:\n";
@@ -241,13 +274,40 @@ BOOST_AUTO_TEST_CASE(can_partition)
         ofile << "  Partition " << partCount << "\n";
         for(auto node : partition)
         {
-            ofile << "  ID: " << node->m_self << "    gain = " << node->m_gain << "  " << "\n";
+            ofile << "  ID: " << node->m_self << "    gain = " << node->m_gain << "  " << (node->m_locked ? "LOCKED!" : "") << "\n";
             BOOST_CHECK(!node->m_locked);
         }
         partCount++;
     }
 
     ofile << "\n\n";
+
+    // perform 10 cycles of the FM algo
+    std::cout << "  starting FM cycles..\n";
+    for(size_t i=0; i<2; i++)
+    {
+        auto gain = partitioner.cycle();
+        std::cout << "    cycle " << i << " gain = " << gain << "\n";
+    }
+    std::cout << "  end FM\n";
+
+
+    // go thought the partition with the bucket iterator
+    ofile << "Post FM buckets:\n";
+    partCount = 0;
+    for(auto& partition : partitioner.m_partitions)
+    {
+        ofile << "  Partition " << partCount << "\n";
+        for(auto node : partition)
+        {
+            ofile << "  ID: " << node->m_self << "\tgain = " << node->m_gain << "  part = " << node->m_partitionId << (node->m_locked ? "LOCKED!" : "") << "\n";
+            BOOST_CHECK(!node->m_locked);
+        }
+        partCount++;
+    }
+
+    ofile << "\n\n";
+
     std::time_t result = std::time(nullptr);
     ofile << "Produced: " << std::ctime(&result);
 

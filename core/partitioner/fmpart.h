@@ -4,11 +4,15 @@
 #include <map>
 #include <list>
 #include <array>
+#include <assert.h>
+#include <iostream>
+
 #include "common/dbtypes.h"
 #include "netlist/netlist.h"
 #include "fmtypes.h"
 namespace LunaCore::Partitioner
 {
+
 
 class FMPart
 {
@@ -33,6 +37,11 @@ public:
         auto getTotalWeight() const
         {
             return m_totalWeight;
+        }
+
+        void addToTotalWeight(int64_t weight)
+        {
+            m_totalWeight += weight;
         }
 
         /** check if a bucket for a specific gain exists */
@@ -63,6 +72,7 @@ public:
                 auto& oldNode = m_nodes.at(oldNodeId);
                 oldNode.m_prev = node.m_self;
                 node.m_next = oldNodeId;
+                node.m_prev = -1;
             }
 
             m_buckets[node.m_gain] = node.m_self;
@@ -99,6 +109,17 @@ public:
                     removeBucket(node.m_gain);
                 }
             }    
+
+            // sanity check for debugging
+            #if 0
+            for(auto const& bucket : m_buckets)
+            {
+                if (bucket.second == node.m_self)
+                {
+                    assert(false);
+                }
+            }
+            #endif
 
             node.resetLinks();  
             m_totalWeight -= node.m_weight;
@@ -147,6 +168,11 @@ public:
                 return m_curNode;
             }
 
+            auto getBucketGain() const
+            {
+                return m_bucketIter->first;
+            }
+
             Iterator& operator++()
             {
                 if (m_curNode != nullptr)
@@ -186,33 +212,73 @@ public:
             return Iterator(*this, true);
         }
 
+        bool hasNode(NodeId nodeId)
+        {
+            for(auto nodePtr : *this)
+            {
+                if (nodePtr->m_self == nodeId)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
     protected:
         uint64_t           m_totalWeight;
         std::vector<Node> &m_nodes;
     };
 
+    /** fill the two partitions at random with nodes from 
+     *  the netlist */
     bool init(ChipDB::Netlist *nl);
 
-    std::vector<Node>       m_nodes;    ///< storage for all nodes in the netlist
-    std::vector<Net>        m_nets;     ///< storage for all nets in the netlist
+    /** perform one FM partitioning cycle
+     *  assumes node, nets and partitions have been generated
+     *  by init(..)
+     * 
+     *  returns the total gain achieved
+     */
+    GainType cycle();
 
-    std::vector<Partition> m_partitions;
+    std::vector<Node>       m_nodes;        ///< storage for all nodes in the netlist
+    std::vector<Net>        m_nets;         ///< storage for all nets in the netlist
+    std::vector<Partition>  m_partitions;   ///< holds bucket lists for each partition etc.
 
 protected:
+    /** add a node to the partition / bucket list.
+     *  the data within the node is used to select
+     *  the correct partition based on gain */
     void addNode(NodeId nodeId)
     {
+        //std::cout << "Add node " << nodeId << "\n";
+        
         auto& node = m_nodes.at(nodeId);
         m_partitions.at(node.m_partitionId).addNode(node);
     }
 
+    /** remove a node from the partition / bucket list.
+     *  the data within the node is used to select
+     *  the correct partition based on gain */
     void removeNode(NodeId nodeId)
     {
+        //std::cout << "Remove node " << nodeId << "\n";
+
         auto& node = m_nodes.at(nodeId);
         m_partitions.at(node.m_partitionId).removeNode(node);
+
+        assert(m_partitions.at(node.m_partitionId).hasNode(nodeId) == false);
     }
 
+    void calcNodeGain(Node &node);
+
+    /** get minimum manhattan distance between a rectangular partition
+     *  and the position specified
+    */
     int64_t distanceToPartition(const Partition &part, const ChipDB::Coord64 &pos);
     
+    void moveNodeAndUpdateNeighbours(NodeId nodeId);
 };
 
 };
