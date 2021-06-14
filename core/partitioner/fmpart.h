@@ -242,6 +242,8 @@ public:
      */
     GainType cycle();
 
+    void exportToDot(std::ostream &dotFile);
+
     std::vector<Node>       m_nodes;        ///< storage for all nodes in the netlist
     std::vector<Net>        m_nets;         ///< storage for all nets in the netlist
     std::vector<Partition>  m_partitions;   ///< holds bucket lists for each partition etc.

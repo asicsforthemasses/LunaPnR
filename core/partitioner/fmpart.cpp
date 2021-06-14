@@ -35,7 +35,8 @@ bool FMPart::init(ChipDB::Netlist *nl)
 
         /* use cell width as the weight, as the height of each cell is the same */
         m_nodes[nodeIdx].reset(nodeIdx);
-        m_nodes[nodeIdx].m_weight = ins->instanceSize().m_x;
+        m_nodes[nodeIdx].m_instance = ins;
+        m_nodes[nodeIdx].m_weight   = ins->instanceSize().m_x;
         
         // check if the instance has a fixed position.
         // if so, assign the instance/node to the closest
@@ -56,8 +57,6 @@ bool FMPart::init(ChipDB::Netlist *nl)
         else
         {
             // randomly assign a partition
-            // FIXME: do some area / fill balancing
-            //m_nodes[nodeIdx].m_locked = false;
             if (std::rand() > (RAND_MAX/2))
             {
                 m_nodes[nodeIdx].m_partitionId = 1;
@@ -107,11 +106,26 @@ bool FMPart::init(ChipDB::Netlist *nl)
         }
     }
 
-    // calculate gains per instance
+    // check if there are external pins on the net
+    // if so, increase the net weight
+    for(auto& net : m_nets)
+    {
+        for(auto nodeId : net.m_nodes)
+        {
+            auto& node = m_nodes.at(nodeId);
+            if (node.m_instance->m_insType == ChipDB::InstanceBase::INS_PIN)
+            {
+                net.m_weight += 4;
+                break;
+            }
+        }
+    }
+
+    // calculate gains for each node
     for(auto& node : m_nodes)
     {        
         calcNodeGain(node);
-        if (!node.m_locked) 
+        if (!node.m_fixed)
             addNode(node.m_self);
     }
 
@@ -155,14 +169,14 @@ void FMPart::calcNodeGain(Node &node)
         {
             // moving the last node in a partition to 
             // the other side will uncut the net.
-            node.m_gain++;
+            node.m_gain += net.m_weight;
         }
 
         if (net.m_nodesInPartition[toPartitionIndex] == 0)
         {
             // moving a node from an uncut net to
             // another partition will cut the net.
-            node.m_gain--;
+            node.m_gain -= net.m_weight;
         }            
     }
 }
@@ -199,35 +213,13 @@ GainType FMPart::cycle()
 
             assert(!iter->m_locked);
 
-            try{
-                freeNodes.at(freeNodeIdx).m_nodeId    = nodeId;  // save the node ID in the free list
-                freeNodes.at(freeNodeIdx).m_totalGain = totalGain;
-            }
-            catch(...)
-            {
-                while(1) {};
-            }
 
+            freeNodes.at(freeNodeIdx).m_nodeId    = nodeId;  // save the node ID in the free list
+            freeNodes.at(freeNodeIdx).m_totalGain = totalGain;
             freeNodeIdx++;
 
-            try
-            {
-                removeNode(nodeId);
-            }
-            catch(...)
-            {
-                while(1) {};
-            }
-
-            // update the gains of the connected nodes
-            try
-            {
-                moveNodeAndUpdateNeighbours(nodeId);
-            }
-            catch(...)
-            {
-                while(1) {};
-            }
+            removeNode(nodeId);
+            moveNodeAndUpdateNeighbours(nodeId);
         }
 
     } while(updated);
@@ -252,37 +244,30 @@ GainType FMPart::cycle()
         itemIdx++;
     }
 
-    try
+    // undo the movement of the nodes
+    // that come after the maximum gain node in the free list
+    for(ssize_t idx=maxTotalGainIdx+1; idx < freeNodeIdx; idx++)
     {
-        // undo the movement of the nodes
-        // that come after the maximum gain node in the free list
-        for(ssize_t idx=maxTotalGainIdx+1; idx < freeNodeIdx; idx++)
+        auto& item = freeNodes.at(idx);            
+        auto& node = m_nodes.at(item.m_nodeId);
+
+        size_t fromPartition = 0;
+        size_t toPartition   = 0;
+        if (node.m_partitionId == 0)
         {
-            auto& item = freeNodes.at(idx);            
-            auto& node = m_nodes.at(item.m_nodeId);
-
-            size_t fromPartition = 0;
-            size_t toPartition   = 0;
-            if (node.m_partitionId == 0)
-            {
-                toPartition = 1;
-            }
-            else
-            {
-                fromPartition = 1;
-            }
-
-            node.m_partitionId = toPartition;
-            for(auto netId : node.m_nets)
-            {
-                m_nets[netId].m_nodesInPartition[fromPartition]--;
-                m_nets[netId].m_nodesInPartition[toPartition]++;
-            }
+            toPartition = 1;
         }
-    }
-    catch(...)
-    {
-        while(1) {};
+        else
+        {
+            fromPartition = 1;
+        }
+
+        node.m_partitionId = toPartition;
+        for(auto netId : node.m_nets)
+        {
+            m_nets.at(netId).m_nodesInPartition[fromPartition]--;
+            m_nets.at(netId).m_nodesInPartition[toPartition]++;
+        }
     }
     
     // add all the nodes in the free list back into their
@@ -308,6 +293,10 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
 {
     auto& node = m_nodes.at(nodeId);
 
+    // ************************************
+    // ** Move the node
+    // ************************************
+
     size_t fromPartitionIndex = 0;
     size_t toPartitionIndex   = 0;
 
@@ -328,9 +317,13 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
     node.m_locked = true;
     node.m_partitionId = toPartitionIndex;    // move node
     
+    // ************************************
+    // ** Update the neighbour gains
+    // ************************************
+
     for(auto netId : node.m_nets)
     {
-        auto& net = m_nets[netId];
+        auto& net = m_nets.at(netId);
 
         // check critical net before the move
         if (net.m_nodesInPartition[toPartitionIndex] == 0)
@@ -342,7 +335,7 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
                 if (!netNode.m_locked)
                 {                                        
                     removeNode(netNodeId);
-                    netNode.m_gain++;
+                    netNode.m_gain += net.m_weight;
                     addNode(netNodeId);
                 }
             }
@@ -359,7 +352,7 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
                     !netNode.m_locked)
                 {
                     removeNode(netNodeId);
-                    netNode.m_gain--;
+                    netNode.m_gain -= net.m_weight;
                     addNode(netNodeId);
                     count++;
                 }
@@ -389,7 +382,7 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
                 if (!netNode.m_locked)
                 {                    
                     removeNode(netNodeId);
-                    netNode.m_gain--;
+                    netNode.m_gain -= net.m_weight;
                     addNode(netNodeId);
                 }
             }
@@ -406,7 +399,7 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
                     !netNode.m_locked)
                 {                    
                     removeNode(netNodeId);
-                    netNode.m_gain++;
+                    netNode.m_gain += net.m_weight;
                     addNode(netNodeId);               
                 }
             }    
@@ -418,4 +411,53 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
             }                                      
         }
     }
+}
+
+static std::string escapeString(const std::string &txt)
+{
+    return std::string();
+}
+
+void FMPart::exportToDot(std::ostream &os)
+{
+    os << "graph G {\n";
+    os << "  rankdir=LR;\n"; 
+    //os << "  splines=ortho;\n";
+    //os << "  node [shape=record style=filled];\n";
+    os << "  labelloc=\"t\";\n";
+    os << "  fontsize  = 30;\n";
+
+    // write out nodes
+    std::string color1 = "red";
+    std::string color2 = "green";
+    for(auto const& node : m_nodes)
+    {
+        
+        os << "  N" << node.m_self << "[shape=\"circle\", label = \""  << node.m_self;
+        os << "\", color = ";
+        if (node.m_partitionId == 0)
+            os << color1;
+        else
+            os << color2;
+        os << " ];\n";
+    }
+
+    // write out connections
+    for(auto const& net : m_nets)
+    {
+        auto iter = net.m_nodes.begin();
+        if (iter == net.m_nodes.end())
+            continue;
+
+        auto const& firstNode = m_nodes.at(*iter);
+        iter++;
+        while(iter != net.m_nodes.end())
+        {
+            auto const& otherNode = m_nodes.at(*iter);
+            os << "  N" << firstNode.m_self << " -- N" << otherNode.m_self << ";\n";
+            iter++;
+        }
+    }
+
+    os << "\n}\n";
 }

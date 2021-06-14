@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include <algorithm>
 
 namespace LunaCore::Partitioner
 {
@@ -11,14 +12,78 @@ namespace LunaCore::Partitioner
     using NodeId        = int32_t;
     using GainType      = int32_t;
 
+    /** vector that only stores unique objects */
+    template<class T>
+    class DedupVector
+    {
+    public:
+        void resize(size_t N)
+        {
+            m_data.resize(N);
+        }
+
+        auto begin() 
+        {
+            return m_data.begin();
+        }
+
+        auto end() 
+        {
+            return m_data.end();
+        }
+
+        auto begin() const
+        {
+            return m_data.begin();
+        }
+
+        auto end() const
+        {
+            return m_data.end();
+        }
+
+        void push_back(const T &item)
+        {
+            auto iter = std::find_if(m_data.begin(), m_data.end(),
+                [item](auto const& obj)
+                {
+                    return obj == item;
+                }
+            );
+            
+            if (iter == m_data.end())
+                m_data.push_back(item);
+        }
+
+        T& at(size_t index)
+        {
+            return m_data.at(index);
+        }
+
+        const T& at(size_t index) const
+        {
+            return m_data.at(index);
+        }
+
+        size_t size() const
+        {
+            return m_data.size();
+        }
+
+    protected:
+        std::vector<T> m_data;
+    };
+
     struct Node
     {
-        std::vector<NetId>  m_nets;             ///< nets connected to this nodes
+        DedupVector<NetId>  m_nets;             ///< nets connected to this nodes
         PartitionId         m_partitionId;      ///< current location of the node: partition 0 or 1
         int64_t             m_weight;           ///< weight of the node (probably cell width instead of area)
         int64_t             m_gain;             ///< change in the number of net cuts when node is moved to the other partition
         bool                m_locked;           ///< if true, the node is locked/unmovable during the FM partitioning cycle
         bool                m_fixed;            ///< if true, the node can never be moved
+
+        ChipDB::InstanceBase *m_instance;
 
         // IDs for gain based bucket list implementation
         NodeId              m_next;
@@ -55,7 +120,7 @@ namespace LunaCore::Partitioner
 
     struct Net
     {
-        std::vector<NodeId> m_nodes;
+        DedupVector<NodeId> m_nodes;
         int32_t             m_weight;
         int32_t             m_nodesInPartition[2];
     };
