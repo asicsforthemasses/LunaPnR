@@ -17,7 +17,8 @@ namespace LunaCore::Partitioner
         PartitionId         m_partitionId;      ///< current location of the node: partition 0 or 1
         int64_t             m_weight;           ///< weight of the node (probably cell width instead of area)
         int64_t             m_gain;             ///< change in the number of net cuts when node is moved to the other partition
-        bool                m_locked;           ///< if true, the node is unmovable
+        bool                m_locked;           ///< if true, the node is locked/unmovable during the FM partitioning cycle
+        bool                m_fixed;            ///< if true, the node can never be moved
 
         // IDs for gain based bucket list implementation
         NodeId              m_next;
@@ -35,7 +36,14 @@ namespace LunaCore::Partitioner
             m_gain = 0;
             m_self = self;
             m_locked = false;
+            m_fixed  = false;
             m_partitionId = -1;
+        }
+
+        void setFixed()
+        {
+            m_locked = true;
+            m_fixed  = true;
         }
 
         void resetLinks()

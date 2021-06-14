@@ -28,14 +28,14 @@ bool FMPart::init(ChipDB::Netlist *nl)
     // use the flags of the instance and 
     // nets to number each entity uniquely
 
-    ssize_t id = 0;
+    ssize_t nodeIdx = 0;
     for(auto ins : nl->m_instances)
     {
-        ins->m_flags = id;
+        ins->m_flags = nodeIdx;
 
         /* use cell width as the weight, as the height of each cell is the same */
-        m_nodes[id].reset(id);
-        m_nodes[id].m_weight = ins->instanceSize().m_x;
+        m_nodes[nodeIdx].reset(nodeIdx);
+        m_nodes[nodeIdx].m_weight = ins->instanceSize().m_x;
         
         // check if the instance has a fixed position.
         // if so, assign the instance/node to the closest
@@ -45,40 +45,40 @@ bool FMPart::init(ChipDB::Netlist *nl)
         {
             if (distanceToPartition(m_partitions[0], ins->m_pos) < distanceToPartition(m_partitions[1], ins->m_pos))
             {
-                m_nodes[id].m_partitionId = 0;
+                m_nodes[nodeIdx].m_partitionId = 0;
             }
             else
             {
-                m_nodes[id].m_partitionId = 1;
+                m_nodes[nodeIdx].m_partitionId = 1;
             }
-            m_nodes[id].m_locked = true;
+            m_nodes[nodeIdx].setFixed();
         }
         else
         {
             // randomly assign a partition
             // FIXME: do some area / fill balancing
-            m_nodes[id].m_locked = false;
+            //m_nodes[nodeIdx].m_locked = false;
             if (std::rand() > (RAND_MAX/2))
             {
-                m_nodes[id].m_partitionId = 1;
+                m_nodes[nodeIdx].m_partitionId = 1;
             }
             else
             {
-                m_nodes[id].m_partitionId = 0;
+                m_nodes[nodeIdx].m_partitionId = 0;
             }
         }
 
-        id++;
+        nodeIdx++;
     }
 
-    id = 0;
+    size_t netIdx = 0;
     for(auto net : nl->m_nets)
     {
-        net->m_flags = id;
-        m_nets[id].m_weight = 1;    // all nets are the same weight
-        m_nets[id].m_nodesInPartition[0] = 0;
-        m_nets[id].m_nodesInPartition[1] = 0;
-        id++;
+        net->m_flags = netIdx;
+        m_nets[netIdx].m_weight = 1;    // all nets are the same weight
+        m_nets[netIdx].m_nodesInPartition[0] = 0;
+        m_nets[netIdx].m_nodesInPartition[1] = 0;
+        netIdx++;
     }
 
     // set the connected nets of each node
@@ -93,13 +93,16 @@ bool FMPart::init(ChipDB::Netlist *nl)
                 const auto netIndex  = net->m_flags;
                 const auto nodeIndex = ins->m_flags;
 
+                auto& net  = m_nets.at(netIndex);
+                auto& node = m_nodes.at(nodeIndex);
+
                 // FIXME: we should check each node for duplicate nets!
-                m_nodes[nodeIndex].m_nets.push_back(netIndex);
+                node.m_nets.push_back(netIndex);
 
                 // FIXME: we should check each net for duplicate nodes!
-                m_nets[netIndex].m_nodes.push_back(nodeIndex);
+                net.m_nodes.push_back(nodeIndex);
 
-                m_nets[netIndex].m_nodesInPartition[m_nodes[nodeIndex].m_partitionId]++;
+                net.m_nodesInPartition[node.m_partitionId]++;
             }
         }
     }
@@ -294,8 +297,8 @@ GainType FMPart::cycle()
         calcNodeGain(node);
         addNode(item.m_nodeId);
 
-        // unlock the node
-        m_nodes.at(item.m_nodeId).m_locked = false;
+        // unlock the node, if it is not a fixed node
+        m_nodes.at(item.m_nodeId).m_locked = m_nodes.at(item.m_nodeId).m_fixed;
     }
 
     return maxTotalGain;
