@@ -26,3 +26,6 @@ void doLog(uint32_t t, const std::stringstream &txt);
 
 /** set the log level ... */
 void setLogLevel(uint32_t level);
+
+/** get the log level ... */
+uint32_t getLogLevel();

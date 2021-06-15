@@ -230,6 +230,27 @@ public:
         std::vector<Node> &m_nodes;
     };
 
+    /** export the current partitioning to a Graphviz dot file for viewing */
+    void exportToDot(std::ostream &dotFile);
+
+    /** perform partitioning of a netlist.
+     *  This assumes the partition regions have been set.
+     * 
+     *  Instances that have placement status of PLACEMENT_PLACED_AND_FIXED
+     *  will be assigned to the closest partition.
+     * 
+     *  Other instances will be able to move between partitions.
+    */
+    bool doPartitioning(ChipDB::Netlist *nl);
+
+    std::vector<Node>       m_nodes;        ///< storage for all nodes in the netlist
+    std::vector<Net>        m_nets;         ///< storage for all nets in the netlist
+    std::vector<Partition>  m_partitions;   ///< holds bucket lists for each partition etc.
+
+protected:
+    /** returns the total number of cuts in each net */
+    int64_t calculateCost() const;
+
     /** fill the two partitions at random with nodes from 
      *  the netlist */
     bool init(ChipDB::Netlist *nl);
@@ -238,17 +259,10 @@ public:
      *  assumes node, nets and partitions have been generated
      *  by init(..)
      * 
-     *  returns the total gain achieved
+     *  returns the cost of the partitioning
      */
-    GainType cycle();
+    int64_t cycle();
 
-    void exportToDot(std::ostream &dotFile);
-
-    std::vector<Node>       m_nodes;        ///< storage for all nodes in the netlist
-    std::vector<Net>        m_nets;         ///< storage for all nets in the netlist
-    std::vector<Partition>  m_partitions;   ///< holds bucket lists for each partition etc.
-
-protected:
     /** add a node to the partition / bucket list.
      *  the data within the node is used to select
      *  the correct partition based on gain */

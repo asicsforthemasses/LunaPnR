@@ -26,6 +26,21 @@ public:
         LunaCore::Partitioner::FMPart::removeNode(nodeId);
     }  
 
+    bool init(ChipDB::Netlist *nl)
+    {
+        return LunaCore::Partitioner::FMPart::init(nl);
+    }
+
+    int64_t cycle()
+    {
+        return LunaCore::Partitioner::FMPart::cycle();
+    }
+
+    int64_t calculateCost() const
+    {
+        return LunaCore::Partitioner::FMPart::calculateCost();
+    }
+
     using PartitionId = LunaCore::Partitioner::PartitionId;
 
     /** save the number of connected nodes */
@@ -179,9 +194,39 @@ public:
         return numberOfCutNets;
     }
 
+    int64_t distanceToPartition(const Partition &part, const ChipDB::Coord64 &pos)
+    {
+        return LunaCore::Partitioner::FMPart::distanceToPartition(part, pos);
+    }
+
     std::vector<size_t>         m_netConnectionCount;
     std::vector<PartitionId>    m_originalNodePartition;
 };
+
+BOOST_AUTO_TEST_CASE(test_distance_to_partition)
+{
+    std::cout << "--== FMPart (distance to partition) test ==--\n";
+
+    FMPartTestHelper helper;
+
+    std::vector<LunaCore::Partitioner::Node> nodes;
+    FMPartTestHelper::Partition part1(nodes);
+    FMPartTestHelper::Partition part2(nodes);
+    part1.m_region = {{0,0},{10000,10000}};
+    part2.m_region = {{10000,0},{20000,10000}};
+
+    BOOST_CHECK(helper.distanceToPartition(part1, ChipDB::Coord64(0,0)) == 0);
+    BOOST_CHECK(helper.distanceToPartition(part2, ChipDB::Coord64(0,0)) == 10000);
+
+    BOOST_CHECK(helper.distanceToPartition(part1, ChipDB::Coord64(10000,0)) == 0);
+    BOOST_CHECK(helper.distanceToPartition(part2, ChipDB::Coord64(10000,0)) == 0);
+    
+    BOOST_CHECK(helper.distanceToPartition(part1, ChipDB::Coord64(20000,0)) == 10000);
+    BOOST_CHECK(helper.distanceToPartition(part2, ChipDB::Coord64(20000,0)) == 0);    
+
+    BOOST_CHECK(helper.distanceToPartition(part1, ChipDB::Coord64(20000,20000)) == 20000);
+    BOOST_CHECK(helper.distanceToPartition(part2, ChipDB::Coord64(20000,20000)) == 10000);  
+}
 
 BOOST_AUTO_TEST_CASE(test_buckets)
 {
@@ -301,6 +346,10 @@ BOOST_AUTO_TEST_CASE(test_buckets)
 
 BOOST_AUTO_TEST_CASE(can_partition_adder2)
 {
+    uint32_t oldLogLevel = getLogLevel();
+
+    setLogLevel(LOG_VERBOSE);
+
     std::cout << "--== FMPart (partitioning ADDER2) test ==--\n";
 
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
@@ -319,11 +368,11 @@ BOOST_AUTO_TEST_CASE(can_partition_adder2)
     // nerv fits in approx 650x650 um    
     FMPartTestHelper partitioner;
     partitioner.m_partitions[0].m_region = {{0,0}, {65000/2, 65000}};             // left partition
-    partitioner.m_partitions[1].m_region = {{65000/2, 650000}, {65000, 65000}};  // right partition
+    partitioner.m_partitions[1].m_region = {{65000/2, 0}, {65000, 65000}};  // right partition
 
     // allocate pin instances
-    int64_t top_x    = 0;
-    int64_t bottom_x = 0;
+    int64_t left_y  = 0;
+    int64_t right_y = 0;
     for(auto ins : mod->m_netlist.m_instances)
     {
         if (ins->m_insType == ChipDB::Instance::INS_PIN)
@@ -331,15 +380,15 @@ BOOST_AUTO_TEST_CASE(can_partition_adder2)
             auto pinInfo = ins->getPinInfo(0);
             if (pinInfo->isInput())
             {
-                ins->m_pos = {top_x, 65000};
+                ins->m_pos = {0, left_y};
                 ins->m_placementInfo = ChipDB::PLACEMENT_PLACEDANDFIXED;
-                top_x += 5000;
+                left_y += 5000;                
             }
             else
             {
-                ins->m_pos = {bottom_x, 0};
+                ins->m_pos = {65000, right_y};
                 ins->m_placementInfo = ChipDB::PLACEMENT_PLACEDANDFIXED;
-                bottom_x += 5000;
+                right_y += 5000;
             }
         }
     }
@@ -359,13 +408,13 @@ BOOST_AUTO_TEST_CASE(can_partition_adder2)
     
     for(size_t i=0; i<7; i++)
     {
-        auto gain = partitioner.cycle();
+        auto cost = partitioner.cycle();
         ssize_t nodesMoved = partitioner.countNodesMoved();
         BOOST_CHECK(nodesMoved >= 0);
 
         ssize_t cutNets = partitioner.calcNumberOfCutNets();
 
-        std::cout << "    cycle " << i << " gain = " << gain << " nodes moved = " << nodesMoved << "  Nets cut: " << cutNets << "\n";
+        std::cout << "    cycle " << i << " nodes moved = " << nodesMoved << "  Nets cut: " << cutNets << "  Cost: " << cost << "\n";
         BOOST_CHECK(partitioner.compareConnectionCount());
     }
 
@@ -377,6 +426,7 @@ BOOST_AUTO_TEST_CASE(can_partition_adder2)
         dotfile.close();
     }
 
+    setLogLevel(oldLogLevel);
 }
 
 BOOST_AUTO_TEST_CASE(can_partition_multiplier)
@@ -399,11 +449,11 @@ BOOST_AUTO_TEST_CASE(can_partition_multiplier)
     // nerv fits in approx 650x650 um    
     FMPartTestHelper partitioner;
     partitioner.m_partitions[0].m_region = {{0,0}, {65000/2, 65000}};             // left partition
-    partitioner.m_partitions[1].m_region = {{65000/2, 650000}, {65000, 65000}};  // right partition
+    partitioner.m_partitions[1].m_region = {{65000/2, 0}, {65000, 65000}};  // right partition
 
     // allocate pin instances
-    int64_t top_x    = 0;
-    int64_t bottom_x = 0;
+    int64_t left_y    = 0;
+    int64_t right_y = 0;
     for(auto ins : mod->m_netlist.m_instances)
     {
         if (ins->m_insType == ChipDB::Instance::INS_PIN)
@@ -411,15 +461,15 @@ BOOST_AUTO_TEST_CASE(can_partition_multiplier)
             auto pinInfo = ins->getPinInfo(0);
             if (pinInfo->isInput())
             {
-                ins->m_pos = {top_x, 65000};
+                ins->m_pos = {0, left_y};
                 ins->m_placementInfo = ChipDB::PLACEMENT_PLACEDANDFIXED;
-                top_x += 5000;
+                left_y += 5000;
             }
             else
             {
-                ins->m_pos = {bottom_x, 0};
+                ins->m_pos = {65000, right_y};
                 ins->m_placementInfo = ChipDB::PLACEMENT_PLACEDANDFIXED;
-                bottom_x += 5000;
+                right_y += 5000;
             }
         }
     }
@@ -439,13 +489,13 @@ BOOST_AUTO_TEST_CASE(can_partition_multiplier)
     
     for(size_t i=0; i<7; i++)
     {
-        auto gain = partitioner.cycle();
+        auto cost = partitioner.cycle();
         ssize_t nodesMoved = partitioner.countNodesMoved();
         BOOST_CHECK(nodesMoved >= 0);
 
         ssize_t cutNets = partitioner.calcNumberOfCutNets();
 
-        std::cout << "    cycle " << i << " gain = " << gain << " nodes moved = " << nodesMoved << "  Nets cut: " << cutNets << "\n";
+        std::cout << "    cycle " << i << " nodes moved = " << nodesMoved << "  Nets cut: " << cutNets << "  Cost: " << cost << "\n";
         BOOST_CHECK(partitioner.compareConnectionCount());
     }
 
@@ -479,11 +529,11 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv)
     // nerv fits in approx 650x650 um    
     FMPartTestHelper partitioner;
     partitioner.m_partitions[0].m_region = {{0,0}, {650000/2, 650000}};             // left partition
-    partitioner.m_partitions[1].m_region = {{650000/2, 650000}, {650000, 650000}};  // right partition
+    partitioner.m_partitions[1].m_region = {{650000/2, 0}, {650000, 650000}};  // right partition
 
     // allocate pin instances
-    int64_t top_x    = 0;
-    int64_t bottom_x = 0;
+    int64_t left_y  = 0;
+    int64_t right_y = 0;
     for(auto ins : mod->m_netlist.m_instances)
     {
         if (ins->m_insType == ChipDB::Instance::INS_PIN)
@@ -491,15 +541,15 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv)
             auto pinInfo = ins->getPinInfo(0);
             if (pinInfo->isInput())
             {
-                ins->m_pos = {top_x, 650000};
+                ins->m_pos = {0, left_y};
                 ins->m_placementInfo = ChipDB::PLACEMENT_PLACEDANDFIXED;
-                top_x += 5000;
+                left_y += 5000;
             }
             else
             {
-                ins->m_pos = {bottom_x, 0};
+                ins->m_pos = {65000, right_y};
                 ins->m_placementInfo = ChipDB::PLACEMENT_PLACEDANDFIXED;
-                bottom_x += 5000;
+                right_y += 5000;
             }
         }
     }
@@ -597,22 +647,23 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv)
     // go thought the partition with the bucket iterator
     partitioner.reportPartitions(ofile);
     std::cout << "  number of cut nets: " << partitioner.reportNumberOfCutNets(ofile) << "\n";
+    std::cout << "  total cost        : " << partitioner.calculateCost() << "\n";
 
     // perform a few cycles of the FM algo
     std::cout << "  starting FM cycles..\n";
     ofile << "  starting FM cycles..\n";
     partitioner.saveConnectionCount();
     partitioner.saveOriginalNodePartitioning();
-    for(size_t i=0; i<20; i++)
+    for(size_t i=0; i<2; i++)
     {
-        auto gain = partitioner.cycle();
+        auto cost = partitioner.cycle();
         ssize_t nodesMoved = partitioner.countNodesMoved();
         BOOST_CHECK(nodesMoved >= 0);
 
-        ssize_t cutNets = partitioner.calcNumberOfCutNets();
+        //ssize_t cutNets = partitioner.calcNumberOfCutNets();
 
-        std::cout << "    cycle " << i << " gain = " << gain << " nodes moved = " << nodesMoved << "  Nets cut: " << cutNets << "\n";
-        ofile     << "    cycle " << i << " gain = " << gain << " nodes moved = " << nodesMoved << "  Nets cut: " << cutNets << "\n";
+        std::cout << "    cycle " << i << " nodes moved = " << nodesMoved << "  Cost: " << cost << "\n";
+        ofile     << "    cycle " << i << " nodes moved = " << nodesMoved << "  Cost: " << cost << "\n";
         BOOST_CHECK(partitioner.compareConnectionCount());
     }
     std::cout << "  end FM\n";
@@ -624,6 +675,63 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv)
 
     std::time_t result = std::time(nullptr);
     ofile << "Produced: " << std::ctime(&result);
+}
+
+BOOST_AUTO_TEST_CASE(can_partition_nerv_concise)
+{
+    std::cout << "--== FMPart (partitioning NERV CPU) test ==--\n";
+    
+    std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
+    BOOST_CHECK(leffile.good());
+
+    ChipDB::Design design;
+    BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
+
+    std::ifstream verilogfile("test/files/verilog/nerv_tsmc018.v");
+    BOOST_CHECK(verilogfile.good());
+
+    ChipDB::Verilog::Reader::load(&design, verilogfile);
+
+    auto mod = design.m_moduleLib.lookup("nerv");
+
+    // nerv fits in approx 650x650 um    
+    LunaCore::Partitioner::FMPart partitioner;
+    partitioner.m_partitions[0].m_region = {{0,0}, {650000/2, 650000}};             // left partition
+    partitioner.m_partitions[1].m_region = {{650000/2, 0}, {650000, 650000}};  // right partition
+
+    // allocate pin instances
+    int64_t left_y  = 0;
+    int64_t right_y = 0;
+    for(auto ins : mod->m_netlist.m_instances)
+    {
+        if (ins->m_insType == ChipDB::Instance::INS_PIN)
+        {
+            auto pinInfo = ins->getPinInfo(0);
+            if (pinInfo->isInput())
+            {
+                ins->m_pos = {0, left_y};
+                ins->m_placementInfo = ChipDB::PLACEMENT_PLACEDANDFIXED;
+                left_y += 5000;
+            }
+            else
+            {
+                ins->m_pos = {65000, right_y};
+                ins->m_placementInfo = ChipDB::PLACEMENT_PLACEDANDFIXED;
+                right_y += 5000;
+            }
+        }
+    }
+
+    auto prevLogLevel = getLogLevel();
+    setLogLevel(LOG_VERBOSE);
+
+    if (!partitioner.doPartitioning(&mod->m_netlist))
+    {
+        doLog(LOG_ERROR, "Partitioning failed!\n");
+        BOOST_CHECK(false);
+    }
+
+    setLogLevel(prevLogLevel);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

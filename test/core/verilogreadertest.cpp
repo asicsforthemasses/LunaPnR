@@ -79,6 +79,59 @@ BOOST_AUTO_TEST_CASE(can_read_netlist)
     }    
 }
 
+BOOST_AUTO_TEST_CASE(can_read_multiplier)
+{
+    std::cout << "--== VERILOG NETLIST READER MULTIPLIER ==--\n";
+    
+    std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
+    BOOST_CHECK(leffile.good());
+
+    ChipDB::Design design;
+    BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
+
+    std::ifstream verilogfile("test/files/verilog/multiplier.v");
+    BOOST_CHECK(verilogfile.good());
+
+    ChipDB::Verilog::Reader::load(&design, verilogfile);
+
+    // check the design
+    std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";
+    BOOST_CHECK(design.m_moduleLib.size() == 1);
+    BOOST_CHECK(design.m_moduleLib.lookup("multiplier") != nullptr);
+    
+    auto mod = design.m_moduleLib.lookup("multiplier");
+    if (mod != nullptr)
+    {
+        std::cout << "  module has " << mod->m_netlist.m_instances.size() << " instances\n";
+        BOOST_CHECK(mod->m_netlist.m_instances.size() != 0);
+
+        std::cout << "  module has " << mod->m_netlist.m_nets.size() << " nets\n";
+        BOOST_CHECK(mod->m_netlist.m_nets.size() != 0);
+
+        std::cout << "  module has " << mod->m_pins.size() << " pins\n";
+        BOOST_CHECK(mod->m_pins.size() != 0);       
+
+        // check that module pins have a __pin instance in the netlist
+        for(auto const& modPin : mod->m_pins)
+        {
+            BOOST_CHECK(mod->m_netlist.m_instances.lookup(modPin.m_name) != nullptr);
+            if (mod->m_netlist.m_instances.lookup(modPin.m_name) == nullptr)
+            {
+                std::cout << "  missing pin instance for pin '" << modPin.m_name << "'\n";
+            }
+        }
+
+        // determine cell area
+        double area = 0;
+        for(auto ins : mod->m_netlist.m_instances)
+        {
+            area += ins->getArea();
+        }
+
+        std::cout << "  module area " << area << " um²\n";
+    }
+}
+
 BOOST_AUTO_TEST_CASE(can_read_nerv32)
 {
     std::cout << "--== VERILOG NETLIST READER NERV ==--\n";
@@ -176,5 +229,7 @@ BOOST_AUTO_TEST_CASE(can_read_picorv32)
         std::cout << "  module area " << area << " um²\n";
     }
 }
+
+
 
 BOOST_AUTO_TEST_SUITE_END()

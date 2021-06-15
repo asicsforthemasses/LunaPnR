@@ -1,6 +1,7 @@
 #include <algorithm>
 #include "fmpart.h"
 #include <assert.h>
+#include <limits>
 #include "common/logging.h"
 #include "netlist/instance.h"
 
@@ -44,12 +45,16 @@ bool FMPart::init(ChipDB::Netlist *nl)
 
         if (ins->m_placementInfo == ChipDB::PlacementInfo::PLACEMENT_PLACEDANDFIXED)
         {
-            if (distanceToPartition(m_partitions[0], ins->m_pos) < distanceToPartition(m_partitions[1], ins->m_pos))
+            auto distanceToPartition0 = distanceToPartition(m_partitions[0], ins->m_pos);
+            auto distanceToPartition1 = distanceToPartition(m_partitions[1], ins->m_pos);
+            if (distanceToPartition0 < distanceToPartition1)
             {
+                doLog(LOG_VERBOSE, "  Add pin %s (%lld, %lld) to partition %d\n", ins->m_name.c_str(), ins->m_pos.m_x, ins->m_pos.m_y, 0);
                 m_nodes[nodeIdx].m_partitionId = 0;
             }
             else
             {
+                doLog(LOG_VERBOSE, "  Add pin %s (%lld, %lld) to partition %d\n", ins->m_name.c_str(), ins->m_pos.m_x, ins->m_pos.m_y, 1);
                 m_nodes[nodeIdx].m_partitionId = 1;
             }
             m_nodes[nodeIdx].setFixed();
@@ -181,7 +186,7 @@ void FMPart::calcNodeGain(Node &node)
     }
 }
 
-GainType FMPart::cycle()
+int64_t FMPart::cycle()
 {
     struct FreeListType
     {
@@ -286,7 +291,13 @@ GainType FMPart::cycle()
         m_nodes.at(item.m_nodeId).m_locked = m_nodes.at(item.m_nodeId).m_fixed;
     }
 
-    return maxTotalGain;
+    // ****************************************************
+    // ** calculate the cost of the partitioning         **
+    // ****************************************************    
+
+    auto cost = calculateCost();
+
+    return cost;
 }
 
 void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
@@ -413,6 +424,17 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
     }
 }
 
+int64_t FMPart::calculateCost() const
+{
+    // determine how many times a net is cut
+    int64_t cost = 0;
+    for(auto const& net : m_nets)
+    {
+        cost += net.m_weight * std::min(net.m_nodesInPartition[0],net.m_nodesInPartition[1]);
+    }
+    return cost;
+}
+
 static std::string escapeString(const std::string &txt)
 {
     return std::string();
@@ -432,13 +454,35 @@ void FMPart::exportToDot(std::ostream &os)
     std::string color2 = "green";
     for(auto const& node : m_nodes)
     {
-        
-        os << "  N" << node.m_self << "[shape=\"circle\", label = \""  << node.m_self;
+        std::stringstream nodeLabel;
+        if (node.m_instance->m_insType == ChipDB::InstanceBase::INS_PIN)
+        {
+            if (node.m_instance->getPinInfo(0)->isOutput())
+            {
+                nodeLabel << node.m_instance->m_name;
+            }
+            else if (node.m_instance->getPinInfo(0)->isInput())
+            {
+                nodeLabel << node.m_instance->m_name;
+            }
+        }
+        else
+        {
+            nodeLabel << node.m_self;
+        }
+
+        os << "  N" << node.m_self << "[shape=\"circle\", label = \""  << nodeLabel.str();
         os << "\", color = ";
         if (node.m_partitionId == 0)
             os << color1;
         else
             os << color2;
+
+        if (node.m_fixed)
+        {
+            os << ", style=filled, fillcolor=lightgrey";
+        }
+
         os << " ];\n";
     }
 
@@ -460,4 +504,36 @@ void FMPart::exportToDot(std::ostream &os)
     }
 
     os << "\n}\n";
+}
+
+bool FMPart::doPartitioning(ChipDB::Netlist *nl)
+{
+    if (!init(nl))
+    {
+        doLog(LOG_ERROR,"FMPart::init failed\n");
+        return false;
+    }
+
+    doLog(LOG_VERBOSE, "  Pre-partitioning cost: %lld\n", calculateCost());
+
+    int64_t minCost = std::numeric_limits<int64_t>::max();
+    size_t  cyclesSinceMinCostSeen = 0;
+    int32_t cycleCount = 0;
+    while(cyclesSinceMinCostSeen < 3)
+    {        
+        auto cost = cycle();
+        cycleCount++;
+
+        doLog(LOG_VERBOSE,"  Cost of cycle %d = %lld\n", cycleCount, cost);
+        if (cost < minCost)
+        {
+            cyclesSinceMinCostSeen = 0;
+            minCost = cost;
+            //FIXME: save best partitioning
+        }
+        cyclesSinceMinCostSeen++;
+    }
+    doLog(LOG_VERBOSE, "  Post-partitioning cost: %lld\n",minCost);
+
+    return true;
 }

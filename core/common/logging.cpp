@@ -39,6 +39,10 @@ void setLogLevel(uint32_t level)
     gs_loglevel = level;
 }
 
+uint32_t getLogLevel()
+{
+    return gs_loglevel;
+}
 
 void doLog(uint32_t t, const std::string &txt)
 {

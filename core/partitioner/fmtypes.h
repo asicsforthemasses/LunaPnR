@@ -78,6 +78,7 @@ namespace LunaCore::Partitioner
     {
         DedupVector<NetId>  m_nets;             ///< nets connected to this nodes
         PartitionId         m_partitionId;      ///< current location of the node: partition 0 or 1
+        PartitionId         m_bestPartitionId;  ///< best location of the node: partition 0 or 1
         int64_t             m_weight;           ///< weight of the node (probably cell width instead of area)
         int64_t             m_gain;             ///< change in the number of net cuts when node is moved to the other partition
         bool                m_locked;           ///< if true, the node is locked/unmovable during the FM partitioning cycle

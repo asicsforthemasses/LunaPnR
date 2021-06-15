@@ -2,7 +2,7 @@
 
 (* top =  1  *)
 (* src = "multiplier.v:7.1-15.10" *)
-module multiplier(a_in, b_in, data_out);
+module multiplier(\a_in[0] , \a_in[1] , \a_in[2] , \a_in[3] , \b_in[0] , \b_in[1] , \b_in[2] , \b_in[3] , \data_out[0] , \data_out[1] , \data_out[2] , \data_out[3] , \data_out[4] , \data_out[5] , \data_out[6] , \data_out[7] );
   wire _000_;
   wire _001_;
   wire _002_;
@@ -59,24 +59,50 @@ module multiplier(a_in, b_in, data_out);
   wire _053_;
   wire _054_;
   (* src = "multiplier.v:8.18-8.22" *)
-  input [3:0] a_in;
+  input \a_in[0] ;
+  (* src = "multiplier.v:8.18-8.22" *)
+  input \a_in[1] ;
+  (* src = "multiplier.v:8.18-8.22" *)
+  input \a_in[2] ;
+  (* src = "multiplier.v:8.18-8.22" *)
+  input \a_in[3] ;
   (* src = "multiplier.v:9.18-9.22" *)
-  input [3:0] b_in;
+  input \b_in[0] ;
+  (* src = "multiplier.v:9.18-9.22" *)
+  input \b_in[1] ;
+  (* src = "multiplier.v:9.18-9.22" *)
+  input \b_in[2] ;
+  (* src = "multiplier.v:9.18-9.22" *)
+  input \b_in[3] ;
   (* src = "multiplier.v:10.18-10.26" *)
-  output [7:0] data_out;
+  output \data_out[0] ;
+  (* src = "multiplier.v:10.18-10.26" *)
+  output \data_out[1] ;
+  (* src = "multiplier.v:10.18-10.26" *)
+  output \data_out[2] ;
+  (* src = "multiplier.v:10.18-10.26" *)
+  output \data_out[3] ;
+  (* src = "multiplier.v:10.18-10.26" *)
+  output \data_out[4] ;
+  (* src = "multiplier.v:10.18-10.26" *)
+  output \data_out[5] ;
+  (* src = "multiplier.v:10.18-10.26" *)
+  output \data_out[6] ;
+  (* src = "multiplier.v:10.18-10.26" *)
+  output \data_out[7] ;
   NAND2X1 _055_ (
-    .A(a_in[1]),
-    .B(b_in[1]),
+    .A(\a_in[1] ),
+    .B(\b_in[1] ),
     .Y(_000_)
   );
   NAND2X1 _056_ (
-    .A(b_in[0]),
-    .B(a_in[0]),
+    .A(\b_in[0] ),
+    .B(\a_in[0] ),
     .Y(_001_)
   );
   INVX1 _057_ (
     .A(_001_),
-    .Y(data_out[0])
+    .Y(\data_out[0] )
   );
   NOR2X1 _058_ (
     .A(_000_),
@@ -84,30 +110,30 @@ module multiplier(a_in, b_in, data_out);
     .Y(_002_)
   );
   AOI22X1 _059_ (
-    .A(b_in[0]),
-    .B(a_in[1]),
-    .C(b_in[1]),
-    .D(a_in[0]),
+    .A(\b_in[0] ),
+    .B(\a_in[1] ),
+    .C(\b_in[1] ),
+    .D(\a_in[0] ),
     .Y(_003_)
   );
   NOR2X1 _060_ (
     .A(_002_),
     .B(_003_),
-    .Y(data_out[1])
+    .Y(\data_out[1] )
   );
   NAND2X1 _061_ (
-    .A(a_in[0]),
-    .B(b_in[2]),
+    .A(\a_in[0] ),
+    .B(\b_in[2] ),
     .Y(_004_)
   );
   NAND2X1 _062_ (
-    .A(b_in[0]),
-    .B(a_in[2]),
+    .A(\b_in[0] ),
+    .B(\a_in[2] ),
     .Y(_005_)
   );
   NAND2X1 _063_ (
-    .A(b_in[1]),
-    .B(a_in[2]),
+    .A(\b_in[1] ),
+    .B(\a_in[2] ),
     .Y(_006_)
   );
   OR2X1 _064_ (
@@ -126,8 +152,8 @@ module multiplier(a_in, b_in, data_out);
     .Y(_009_)
   );
   NAND3X1 _067_ (
-    .A(a_in[0]),
-    .B(b_in[2]),
+    .A(\a_in[0] ),
+    .B(\b_in[2] ),
     .C(_009_),
     .Y(_010_)
   );
@@ -144,7 +170,7 @@ module multiplier(a_in, b_in, data_out);
   XOR2X1 _070_ (
     .A(_002_),
     .B(_011_),
-    .Y(data_out[2])
+    .Y(\data_out[2] )
   );
   OAI21X1 _071_ (
     .A(_004_),
@@ -153,20 +179,20 @@ module multiplier(a_in, b_in, data_out);
     .Y(_013_)
   );
   NAND2X1 _072_ (
-    .A(b_in[0]),
-    .B(a_in[3]),
+    .A(\b_in[0] ),
+    .B(\a_in[3] ),
     .Y(_014_)
   );
   AOI22X1 _073_ (
-    .A(b_in[1]),
-    .B(a_in[2]),
-    .C(a_in[3]),
-    .D(b_in[0]),
+    .A(\b_in[1] ),
+    .B(\a_in[2] ),
+    .C(\a_in[3] ),
+    .D(\b_in[0] ),
     .Y(_015_)
   );
   NAND2X1 _074_ (
-    .A(b_in[1]),
-    .B(a_in[3]),
+    .A(\b_in[1] ),
+    .B(\a_in[3] ),
     .Y(_016_)
   );
   XNOR2X1 _075_ (
@@ -175,8 +201,8 @@ module multiplier(a_in, b_in, data_out);
     .Y(_017_)
   );
   NAND2X1 _076_ (
-    .A(a_in[1]),
-    .B(b_in[2]),
+    .A(\a_in[1] ),
+    .B(\b_in[2] ),
     .Y(_018_)
   );
   XNOR2X1 _077_ (
@@ -202,8 +228,8 @@ module multiplier(a_in, b_in, data_out);
     .Y(_022_)
   );
   NAND2X1 _081_ (
-    .A(a_in[0]),
-    .B(b_in[3]),
+    .A(\a_in[0] ),
+    .B(\b_in[3] ),
     .Y(_023_)
   );
   INVX1 _082_ (
@@ -228,8 +254,8 @@ module multiplier(a_in, b_in, data_out);
     .Y(_027_)
   );
   NAND2X1 _086_ (
-    .A(a_in[1]),
-    .B(b_in[3]),
+    .A(\a_in[1] ),
+    .B(\b_in[3] ),
     .Y(_028_)
   );
   OAI22X1 _087_ (
@@ -240,13 +266,13 @@ module multiplier(a_in, b_in, data_out);
     .Y(_029_)
   );
   NAND2X1 _088_ (
-    .A(a_in[2]),
-    .B(b_in[2]),
+    .A(\a_in[2] ),
+    .B(\b_in[2] ),
     .Y(_030_)
   );
   NAND2X1 _089_ (
-    .A(b_in[2]),
-    .B(a_in[3]),
+    .A(\b_in[2] ),
+    .B(\a_in[3] ),
     .Y(_031_)
   );
   XOR2X1 _090_ (
@@ -291,7 +317,7 @@ module multiplier(a_in, b_in, data_out);
   XOR2X1 _098_ (
     .A(_026_),
     .B(_039_),
-    .Y(data_out[4])
+    .Y(\data_out[4] )
   );
   OAI21X1 _099_ (
     .A(_026_),
@@ -305,13 +331,13 @@ module multiplier(a_in, b_in, data_out);
     .Y(_041_)
   );
   NAND2X1 _101_ (
-    .A(a_in[2]),
-    .B(b_in[3]),
+    .A(\a_in[2] ),
+    .B(\b_in[3] ),
     .Y(_042_)
   );
   AOI21X1 _102_ (
-    .A(b_in[1]),
-    .B(a_in[2]),
+    .A(\b_in[1] ),
+    .B(\a_in[2] ),
     .C(_031_),
     .Y(_043_)
   );
@@ -343,7 +369,7 @@ module multiplier(a_in, b_in, data_out);
   XNOR2X1 _108_ (
     .A(_040_),
     .B(_048_),
-    .Y(data_out[5])
+    .Y(\data_out[5] )
   );
   AOI21X1 _109_ (
     .A(_006_),
@@ -352,13 +378,13 @@ module multiplier(a_in, b_in, data_out);
     .Y(_049_)
   );
   NAND2X1 _110_ (
-    .A(a_in[3]),
-    .B(b_in[3]),
+    .A(\a_in[3] ),
+    .B(\b_in[3] ),
     .Y(_050_)
   );
   NAND3X1 _111_ (
-    .A(a_in[3]),
-    .B(b_in[3]),
+    .A(\a_in[3] ),
+    .B(\b_in[3] ),
     .C(_049_),
     .Y(_051_)
   );
@@ -381,17 +407,17 @@ module multiplier(a_in, b_in, data_out);
   XOR2X1 _115_ (
     .A(_052_),
     .B(_054_),
-    .Y(data_out[6])
+    .Y(\data_out[6] )
   );
   XNOR2X1 _116_ (
     .A(_012_),
     .B(_025_),
-    .Y(data_out[3])
+    .Y(\data_out[3] )
   );
   OAI21X1 _117_ (
     .A(_052_),
     .B(_054_),
     .C(_051_),
-    .Y(data_out[7])
+    .Y(\data_out[7] )
   );
 endmodule
