@@ -13,6 +13,8 @@
 namespace LunaCore::Partitioner
 {
 
+//FIXME: when generating the simplified netlist, remove the __NETCON objects
+//       and merge the net
 
 class FMPart
 {

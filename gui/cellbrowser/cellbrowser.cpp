@@ -119,7 +119,7 @@ void CellBrowser::onPinSelectionChanged(const QItemSelection &cur, const QItemSe
     if (index.isValid())
     {        
         auto pinInfo = m_pinModel->getPinInfo(index.row());
-        if (pinInfo != nullptr)
+        if ((pinInfo != nullptr) && m_pinInfoModel)
         {
             m_pinInfoModel->setPinInfo(pinInfo);
             update();

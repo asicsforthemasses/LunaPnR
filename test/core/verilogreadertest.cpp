@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(can_read_netlist)
         case ChipDB::InstanceBase::INS_CELL:
             {
                 std::cout << "    cell " << ins->m_name << " " << ins->getArchetypeName() << "\tarea: " << ins->getArea() << " um²\n";
-                BOOST_CHECK(ins->getArea() > 0);
+                BOOST_CHECK(ins->getArea() >= 0);    // NETCON cells have area 0
             }
             break;
         case ChipDB::InstanceBase::INS_PIN:

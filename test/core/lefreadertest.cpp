@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE(can_read_lef)
     BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
 
     std::cout << "  Found " << design.m_cellLib.size() << " cells\n";
-    BOOST_CHECK(design.m_cellLib.size() == 33);
+    BOOST_CHECK(design.m_cellLib.size() == 34);
 
     for(auto cell : design.m_cellLib)
     {
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE(can_read_lef2)
     BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
 
     std::cout << "  Found " << design.m_cellLib.size() << " cells\n";
-    BOOST_CHECK(design.m_cellLib.size() == 134);
+    BOOST_CHECK(design.m_cellLib.size() == 135);
 }
 
 BOOST_AUTO_TEST_CASE(can_read_techlef2)
