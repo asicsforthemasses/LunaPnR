@@ -68,11 +68,17 @@ public:
     Net* createNet(const std::string &netName);
 
     Netlist m_netlist;
+    
 };
 
 class CellLib
 {
 public:
+    CellLib() 
+    {
+        createNetConCell();
+    }
+
     virtual ~CellLib();
 
     NamedStorage<Cell*> m_cells;
@@ -94,6 +100,10 @@ public:
 
     Cell* createCell(const std::string &name);
     Cell* lookup(const std::string &name) const;
+
+protected:
+    /** create a special net connection cell so we can connect nets */
+    void createNetConCell();
 };
 
 class ModuleLib

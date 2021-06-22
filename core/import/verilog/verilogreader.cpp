@@ -18,6 +18,7 @@
 
 #include <sstream>
 #include <algorithm>
+#include <assert.h>
 #include "common/logging.h"
 #include "netlist/instance.h"
 #include "verilogreader.h"
@@ -356,26 +357,57 @@ void ReaderImpl::onInstanceNamedPort(const std::string &pinName, const std::stri
 
 void ReaderImpl::onAssign(const std::string &left, const std::string &right)
 {
-#if 0    
-    auto myModulePtr = m_design->modules()[m_moduleIndex];
-    if (myModulePtr == nullptr)
-    {
-        doLog(LOG_ERROR, "Destination module is nullptr\n");
-        return;
-    }
+    throwOnDesignIsNullptr();
+    throwOnModuleIsNullptr();
 
-    auto net1Index = myModulePtr->nets().indexOf(left);     // output net
-    auto net2Index = myModulePtr->nets().indexOf(right);    // input net
+    auto outNetPtr = m_currentModule->m_netlist.m_nets.lookup(left);     // output net
+    auto inNetPtr  = m_currentModule->m_netlist.m_nets.lookup(right);    // input net
     
     std::stringstream ss;
 
     ss << "__NETCON" << m_design->createUniqueID();
 
-    auto cellIndex  = m_design->getNetConnectCellIndex();
-    auto cellPtr    = m_design->cellLib()->cell(cellIndex);
-    auto insIndex   = myModulePtr->createInstance(ss.str(), cellPtr);
+    auto cellPtr = m_design->m_cellLib.lookup("__NETCON");
+    if (cellPtr == nullptr)
+    {
+        doLog(LOG_ERROR,"Verilog reader: cannot find __NETCON cell in cell library\n");
+        return;
+    }
 
-    myModulePtr->connect(insIndex, 1, net1Index);
-    myModulePtr->connect(insIndex, 0, net2Index);
-#endif
+    auto insPtr = new Instance(cellPtr);
+    insPtr->m_name = ss.str();
+
+    if (!m_currentModule->addInstance(ss.str(), insPtr))
+    {            
+        std::stringstream ss;
+        ss << "Verilog reader: failed to create instance " << ss.str() << "\n";
+        doLog(LOG_ERROR, ss);
+    }
+
+    // **********************************************************************
+    //   find Y and A pins on the __NETCON cell
+    // **********************************************************************
+
+    auto pinYIndex = insPtr->getPinIndex("Y");
+    if (pinYIndex < 0)
+    {
+        doLog(LOG_ERROR,"Verilog reader: __NETCON cell does not have a Y pin.\n");
+        return;
+    }
+
+    auto pinAIndex = insPtr->getPinIndex("A");
+    if (pinAIndex < 0)
+    {
+        doLog(LOG_ERROR,"Verilog reader: __NETCON cell does not have a A pin.\n");
+        return;
+    }
+
+    // **********************************************************************
+    //   connect the nets together
+    // **********************************************************************
+
+    insPtr->connect(pinYIndex, outNetPtr);
+    insPtr->connect(pinAIndex, inNetPtr);
+    outNetPtr->addConnection(insPtr, pinYIndex);
+    inNetPtr->addConnection(insPtr, pinAIndex);
 }

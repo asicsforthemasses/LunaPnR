@@ -104,6 +104,18 @@ Cell* CellLib::lookup(const std::string &name) const
     return *iter;
 }
 
+void CellLib::createNetConCell()
+{
+    auto netConCell = createCell("__NETCON");
+    netConCell->m_size = {0,0};
+    netConCell->m_area = 0;
+    netConCell->m_leakagePower = 0;
+    auto inPin  = netConCell->m_pins.createPin("A");
+    auto outPin = netConCell->m_pins.createPin("Y");
+    inPin.m_iotype  = IO_INPUT;
+    outPin.m_iotype = IO_OUTPUT;
+}
+
 
 // **********************************************************************
 //   ModuleLib

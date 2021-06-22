@@ -365,7 +365,6 @@ BOOST_AUTO_TEST_CASE(can_partition_adder2)
 
     auto mod = design.m_moduleLib.lookup("adder2");
 
-    // nerv fits in approx 650x650 um    
     FMPartTestHelper partitioner;
     partitioner.m_partitions[0].m_region = {{0,0}, {65000/2, 65000}};       // left partition
     partitioner.m_partitions[1].m_region = {{65000/2, 0}, {65000, 65000}};  // right partition
@@ -446,7 +445,6 @@ BOOST_AUTO_TEST_CASE(can_partition_multiplier)
 
     auto mod = design.m_moduleLib.lookup("multiplier");
 
-    // nerv fits in approx 650x650 um    
     FMPartTestHelper partitioner;
     partitioner.m_partitions[0].m_region = {{0,0}, {65000/2, 65000}};             // left partition
     partitioner.m_partitions[1].m_region = {{65000/2, 0}, {65000, 65000}};  // right partition
@@ -547,7 +545,7 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv)
             }
             else
             {
-                ins->m_pos = {65000, right_y};
+                ins->m_pos = {650000, right_y};
                 ins->m_placementInfo = ChipDB::PLACEMENT_PLACEDANDFIXED;
                 right_y += 5000;
             }
