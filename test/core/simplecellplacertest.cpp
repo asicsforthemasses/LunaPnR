@@ -11,7 +11,7 @@ BOOST_AUTO_TEST_SUITE(SimpleCellPlacerTest)
 
 BOOST_AUTO_TEST_CASE(check_simplecellplacer)
 {
-    std::cout << "--== CHECK SIMEPLCELLPLACER ==--\n";
+    std::cout << "--== CHECK SIMPLECELLPLACER ==--\n";
 
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_CHECK(leffile.good());
@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE(check_simplecellplacer)
     auto mod = design.m_moduleLib.lookup("nerv");
     BOOST_CHECK(mod != nullptr);
 
-    LunaCore::SimpleCellPlacer::place(&mod->m_netlist, ChipDB::Rect64{{0,0},{200000,200000}}, 10000);
+    LunaCore::SimpleCellPlacer::place(&mod->m_netlist, ChipDB::Rect64{{0,0},{650000,650000}}, 10000);
 
     auto hpwl = LunaCore::HPWLCalculator::calc(&mod->m_netlist);
     BOOST_CHECK(hpwl > 0);

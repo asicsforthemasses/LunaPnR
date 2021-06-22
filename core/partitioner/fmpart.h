@@ -212,7 +212,11 @@ public:
             return Iterator(*this, true);
         }
 
-        bool hasNode(NodeId nodeId)
+        /** check if node is in one of the buckets 
+         *  Note: this is a slow function and is only used
+         *        for testing.
+        */
+        bool hasNodeInBucket(NodeId nodeId)
         {
             for(auto nodePtr : *this)
             {
@@ -266,7 +270,7 @@ protected:
     /** add a node to the partition / bucket list.
      *  the data within the node is used to select
      *  the correct partition based on gain */
-    void addNode(NodeId nodeId)
+    void addNodeToBucket(NodeId nodeId)
     {
         //std::cout << "Add node " << nodeId << "\n";
         
@@ -277,14 +281,14 @@ protected:
     /** remove a node from the partition / bucket list.
      *  the data within the node is used to select
      *  the correct partition based on gain */
-    void removeNode(NodeId nodeId)
+    void removeNodeFromBucket(NodeId nodeId)
     {
         //std::cout << "Remove node " << nodeId << "\n";
 
         auto& node = m_nodes.at(nodeId);
         m_partitions.at(node.m_partitionId).removeNode(node);
 
-        assert(m_partitions.at(node.m_partitionId).hasNode(nodeId) == false);
+        assert(m_partitions.at(node.m_partitionId).hasNodeInBucket(nodeId) == false);
     }
 
     void calcNodeGain(Node &node);

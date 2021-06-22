@@ -81,8 +81,6 @@ namespace LunaCore::Partitioner
         PartitionId         m_bestPartitionId;  ///< best location of the node: partition 0 or 1
         int64_t             m_weight;           ///< weight of the node (probably cell width instead of area)
         int64_t             m_gain;             ///< change in the number of net cuts when node is moved to the other partition
-        bool                m_locked;           ///< if true, the node is locked/unmovable during the FM partitioning cycle
-        bool                m_fixed;            ///< if true, the node can never be moved
 
         ChipDB::InstanceBase *m_instance;
 
@@ -91,9 +89,40 @@ namespace LunaCore::Partitioner
         NodeId              m_prev;
         NodeId              m_self;
 
+        /** returns true if the node is part of a bucket list */
         constexpr bool isLinked() const noexcept
         {
             return (m_next != -1) || (m_prev != -1);
+        }
+
+        constexpr bool isLocked() const noexcept
+        {
+            return (m_flags & c_lockedFlag) != 0;
+        }
+
+        constexpr bool isFixed() const noexcept
+        {
+            return (m_flags & c_fixedFlag) != 0;
+        }
+
+        void lock()
+        {
+            m_flags |= c_lockedFlag;
+        }
+
+        void fix()
+        {
+            m_flags |= c_fixedFlag;
+        }
+
+        void unlock()
+        {
+            m_flags &= ~c_lockedFlag;
+        }
+
+        void unfix()
+        {
+            m_flags &= ~c_fixedFlag;
         }
 
         void reset(NodeId self)
@@ -101,15 +130,8 @@ namespace LunaCore::Partitioner
             resetLinks();
             m_gain = 0;
             m_self = self;
-            m_locked = false;
-            m_fixed  = false;
+            m_flags = 0;
             m_partitionId = -1;
-        }
-
-        void setFixed()
-        {
-            m_locked = true;
-            m_fixed  = true;
         }
 
         void resetLinks()
@@ -117,6 +139,11 @@ namespace LunaCore::Partitioner
             m_next = -1;
             m_prev = -1;
         }
+
+        protected:
+            static const uint8_t c_lockedFlag = 1;
+            static const uint8_t c_fixedFlag  = 2;
+            uint8_t m_flags;
     };
 
     struct Net

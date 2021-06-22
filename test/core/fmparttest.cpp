@@ -16,14 +16,14 @@ BOOST_AUTO_TEST_SUITE(FMPartTest)
 class FMPartTestHelper : public LunaCore::Partitioner::FMPart
 {
 public:
-    void addNode(LunaCore::Partitioner::NodeId nodeId)
+    void addNodeToBucket(LunaCore::Partitioner::NodeId nodeId)
     {
-        LunaCore::Partitioner::FMPart::addNode(nodeId);
+        LunaCore::Partitioner::FMPart::addNodeToBucket(nodeId);
     }
 
-    void removeNode(LunaCore::Partitioner::NodeId nodeId)
+    void removeNodeFromBucket(LunaCore::Partitioner::NodeId nodeId)
     {
-        LunaCore::Partitioner::FMPart::removeNode(nodeId);
+        LunaCore::Partitioner::FMPart::removeNodeFromBucket(nodeId);
     }  
 
     bool init(ChipDB::Netlist *nl)
@@ -135,8 +135,8 @@ public:
             os << "    Partition " << partCount << "\n";
             for(auto node : partition)
             {
-                os << "    ID: " << node->m_self << "    gain = " << node->m_gain << "  " << (node->m_locked ? "LOCKED!" : "") << "  " << (node->m_fixed ? "FIXED!" : "") << "\n";
-                BOOST_CHECK(node->m_locked == node->m_fixed);
+                os << "    ID: " << node->m_self << "    gain = " << node->m_gain << "  " << (node->isFixed() ? "LOCKED!" : "") << "  " << (node->isFixed() ? "FIXED!" : "") << "\n";
+                BOOST_CHECK(node->isLocked() == node->isFixed());
             }
             partCount++;
         }
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE(test_buckets)
     // add all nodes
     for(auto& node : helper.m_nodes)
     {
-        helper.addNode(node.m_self);
+        helper.addNodeToBucket(node.m_self);
     }
 
     // check that buckets for gain = 0 exist
@@ -280,7 +280,7 @@ BOOST_AUTO_TEST_CASE(test_buckets)
     BOOST_CHECK(helper.m_nodes[2].m_prev == -1); // node 2 is alone..
 
     // now, remove node 1 (head node) from the partition bucket
-    helper.removeNode(1);
+    helper.removeNodeFromBucket(1);
 
     // check that node 1 is now unlinked
     BOOST_CHECK(helper.m_nodes[1].isLinked() == false);
@@ -293,12 +293,12 @@ BOOST_AUTO_TEST_CASE(test_buckets)
 
     // remove the last node from the partition 0 bucket
     // and check that the bucket no longer exists
-    helper.removeNode(0);
+    helper.removeNodeFromBucket(0);
     BOOST_CHECK(!helper.m_partitions[0].hasBucket(0));
 
     // remove the last node from the partition 1 bucket
     // and check that the bucket no longer exists
-    helper.removeNode(2);
+    helper.removeNodeFromBucket(2);
     BOOST_CHECK(!helper.m_partitions[1].hasBucket(0));
 
     // ==== check the partition iterator ====
@@ -313,7 +313,7 @@ BOOST_AUTO_TEST_CASE(test_buckets)
     // add all nodes
     for(auto& node : helper.m_nodes)
     {
-        helper.addNode(node.m_self);
+        helper.addNodeToBucket(node.m_self);
     }
 
     size_t count = 0;
@@ -367,7 +367,7 @@ BOOST_AUTO_TEST_CASE(can_partition_adder2)
 
     // nerv fits in approx 650x650 um    
     FMPartTestHelper partitioner;
-    partitioner.m_partitions[0].m_region = {{0,0}, {65000/2, 65000}};             // left partition
+    partitioner.m_partitions[0].m_region = {{0,0}, {65000/2, 65000}};       // left partition
     partitioner.m_partitions[1].m_region = {{65000/2, 0}, {65000, 65000}};  // right partition
 
     // allocate pin instances
@@ -574,7 +574,7 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv)
     size_t numberOfFixedNodes = 0;
     for(auto node : partitioner.m_nodes)
     {
-        if (node.m_fixed)
+        if (node.isFixed())
             numberOfFixedNodes++;
     }
     BOOST_CHECK(numberOfFixedNodes > 0);
@@ -715,7 +715,7 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv_concise)
             }
             else
             {
-                ins->m_pos = {65000, right_y};
+                ins->m_pos = {650000, right_y};
                 ins->m_placementInfo = ChipDB::PLACEMENT_PLACEDANDFIXED;
                 right_y += 5000;
             }

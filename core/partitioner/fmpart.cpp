@@ -57,7 +57,8 @@ bool FMPart::init(ChipDB::Netlist *nl)
                 doLog(LOG_VERBOSE, "  Add pin %s (%lld, %lld) to partition %d\n", ins->m_name.c_str(), ins->m_pos.m_x, ins->m_pos.m_y, 1);
                 m_nodes[nodeIdx].m_partitionId = 1;
             }
-            m_nodes[nodeIdx].setFixed();
+            m_nodes[nodeIdx].fix();
+            m_nodes[nodeIdx].lock();
         }
         else
         {
@@ -130,8 +131,8 @@ bool FMPart::init(ChipDB::Netlist *nl)
     for(auto& node : m_nodes)
     {        
         calcNodeGain(node);
-        if (!node.m_fixed)
-            addNode(node.m_self);
+        if (!node.isFixed())
+            addNodeToBucket(node.m_self);
     }
 
     return true;
@@ -142,7 +143,7 @@ void FMPart::calcNodeGain(Node &node)
     node.m_gain = 0;
 
     // don't calculate gain for unmovable nodes.
-    if (node.m_locked)
+    if (node.isLocked() || node.isFixed())
     {
         return;
     }
@@ -216,14 +217,14 @@ int64_t FMPart::cycle()
             auto nodeId = iter->m_self;
             totalGain += iter->m_gain;
 
-            assert(!iter->m_locked);
-
+            assert(!iter->isLocked());
+            assert(!iter->isFixed());
 
             freeNodes.at(freeNodeIdx).m_nodeId    = nodeId;  // save the node ID in the free list
             freeNodes.at(freeNodeIdx).m_totalGain = totalGain;
             freeNodeIdx++;
 
-            removeNode(nodeId);
+            removeNodeFromBucket(nodeId);
             moveNodeAndUpdateNeighbours(nodeId);
         }
 
@@ -282,14 +283,17 @@ int64_t FMPart::cycle()
         auto& item = freeNodes.at(idx);
         auto& node = m_nodes.at(item.m_nodeId);
         
-        assert(m_partitions[node.m_partitionId].hasNode(node.m_self) == false);
+        assert(m_partitions[node.m_partitionId].hasNodeInBucket(node.m_self) == false);
 
         calcNodeGain(node);
-        addNode(item.m_nodeId);
+        addNodeToBucket(item.m_nodeId);
 
         // unlock the node, if it is not a fixed node
-        m_nodes.at(item.m_nodeId).m_locked = m_nodes.at(item.m_nodeId).m_fixed;
-    }
+        if (m_nodes.at(item.m_nodeId).isFixed())
+            m_nodes.at(item.m_nodeId).lock();
+        else
+            m_nodes.at(item.m_nodeId).unlock();
+    }   
 
     // ****************************************************
     // ** calculate the cost of the partitioning         **
@@ -325,7 +329,7 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
         throw std::out_of_range("Partition ID of out range");
     }
 
-    node.m_locked = true;
+    node.lock();
     node.m_partitionId = toPartitionIndex;    // move node
     
     // ************************************
@@ -343,11 +347,11 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
             for(auto netNodeId : net.m_nodes)
             {
                 auto& netNode = m_nodes.at(netNodeId);
-                if (!netNode.m_locked)
+                if (!netNode.isLocked())
                 {                                        
-                    removeNode(netNodeId);
+                    removeNodeFromBucket(netNodeId);
                     netNode.m_gain += net.m_weight;
-                    addNode(netNodeId);
+                    addNodeToBucket(netNodeId);
                 }
             }
         }
@@ -360,11 +364,11 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
             {
                 auto& netNode = m_nodes.at(netNodeId);
                 if ((netNode.m_partitionId == toPartitionIndex) &&
-                    !netNode.m_locked)
+                    !netNode.isLocked())
                 {
-                    removeNode(netNodeId);
+                    removeNodeFromBucket(netNodeId);
                     netNode.m_gain -= net.m_weight;
-                    addNode(netNodeId);
+                    addNodeToBucket(netNodeId);
                     count++;
                 }
             }
@@ -390,11 +394,11 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
             for(auto netNodeId : net.m_nodes)
             {
                 auto& netNode = m_nodes.at(netNodeId);
-                if (!netNode.m_locked)
+                if (!netNode.isLocked())
                 {                    
-                    removeNode(netNodeId);
+                    removeNodeFromBucket(netNodeId);
                     netNode.m_gain -= net.m_weight;
-                    addNode(netNodeId);
+                    addNodeToBucket(netNodeId);
                 }
             }
         }
@@ -407,11 +411,11 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
             {                
                 auto& netNode = m_nodes.at(netNodeId);
                 if ((netNode.m_partitionId == fromPartitionIndex) &&
-                    !netNode.m_locked)
+                    !netNode.isLocked())
                 {                    
-                    removeNode(netNodeId);
+                    removeNodeFromBucket(netNodeId);
                     netNode.m_gain += net.m_weight;
-                    addNode(netNodeId);               
+                    addNodeToBucket(netNodeId);               
                 }
             }    
 
@@ -478,7 +482,7 @@ void FMPart::exportToDot(std::ostream &os)
         else
             os << color2;
 
-        if (node.m_fixed)
+        if (node.isFixed())
         {
             os << ", style=filled, fillcolor=lightgrey";
         }
