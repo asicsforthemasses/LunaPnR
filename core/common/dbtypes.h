@@ -49,9 +49,9 @@ namespace ChipDB
     */
     struct Coord64
     {
-        Coord64() : m_x(0), m_y(0) {}
-        Coord64(const int64_t &x, const int64_t &y) : m_x(x), m_y(y) {}
-        Coord64(const Coord64 &c) : m_x(c.m_x), m_y(c.m_y) {}
+        constexpr Coord64() : m_x(0), m_y(0) {}
+        constexpr Coord64(const int64_t &x, const int64_t &y) : m_x(x), m_y(y) {}
+        constexpr Coord64(const Coord64 &c) : m_x(c.m_x), m_y(c.m_y) {}
 
         int64_t m_x;   ///< x coordinate in nanometers
         int64_t m_y;   ///< y coordinate in nanometers
@@ -106,8 +106,8 @@ namespace ChipDB
 
     struct Rect64
     {
-        Rect64() : m_ll{0,0}, m_ur{0,0} {}
-        Rect64(const Coord64 &ll, const Coord64 &ur) :
+        constexpr Rect64() : m_ll{0,0}, m_ur{0,0} {}
+        constexpr Rect64(const Coord64 &ll, const Coord64 &ur) :
             m_ll(ll), m_ur(ur) {}
 
         Coord64 m_ll;   ///< lower left

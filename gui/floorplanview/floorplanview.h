@@ -30,6 +30,8 @@ protected:
 
     void drawInstance(QPainter &p, const ChipDB::InstanceBase *ins);
 
+    QRectF m_viewPort;  ///< viewport in floorplan coordinates
+
     const ChipDB::Netlist *m_netlist;
     bool  m_dirty;
 };
