@@ -113,27 +113,47 @@ namespace ChipDB
         Coord64 m_ll;   ///< lower left
         Coord64 m_ur;   ///< upper right
 
-        void setLL(const Coord64 &p)
+        constexpr void setLL(const Coord64 &p)
         {
             m_ll = p;
         }
 
-        void setUL(const Coord64 &p)
+        constexpr void setUL(const Coord64 &p)
         {
             m_ll.m_x = p.m_x;
             m_ur.m_y = p.m_y;
         }
 
-        void setUR(const Coord64 &p)
+        constexpr void setUR(const Coord64 &p)
         {
             m_ur = p;
         }    
 
-        void setLR(const Coord64 &p)
+        constexpr void setLR(const Coord64 &p)
         {
             m_ll.m_y = p.m_y;
             m_ur.m_x = p.m_x;
         }  
+        
+        constexpr void setLeft(const int64_t c)
+        {
+            m_ll.m_x = c;
+        }
+
+        constexpr void setRight(const int64_t c)
+        {
+            m_ur.m_x = c;
+        }
+
+        constexpr void setTop(const int64_t c)
+        {
+            m_ur.m_y = c;
+        }
+
+        void setBottom(const int64_t c)
+        {
+            m_ll.m_y = c;
+        }
 
         void setSize(const Coord64 &s)
         {

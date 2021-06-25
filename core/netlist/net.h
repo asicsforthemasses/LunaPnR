@@ -12,11 +12,12 @@ class InstanceBase; // pre-declaration
 class Net
 {
 public:
-    Net() : m_flags(0), m_isPortNet(false), m_isClockNet(false) {}
+    Net() : m_id(-1), m_flags(0), m_isPortNet(false), m_isClockNet(false) {}
     
     IMPLEMENT_ACCEPT;
 
     std::string m_name;         ///< net name
+    int32_t     m_id;           ///< unique ID
     uint32_t    m_flags;        ///< non-persistent flags that can be used by algorithms
     bool        m_isPortNet;    ///< when true, this net connects to a module port
     bool        m_isClockNet;   ///< when true, this net is a clock net

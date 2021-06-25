@@ -23,10 +23,10 @@ public:
     } m_insType;
 
     InstanceBase() : m_parent(nullptr), m_insType(INS_ABSTRACT), m_orientation(ORIENT_R0), 
-        m_placementInfo(PLACEMENT_UNPLACED), m_flags(0) {}
+        m_placementInfo(PLACEMENT_UNPLACED), m_id(-1), m_flags(0) {}
     
     InstanceBase(InstanceBase *parent) : m_parent(parent), m_insType(INS_ABSTRACT), m_orientation(ORIENT_R0), 
-        m_placementInfo(PLACEMENT_UNPLACED), m_flags(0) {}
+        m_placementInfo(PLACEMENT_UNPLACED), m_id(-1), m_flags(0) {}
 
     virtual ~InstanceBase() {}
 
@@ -88,6 +88,7 @@ public:
     Coord64         m_pos;              ///< lower-left position of the instance
     Orientation     m_orientation;      ///< orientation of the cell instance
     PlacementInfo   m_placementInfo;    ///< placement status
+    int32_t         m_id;               ///< unique id for each instance
     uint32_t        m_flags;            ///< non-persistent generic flags that can be used by algorithms
 };
 

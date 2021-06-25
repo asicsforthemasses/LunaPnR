@@ -11,6 +11,7 @@
 
 BOOST_AUTO_TEST_SUITE(FMPartTest)
 
+#if 0
 //FIXME: refactor this mess!
 
 class FMPartTestHelper : public LunaCore::Partitioner::FMPart
@@ -674,6 +675,67 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv)
     std::time_t result = std::time(nullptr);
     ofile << "Produced: " << std::ctime(&result);
 }
+#endif
+
+BOOST_AUTO_TEST_CASE(can_partition_multiplier)
+{
+    std::cout << "--== FMPart (partitioning MULTIPLIER) test ==--\n";
+
+    std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
+    BOOST_CHECK(leffile.good());
+
+    ChipDB::Design design;
+    BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
+
+    std::ifstream verilogfile("test/files/verilog/multiplier.v");
+    BOOST_CHECK(verilogfile.good());
+
+    ChipDB::Verilog::Reader::load(&design, verilogfile);
+
+    auto mod = design.m_moduleLib.lookup("multiplier");
+
+    LunaCore::Partitioner::FMPart partitioner;
+    LunaCore::Partitioner::FMContainer container;
+    container.m_region = {{0,0}, {65000, 65000}};
+
+    // allocate pin instances
+    int64_t left_y    = 0;
+    int64_t right_y = 0;
+    for(auto ins : mod->m_netlist.m_instances)
+    {
+        if (ins->m_insType == ChipDB::Instance::INS_PIN)
+        {
+            auto pinInfo = ins->getPinInfo(0);
+            if (pinInfo->isInput())
+            {
+                ins->m_pos = {0, left_y};
+                ins->m_placementInfo = ChipDB::PLACEMENT_PLACEDANDFIXED;
+                left_y += 5000;
+            }
+            else
+            {
+                ins->m_pos = {65000, right_y};
+                ins->m_placementInfo = ChipDB::PLACEMENT_PLACEDANDFIXED;
+                right_y += 5000;
+            }
+        }
+    }
+
+    auto prevLogLevel = getLogLevel();
+    setLogLevel(LOG_VERBOSE);
+
+    partitioner.doPartitioning(&mod->m_netlist, container);
+
+    // write partition out as a dot file
+    std::ofstream dotfile("test/files/results/multiplier_after.dot");
+    if (dotfile.good())
+    {        
+        partitioner.exportToDot(dotfile, container);
+        dotfile.close();
+    }
+    setLogLevel(prevLogLevel);
+}
+
 
 BOOST_AUTO_TEST_CASE(can_partition_nerv_concise)
 {
@@ -694,8 +756,8 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv_concise)
 
     // nerv fits in approx 650x650 um    
     LunaCore::Partitioner::FMPart partitioner;
-    partitioner.m_partitions[0].m_region = {{0,0}, {650000/2, 650000}};             // left partition
-    partitioner.m_partitions[1].m_region = {{650000/2, 0}, {650000, 650000}};  // right partition
+    LunaCore::Partitioner::FMContainer container;
+    container.m_region = {{0,0}, {650000, 650000}};
 
     // allocate pin instances
     int64_t left_y  = 0;
@@ -723,13 +785,21 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv_concise)
     auto prevLogLevel = getLogLevel();
     setLogLevel(LOG_VERBOSE);
 
-    if (!partitioner.doPartitioning(&mod->m_netlist))
+    if (!partitioner.doPartitioning(&mod->m_netlist, container))
     {
         doLog(LOG_ERROR, "Partitioning failed!\n");
         BOOST_CHECK(false);
     }
 
+    // check that the clock net is huge
+    auto clknet = mod->m_netlist.m_nets.lookup("clock");
+    BOOST_ASSERT(clknet != nullptr);
+    auto cnet = container.m_nets.at(clknet->m_id);
+    BOOST_ASSERT(cnet.m_nodes.size() > 25);
+
     setLogLevel(prevLogLevel);
 }
+
+
 
 BOOST_AUTO_TEST_SUITE_END()

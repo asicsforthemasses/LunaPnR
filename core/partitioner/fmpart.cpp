@@ -2,143 +2,15 @@
 #include "fmpart.h"
 #include <assert.h>
 #include <limits>
+#include <unordered_map>
+#include <stack>
 #include "common/logging.h"
 #include "netlist/instance.h"
 
 using namespace LunaCore::Partitioner;
 
-int64_t FMPart::distanceToPartition(const Partition &part, const ChipDB::Coord64 &pos)
-{
-    auto dx = std::max(part.m_region.m_ll.m_x - pos.m_x, int64_t(0));
-         dx = std::max(dx, pos.m_x - part.m_region.m_ur.m_x);
 
-    auto dy = std::max(part.m_region.m_ll.m_y - pos.m_y, int64_t(0));
-         dy = std::max(dy, pos.m_y - part.m_region.m_ur.m_y);
-
-    return dx+dy;
-}
-
-bool FMPart::init(ChipDB::Netlist *nl)
-{
-    if (nl == nullptr)
-        return false;
-
-    m_nodes.resize(nl->m_instances.size());
-    m_nets.resize(nl->m_nets.size());
-
-    // use the flags of the instance and 
-    // nets to number each entity uniquely
-
-    ssize_t nodeIdx = 0;
-    for(auto ins : nl->m_instances)
-    {
-        ins->m_flags = nodeIdx;
-
-        /* use cell width as the weight, as the height of each cell is the same */
-        m_nodes[nodeIdx].reset(nodeIdx);
-        m_nodes[nodeIdx].m_instance = ins;
-        m_nodes[nodeIdx].m_weight   = ins->instanceSize().m_x;
-        
-        // check if the instance has a fixed position.
-        // if so, assign the instance/node to the closest
-        // partition
-
-        if (ins->m_placementInfo == ChipDB::PlacementInfo::PLACEMENT_PLACEDANDFIXED)
-        {
-            auto distanceToPartition0 = distanceToPartition(m_partitions[0], ins->m_pos);
-            auto distanceToPartition1 = distanceToPartition(m_partitions[1], ins->m_pos);
-            if (distanceToPartition0 < distanceToPartition1)
-            {
-                doLog(LOG_VERBOSE, "  Add pin %s (%lld, %lld) to partition %d\n", ins->m_name.c_str(), ins->m_pos.m_x, ins->m_pos.m_y, 0);
-                m_nodes[nodeIdx].m_partitionId = 0;
-            }
-            else
-            {
-                doLog(LOG_VERBOSE, "  Add pin %s (%lld, %lld) to partition %d\n", ins->m_name.c_str(), ins->m_pos.m_x, ins->m_pos.m_y, 1);
-                m_nodes[nodeIdx].m_partitionId = 1;
-            }
-            m_nodes[nodeIdx].fix();
-            m_nodes[nodeIdx].lock();
-        }
-        else
-        {
-            // randomly assign a partition
-            if (std::rand() > (RAND_MAX/2))
-            {
-                m_nodes[nodeIdx].m_partitionId = 1;
-            }
-            else
-            {
-                m_nodes[nodeIdx].m_partitionId = 0;
-            }
-        }
-
-        nodeIdx++;
-    }
-
-    size_t netIdx = 0;
-    for(auto net : nl->m_nets)
-    {
-        net->m_flags = netIdx;
-        m_nets[netIdx].m_weight = 1;    // all nets are the same weight
-        m_nets[netIdx].m_nodesInPartition[0] = 0;
-        m_nets[netIdx].m_nodesInPartition[1] = 0;
-        netIdx++;
-    }
-
-    // set the connected nets of each node
-    // and add the node to each net
-    for(auto ins : nl->m_instances)
-    {
-        for(ssize_t pinIndex=0; pinIndex < ins->getNumberOfPins(); ++pinIndex)
-        {
-            auto net = ins->getConnectedNet(pinIndex);
-            if (net != nullptr)
-            {
-                const auto netIndex  = net->m_flags;
-                const auto nodeIndex = ins->m_flags;
-
-                auto& net  = m_nets.at(netIndex);
-                auto& node = m_nodes.at(nodeIndex);
-
-                // FIXME: we should check each node for duplicate nets!
-                node.m_nets.push_back(netIndex);
-
-                // FIXME: we should check each net for duplicate nodes!
-                net.m_nodes.push_back(nodeIndex);
-
-                net.m_nodesInPartition[node.m_partitionId]++;
-            }
-        }
-    }
-
-    // check if there are external pins on the net
-    // if so, increase the net weight
-    for(auto& net : m_nets)
-    {
-        for(auto nodeId : net.m_nodes)
-        {
-            auto& node = m_nodes.at(nodeId);
-            if (node.m_instance->m_insType == ChipDB::InstanceBase::INS_PIN)
-            {
-                net.m_weight += 4;
-                break;
-            }
-        }
-    }
-
-    // calculate gains for each node
-    for(auto& node : m_nodes)
-    {        
-        calcNodeGain(node);
-        if (!node.isFixed())
-            addNodeToBucket(node.m_self);
-    }
-
-    return true;
-}
-
-void FMPart::calcNodeGain(Node &node)
+void FMContainer::calcAndSetNodeGain(Node &node)
 {
     node.m_gain = 0;
 
@@ -185,9 +57,130 @@ void FMPart::calcNodeGain(Node &node)
             node.m_gain -= net.m_weight;
         }            
     }
+    
 }
 
-int64_t FMPart::cycle()
+void FMContainer::calcAndSetNodeGains()
+{
+    for(auto& node : m_nodes)
+    {
+        calcAndSetNodeGain(node);
+    }
+}
+
+void FMContainer::assignNodesToBuckets()
+{
+    for(auto& node : m_nodes)
+    {     
+        if (!node.isFixed())
+            addNodeToPartitionBucket(node.m_self);
+    }
+}
+
+
+int64_t FMPart::distanceToPartition(const Partition &part, const ChipDB::Coord64 &pos)
+{
+    auto dx = std::max(part.m_region.m_ll.m_x - pos.m_x, int64_t(0));
+         dx = std::max(dx, pos.m_x - part.m_region.m_ur.m_x);
+
+    auto dy = std::max(part.m_region.m_ll.m_y - pos.m_y, int64_t(0));
+         dy = std::max(dy, pos.m_y - part.m_region.m_ur.m_y);
+
+    return dx+dy;
+}
+
+
+bool FMPart::init(FMContainer &container)
+{
+    assert(container.m_nets.size() > 0);
+    assert(container.m_nodes.size() > 0);
+    
+    // create two partitions each half the size of the region
+    // cut in the longest axis
+    container.m_partitions[0].m_region = container.m_region;
+    container.m_partitions[1].m_region = container.m_region;
+    if (container.m_region.width() >= container.m_region.height())
+    {
+        // cut vertically
+        auto cutpos = container.m_region.left() + container.m_region.width() / 2;
+        container.m_partitions[0].m_region.setRight(cutpos);    // left half
+        container.m_partitions[1].m_region.setLeft(cutpos);     // right half
+    }
+    else
+    {
+        //cut horizontally
+        auto cutpos = container.m_region.bottom() + container.m_region.height() / 2;
+        container.m_partitions[0].m_region.setBottom(cutpos);   // top half
+        container.m_partitions[1].m_region.setTop(cutpos);      // bottom half
+    }
+
+    for(auto& node : container.m_nodes)
+    {
+        if (node.m_instance == nullptr)
+        {
+            doLog(LOG_WARN, "FMPart::init encountered nullptr instance (ID=%d) in node list\n", node.m_self);
+            return false;
+        }
+
+        // check if the instance has a fixed position.
+        // if so, assign the instance/node to the closest
+        // partition
+        if (node.m_instance->m_placementInfo == ChipDB::PlacementInfo::PLACEMENT_PLACEDANDFIXED)
+        {
+            const auto insPtr = node.m_instance;
+            auto distanceToPartition0 = distanceToPartition(container.m_partitions[0], insPtr->m_pos);
+            auto distanceToPartition1 = distanceToPartition(container.m_partitions[1], insPtr->m_pos);
+            if (distanceToPartition0 < distanceToPartition1)
+            {
+                doLog(LOG_VERBOSE, "  Add pin %s (%lld, %lld) to partition %d\n", insPtr->m_name.c_str(), insPtr->m_pos.m_x, insPtr->m_pos.m_y, 0);
+                node.m_partitionId = 0;
+            }
+            else
+            {
+                doLog(LOG_VERBOSE, "  Add pin %s (%lld, %lld) to partition %d\n", insPtr->m_name.c_str(), insPtr->m_pos.m_x, insPtr->m_pos.m_y, 1);
+                node.m_partitionId = 1;
+            }
+            node.fix();
+            node.lock();
+        }
+        else
+        {
+            // randomly assign a partition
+            if (std::rand() > (RAND_MAX/2))
+            {
+                node.m_partitionId = 1;
+            }
+            else
+            {
+                node.m_partitionId = 0;
+            }
+        }
+    }
+
+    // set the connected nets of each node
+    // and add the node to each net
+    for(auto& net : container.m_nets)
+    {
+        net.m_nodesInPartition[0] = 0;
+        net.m_nodesInPartition[1] = 0;
+
+        for(auto nodeId : net.m_nodes)
+        {
+            auto &node = container.m_nodes.at(nodeId);
+            net.m_nodesInPartition[node.m_partitionId]++;
+        }
+    }
+
+    // calculate gains for each node
+    // and add to a partition bucket if movable
+    container.calcAndSetNodeGains();
+    container.assignNodesToBuckets();
+    
+    return true;
+}
+
+
+int64_t FMPart::cycle(FMContainer &container)
 {
     struct FreeListType
     {
@@ -197,7 +190,7 @@ int64_t FMPart::cycle()
 
     std::vector<FreeListType> freeNodes;
 
-    freeNodes.resize(m_nodes.size());
+    freeNodes.resize(container.m_nodes.size());
 
     size_t      freeNodeIdx = 0;
     GainType    totalGain = 0;
@@ -207,11 +200,11 @@ int64_t FMPart::cycle()
         updated = false;
         // for now, we try to balance each partition by selecting the largest
         // partition
-        auto partitionId = (m_partitions[1].getTotalWeight() > m_partitions[0].getTotalWeight()) ? 1 : 0;
+        auto partitionId = (container.m_partitions[1].getTotalWeight() > container.m_partitions[0].getTotalWeight()) ? 1 : 0;
 
         // find the node with the most gain
-        auto iter = m_partitions[partitionId].begin();
-        if (iter != m_partitions[partitionId].end())
+        auto iter = container.begin(partitionId);
+        if (iter != container.end(partitionId))
         {
             updated = true;
             auto nodeId = iter->m_self;
@@ -224,8 +217,8 @@ int64_t FMPart::cycle()
             freeNodes.at(freeNodeIdx).m_totalGain = totalGain;
             freeNodeIdx++;
 
-            removeNodeFromBucket(nodeId);
-            moveNodeAndUpdateNeighbours(nodeId);
+            container.removeNodeFromPartitionBucket(nodeId);
+            moveNodeAndUpdateNeighbours(nodeId, container);
         }
 
     } while(updated);
@@ -255,7 +248,7 @@ int64_t FMPart::cycle()
     for(ssize_t idx=maxTotalGainIdx+1; idx < freeNodeIdx; idx++)
     {
         auto& item = freeNodes.at(idx);            
-        auto& node = m_nodes.at(item.m_nodeId);
+        auto& node = container.m_nodes.at(item.m_nodeId);
 
         size_t fromPartition = 0;
         size_t toPartition   = 0;
@@ -271,8 +264,8 @@ int64_t FMPart::cycle()
         node.m_partitionId = toPartition;
         for(auto netId : node.m_nets)
         {
-            m_nets.at(netId).m_nodesInPartition[fromPartition]--;
-            m_nets.at(netId).m_nodesInPartition[toPartition]++;
+            container.m_nets.at(netId).m_nodesInPartition[fromPartition]--;
+            container.m_nets.at(netId).m_nodesInPartition[toPartition]++;
         }
     }
     
@@ -281,32 +274,32 @@ int64_t FMPart::cycle()
     for(ssize_t idx=0; idx < freeNodeIdx; idx++)
     {
         auto& item = freeNodes.at(idx);
-        auto& node = m_nodes.at(item.m_nodeId);
+        auto& node = container.m_nodes.at(item.m_nodeId);
         
-        assert(m_partitions[node.m_partitionId].hasNodeInBucket(node.m_self) == false);
+        //assert(container.m_partitions[node.m_partitionId].hasNodeInBucket(node.m_self) == false);
 
-        calcNodeGain(node);
-        addNodeToBucket(item.m_nodeId);
+        container.calcAndSetNodeGain(node);
+        container.addNodeToPartitionBucket(item.m_nodeId);
 
         // unlock the node, if it is not a fixed node
-        if (m_nodes.at(item.m_nodeId).isFixed())
-            m_nodes.at(item.m_nodeId).lock();
+        if (node.isFixed())
+            node.lock();
         else
-            m_nodes.at(item.m_nodeId).unlock();
+            node.unlock();
     }   
 
     // ****************************************************
     // ** calculate the cost of the partitioning         **
     // ****************************************************    
 
-    auto cost = calculateCost();
+    auto cost = calculateNetCutCost(container);
 
     return cost;
 }
 
-void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
+void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId, FMContainer &container)
 {
-    auto& node = m_nodes.at(nodeId);
+    auto& node = container.m_nodes.at(nodeId);
 
     // ************************************
     // ** Move the node
@@ -338,7 +331,7 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
 
     for(auto netId : node.m_nets)
     {
-        auto& net = m_nets.at(netId);
+        auto& net = container.m_nets.at(netId);
 
         // check critical net before the move
         if (net.m_nodesInPartition[toPartitionIndex] == 0)
@@ -346,12 +339,12 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
             // increment the gains on all the free cells on the net
             for(auto netNodeId : net.m_nodes)
             {
-                auto& netNode = m_nodes.at(netNodeId);
+                auto& netNode = container.m_nodes.at(netNodeId);
                 if (!netNode.isLocked())
                 {                                        
-                    removeNodeFromBucket(netNodeId);
+                    container.removeNodeFromPartitionBucket(netNodeId);
                     netNode.m_gain += net.m_weight;
-                    addNodeToBucket(netNodeId);
+                    container.addNodeToPartitionBucket(netNodeId);
                 }
             }
         }
@@ -362,13 +355,13 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
             size_t count = 0;
             for(auto netNodeId : net.m_nodes)
             {
-                auto& netNode = m_nodes.at(netNodeId);
+                auto& netNode = container.m_nodes.at(netNodeId);
                 if ((netNode.m_partitionId == toPartitionIndex) &&
                     !netNode.isLocked())
                 {
-                    removeNodeFromBucket(netNodeId);
+                    container.removeNodeFromPartitionBucket(netNodeId);
                     netNode.m_gain -= net.m_weight;
-                    addNodeToBucket(netNodeId);
+                    container.addNodeToPartitionBucket(netNodeId);
                     count++;
                 }
             }
@@ -393,12 +386,12 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
             // decrement gains of all free cells on the net
             for(auto netNodeId : net.m_nodes)
             {
-                auto& netNode = m_nodes.at(netNodeId);
+                auto& netNode = container.m_nodes.at(netNodeId);
                 if (!netNode.isLocked())
                 {                    
-                    removeNodeFromBucket(netNodeId);
+                    container.removeNodeFromPartitionBucket(netNodeId);
                     netNode.m_gain -= net.m_weight;
-                    addNodeToBucket(netNodeId);
+                    container.addNodeToPartitionBucket(netNodeId);               
                 }
             }
         }
@@ -409,13 +402,13 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
             size_t count = 0;
             for(auto netNodeId : net.m_nodes)
             {                
-                auto& netNode = m_nodes.at(netNodeId);
+                auto& netNode = container.m_nodes.at(netNodeId);
                 if ((netNode.m_partitionId == fromPartitionIndex) &&
                     !netNode.isLocked())
                 {                    
-                    removeNodeFromBucket(netNodeId);
+                    container.removeNodeFromPartitionBucket(netNodeId);
                     netNode.m_gain += net.m_weight;
-                    addNodeToBucket(netNodeId);               
+                    container.addNodeToPartitionBucket(netNodeId);               
                 }
             }    
 
@@ -428,11 +421,11 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId)
     }
 }
 
-int64_t FMPart::calculateCost() const
+int64_t FMPart::calculateNetCutCost(const FMContainer &container) const
 {
     // determine how many times a net is cut
     int64_t cost = 0;
-    for(auto const& net : m_nets)
+    for(auto const& net : container.m_nets)
     {
         cost += net.m_weight * std::min(net.m_nodesInPartition[0],net.m_nodesInPartition[1]);
     }
@@ -444,7 +437,7 @@ static std::string escapeString(const std::string &txt)
     return std::string();
 }
 
-void FMPart::exportToDot(std::ostream &os)
+void FMPart::exportToDot(std::ostream &os, FMContainer &container)
 {
     os << "graph G {\n";
     os << "  rankdir=LR;\n"; 
@@ -456,7 +449,7 @@ void FMPart::exportToDot(std::ostream &os)
     // write out nodes
     std::string color1 = "red";
     std::string color2 = "green";
-    for(auto const& node : m_nodes)
+    for(auto const& node : container.m_nodes)
     {
         std::stringstream nodeLabel;
         if (node.m_instance->m_insType == ChipDB::InstanceBase::INS_PIN)
@@ -491,17 +484,17 @@ void FMPart::exportToDot(std::ostream &os)
     }
 
     // write out connections
-    for(auto const& net : m_nets)
+    for(auto const& net : container.m_nets)
     {
         auto iter = net.m_nodes.begin();
         if (iter == net.m_nodes.end())
             continue;
 
-        auto const& firstNode = m_nodes.at(*iter);
+        auto const& firstNode = container.m_nodes.at(*iter);
         iter++;
         while(iter != net.m_nodes.end())
         {
-            auto const& otherNode = m_nodes.at(*iter);
+            auto const& otherNode = container.m_nodes.at(*iter);
             os << "  N" << firstNode.m_self << " -- N" << otherNode.m_self << ";\n";
             iter++;
         }
@@ -510,22 +503,135 @@ void FMPart::exportToDot(std::ostream &os)
     os << "\n}\n";
 }
 
-bool FMPart::doPartitioning(ChipDB::Netlist *nl)
+#if 0
+bool FMPart::doPartitioning(FMContainer &container)
 {
-    if (!init(nl))
+    FMContainer ncp0;
+    FMContainer ncp1;
+
+    std::unordered_map<NodeId, NodeId> ncp0_node_renumber;  // old node is key
+    std::unordered_map<NodeId, NodeId> ncp1_node_renumber;
+    std::unordered_map<NetId, NetId>   ncp0_net_renumber;   // old net is key
+    std::unordered_map<NetId, NetId>   ncp1_net_renumber;
+
+    //FIXME: mer
+
+    for(auto& node : container.m_nodes)
+    {
+        // check if node is inside the region
+        // or if it is an external node
+        //
+        //
+
+        if (node.m_partitionId == 0)
+        {
+            size_t nodeId = ncp0.m_nodes.size();
+            ncp0.m_nodes.push_back(node);
+            ncp0.m_nodes.back().reset(nodeId);
+            ncp0_node_renumber[node.m_self] = nodeId;
+        }
+        else
+        {
+            size_t nodeId = ncp0.m_nodes.size();
+            ncp1.m_nodes.push_back(node);
+            ncp1.m_nodes.back().reset(nodeId);
+            ncp1_node_renumber[node.m_self] = nodeId;
+        }
+    }
+
+
+    for(auto& net : container.m_nets)
+    {
+
+    }
+}
+#endif
+
+bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
+{
+    container.m_nodes.resize(nl->m_instances.size());
+    container.m_nets.resize(nl->m_instances.size());
+
+    size_t index = 0;
+    for(auto ins : nl->m_instances)
+    {
+        if (ins != nullptr)
+        {
+            container.m_nodes[index].m_weight = ins->instanceSize().m_x;
+        }
+        container.m_nodes[index].m_instance = ins;
+        container.m_nodes[index].m_self = index;
+        ins->m_id = index;
+        index++;
+    }
+
+    index = 0;
+    for(auto net : nl->m_nets)
+    {
+        net->m_id = index;
+        index++;
+    }
+
+    // 
+    for(auto ins : nl->m_instances)
+    {
+        for(ssize_t pinIndex=0; pinIndex < ins->getNumberOfPins(); ++pinIndex)
+        {
+            auto net = ins->getConnectedNet(pinIndex);
+            if (net != nullptr)
+            {
+                const auto netIndex  = net->m_id;
+                const auto nodeIndex = ins->m_id;
+
+                auto& net  = container.m_nets.at(netIndex);
+                auto& node = container.m_nodes.at(nodeIndex);
+
+                // Note: this automatically removes duplicate nets
+                node.m_nets.push_back(netIndex);
+
+                // Note: this automatically removes duplicate nodes
+                net.m_nodes.push_back(nodeIndex);
+
+                net.m_nodesInPartition[node.m_partitionId]++;
+            }
+        }
+    }
+
+    // check if there are external pins on the net
+    // if so, increase the net weight
+    for(auto& net : container.m_nets)
+    {
+        for(auto nodeId : net.m_nodes)
+        {
+            auto& node = container.m_nodes.at(nodeId);
+
+            // instance can be nullptr for certain special cells
+            // such as __NETCON
+            if (node.m_instance == nullptr)
+                continue;
+
+            if (node.m_instance->m_insType == ChipDB::InstanceBase::INS_PIN)
+            {
+                net.m_weight += 4;
+                break;
+            }
+        }
+    }
+
+    if (!init(container))
     {
         doLog(LOG_ERROR,"FMPart::init failed\n");
         return false;
     }
 
-    doLog(LOG_VERBOSE, "  Pre-partitioning cost: %lld\n", calculateCost());
+    doLog(LOG_VERBOSE, "  Pre-partitioning cost: %lld\n", calculateNetCutCost(container));
 
     int64_t minCost = std::numeric_limits<int64_t>::max();
     size_t  cyclesSinceMinCostSeen = 0;
     int32_t cycleCount = 0;
     while(cyclesSinceMinCostSeen < 3)
     {        
-        auto cost = cycle();
+        auto cost = cycle(container);
         cycleCount++;
 
         doLog(LOG_VERBOSE,"  Cost of cycle %d = %lld\n", cycleCount, cost);

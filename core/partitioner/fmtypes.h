@@ -76,6 +76,10 @@ namespace LunaCore::Partitioner
 
     struct Node
     {
+        Node() : m_partitionId(0), m_bestPartitionId(0), m_weight(0), m_gain(0), 
+            m_next(-1), m_prev(-1), m_instance(nullptr),
+            m_self(-1), m_visited(false), m_flags(0) {}
+
         DedupVector<NetId>  m_nets;             ///< nets connected to this nodes
         PartitionId         m_partitionId;      ///< current location of the node: partition 0 or 1
         PartitionId         m_bestPartitionId;  ///< best location of the node: partition 0 or 1
@@ -88,6 +92,8 @@ namespace LunaCore::Partitioner
         NodeId              m_next;
         NodeId              m_prev;
         NodeId              m_self;
+
+        bool                m_visited;
 
         /** returns true if the node is part of a bucket list */
         constexpr bool isLinked() const noexcept
@@ -140,17 +146,20 @@ namespace LunaCore::Partitioner
             m_prev = -1;
         }
 
-        protected:
-            static const uint8_t c_lockedFlag = 1;
-            static const uint8_t c_fixedFlag  = 2;
-            uint8_t m_flags;
+    protected:
+        static const uint8_t c_lockedFlag = 1;
+        static const uint8_t c_fixedFlag  = 2;
+        uint8_t m_flags;
     };
 
     struct Net
     {
+        Net() : m_visited(false), m_weight(1), m_nodesInPartition{0,0} {}
+
         DedupVector<NodeId> m_nodes;
         int32_t             m_weight;
         int32_t             m_nodesInPartition[2];
+        bool                m_visited;
     };
 
 };
