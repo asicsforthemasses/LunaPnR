@@ -303,7 +303,9 @@ void ReaderImpl::onClass(const std::string &className,
 void ReaderImpl::onSymmetry(const SymmetryFlags &symmetry)
 {
     if (!checkPtr(m_curCell))
+    {
         return;
+    }
 
     m_curCell->m_symmetry = symmetry;
 }
@@ -311,10 +313,14 @@ void ReaderImpl::onSymmetry(const SymmetryFlags &symmetry)
 void ReaderImpl::onRect(int64_t x1, int64_t y1, int64_t x2, int64_t y2)
 {
     if (!checkPtr(m_curCell))
+    {
         return;
+    }
 
     if (!checkPtr(m_curPinInfo))
+    {
         return;
+    }
 
 #if 0
     CellRect *rect = new CellRect();
@@ -352,10 +358,14 @@ void ReaderImpl::onRect(int64_t x1, int64_t y1, int64_t x2, int64_t y2)
 void ReaderImpl::onPolygon(const std::vector<Coord64> &points)
 {
     if (!checkPtr(m_curCell))
+    {
         return;
+    }
 
     if (!checkPtr(m_curPinInfo))
+    {
         return;
+    }
 
 #if 0
     auto pin = &cell->pins()[m_pinIndex];

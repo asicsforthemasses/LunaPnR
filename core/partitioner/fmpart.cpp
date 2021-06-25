@@ -437,18 +437,18 @@ static std::string escapeString(const std::string &txt)
     return std::string();
 }
 
-void FMPart::exportToDot(std::ostream &os, FMContainer &container)
+void FMPart::exportToDot(std::ostream &dotFile, FMContainer &container)
 {
-    os << "graph G {\n";
-    os << "  rankdir=LR;\n"; 
+    dotFile << "graph G {\n";
+    dotFile << "  rankdir=LR;\n"; 
     //os << "  splines=ortho;\n";
     //os << "  node [shape=record style=filled];\n";
-    os << "  labelloc=\"t\";\n";
-    os << "  fontsize  = 30;\n";
+    dotFile << "  labelloc=\"t\";\n";
+    dotFile << "  fontsize  = 30;\n";
 
     // write out nodes
-    std::string color1 = "red";
-    std::string color2 = "green";
+    const std::string color1 = "red";
+    const std::string color2 = "green";
     for(auto const& node : container.m_nodes)
     {
         std::stringstream nodeLabel;
@@ -468,19 +468,23 @@ void FMPart::exportToDot(std::ostream &os, FMContainer &container)
             nodeLabel << node.m_self;
         }
 
-        os << "  N" << node.m_self << "[shape=\"circle\", label = \""  << nodeLabel.str();
-        os << "\", color = ";
+        dotFile << "  N" << node.m_self << R"([shape="circle", label = ")"  << nodeLabel.str();
+        dotFile << "\", color = ";
         if (node.m_partitionId == 0)
-            os << color1;
+        {
+            dotFile << color1;
+        }
         else
-            os << color2;
+        {
+            dotFile << color2;
+        }
 
         if (node.isFixed())
         {
-            os << ", style=filled, fillcolor=lightgrey";
+            dotFile << ", style=filled, fillcolor=lightgrey";
         }
 
-        os << " ];\n";
+        dotFile << " ];\n";
     }
 
     // write out connections
@@ -488,19 +492,21 @@ void FMPart::exportToDot(std::ostream &os, FMContainer &container)
     {
         auto iter = net.m_nodes.begin();
         if (iter == net.m_nodes.end())
+        {
             continue;
+        }
 
         auto const& firstNode = container.m_nodes.at(*iter);
         iter++;
         while(iter != net.m_nodes.end())
         {
             auto const& otherNode = container.m_nodes.at(*iter);
-            os << "  N" << firstNode.m_self << " -- N" << otherNode.m_self << ";\n";
+            dotFile << "  N" << firstNode.m_self << " -- N" << otherNode.m_self << ";\n";
             iter++;
         }
     }
 
-    os << "\n}\n";
+    dotFile << "\n}\n";
 }
 
 #if 0
@@ -553,31 +559,30 @@ bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
     container.m_nets.resize(nl->m_instances.size());
 
     size_t index = 0;
-    for(auto ins : nl->m_instances)
+    for(auto *ins : nl->m_instances)
     {
         if (ins != nullptr)
         {
             container.m_nodes[index].m_weight = ins->instanceSize().m_x;
+            ins->m_id = index;
         }
         container.m_nodes[index].m_instance = ins;
         container.m_nodes[index].m_self = index;
-        ins->m_id = index;
         index++;
     }
 
     index = 0;
-    for(auto net : nl->m_nets)
+    for(auto *net : nl->m_nets)
     {
         net->m_id = index;
         index++;
     }
 
-    // 
-    for(auto ins : nl->m_instances)
+    for(auto *ins : nl->m_instances)
     {
         for(ssize_t pinIndex=0; pinIndex < ins->getNumberOfPins(); ++pinIndex)
         {
-            auto net = ins->getConnectedNet(pinIndex);
+            auto *net = ins->getConnectedNet(pinIndex);
             if (net != nullptr)
             {
                 const auto netIndex  = net->m_id;
@@ -592,7 +597,7 @@ bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
                 // Note: this automatically removes duplicate nodes
                 net.m_nodes.push_back(nodeIndex);
 
-                net.m_nodesInPartition[node.m_partitionId]++;
+                net.m_nodesInPartition.at(node.m_partitionId)++;
             }
         }
     }
@@ -608,7 +613,9 @@ bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
             // instance can be nullptr for certain special cells
             // such as __NETCON
             if (node.m_instance == nullptr)
+            {
                 continue;
+            }
 
             if (node.m_instance->m_insType == ChipDB::InstanceBase::INS_PIN)
             {

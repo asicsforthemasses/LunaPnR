@@ -418,7 +418,15 @@ bool Parser::parse(const std::string &lefstring)
     return true;
 }
 
-void Parser::error(const std::string &errstr)
+void Parser::error(const char *errstr) const
+{
+    std::stringstream ss;
+    ss << "Line " << m_lineNum << " col " << m_col << " : " << errstr << "\n"; 
+    doLog(LOG_ERROR, ss.str());
+    throw std::runtime_error(ss.str());    
+}
+
+void Parser::error(const std::string &errstr) const
 {
     std::stringstream ss;
     ss << "Line " << m_lineNum << " col " << m_col << " : " << errstr << "\n"; 
@@ -1619,8 +1627,13 @@ bool Parser::parseLayerOffset()
         m_curtok = tokenize(m_tokstr);
     }
 
-    bool ok;
+    bool ok = false;
     int64_t offsetxd = flt2int(offsetx, ok);
+    if (!ok)
+    {
+        return false;
+    }
+
     if (offsety.empty())
     {
         // only one dimension is given in the LEF file
@@ -1691,8 +1704,10 @@ bool Parser::parseLayerMaxWidth()
 
     maxwidth = m_tokstr;
 
-    bool ok;
+    bool ok = false;
     int64_t maxwidthd = flt2int(maxwidth, ok);
+    if (!ok)
+        return false;
 
     onLayerMaxWidth(maxwidthd);
 
@@ -1715,8 +1730,10 @@ bool Parser::parseLayerMinWidth()
 
     minwidth = m_tokstr;
 
-    bool ok;
+    bool ok = false;
     int64_t minwidthd = flt2int(minwidth, ok);
+    if (!ok)
+        return false;
 
     onLayerMinWidth(minwidthd);
 
@@ -1905,9 +1922,18 @@ bool Parser::parseSiteSize()
         return false;
     }
 
-    bool ok;
+    bool ok = false;
     int64_t xnumd = flt2int(xnum, ok);
+    if (!ok)
+    {
+        return false;
+    }
+
     int64_t ynumd = flt2int(ynum, ok);
+    if (!ok)
+    {
+        return false;
+    }
 
     onSiteSize(xnumd, ynumd);
 
@@ -2117,7 +2143,7 @@ bool Parser::parsePropertyDefintions()
     // basically, eat everything until
     // we encounter END PROPERTYDEFINTIONS EOL
 
-    while(1)
+    while(true)
     {
         m_curtok = tokenize(m_tokstr);
         if ((m_curtok == TOK_IDENT) && (m_tokstr == "END"))

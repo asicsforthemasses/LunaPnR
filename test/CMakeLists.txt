@@ -27,9 +27,11 @@ target_link_libraries(core_test lunacore stdc++fs ${Boost_LIBRARIES})
 target_include_directories(core_test PRIVATE ../core/include)
 add_dependencies(core_test iitcells)
 
+# ignore clang tidy because it barfs on BOOST_CHECK macros
+set_target_properties(core_test PROPERTIES CXX_CLANG_TIDY "")
+
 add_test(
     NAME core_test
     COMMAND ${CMAKE_SOURCE_DIR}/build/test/core_test
-    #COMMAND core_test
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     )

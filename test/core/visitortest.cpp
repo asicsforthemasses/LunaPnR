@@ -69,6 +69,10 @@ BOOST_AUTO_TEST_CASE(iterator_clock_net)
         
     auto net = mod->m_netlist.m_nets.lookup("clock");
     BOOST_CHECK(net != nullptr);
+    if (net == nullptr)
+    {
+        return;
+    }
 
     NetLoadVisitor v;
     net->accept(&v);

@@ -328,7 +328,7 @@ public:
     }
 
     /** export the current partitioning to a Graphviz dot file for viewing */
-    void exportToDot(std::ostream &dotFile, FMContainer &container);
+    static void exportToDot(std::ostream &dotFile, FMContainer &container);
 
     /** perform partitioning of a netlist.
      *  This assumes the partition regions have been set.

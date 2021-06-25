@@ -3,11 +3,13 @@ project(lunacore)
 set(CMAKE_CXX_STANDARD 17)
 
 option(UseCPPCHECK "UseCPPCHECK")
+option(UseCLANGTIDY "UseCLANGTIDY")
 
 # CPPCHECK static analysis support
 if (UseCPPCHECK)
 set(CMAKE_CXX_CPPCHECK "cppcheck")
-find_program(CMAKE_CXX_CPPCHECK NAMES cppcheck)
+    find_program(CMAKE_CXX_CPPCHECK NAMES cppcheck)
+    message("Using CPPCHECK")
     list(
         APPEND CMAKE_CXX_CPPCHECK 
             "--enable=warning"
@@ -15,6 +17,16 @@ find_program(CMAKE_CXX_CPPCHECK NAMES cppcheck)
             "--force" 
             "--inline-suppr"
             "--suppressions-list=${CMAKE_CURRENT_SOURCE_DIR}/cppcheck/CppCheckSuppressions.txt"
+    )
+endif()
+
+# CLANG TIDY
+if (UseCLANGTIDY)
+    find_program(CMAKE_CXX_CLANG_TIDY NAMES clang-tidy)
+    message("Using CLANG TIDY")
+    list(
+        APPEND CMAKE_CXX_CLANG_TIDY
+            "-checks=*,-modernize-use-trailing-return-type,-google-build-using-namespace,-cppcoreguidelines-pro-type-vararg,-hicpp-vararg"
     )
 endif()
 

@@ -156,10 +156,10 @@ namespace LunaCore::Partitioner
     {
         Net() : m_visited(false), m_weight(1), m_nodesInPartition{0,0} {}
 
-        DedupVector<NodeId> m_nodes;
-        int32_t             m_weight;
-        int32_t             m_nodesInPartition[2];
-        bool                m_visited;
+        DedupVector<NodeId>     m_nodes;
+        int32_t                 m_weight;
+        std::array<int32_t,2>   m_nodesInPartition;
+        bool                    m_visited;
     };
 
 };

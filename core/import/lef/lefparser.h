@@ -281,7 +281,8 @@ protected:
     token_t     m_curtok;
     std::string m_tokstr;
 
-    void error(const std::string &errstr);
+    void error(const char *errstr) const;
+    void error(const std::string &errstr) const;
 
     bool match(char c);
     void advance();
