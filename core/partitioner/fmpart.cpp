@@ -1,11 +1,12 @@
-#include <algorithm>
-#include "fmpart.h"
-#include <assert.h>
+#include <cassert>
 #include <limits>
 #include <unordered_map>
 #include <stack>
+#include <algorithm>
+
 #include "common/logging.h"
 #include "netlist/instance.h"
+#include "fmpart.h"
 
 using namespace LunaCore::Partitioner;
 
@@ -37,20 +38,20 @@ void FMContainer::calcAndSetNodeGain(Node &node)
 
     for(auto netId : node.m_nets)
     {
-        auto const& net = m_nets[netId];
+        auto const& net = m_nets.at(netId);
 
         // the net is not critical when it has more than two nodes
         // in each partition. Non-critical nets cannot change the
         // gain of a node.
 
-        if (net.m_nodesInPartition[fromPartitionIndex] == 1)
+        if (net.m_nodesInPartition.at(fromPartitionIndex) == 1)
         {
             // moving the last node in a partition to 
             // the other side will uncut the net.
             node.m_gain += net.m_weight;
         }
 
-        if (net.m_nodesInPartition[toPartitionIndex] == 0)
+        if (net.m_nodesInPartition.at(toPartitionIndex) == 0)
         {
             // moving a node from an uncut net to
             // another partition will cut the net.
@@ -73,7 +74,9 @@ void FMContainer::assignNodesToBuckets()
     for(auto& node : m_nodes)
     {     
         if (!node.isFixed())
+        {
             addNodeToPartitionBucket(node.m_self);
+        }
     }
 }
 
@@ -92,8 +95,8 @@ int64_t FMPart::distanceToPartition(const Partition &part, const ChipDB::Coord64
 
 bool FMPart::init(FMContainer &container)
 {
-    assert(container.m_nets.size() > 0);
-    assert(container.m_nodes.size() > 0);
+    assert(!container.m_nets.empty());
+    assert(!container.m_nodes.empty());
     
     // create two partitions each half the size of the region
     // cut in the longest axis
@@ -127,7 +130,7 @@ bool FMPart::init(FMContainer &container)
         // partition
         if (node.m_instance->m_placementInfo == ChipDB::PlacementInfo::PLACEMENT_PLACEDANDFIXED)
         {
-            const auto insPtr = node.m_instance;
+            auto const* insPtr = node.m_instance;
             auto distanceToPartition0 = distanceToPartition(container.m_partitions[0], insPtr->m_pos);
             auto distanceToPartition1 = distanceToPartition(container.m_partitions[1], insPtr->m_pos);
             if (distanceToPartition0 < distanceToPartition1)
@@ -167,7 +170,7 @@ bool FMPart::init(FMContainer &container)
         for(auto nodeId : net.m_nodes)
         {
             auto &node = container.m_nodes.at(nodeId);
-            net.m_nodesInPartition[node.m_partitionId]++;
+            net.m_nodesInPartition.at(node.m_partitionId)++;
         }
     }
 
@@ -264,8 +267,9 @@ int64_t FMPart::cycle(FMContainer &container)
         node.m_partitionId = toPartition;
         for(auto netId : node.m_nets)
         {
-            container.m_nets.at(netId).m_nodesInPartition[fromPartition]--;
-            container.m_nets.at(netId).m_nodesInPartition[toPartition]++;
+            auto& net = container.m_nets.at(netId);
+            net.m_nodesInPartition.at(fromPartition)--;
+            net.m_nodesInPartition.at(toPartition)++;
         }
     }
     
@@ -283,9 +287,13 @@ int64_t FMPart::cycle(FMContainer &container)
 
         // unlock the node, if it is not a fixed node
         if (node.isFixed())
+        {
             node.lock();
+        }
         else
+        {
             node.unlock();
+        }
     }   
 
     // ****************************************************
@@ -334,7 +342,7 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId, FMContainer &container)
         auto& net = container.m_nets.at(netId);
 
         // check critical net before the move
-        if (net.m_nodesInPartition[toPartitionIndex] == 0)
+        if (net.m_nodesInPartition.at(toPartitionIndex) == 0)
         {
             // increment the gains on all the free cells on the net
             for(auto netNodeId : net.m_nodes)
@@ -348,7 +356,7 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId, FMContainer &container)
                 }
             }
         }
-        else if (net.m_nodesInPartition[toPartitionIndex] == 1)
+        else if (net.m_nodesInPartition.at(toPartitionIndex) == 1)
         {
             // decrement the gain of the only T cell on the net
             // if it's free
@@ -374,14 +382,14 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId, FMContainer &container)
         }
 
         // update the net information
-        net.m_nodesInPartition[toPartitionIndex]++;
-        net.m_nodesInPartition[fromPartitionIndex]--;
+        net.m_nodesInPartition.at(toPartitionIndex)++;
+        net.m_nodesInPartition.at(fromPartitionIndex)--;
 
-        assert(net.m_nodesInPartition[toPartitionIndex] >= 0);
-        assert(net.m_nodesInPartition[fromPartitionIndex] >= 0);
+        assert(net.m_nodesInPartition.at(toPartitionIndex) >= 0);
+        assert(net.m_nodesInPartition.at(fromPartitionIndex) >= 0);
 
         // check critical net after the move
-        if (net.m_nodesInPartition[fromPartitionIndex] == 0)
+        if (net.m_nodesInPartition.at(fromPartitionIndex) == 0)
         {
             // decrement gains of all free cells on the net
             for(auto netNodeId : net.m_nodes)
@@ -395,7 +403,7 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId, FMContainer &container)
                 }
             }
         }
-        else if (net.m_nodesInPartition[fromPartitionIndex] == 1)
+        else if (net.m_nodesInPartition.at(fromPartitionIndex) == 1)
         {
             // increment gain of the only F cell on the net
             // if it's free
@@ -421,7 +429,7 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId, FMContainer &container)
     }
 }
 
-int64_t FMPart::calculateNetCutCost(const FMContainer &container) const
+int64_t FMPart::calculateNetCutCost(const FMContainer &container)
 {
     // determine how many times a net is cut
     int64_t cost = 0;
@@ -430,11 +438,6 @@ int64_t FMPart::calculateNetCutCost(const FMContainer &container) const
         cost += net.m_weight * std::min(net.m_nodesInPartition[0],net.m_nodesInPartition[1]);
     }
     return cost;
-}
-
-static std::string escapeString(const std::string &txt)
-{
-    return std::string();
 }
 
 void FMPart::exportToDot(std::ostream &dotFile, FMContainer &container)
@@ -447,18 +450,21 @@ void FMPart::exportToDot(std::ostream &dotFile, FMContainer &container)
     dotFile << "  fontsize  = 30;\n";
 
     // write out nodes
-    const std::string color1 = "red";
-    const std::string color2 = "green";
+    const char *color1 = "red";
+    const char *color2 = "green";
     for(auto const& node : container.m_nodes)
     {
         std::stringstream nodeLabel;
         if (node.m_instance->m_insType == ChipDB::InstanceBase::INS_PIN)
         {
-            if (node.m_instance->getPinInfo(0)->isOutput())
+            const auto *pinInfo = node.m_instance->getPinInfo(0);
+            if (pinInfo == nullptr)
             {
-                nodeLabel << node.m_instance->m_name;
+                doLog(LOG_ERROR, "FMPart:: cannot find pinInfo\n");
+                continue;
             }
-            else if (node.m_instance->getPinInfo(0)->isInput())
+
+            if (pinInfo->isOutput() || pinInfo->isInput())
             {
                 nodeLabel << node.m_instance->m_name;
             }

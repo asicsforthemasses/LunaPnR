@@ -212,11 +212,11 @@ public:
     virtual void onManufacturingGrid(int64_t value) {}
 
 protected:
-    bool isWhitespace(char c) const;
-    bool isAlpha(char c) const;
-    bool isDigit(char c) const;
-    bool isAlphaNumeric(char c) const;
-    bool isExtendedAlphaNumeric(char c) const;
+    static bool isWhitespace(char c);
+    static bool isAlpha(char c);
+    static bool isDigit(char c);
+    static bool isAlphaNumeric(char c);
+    static bool isExtendedAlphaNumeric(char c);
 
     bool parseSite();
 

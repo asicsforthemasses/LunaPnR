@@ -26,7 +26,7 @@ if (UseCLANGTIDY)
     message("Using CLANG TIDY")
     list(
         APPEND CMAKE_CXX_CLANG_TIDY
-            "-checks=*,-modernize-use-trailing-return-type,-google-build-using-namespace,-cppcoreguidelines-pro-type-vararg,-hicpp-vararg"
+            "-checks=*,-modernize-use-trailing-return-type,-google-build-using-namespace,-cppcoreguidelines-pro-type-vararg,-hicpp-vararg,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-fuchsia-default-arguments-calls"
     )
 endif()
 

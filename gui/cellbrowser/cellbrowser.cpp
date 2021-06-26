@@ -59,8 +59,6 @@ CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
     m_layout->addWidget(m_cellLayoutView,2);
     m_layout->addWidget(m_pinGroup,1);
 
-    auto ptr = m_cellTableView->selectionModel();
-
     setLayout(m_layout);
 
     connect(m_cellTableView->selectionModel(), 

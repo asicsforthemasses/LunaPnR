@@ -18,7 +18,7 @@
 
 #include <sstream>
 #include <algorithm>
-#include <assert.h>
+#include <cassert>
 #include "common/logging.h"
 #include "netlist/instance.h"
 #include "verilogreader.h"

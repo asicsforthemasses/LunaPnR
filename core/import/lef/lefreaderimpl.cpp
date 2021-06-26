@@ -52,19 +52,25 @@ void ReaderImpl::onEndMacro(const std::string &macroName)
 
 void ReaderImpl::onSize(int64_t sx, int64_t sy)
 {   
+    const double nm2microns = 0.001;
+
     if (!checkPtr(m_curCell))
+    {
         return;
+    }
 
     // sx, sy are in nanometers
     m_curCell->m_size.m_x = sx;
     m_curCell->m_size.m_y = sy;
-    m_curCell->m_area = (sx/1000.0) * (sy/1000.0);
+    m_curCell->m_area = (sx*nm2microns) * (sy*nm2microns);
 }
 
 void ReaderImpl::onMacroSite(const std::string &site)
 {
     if (!checkPtr(m_curCell))
+    {
         return;
+    }
 
     m_curCell->m_site = site;
 }
@@ -72,7 +78,9 @@ void ReaderImpl::onMacroSite(const std::string &site)
 void ReaderImpl::onPin(const std::string &pinName)
 {
     if (!checkPtr(m_curCell))
+    {
         return;
+    }
 
     // find already existing pin or create one.
     m_curPinInfo = &m_curCell->createPin(pinName);
@@ -82,10 +90,14 @@ void ReaderImpl::onPin(const std::string &pinName)
 void ReaderImpl::onEndPin(const std::string &pinName)
 {
     if (!checkPtr(m_curCell))
+    {
         return;
+    }
 
     if (!checkPtr(m_curPinInfo))
+    {
         return;
+    }
 
     // figure out the type of pin
     if (m_pinUse == "GROUND")
@@ -127,7 +139,9 @@ void ReaderImpl::onEndPin(const std::string &pinName)
 void ReaderImpl::onClass(const std::string &className)
 {
     if (!checkPtr(m_curCell))
+    {
         return;
+    }
     
     std::string classNameUpper = toUpper(className);
 
@@ -164,7 +178,9 @@ void ReaderImpl::onClass(const std::string &className,
         const std::string &subclass)
 {
     if (!checkPtr(m_curCell))
+    {
         return;
+    }
 
     std::string classNameUpper = toUpper(className);
     std::string subclassUpper = toUpper(subclass);

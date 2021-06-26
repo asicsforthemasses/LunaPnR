@@ -4,7 +4,7 @@
 #include <map>
 #include <list>
 #include <array>
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 
 #include "common/dbtypes.h"
@@ -64,98 +64,6 @@ struct Partition
             m_buckets.erase(m_buckets.find(gain));
         }
     }
-
-#if 0
-    auto begin()
-    {
-        return m_buckets.rbegin();
-    }
-
-    auto end()
-    {
-        return m_buckets.rend();
-    }
-#endif
-
-#if 0
-    class Iterator
-    {
-    public:
-        using iterator_category = std::forward_iterator_tag;
-        using value_type = NodeId;
-        using difference_type = std::ptrdiff_t;
-
-        Iterator(Partition &partition, bool atEnd)
-            : m_partition(partition)
-        {
-            m_curNodeId = -1;
-            if (!atEnd)
-            {
-                m_bucketIter = m_partition.m_buckets.rbegin();
-                if (m_bucketIter != m_partition.m_buckets.rend())
-                {
-                    m_curNodeId = m_bucketIter->second;
-                }
-            }
-        }
-
-        bool operator==(const Iterator &other) const
-        {
-            return m_curNodeId == other.m_curNodeId;
-        }
-
-        bool operator!=(const Iterator &other) const
-        {
-            return m_curNodeId != other.m_curNodeId;
-        }
-
-        value_type operator*()
-        {
-            return m_curNodeId;
-        }
-
-#if 0
-        value_type operator->()
-        {
-            return m_curNode;
-        }
-#endif
-
-        auto getBucketGain() const
-        {
-            return m_bucketIter->first;
-        }
-
-        Iterator& operator++()
-        {
-            if (m_curNodeId != -1)
-            {
-                auto nextNodeId = m_curNode->m_next;
-                if (nextNodeId == -1)
-                {
-                    // end of current bucket..
-                    m_bucketIter++;
-                    if (m_bucketIter == m_partition.m_buckets.rend())
-                    {
-                        m_curNode = nullptr;
-                        return (*this); // early exit for end situation
-                    }
-                    nextNodeId = m_bucketIter->second;
-                }
-
-                m_curNode = &m_partition.m_nodes.at(nextNodeId);
-            }
-
-            return (*this);
-        }
-
-    protected:
-        Partition                       &m_partition;
-        BucketType::reverse_iterator    m_bucketIter;
-
-        NodeId                          m_curNodeId;
-    };
-#endif
 
 protected:
     uint64_t           m_totalWeight;
@@ -340,16 +248,16 @@ public:
     */
     //
 
-    bool doPartitioning(ChipDB::Netlist *nl, FMContainer &container);
-    bool doPartitioning(FMContainer &container);
+    static bool doPartitioning(ChipDB::Netlist *nl, FMContainer &container);
+    static bool doPartitioning(FMContainer &container);
 
 protected:
     /** returns the total number of cuts in each net */
-    int64_t calculateNetCutCost(const FMContainer &container) const;
+    static int64_t calculateNetCutCost(const FMContainer &container);
 
     /** fill the two partitions at random with nodes from 
      *  the netlist */
-    bool init(FMContainer &container);
+    static bool init(FMContainer &container);
 
     /** perform one FM partitioning cycle
      *  assumes node, nets and partitions have been generated
@@ -357,14 +265,14 @@ protected:
      * 
      *  returns the cost of the partitioning
      */
-    int64_t cycle(FMContainer &container);
+    static int64_t cycle(FMContainer &container);
 
     /** get minimum manhattan distance between a rectangular partition
      *  and the position specified
     */
-    int64_t distanceToPartition(const Partition &part, const ChipDB::Coord64 &pos);
+    static int64_t distanceToPartition(const Partition &part, const ChipDB::Coord64 &pos);
     
-    void moveNodeAndUpdateNeighbours(NodeId nodeId, FMContainer &container);
+    static void moveNodeAndUpdateNeighbours(NodeId nodeId, FMContainer &container);
 };
 
 };

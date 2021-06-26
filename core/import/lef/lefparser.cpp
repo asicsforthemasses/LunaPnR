@@ -15,19 +15,20 @@
     
 */
 
-#include <sstream>
 #include <stdexcept>
+#include <sstream>
+
 #include "lefparser.h"
 #include "common/logging.h"
 
 using namespace ChipDB::LEF;
 
-bool Parser::isWhitespace(char c) const
+bool Parser::isWhitespace(char c)
 {
     return ((c==' ') || (c == '\t'));
 }
 
-bool Parser::isAlpha(char c) const
+bool Parser::isAlpha(char c)
 {
     if (((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z')))
         return true;
@@ -39,17 +40,17 @@ bool Parser::isAlpha(char c) const
     return false;
 }
 
-bool Parser::isDigit(char c) const
+bool Parser::isDigit(char c)
 {
     return ((c >= '0') && (c <= '9'));
 }
 
-bool Parser::isAlphaNumeric(char c) const
+bool Parser::isAlphaNumeric(char c)
 {
     return (isAlpha(c) || isDigit(c));
 }
 
-bool Parser::isExtendedAlphaNumeric(char c) const
+bool Parser::isExtendedAlphaNumeric(char c)
 {
     // LEF apparently allows '-' to be part of a string.. 
     return (isAlpha(c) || isDigit(c) || (c==']') || (c=='[') || (c=='-'));
@@ -111,12 +112,14 @@ float Parser::toMicrons(const std::string &value)
 
 int64_t Parser::flt2int(const std::string &value, bool &ok)
 {
+    const int32_t numberBase = 10;
+    
     int64_t v = 0;
     ok = false;
     bool decimalPointSeen = false;
     uint32_t decimalDigits = 0;
 
-    if (value.size() == 0)
+    if (value.empty())
     {
         // error: to string, return 0
         return 0;
@@ -132,10 +135,12 @@ int64_t Parser::flt2int(const std::string &value, bool &ok)
         }
         else if (isDigit(c))
         {
-            v *= 10;
+            v *= numberBase;
             v += static_cast<int64_t>(c-'0');
             if (decimalPointSeen)
+            {
                 decimalDigits++;
+            }
         }
         else if (c == '.')
         {
@@ -156,12 +161,12 @@ int64_t Parser::flt2int(const std::string &value, bool &ok)
     {
         while(decimalDigits < 3)
         {
-            v *= 10;
+            v *= numberBase;
             decimalDigits++;
         }
         while (decimalDigits > 3)
         {
-            v /= 10;
+            v /= numberBase;
             decimalDigits--;
         }
     }
@@ -172,6 +177,9 @@ int64_t Parser::flt2int(const std::string &value, bool &ok)
 
 Parser::token_t Parser::tokenize(std::string &tokstr)
 {
+    const char NEWLINE = 10;
+    const char CR = 13;
+
     tokstr.clear();
 
     // skip white space
@@ -186,18 +194,19 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
     }
 
     // check for end-of-line
-    if (match(10)) 
+    if (match(NEWLINE)) 
     {
         m_lineNum++;
         m_col = 1;        
-        match(13);
+        match(CR);
         return TOK_EOL;
     }
-    else if (match(13))
+    
+    if (match(CR))
     {
         m_lineNum++;
         m_col = 1;        
-        match(10);
+        match(NEWLINE);
         return TOK_EOL;
     }
 
@@ -210,18 +219,18 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
         bool noEOL = true;
         while(noEOL)
         {
-            if (match(10)) 
+            if (match(NEWLINE)) 
             {
                 m_lineNum++;
                 m_col = 1;        
-                match(13);
+                match(CR);
                 noEOL = false;
             }
-            else if (match(13))
+            else if (match(CR))
             {
                 m_lineNum++;
                 m_col = 1;        
-                match(10);
+                match(NEWLINE);
                 noEOL = false;
             }
             else
@@ -302,7 +311,7 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
     if (match('"'))
     {
         char c = peek();
-        while((c != '"') && (c != 10) && (c != 13))
+        while((c != '"') && (c != NEWLINE) && (c != CR))
         {
             tokstr += c;
             advance();
@@ -318,7 +327,7 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
 
         // error on newline
         c = peek();
-        if ((c == 10) || (c == 13))
+        if ((c == NEWLINE) || (c == CR))
         {
             error("Missing closing \" in string\n");
             return TOK_ERR;
@@ -564,17 +573,23 @@ bool Parser::parseSite()
             if (m_tokstr == "CLASS")
             {
                 ok=parseSiteClass();
-                ok = ok & expectSemicolonAndEOL();
+                ok = ok && expectSemicolonAndEOL();
             }
             else if (m_tokstr == "SYMMETRY")
             {
                 ok=parseSiteSymmetry();
-                ok = ok & expectSemicolonAndEOL();
+                ok = ok && expectSemicolonAndEOL();
             }            
             else if (m_tokstr == "SIZE")
             {
                 ok = parseSiteSize();
-                ok = ok & expectSemicolonAndEOL();
+                ok = ok && expectSemicolonAndEOL();
+            }
+
+            if (!ok)
+            {
+                error("Error parsing SITE\n");
+                return false;
             }
         }
 
@@ -754,7 +769,8 @@ bool Parser::parseClass()
         onClass(className);
         return true;
     }
-    else if (m_curtok == TOK_IDENT)
+    
+    if (m_curtok == TOK_IDENT)
     {
         // subclass
         // no semicolon checked yet -> continue.
@@ -808,9 +824,18 @@ bool Parser::parseOrigin()
         return false;
     }
 
-    bool ok;
+    bool ok = false;
     int64_t xnumd = flt2int(xnum, ok);
+    if (!ok)
+    {
+        return false;
+    }
+
     int64_t ynumd = flt2int(ynum, ok);
+    if (!ok)
+    {
+        return false;
+    }    
 
     onOrigin(xnumd, ynumd);
 
@@ -877,9 +902,18 @@ bool Parser::parseSize()
         return false;
     }
 
-    bool ok;
+    bool ok = false;
     int64_t xnumd = flt2int(xnum, ok);
+    if (!ok)
+    {
+        return false;
+    }
+
     int64_t ynumd = flt2int(ynum, ok);
+    if (!ok)
+    {
+        return false;
+    }    
 
     onSize(xnumd, ynumd);
 
@@ -903,17 +937,17 @@ bool Parser::parseSymmetry()
 
     SymmetryFlags symflags;
 
-    if (symmetry.find('X') != symmetry.npos)
+    if (symmetry.find('X') != std::string::npos)
     {
         symflags += SymmetryFlags::SYM_X;
     }
         
-    if (symmetry.find('Y') != symmetry.npos)
+    if (symmetry.find('Y') != std::string::npos)
     {
         symflags += SymmetryFlags::SYM_Y;
     }
     
-    if (symmetry.find("R90") != symmetry.npos)
+    if (symmetry.find("R90") != std::string::npos)
     {
         symflags += SymmetryFlags::SYM_R90;
     }
@@ -958,9 +992,18 @@ bool Parser::parseForeign()
         return false;
     }
 
-    bool ok;
+    bool ok = false;
     int64_t xnumd = flt2int(xnum, ok);
+    if (!ok)
+    {
+        return false;
+    }
+
     int64_t ynumd = flt2int(ynum, ok);
+    if (!ok)
+    {
+        return false;
+    }
 
     onForeign(cellname, xnumd, ynumd);
 
@@ -1126,16 +1169,18 @@ bool Parser::parsePortLayerItem()
         return false;
     }
 
-    while(1)
+    while(true)
     {
         if (m_tokstr == "END")
         {
             return true;
         }
-        else if (m_tokstr == "RECT")
+
+        if (m_tokstr == "RECT")
         {
             parseRect();
         }
+
         m_curtok = tokenize(m_tokstr);
     }
 }
@@ -1143,9 +1188,9 @@ bool Parser::parsePortLayerItem()
 bool Parser::parseRect()
 {   
     // expect: <number> <number> <number> <number> ;
-    int64_t coords[4];
+    std::array<int64_t,4> coords = {0,0,0,0};
 
-    for(uint32_t i=0; i<4; i++)
+    for(auto& coord : coords)
     {
         m_curtok = tokenize(m_tokstr);
 
@@ -1155,8 +1200,14 @@ bool Parser::parseRect()
             return false;
         }
 
-        bool ok;
-        coords[i] = flt2int(m_tokstr, ok);
+        bool ok = false;
+        coord = flt2int(m_tokstr, ok);
+        
+        if (!ok)
+        {
+            error("Reading RECT coordinates\n");
+            return false;
+        }
     }
 
     // expect ; 
@@ -1191,7 +1242,7 @@ bool Parser::parsePolygon()
     while(m_curtok == TOK_NUMBER)
     {
         Coord64 p;
-        bool ok;
+        bool ok = false;
         p.m_x = flt2int(m_tokstr, ok);
         if (!ok)
         {
@@ -1283,12 +1334,15 @@ bool Parser::parseLayer()
         error("Expected END <layername>\n");
         return false;
     }
+
     if (m_tokstr != layerName)
     {
         error("Expected END <layername> : name does not match\n");
         return false;
     }
+
     m_curtok = tokenize(m_tokstr);
+
     if (m_curtok != TOK_EOL)
     {
         error("Expected EOL\n");
@@ -1357,107 +1411,119 @@ bool Parser::parseLayerItem()
         ok = ok && expectSemicolonAndEOL();
         return ok;
     }
-    else if (m_tokstr == "SPACING")
+    
+    if (m_tokstr == "SPACING")
     {
         bool ok = parseLayerSpacing();
         ok = ok && expectSemicolonAndEOL();
         return ok;
     }    
-    else if (m_tokstr == "OFFSET")
+    
+    if (m_tokstr == "OFFSET")
     {
         bool ok = parseLayerOffset();
         ok = ok && expectSemicolonAndEOL();
         return ok;
     }
-    else if (m_tokstr == "TYPE")
+    
+    if (m_tokstr == "TYPE")
     {
         bool ok = parseLayerType();
         ok = ok && expectSemicolonAndEOL();
         return ok;
     }    
-    else if (m_tokstr == "DIRECTION")
+    
+    if (m_tokstr == "DIRECTION")
     {
         bool ok = parseLayerDirection();
         ok = ok && expectSemicolonAndEOL();
         return ok;
     }
-    else if (m_tokstr == "AREA")
+    
+    if (m_tokstr == "AREA")
     {
         // AREA is actually a spec for minimal area..
         bool ok = parseLayerMinArea();
         ok = ok && expectSemicolonAndEOL();
         return ok;
     }      
-    else if (m_tokstr == "THICKNESS")
+    
+    if (m_tokstr == "THICKNESS")
     {
         bool ok = parseLayerThickness();
         ok = ok && expectSemicolonAndEOL();
         return ok;
     }          
-    else if (m_tokstr == "WIDTH")
+    
+    if (m_tokstr == "WIDTH")
     {
         bool ok = parseLayerWidth();
         ok = ok && expectSemicolonAndEOL();
         return ok;
     }    
-    else if (m_tokstr == "MAXWIDTH")
+    
+    if (m_tokstr == "MAXWIDTH")
     {
         bool ok = parseLayerMaxWidth();
         ok = ok && expectSemicolonAndEOL();
         return ok;
     }
-    else if (m_tokstr == "MINWIDTH")
+    
+    if (m_tokstr == "MINWIDTH")
     {
         bool ok = parseLayerMinWidth();
         ok = ok && expectSemicolonAndEOL();
         return ok;
     }
-    else if (m_tokstr == "RESISTANCE")
+    
+    if (m_tokstr == "RESISTANCE")
     {
         bool ok = parseLayerResistance();
         ok = ok && expectSemicolonAndEOL();
         return ok;
     }
-    else if (m_tokstr == "CAPACITANCE")
+    
+    if (m_tokstr == "CAPACITANCE")
     {
         bool ok = parseLayerCapacitance();
         ok = ok && expectSemicolonAndEOL();
         return ok;
     }
-    else if (m_tokstr == "EDGECAPACITANCE")
+    
+    if (m_tokstr == "EDGECAPACITANCE")
     {
         bool ok = parseLayerEdgeCapacitance();
         ok = ok && expectSemicolonAndEOL();
         return ok;
     }
-    else if (m_tokstr == "SPACINGTABLE")
+    
+    if (m_tokstr == "SPACINGTABLE")
     {
         bool ok = parseLayerSpacingTable();
         ok = ok && expectSemicolonAndEOL();
         return ok;
     }
-    else if (m_tokstr == "END")
+    
+    if (m_tokstr == "END")
     {
         return true;
     }
-    else
+    
+    // eat everything on the line
+    std::stringstream ss;
+    ss << "  Skipping: " << m_tokstr;
+    while((m_curtok != TOK_EOL) && (m_curtok != TOK_EOF))
     {
-        // eat everything on the line
-        std::stringstream ss;
-        ss << "  Skipping: " << m_tokstr;
-        while((m_curtok != TOK_EOL) && (m_curtok != TOK_EOF))
-        {
-            m_curtok = tokenize(m_tokstr);
-            ss << " " << m_tokstr;
-        }
-        ss << "\n";
+        m_curtok = tokenize(m_tokstr);
+        ss << " " << m_tokstr;
+    }
+    ss << "\n";
 
-        doLog(LOG_INFO, ss.str());
-        if (m_curtok == TOK_EOF)
-        {
-            error("Unexpected end of file");
-            return false;
-        }
+    doLog(LOG_INFO, ss.str());
+    if (m_curtok == TOK_EOF)
+    {
+        error("Unexpected end of file");
+        return false;
     }
 
     return true;
@@ -1479,8 +1545,13 @@ bool Parser::parseLayerSpacing()
         return false;    
     }
 
-    bool ok;
+    bool ok = false;
     int64_t pitchd = flt2int(m_tokstr, ok);
+
+    if (!ok)
+    {
+        return false;
+    }
 
     onLayerSpacing(pitchd);
 
@@ -1546,8 +1617,13 @@ bool Parser::parseLayerSpacingRange()
         return false;
     }
 
-    bool ok;
+    bool ok = false;
     int64_t value1 = flt2int(m_tokstr, ok);
+
+    if (!ok)
+    {
+        return false;
+    }
 
     m_curtok = tokenize(m_tokstr);
 
@@ -1589,8 +1665,14 @@ bool Parser::parseLayerPitch()
         m_curtok = tokenize(m_tokstr);
     }
 
-    bool ok;
+    bool ok = false;
     int64_t pitchd  = flt2int(pitch, ok);
+
+    if (!ok)
+    {
+        return false;
+    }
+
     if (dualarg)
     {
         int64_t pitchd2 = flt2int(pitch2, ok);
@@ -1681,8 +1763,12 @@ bool Parser::parseLayerWidth()
 
     width = m_tokstr;
 
-    bool ok;
+    bool ok = false;
     int64_t widthd = flt2int(width, ok);
+    if (!ok)
+    {
+        return false;
+    }
 
     onLayerWidth(widthd);
 
@@ -1707,7 +1793,9 @@ bool Parser::parseLayerMaxWidth()
     bool ok = false;
     int64_t maxwidthd = flt2int(maxwidth, ok);
     if (!ok)
+    {
         return false;
+    }
 
     onLayerMaxWidth(maxwidthd);
 
@@ -1733,7 +1821,9 @@ bool Parser::parseLayerMinWidth()
     bool ok = false;
     int64_t minwidthd = flt2int(minwidth, ok);
     if (!ok)
+    {
         return false;
+    }
 
     onLayerMinWidth(minwidthd);
 
@@ -1786,42 +1876,44 @@ bool Parser::parseSiteItem()
         ok = ok && expectSemicolonAndEOL();
         return ok;
     }
-    else if (m_tokstr == "SYMMETRY")
+    
+    if (m_tokstr == "SYMMETRY")
     {
         bool ok = parseSiteSymmetry();
         ok = ok && expectSemicolonAndEOL();
         return ok;
     }    
-    else if (m_tokstr == "SIZE")
+    
+    if (m_tokstr == "SIZE")
     {
         bool ok = parseSiteSize();
         ok = ok && expectSemicolonAndEOL();
         return ok;
     }
-    else if (m_tokstr == "END")
+    
+    if (m_tokstr == "END")
     {
         // eat the site name
         m_curtok = tokenize(m_tokstr);
         return true;
     }
-    else
-    {
-        // eat everything on the line
-        std::stringstream ss;
-        ss << "  Skipping: " << m_tokstr;
-        while((m_curtok != TOK_EOL) && (m_curtok != TOK_EOF))
-        {
-            m_curtok = tokenize(m_tokstr);
-            ss << " " << m_tokstr;
-        }
-        ss << "\n";
 
-        doLog(LOG_INFO, ss.str());
-        if (m_curtok == TOK_EOF)
-        {
-            error("Unexpected end of file");
-            return false;
-        }
+
+    // eat everything on the line
+    std::stringstream ss;
+    ss << "  Skipping: " << m_tokstr;
+    while((m_curtok != TOK_EOL) && (m_curtok != TOK_EOF))
+    {
+        m_curtok = tokenize(m_tokstr);
+        ss << " " << m_tokstr;
+    }
+    ss << "\n";
+
+    doLog(LOG_INFO, ss.str());
+    if (m_curtok == TOK_EOF)
+    {
+        error("Unexpected end of file");
+        return false;
     }
 
     return true;    
@@ -1874,17 +1966,17 @@ bool Parser::parseSiteSymmetry()
     SymmetryFlags flags;
     flags.m_flags = SymmetryFlags::SYM_NONE;
 
-    if (symmetry.find('X') != symmetry.npos)
+    if (symmetry.find('X') != std::string::npos)
     {
         flags.m_flags |= SymmetryFlags::SYM_X;
     }
         
-    if (symmetry.find('Y') != symmetry.npos)
+    if (symmetry.find('Y') != std::string::npos)
     {
         flags.m_flags |= SymmetryFlags::SYM_Y;
     }
     
-    if (symmetry.find("R90") != symmetry.npos)
+    if (symmetry.find("R90") != std::string::npos)
     {
         flags.m_flags |= SymmetryFlags::SYM_R90;
     }
@@ -2049,7 +2141,7 @@ bool Parser::parseUnits()
         return false;
     }
 
-    while(1)
+    while(true)
     {
         m_curtok = tokenize(m_tokstr);
 
@@ -2067,7 +2159,7 @@ bool Parser::parseUnits()
                 m_curtok = tokenize(m_tokstr);
                 if (m_curtok == TOK_NUMBER)
                 {
-                    double micronsd;
+                    double micronsd = 0.0;
                     try
                     {
                         micronsd = std::stod(m_tokstr);
@@ -2078,7 +2170,7 @@ bool Parser::parseUnits()
                         return false;
                     }
 
-                    m_dBMicrons = micronsd;
+                    m_dBMicrons = static_cast<float>(micronsd);
 
                     // expect ; and EOL
                     m_curtok = tokenize(m_tokstr);
@@ -2117,13 +2209,11 @@ bool Parser::parseUnits()
             {
                 return true;
             }
-            else
+
+            // read until EOL
+            while ((m_curtok != TOK_EOL) && (m_curtok != TOK_EOF))
             {
-                // read until EOL
-                while ((m_curtok != TOK_EOL) && (m_curtok != TOK_EOF))
-                {
-                    m_curtok = tokenize(m_tokstr);
-                }
+                m_curtok = tokenize(m_tokstr);
             }
         }
         else
@@ -2152,11 +2242,13 @@ bool Parser::parsePropertyDefintions()
             if ((m_curtok == TOK_IDENT) && (m_tokstr == "PROPERTYDEFINITIONS"))
             {
                 m_curtok = tokenize(m_tokstr);
+                
                 if (m_curtok == TOK_EOL)
                 {
                     return true;
                 }
-                else if (m_curtok == TOK_EOF)
+                
+                if (m_curtok == TOK_EOF)
                 {
                     error("Unexpected end of liberty file\n");
                     return false;                    
@@ -2186,7 +2278,7 @@ bool Parser::parseManufacturingGrid()
     }
 
     // manufacturing grid is _always_ specified in microns
-    double value;
+    double value = 0.0;
     try
     {
         value = std::stod(m_tokstr);
@@ -2234,7 +2326,8 @@ bool Parser::parseLayerResistance()
         m_curtok = tokenize(m_tokstr);
         return true;
     }
-    else if ((m_curtok != TOK_IDENT) || (m_tokstr != "RPERSQ"))
+    
+    if ((m_curtok != TOK_IDENT) || (m_tokstr != "RPERSQ"))
     {
         error("Expected RPERSQ after RESISTANCE\n");
         return false;
@@ -2271,7 +2364,8 @@ bool Parser::parseLayerEdgeCapacitance()
     
     // according to the LEF 5.8 spec,
     // these figures are always in pico Farads.
-    onLayerEdgeCapacitance(picoFarads*1e-12);
+    const double picoFaradUnit = 1.0e-12;
+    onLayerEdgeCapacitance(picoFarads*picoFaradUnit);
 
     m_curtok = tokenize(m_tokstr);
 
@@ -2298,7 +2392,8 @@ bool Parser::parseLayerCapacitance()
     
     // according to the LEF 5.8 spec,
     // these figures are always in picofarads.
-    onLayerCapacitancePerSq(picoFarads*1.0e-12);
+    const double picoFaradUnit = 1.0e-12;
+    onLayerCapacitancePerSq(picoFarads*picoFaradUnit);
 
     m_curtok = tokenize(m_tokstr);
 
