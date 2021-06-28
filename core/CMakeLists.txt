@@ -26,7 +26,7 @@ if (UseCLANGTIDY)
     message("Using CLANG TIDY")
     list(
         APPEND CMAKE_CXX_CLANG_TIDY
-            "-checks=*,-modernize-use-trailing-return-type,-google-build-using-namespace,-cppcoreguidelines-pro-type-vararg,-hicpp-vararg,-cppcoreguidelines-pro-bounds-array-to-pointer-decay,-fuchsia-default-arguments-calls"
+            "-checks=clang-diagnostic-*,clang-analyzer-*,modernize-*,-modernize-use-trailing-return-type"
     )
 endif()
 
@@ -52,6 +52,7 @@ add_library(lunacore
     import/verilog/verilogparser.cpp
     import/verilog/verilogreader.cpp
     export/dot/dotwriter.cpp
+    export/verilog/verilogwriter.cpp
     )
 
 target_include_directories(lunacore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

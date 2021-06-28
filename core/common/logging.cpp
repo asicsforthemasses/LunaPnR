@@ -7,7 +7,7 @@
 #include <iostream>
 #include <sstream>
 #include <stdio.h>
-#include <stdarg.h>
+#include <cstdarg>
 #include "logging.h"
 
 static uint32_t gs_loglevel = LOG_WARN;

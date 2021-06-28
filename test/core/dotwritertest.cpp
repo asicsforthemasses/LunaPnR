@@ -23,18 +23,27 @@ BOOST_AUTO_TEST_CASE(can_write_netlist_to_dot)
     BOOST_CHECK(libertyfile.good());    
     BOOST_CHECK(ChipDB::Liberty::Reader::load(&design, libertyfile));
 
-    std::ifstream verilogfile("test/files/verilog/adder2.v");
+    // dump FAX1 cell 
+    auto cell = design.m_cellLib.lookup("FAX1");
+    BOOST_CHECK(cell != nullptr);
+
+    for(auto const& pinInfo : cell->m_pins)
+    {
+        std::cout << "  " << pinInfo.m_name << " " << toString(pinInfo.m_iotype) << "\n";
+    }
+
+    std::ifstream verilogfile("test/files/verilog/adder8.v");
     BOOST_CHECK(verilogfile.good());
 
     BOOST_CHECK(ChipDB::Verilog::Reader::load(&design, verilogfile));
 
-    auto modulePtr = design.m_moduleLib.lookup("adder2");
+    auto modulePtr = design.m_moduleLib.lookup("adder8");
     BOOST_CHECK(modulePtr != nullptr);
 
-    std::ofstream ofile("test/files/results/adder2.dot");
+    std::ofstream ofile("test/files/results/adder8.dot");
     BOOST_CHECK(ofile.good());
 
-    LunaCore::Dot::Writer::write(modulePtr, ofile);
+    LunaCore::Dot::Writer::write(ofile, modulePtr);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

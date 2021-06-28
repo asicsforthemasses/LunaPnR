@@ -1,4 +1,4 @@
-#include <limits.h>
+#include <climits>
 #include <memory>
 #include <algorithm>
 #include "common/logging.h"
@@ -29,7 +29,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
     {
         if (ins->m_insType == ChipDB::InstanceBase::INS_PIN)
         {
-            os << "  " << escapeString(ins->m_name) << " [shape=\"circle\", label = \""  << ins->m_name << "\"];\n";
+            os << "  " << escapeString(ins->m_name) << R"( [shape="circle", label = ")"  << ins->m_name << "\"];\n";
         }
         else
         {
@@ -61,7 +61,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
         ssize_t driverIdx = -1;
         ssize_t idx = 0;        
         for(auto const& conn : net->m_connections)
-        {          
+        {    
             auto pinInfo = conn.m_instance->getPinInfo(conn.m_pinIndex);
             if (pinInfo != nullptr)
             {
@@ -74,7 +74,18 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
                     driverIdx  = idx;
                 }
             }
+            else
+            {
+                doLog(LOG_ERROR,"Dot::Writer: pinInfo == nullptr on instance %s %s\n",
+                    conn.m_instance->m_name.c_str(), conn.m_instance->getArchetypeName().c_str());
+                return false;
+            }
             idx++;
+        }
+
+        if (driverName.empty())
+        {
+            doLog(LOG_WARN,"Dot::Writer: no driver name found for net %s\n", net->m_name.c_str());
         }
 
         // write out all connections from net driver
@@ -122,8 +133,8 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
     return true;
 }
 
-bool Writer::write(const ChipDB::Instance *modInstance,
-        std::ostream &os, AbstractNodeDecorator *decorator)
+bool Writer::write(std::ostream &os, const ChipDB::Instance *modInstance,
+    AbstractNodeDecorator *decorator)
 {
     if (modInstance == nullptr)
     {
@@ -149,8 +160,8 @@ bool Writer::write(const ChipDB::Instance *modInstance,
     return writer->execute(os, decorator);
 }
 
-bool Writer::write(const ChipDB::Module *module,
-        std::ostream &os, AbstractNodeDecorator *decorator)
+bool Writer::write(std::ostream &os, const ChipDB::Module *module,
+    AbstractNodeDecorator *decorator)
 {
     if (module == nullptr)
     {

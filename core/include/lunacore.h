@@ -22,4 +22,4 @@
 #include "../import/verilog/veriloglexer.h"
 #include "../import/verilog/verilogreader.h"
 #include "../export/dot/dotwriter.h"
-
+#include "../export/verilog/verilogwriter.h"

@@ -76,6 +76,11 @@ public:
     */
     virtual Net* getConnectedNet(ssize_t pinIndex) = 0;
 
+    /** returns the net connected to a pin with a given index.
+     *  if the pin does not exist, it return nullptr.
+    */
+    virtual const Net* getConnectedNet(ssize_t pinIndex) const = 0;
+
     /** return the size of the instance in nm */
     virtual const Coord64 instanceSize() const = 0;
 
@@ -148,39 +153,44 @@ public:
     double getArea() const noexcept override;
 
     /** return the underlying cell/module name */
-    virtual std::string getArchetypeName() const override;
+    std::string getArchetypeName() const override;
     
     /** get pin information from the underlying cell or module 
      *  returns nullptr if pin not found.
     */
-    virtual const PinInfo* getPinInfo(ssize_t pinIndex) const override;
+    const PinInfo* getPinInfo(ssize_t pinIndex) const override;
 
     /** get pin information from the underlying cell or module 
      *  returns nullptr if pin not found.
     */
-    virtual const PinInfo* getPinInfo(const std::string &pinName) const override;
+    const PinInfo* getPinInfo(const std::string &pinName) const override;
 
     /** get pin index by name. returns -1 when not found. 
     */
-    virtual const ssize_t getPinIndex(const std::string &pinName) const override;
+    const ssize_t getPinIndex(const std::string &pinName) const override;
 
     /** get the number of pins on this instance */
-    virtual const size_t getNumberOfPins() const override;
+    const size_t getNumberOfPins() const override;
 
     /** connect pin with specified index to the given net. 
      *  returns true if succesful.
     */
-    virtual bool connect(ssize_t pinIndex, Net *net) override;
+    bool connect(ssize_t pinIndex, Net *net) override;
 
     /** connect pin with specified name to the given net. 
      *  returns true if succesful.
     */    
-    virtual bool connect(const std::string &pinName, Net *net) override;
+    bool connect(const std::string &pinName, Net *net) override;
 
     /** returns the net connected to a pin with a given index.
      *  if the pin does not exist, it return nullptr.
     */
-    virtual Net* getConnectedNet(ssize_t pinIndex) override;
+    Net* getConnectedNet(ssize_t pinIndex) override;
+
+    /** returns the net connected to a pin with a given index.
+     *  if the pin does not exist, it return nullptr.
+    */
+    const Net* getConnectedNet(ssize_t pinIndex) const override;
 
 protected:
     std::vector<Net*>   m_pinToNet;  ///< connections from pin to net
@@ -262,7 +272,12 @@ public:
     /** returns the net connected to a pin with a given index.
      *  if the pin does not exist, it return nullptr.
     */
-    virtual Net* getConnectedNet(ssize_t pinIndex) override;
+    Net* getConnectedNet(ssize_t pinIndex) override;
+
+    /** returns the net connected to a pin with a given index.
+     *  if the pin does not exist, it return nullptr.
+    */
+    const Net* getConnectedNet(ssize_t pinIndex) const override;
 
     void setPinIOType(PinIOType iotype)
     {

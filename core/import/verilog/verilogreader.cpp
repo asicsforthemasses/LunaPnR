@@ -348,9 +348,6 @@ void ReaderImpl::onInstanceNamedPort(const std::string &pinName, const std::stri
         return;
     }
 
-    auto pinInfo       = m_currentInstance->getPinInfo(pinIndex);
-    auto pinConnection = m_currentInstance->getConnectedNet(pinIndex);
-
     m_currentInstance->connect(pinIndex, netPtr);
     netPtr->addConnection(m_currentInstance, pinIndex);
 }

@@ -83,7 +83,9 @@ BOOST_AUTO_TEST_CASE(can_read_assign_statements)
     std::ofstream dotfile("test/files/results/verilogassigntest.dot");
     BOOST_CHECK(dotfile.good());
     if (dotfile.good())
-        LunaCore::Dot::Writer::write(mod, dotfile, nullptr);
+    {
+        BOOST_CHECK(LunaCore::Dot::Writer::write(dotfile, mod, nullptr));
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

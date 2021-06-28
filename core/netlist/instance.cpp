@@ -88,6 +88,18 @@ Net* Instance::getConnectedNet(ssize_t pinIndex)
     return nullptr;  // pin not found - index out of bounds
 }
 
+const Net* Instance::getConnectedNet(ssize_t pinIndex) const
+{
+    if (pinIndex < 0)
+        return nullptr;
+
+    if (pinIndex < m_pinToNet.size())
+        return m_pinToNet[pinIndex];
+
+    return nullptr;  // pin not found - index out of bounds
+}
+
+
 bool Instance::connect(ssize_t pinIndex, Net *net)
 {   
     if (pinIndex < 0)
@@ -150,6 +162,14 @@ const size_t PinInstance::getNumberOfPins() const
 }
 
 Net* PinInstance::getConnectedNet(ssize_t pinIndex)
+{
+    if (pinIndex == 0)
+        return m_connectedNet;
+
+    return nullptr;  // pin not found - index out of bounds
+}
+
+const Net* PinInstance::getConnectedNet(ssize_t pinIndex) const
 {
     if (pinIndex == 0)
         return m_connectedNet;
