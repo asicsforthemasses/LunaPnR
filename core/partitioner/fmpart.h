@@ -252,6 +252,8 @@ public:
     static bool doPartitioning(FMContainer &container);
 
 protected:
+    static constexpr ssize_t numSpecialNodes = 2;
+
     /** returns the total number of cuts in each net */
     static int64_t calculateNetCutCost(const FMContainer &container);
 

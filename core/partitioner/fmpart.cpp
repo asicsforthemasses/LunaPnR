@@ -117,8 +117,15 @@ bool FMPart::init(FMContainer &container)
         container.m_partitions[1].m_region.setTop(cutpos);      // bottom half
     }
 
+    // assign nodes to a random partition
+    // except for fixed nodes (assign to closest partition)
+    // and special nodes (already assigned to a partition).
     for(auto& node : container.m_nodes)
     {
+        // skip special nodes
+        if (node.m_self < numSpecialNodes)
+            continue;
+
         if (node.m_instance == nullptr)
         {
             doLog(LOG_WARN, "FMPart::init encountered nullptr instance (ID=%d) in node list\n", node.m_self);
@@ -455,7 +462,7 @@ void FMPart::exportToDot(std::ostream &dotFile, FMContainer &container)
     for(auto const& node : container.m_nodes)
     {
         std::stringstream nodeLabel;
-        if (node.m_instance->m_insType == ChipDB::InstanceBase::INS_PIN)
+        if ((node.m_instance != nullptr) && (node.m_instance->m_insType == ChipDB::InstanceBase::INS_PIN))
         {
             const auto *pinInfo = node.m_instance->getPinInfo(0);
             if (pinInfo == nullptr)
@@ -561,10 +568,23 @@ bool FMPart::doPartitioning(FMContainer &container)
 
 bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
 {
-    container.m_nodes.resize(nl->m_instances.size());
+    container.m_nodes.resize(nl->m_instances.size()+numSpecialNodes);
     container.m_nets.resize(nl->m_instances.size());
 
-    size_t index = 0;
+    // setup special nodes
+    for(ssize_t i=0; i<numSpecialNodes; i++)
+    {
+        auto &node = container.m_nodes.at(i);
+        node.fix();
+        node.lock();
+        node.m_partitionId = i;
+        node.m_bestPartitionId = i;
+        node.m_self = i;
+    }
+
+    // start numbering the netlist nodes after the
+    // special fixed nodes.
+    size_t index = numSpecialNodes;
     for(auto *ins : nl->m_instances)
     {
         if (ins != nullptr)
@@ -577,6 +597,7 @@ bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
         index++;
     }
 
+    // nets are numbered from 0
     index = 0;
     for(auto *net : nl->m_nets)
     {

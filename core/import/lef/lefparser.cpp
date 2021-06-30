@@ -585,29 +585,30 @@ bool Parser::parseSite()
                 ok = parseSiteSize();
                 ok = ok && expectSemicolonAndEOL();
             }
+            else if (m_tokstr == "END")
+            {
+                endFound = true;
+                m_curtok = tokenize(m_tokstr);
+
+                // expect site name
+                if (m_tokstr == name)
+                {
+                    onEndSite(name);
+                    return true;
+                }
+                else
+                {
+                    ok = false;
+                }
+            }
 
             if (!ok)
             {
-                error("Error parsing SITE\n");
+                std::stringstream ss;
+                ss << "Error parsing SITE (token = " << m_tokstr << ")\n";
+                error(ss.str());
                 return false;
             }
-        }
-
-        if (endFound)
-        {
-            if ((m_curtok == TOK_IDENT) && (m_tokstr == name))
-            {
-                onEndSite(name);
-                return true;
-            }
-        }
-        else if ((m_curtok == TOK_IDENT) && (m_tokstr == "END"))
-        {
-            endFound = true;
-        }
-        else
-        {
-            endFound = false;
         }
 
         if (atEnd())
