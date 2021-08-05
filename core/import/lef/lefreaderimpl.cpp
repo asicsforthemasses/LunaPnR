@@ -18,6 +18,7 @@
 #include <vector>
 #include <array>
 #include <string>
+#include <memory>
 #include "lefreaderimpl.h"
 #include "netlist/design.h"
 #include "common/logging.h"
@@ -42,11 +43,13 @@ void ReaderImpl::onMacro(const std::string &macroName)
     // create a new cell/macro if necessary    
     m_curCell = m_design->m_cellLib.createCell(macroName);
 
+    std::cout << "Macro: " << macroName.c_str() << "\n";
     doLog(LOG_VERBOSE,"LEF MACRO: %s\n", macroName.c_str());
 }
 
 void ReaderImpl::onEndMacro(const std::string &macroName)
-{      
+{   
+    m_curPinInfo = nullptr;
     m_curCell = nullptr;
 }
 
@@ -102,38 +105,40 @@ void ReaderImpl::onEndPin(const std::string &pinName)
     // figure out the type of pin
     if (m_pinUse == "GROUND")
     {
-        m_curPinInfo->m_iotype = IO_GROUND;
+        m_curPinInfo->m_iotype = IOType::GROUND;
     }
     else if (m_pinUse == "POWER")
     {
-        m_curPinInfo->m_iotype = IO_POWER;
+        m_curPinInfo->m_iotype = IOType::POWER;
     }
     else if (m_pinDirection == "INOUT")
     {
-        m_curPinInfo->m_iotype = IO_IO;
+        m_curPinInfo->m_iotype = IOType::IO;
     }
     else if (m_pinDirection == "INPUT")
     {
         // Note: INPUT pins may later be promoted to 
         //       CLOCK type when the Liberty file has been
         //       read
-        m_curPinInfo->m_iotype = IO_INPUT;
+        m_curPinInfo->m_iotype = IOType::INPUT;
     }
     else if (m_pinDirection == "OUTPUT")
     {
-        m_curPinInfo->m_iotype = IO_OUTPUT;
+        m_curPinInfo->m_iotype = IOType::OUTPUT;
     }
     else if (m_pinDirection == "OUTPUT TRISTATE")
     {
-        m_curPinInfo->m_iotype = IO_OUTPUT_TRI;
+        m_curPinInfo->m_iotype = IOType::OUTPUT_TRI;
     }    
     else
     {
-        m_curPinInfo->m_iotype = IO_UNKNOWN;
+        m_curPinInfo->m_iotype = IOType::UNKNOWN;
     }
 
     m_pinDirection.clear();
     m_pinUse.clear();
+
+    m_curPinInfo = nullptr;
 }
 
 void ReaderImpl::onClass(const std::string &className)
@@ -337,38 +342,31 @@ void ReaderImpl::onRect(int64_t x1, int64_t y1, int64_t x2, int64_t y2)
     {
         return;
     }
-
-#if 0
-    CellRect *rect = new CellRect();
-
-    rect->m_rect.setLL(Coord64{std::min(x1,x2), std::min(y1,y2)});
-    rect->m_rect.setUR(Coord64{std::max(x1,x2), std::max(y1,y2)});
+        
+    Rectangle rect({Coord64{std::min(x1,x2), std::min(y1,y2)}, 
+        Coord64{std::max(x1,x2), std::max(y1,y2)}});
 
     switch(m_context)
     {
     case CONTEXT_PIN:
-        { 
-            auto pinLayout = cell->pinLayout(m_pinIndex);
-            if (pinLayout != nullptr)
+        {             
+            if (m_curPinInfo  != nullptr)
             {
-                rect->m_layerIndex = m_activePinLayerIdx;
-                pinLayout->push_back(rect);
+                m_curPinInfo->m_pinLayout[m_activePinLayerIdx].push_back(rect);
             }
             else
             {
-                doLog(LOG_ERROR,"LEF::Reader pin layout not found for pin %s\n", pin->getName());
+                doLog(LOG_ERROR,"LEF::Reader pin layout not found for pin %s\n", m_curPinInfo->m_name.c_str());
             }
         }
         break;
     case CONTEXT_OBS:
-        rect->m_layerIndex = m_activeObsLayerIdx;
-        cell->obstructions().push_back(rect);
+        //rect->m_layerIndex = m_activeObsLayerIdx;
+        //cell->obstructions().push_back(rect);
         break;
     default:
-        delete rect;
         break;
     }
-#endif
 }
 
 void ReaderImpl::onPolygon(const std::vector<Coord64> &points)

@@ -158,20 +158,20 @@ void ReaderImpl::onSimpleAttribute(const std::string &name, const std::string &v
             // The reason for this is that the LEF
             // file has more elaborate information
             // on the pin io type.
-            if (m_curPin->m_iotype == IO_UNKNOWN)
+            if (m_curPin->m_iotype == ChipDB::IOType::UNKNOWN)
             {
                 if (value == "input")
-                    m_curPin->m_iotype = IO_INPUT;
+                    m_curPin->m_iotype = ChipDB::IOType::INPUT;
                 else if (value == "output")
-                    m_curPin->m_iotype = IO_OUTPUT;
+                    m_curPin->m_iotype = ChipDB::IOType::OUTPUT;
             }
         }
         else if (name == "three_state")
         {
-            if ((m_curPin->m_iotype == IO_UNKNOWN) ||
-                (m_curPin->m_iotype == IO_OUTPUT))
+            if ((m_curPin->m_iotype == ChipDB::IOType::UNKNOWN) ||
+                (m_curPin->m_iotype == ChipDB::IOType::OUTPUT))
             {
-                m_curPin->m_iotype = IO_OUTPUT_TRI;
+                m_curPin->m_iotype = ChipDB::IOType::OUTPUT_TRI;
                 m_curPin->m_tristateFunction = value;
             }
         }

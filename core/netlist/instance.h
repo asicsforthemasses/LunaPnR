@@ -279,7 +279,7 @@ public:
     */
     const Net* getConnectedNet(ssize_t pinIndex) const override;
 
-    void setPinIOType(PinIOType iotype)
+    void setPinIOType(IOType iotype)
     {
         m_pinInfo.m_iotype = iotype;
     }

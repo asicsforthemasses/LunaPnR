@@ -3,23 +3,23 @@
 
 using namespace ChipDB;
 
-std::string ChipDB::toString(const PinIOType &iotype)
+std::string ChipDB::toString(const IOType &iotype)
 {
     switch(iotype)
     {
-    case IO_UNKNOWN:
+    case IOType::UNKNOWN:
         return std::string("UNKNOWN");
-    case IO_INPUT:
+    case IOType::INPUT:
         return std::string("INPUT");
-    case IO_OUTPUT:
+    case IOType::OUTPUT:
         return std::string("OUTPUT");
-    case IO_OUTPUT_TRI:
+    case IOType::OUTPUT_TRI:
         return std::string("TRI-STATE");
-    case IO_IO:
+    case IOType::IO:
         return std::string("INOUT");
-    case IO_POWER:
+    case IOType::POWER:
         return std::string("POWER");
-    case IO_GROUND:
+    case IOType::GROUND:
         return std::string("GROUND");
     default:
         return std::string("?");
@@ -104,4 +104,3 @@ std::vector<PinInfo>::const_iterator PinInfoList::find(const std::string &name) 
 
     return iter;
 }
-

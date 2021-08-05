@@ -2,29 +2,33 @@
 
 #include <stdint.h>
 #include <string>
+#include <memory>
+#include <vector>
+#include <unordered_map>
 #include "common/dbtypes.h"
+#include "common/geometry.h"
 #include "common/visitor.h"
 
 namespace ChipDB
 {
 
-enum PinIOType : uint8_t
+enum class IOType : uint8_t
 {
-    IO_UNKNOWN  = 0,
-    IO_INPUT,
-    IO_OUTPUT,
-    IO_OUTPUT_TRI,
-    IO_IO,
-    IO_POWER,
-    IO_GROUND
+    UNKNOWN  = 0,
+    INPUT,
+    OUTPUT,
+    OUTPUT_TRI,
+    IO,
+    POWER,
+    GROUND
 };
 
-std::string toString(const PinIOType &iotype);
+std::string toString(const IOType &iotype);
 
 struct PinInfo
 {
 PinInfo() :
-        m_iotype(IO_UNKNOWN),
+        m_iotype(IOType::UNKNOWN),
         m_clock(false),
         m_offset({0,0}),
         m_cap(0.0),
@@ -34,7 +38,7 @@ PinInfo() :
 
 PinInfo(const std::string &name) :
         m_name(name),
-        m_iotype(IO_UNKNOWN),
+        m_iotype(IOType::UNKNOWN),
         m_clock(false),
         m_offset({0,0}),
         m_cap(0.0),
@@ -44,9 +48,11 @@ PinInfo(const std::string &name) :
 
     IMPLEMENT_ACCEPT;
 
+    virtual ~PinInfo() = default;
+
     std::string m_name;     ///< pin name
 
-    PinIOType   m_iotype;   ///< in/out type of pin
+    IOType      m_iotype;   ///< in/out type of pin
     
     bool        m_clock;    ///< true if this is a clock pin
     Coord64     m_offset;   ///< pin offset w.r.t. lower left cell corner
@@ -60,29 +66,33 @@ PinInfo(const std::string &name) :
 
     bool isOutput() const
     {
-        return (m_iotype == IO_OUTPUT) || (m_iotype == IO_OUTPUT_TRI)
-            || (m_iotype == IO_IO);
+        return (m_iotype == IOType::OUTPUT) || (m_iotype == IOType::OUTPUT_TRI)
+            || (m_iotype == IOType::IO);
     }
 
     bool isInput() const
     {
-        return (m_iotype == IO_INPUT) || (m_iotype == IO_IO);
+        return (m_iotype == IOType::INPUT) || (m_iotype == IOType::IO);
     }
 
     bool isPGPin() const
     {
-        return (m_iotype == IO_POWER) || (m_iotype == IO_GROUND);
+        return (m_iotype == IOType::POWER) || (m_iotype == IOType::GROUND);
     }
 
     bool isIO() const
     {
-        return m_iotype == IO_IO;
+        return m_iotype == IOType::IO;
     }
 
     bool isClock() const
     {
         return m_clock;
     }    
+
+    using GeometryObjects = std::vector<GeometryObject>;
+
+    std::unordered_map<LayerID, GeometryObjects> m_pinLayout;
 };
 
 class PinInfoList

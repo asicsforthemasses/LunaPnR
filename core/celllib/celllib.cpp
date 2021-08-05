@@ -112,8 +112,8 @@ void CellLib::createNetConCell()
     netConCell->m_leakagePower = 0;
     auto inPin  = netConCell->m_pins.createPin("A");
     auto outPin = netConCell->m_pins.createPin("Y");
-    inPin.m_iotype  = IO_INPUT;
-    outPin.m_iotype = IO_OUTPUT;
+    inPin.m_iotype  = IOType::INPUT;
+    outPin.m_iotype = IOType::OUTPUT;
 }
 
 

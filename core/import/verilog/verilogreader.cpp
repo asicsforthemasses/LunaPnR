@@ -207,10 +207,10 @@ void ReaderImpl::onInput(const std::string &netname)
 
     // add a top-level pin
     auto& pin = m_currentModule->createPin(netname);
-    pin.m_iotype = IO_INPUT;
+    pin.m_iotype = ChipDB::IOType::INPUT;
 
     auto pinInstance = new PinInstance(netname);
-    pinInstance->setPinIOType(IO_OUTPUT);    // input ports have output pins!
+    pinInstance->setPinIOType(ChipDB::IOType::OUTPUT);    // input ports have output pins!
     pinInstance->connect(0, netPtr);
     netPtr->addConnection(pinInstance, 0);
     m_currentModule->addInstance(netname, pinInstance);    
@@ -238,11 +238,11 @@ void ReaderImpl::onInput(const std::string &netname, uint32_t start, uint32_t st
 
         // add a top-level pin
         auto& pin = m_currentModule->createPin(ss.str());
-        pin.m_iotype = IO_INPUT;
+        pin.m_iotype = ChipDB::IOType::INPUT;
 
         // add a PinInstance for each pin to the netlist
         auto pinInstance = new PinInstance(netname);
-        pinInstance->setPinIOType(IO_OUTPUT);    // input ports have output pins!
+        pinInstance->setPinIOType(ChipDB::IOType::OUTPUT);    // input ports have output pins!
         pinInstance->connect(0, netPtr);
         netPtr->addConnection(pinInstance, 0);
         m_currentModule->addInstance(netname, pinInstance);
@@ -262,11 +262,11 @@ void ReaderImpl::onOutput(const std::string &netname)
 
     // add a top-level pin
     auto& pin = m_currentModule->createPin(netname);
-    pin.m_iotype = IO_OUTPUT;
+    pin.m_iotype = ChipDB::IOType::OUTPUT;
 
     // add a PinInstance for each pin to the netlist
     auto pinInstance = new PinInstance(netname);
-    pinInstance->setPinIOType(IO_INPUT);    // output ports have input pins!
+    pinInstance->setPinIOType(ChipDB::IOType::INPUT);    // output ports have input pins!
     pinInstance->connect(0, netPtr);
     netPtr->addConnection(pinInstance, 0);    
     m_currentModule->addInstance(netname, pinInstance);
@@ -293,11 +293,11 @@ void ReaderImpl::onOutput(const std::string &netname, uint32_t start, uint32_t s
 
         // add a top-level pin
         auto& pin = m_currentModule->createPin(ss.str());
-        pin.m_iotype = IO_OUTPUT;
+        pin.m_iotype = ChipDB::IOType::OUTPUT;
 
         // add a PinInstance for each pin to the netlist
         auto pinInstance = new PinInstance(netname);
-        pinInstance->setPinIOType(IO_INPUT);    // output ports have input pins!
+        pinInstance->setPinIOType(ChipDB::IOType::INPUT);    // output ports have input pins!
         pinInstance->connect(0, netPtr);
         netPtr->addConnection(pinInstance, 0);
         m_currentModule->addInstance(ss.str(), pinInstance);

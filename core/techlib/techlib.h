@@ -41,6 +41,7 @@ struct LayerInfo
         m_resistance(0.0),
         m_thickness(0.0),
         m_minArea(0.0),
+        m_id(-1),
         m_type(LAYER_UNDEFINED),
         m_dir(LAYERDIR_UNDEFINED)
     {}
@@ -57,6 +58,7 @@ struct LayerInfo
         m_resistance(0.0),
         m_thickness(0.0),
         m_minArea(0.0),
+        m_id(-1),
         m_type(LAYER_UNDEFINED),
         m_dir(LAYERDIR_UNDEFINED)        
     {}
@@ -78,6 +80,7 @@ struct LayerInfo
     double  m_thickness;
     double  m_minArea;
 
+    LayerID         m_id;
     LayerType       m_type;
     LayerDirection  m_dir;
 };

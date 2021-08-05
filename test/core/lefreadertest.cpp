@@ -50,15 +50,19 @@ BOOST_AUTO_TEST_CASE(can_read_lef)
 
     auto pin = cell->lookupPin("A");
     BOOST_CHECK(pin != nullptr);
-    BOOST_CHECK(pin->m_iotype == ChipDB::IO_INPUT);
+    BOOST_CHECK(pin->m_iotype == ChipDB::IOType::INPUT);
+    BOOST_CHECK(!pin->m_pinLayout.empty()); // check that the pin has geometry
 
     pin = cell->lookupPin("B");
     BOOST_CHECK(pin != nullptr);
-    BOOST_CHECK(pin->m_iotype == ChipDB::IO_INPUT);
+    BOOST_CHECK(pin->m_iotype == ChipDB::IOType::INPUT);
+    BOOST_CHECK(!pin->m_pinLayout.empty()); // check that the pin has geometry
 
     pin = cell->lookupPin("Y");
     BOOST_CHECK(pin != nullptr);
-    BOOST_CHECK(pin->m_iotype == ChipDB::IO_OUTPUT);    
+    BOOST_CHECK(pin->m_iotype == ChipDB::IOType::OUTPUT);    
+    BOOST_CHECK(!pin->m_pinLayout.empty()); // check that the pin has geometry
+
 }
 
 BOOST_AUTO_TEST_CASE(can_read_lef2)

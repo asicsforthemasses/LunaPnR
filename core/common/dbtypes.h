@@ -19,6 +19,8 @@ namespace ChipDB
     using ObstructionIndex = int32_t;
 #endif
 
+    using LayerID = int32_t;
+
     /** base object that provides a getName() function */
     class NamedObject
     {
@@ -402,6 +404,7 @@ namespace ChipDB
 
     /** create a new string with upper case characters */
     std::string toUpper(const std::string &txt);
+
 };
 
 ChipDB::SymmetryFlags& operator+=(ChipDB::SymmetryFlags &lhs, const uint8_t &rhs);

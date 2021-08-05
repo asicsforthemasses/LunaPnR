@@ -59,13 +59,13 @@ bool Writer::write(std::ostream &os, const ChipDB::Module *mod)
 
             switch(pinInfo->m_iotype)
             {
-            case ChipDB::PinIOType::IO_INPUT:
+            case ChipDB::IOType::INPUT:
                 os << "input ";
                 break;
-            case ChipDB::PinIOType::IO_OUTPUT:
+            case ChipDB::IOType::OUTPUT:
                 os << "output ";
                 break; 
-            case ChipDB::PinIOType::IO_IO:
+            case ChipDB::IOType::IO:
                 os << "inout ";
                 break;
             default:
