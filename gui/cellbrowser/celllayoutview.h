@@ -62,15 +62,19 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
 protected:
     /** make sure p1 and p2 are upper left and lower right */
     void fixCoordinates(QPointF &p1, QPointF &p2);
 
-    QPointF toScreen(const ChipDB::Coord64 &pos) const;
-    const ChipDB::Coord64 toChip(const QPointF &p) const;
+    QPointF toScreen(const ChipDB::Coord64 &pos) const noexcept;
+    ChipDB::Coord64 toChip(const QPointF &p) const noexcept;
 
-    
+    ChipDB::Rect64 m_viewport;
+    ChipDB::Rect64 m_viewportReference;
+    int32_t        m_zoomLevel;
+
     const ChipDB::Cell *m_cell;
 };
 

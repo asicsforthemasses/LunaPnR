@@ -1,6 +1,7 @@
 
 #include <QFontMetricsF>
 #include <QPainter>
+#include <QWheelEvent>
 #include <algorithm>
 #include "celllayoutview.h"
 #include "../common/guihelpers.h"
@@ -117,6 +118,7 @@ QRectF DrawLayoutItemVisitor::getTextRect() const
 
 CellLayoutView::CellLayoutView(QWidget *parent) : QWidget(parent), m_cell(nullptr)
 {
+    m_viewport = {{-10000,-10000},{10000, 10000}};
 }
 
 CellLayoutView::~CellLayoutView()
@@ -173,29 +175,91 @@ void CellLayoutView::fixCoordinates(QPointF &p1, QPointF &p2)
 void CellLayoutView::setCell(const ChipDB::Cell *cell)
 {
     m_cell = cell;
-}
-
-QPointF CellLayoutView::toScreen(const ChipDB::Coord64 &pos) const
-{
-    const float zoom = 1.0f;
-
+    m_zoomLevel = 1;
     if (m_cell != nullptr)
     {
-        float sx = 0.8*width() / m_cell->m_size.m_x;
-        float sy = 0.8*height() / m_cell->m_size.m_y;
-        
-        float scale = std::min(sx,sy);
-
-        float cellPixels_x = scale * m_cell->m_size.m_x;
-        float cellPixels_y = scale * m_cell->m_size.m_y;
-
-        float x = scale*pos.m_x + width()/2.0 - (cellPixels_x/2.0);
-        float y = -scale*pos.m_y + height()/2.0 + (cellPixels_y/2.0);
-
-        return QPointF(x, y);
+        auto margin = static_cast<int64_t>(std::max(cell->m_size.m_x, cell->m_size.m_y) * 0.1);
+        m_viewport = {{-margin,-margin}, cell->m_size + ChipDB::Coord64{margin,margin}};
+        m_viewportReference = m_viewport;
     }
-    
-    return QPointF(0.0,0.0);
+}
+
+
+ChipDB::Coord64 CellLayoutView::toChip(const QPointF &p) const noexcept
+{
+    if (m_cell == nullptr)
+    {
+        return ChipDB::Coord64{0,0};
+    }
+
+    if ((width() == 0) || (height() == 0))
+    {
+        return ChipDB::Coord64{0,0};
+    }
+
+    const auto sx = static_cast<double>(m_viewport.width()) / width();
+    const auto sy = static_cast<double>(m_viewport.height()) / height();
+    const auto x = static_cast<int64_t>(p.x() * sx) + m_viewport.left();
+    const auto y = static_cast<int64_t>(p.y() * sy) + m_viewport.bottom();
+
+    return ChipDB::Coord64{x,y};
+}
+
+QPointF CellLayoutView::toScreen(const ChipDB::Coord64 &pos) const noexcept
+{
+    if (m_cell == nullptr)
+    {
+        return QPointF(0.0,0.0);
+    }
+
+    const auto sx = width() / static_cast<double>(m_viewport.width());
+    const auto sy = height() / static_cast<double>(m_viewport.height());
+    const auto localPos = pos - m_viewport.getLL();
+    const auto x = localPos.m_x * sx;
+    const auto y = localPos.m_y * sy;
+
+    return QPointF{x,y};
+}
+
+void CellLayoutView::wheelEvent(QWheelEvent *event)
+{
+    //QPoint numPixels = event->pixelDelta();
+    QPoint numDegrees = event->angleDelta() / 8;
+
+    auto mouseChipPos = toChip(event->pos());
+    std::cout << mouseChipPos << "\n";
+
+    if (numDegrees.y() > 0)
+    {
+        // limit zoom level to 50
+        //m_zoomLevel = std::min(m_zoomLevel+1, 50);
+        auto llx = mouseChipPos.m_x - ((mouseChipPos.m_x - m_viewport.m_ll.m_x) * 80 / 100);
+        auto lly = mouseChipPos.m_y - ((mouseChipPos.m_y - m_viewport.m_ll.m_y) * 80 / 100);
+        auto urx = mouseChipPos.m_x + ((m_viewport.m_ur.m_x - mouseChipPos.m_x) * 80 / 100);
+        auto ury = mouseChipPos.m_y + ((m_viewport.m_ur.m_y - mouseChipPos.m_y) * 80 / 100);
+
+        m_viewport.setLL({llx, lly});
+        m_viewport.setUR({urx, ury});
+
+        update();   
+    }
+    else if (numDegrees.y() < 0)
+    {
+        // limit zoom level to 1
+        m_zoomLevel = std::max(m_zoomLevel-1, 1);    
+
+        auto llx = mouseChipPos.m_x - ((mouseChipPos.m_x - m_viewport.m_ll.m_x) * 100 / 80);
+        auto lly = mouseChipPos.m_y - ((mouseChipPos.m_y - m_viewport.m_ll.m_y) * 100 / 80);
+        auto urx = mouseChipPos.m_x + ((m_viewport.m_ur.m_x - mouseChipPos.m_x) * 100 / 80);
+        auto ury = mouseChipPos.m_y + ((m_viewport.m_ur.m_y - mouseChipPos.m_y) * 100 / 80);
+
+        m_viewport.setLL({llx, lly});
+        m_viewport.setUR({urx, ury});
+
+        update();        
+    }    
+
+    event->accept();
 }
 
 void CellLayoutView::paintEvent(QPaintEvent *event)

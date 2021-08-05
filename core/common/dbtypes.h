@@ -100,6 +100,7 @@ namespace ChipDB
         {
             return (m_x != other.m_x) || (m_y != other.m_y);
         }
+
     };
 
     
