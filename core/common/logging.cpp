@@ -8,6 +8,7 @@
 #include <sstream>
 #include <stdio.h>
 #include <cstdarg>
+#include <array>
 #include "logging.h"
 
 static uint32_t gs_loglevel = LOG_WARN;
@@ -80,13 +81,13 @@ void doLog(uint32_t t, const char *format, ...)
         break;
     }
 
-    char buffer[2048];
+    std::array<char, 2048> buffer;
 
     va_list argptr;
     va_start(argptr, format);
-    vsnprintf(buffer, sizeof(buffer), format, argptr);    
+    vsnprintf(&buffer[0], buffer.size(), format, argptr);
     va_end(argptr);
-    ss << buffer << FGDEFAULT;
+    ss << &buffer[0] << FGDEFAULT;
     std::cout << ss.str();
 }
 

@@ -66,10 +66,11 @@ protected:
 protected:
     /** make sure p1 and p2 are upper left and lower right */
     void fixCoordinates(QPointF &p1, QPointF &p2);
-    QPointF toScreen(const ChipDB::Coord64 &pos);
 
-    //Qt::BrushStyle toBrushStyle(CellDB::LayerInfo::fillStyle_t s) const;
+    QPointF toScreen(const ChipDB::Coord64 &pos) const;
+    const ChipDB::Coord64 toChip(const QPointF &p) const;
 
+    
     const ChipDB::Cell *m_cell;
 };
 

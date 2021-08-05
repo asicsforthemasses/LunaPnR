@@ -26,12 +26,16 @@ CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
     m_pinGroup->setFrameStyle(QFrame::StyledPanel);
     
     // pin list view
-    m_pinListView = new QListView();
-    m_pinListView->setSelectionMode(QAbstractItemView::SingleSelection);
-    m_pinListView->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+    m_cellTreeView = new QTreeView();
+    m_cellTreeModel.reset(new CellTreeModel(nullptr));
+    m_cellTreeView->setModel(m_cellTreeModel.get());
 
-    m_pinModel.reset(new CellPinListModel(nullptr));
-    m_pinListView->setModel(m_pinModel.get());
+    //m_pinListView = new QListView();
+    //m_pinListView->setSelectionMode(QAbstractItemView::SingleSelection);
+    //m_pinListView->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
+
+    //m_pinModel.reset(new CellPinListModel(nullptr));
+    //m_pinListView->setModel(m_pinModel.get());
 
     // pin info table view
 #if 0
@@ -43,14 +47,14 @@ CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
     m_pinInfoModel.reset(new PinInfoTableModel(nullptr));
     m_pinInfoTable->setModel(m_pinInfoModel.get());
 #else
-    m_pinInfoView = new PropertyView();
+    //m_pinInfoView = new PropertyView();
 
 #endif
     m_layout2 = new QVBoxLayout();
     m_layout2->addWidget(new QLabel("Pins"),0);
-    m_layout2->addWidget(m_pinListView,1);
+    m_layout2->addWidget(m_cellTreeView,1);
     //m_layout2->addWidget(m_pinInfoTable,1);
-    m_layout2->addWidget(m_pinInfoView,1);
+    //m_layout2->addWidget(m_pinInfoView,1);
 
     m_pinGroup->setLayout(m_layout2);
 
@@ -66,10 +70,12 @@ CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
         this,
         SLOT(onCellSelectionChanged(const QItemSelection&, const QItemSelection&)));
 
+#if 0
     connect(m_pinListView->selectionModel(), 
         SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), 
         this,
         SLOT(onPinSelectionChanged(const QItemSelection&, const QItemSelection&)));
+#endif
 }
 
 CellBrowser::~CellBrowser()
@@ -89,7 +95,7 @@ void CellBrowser::setCellLib(ChipDB::CellLib *cellLib)
     auto cellPtr = cellLib->m_cells.at(0);
 
     m_cellLayoutView->setCell(cellPtr);
-    m_pinModel->setCell(cellPtr);
+    m_cellTreeModel->setCell(cellPtr);
 }
 
 void CellBrowser::onCellSelectionChanged(const QItemSelection &cur, const QItemSelection &prev)
@@ -102,8 +108,9 @@ void CellBrowser::onCellSelectionChanged(const QItemSelection &cur, const QItemS
         if (cell != nullptr)
         {
             m_cellLayoutView->setCell(cell);
-            m_pinModel->setCell(cell);
-            m_pinListView->setCurrentIndex(m_pinModel->index(0));
+            m_cellTreeModel->setCell(cell);
+            //m_pinModel->setCell(cell);
+            //m_pinListView->setCurrentIndex(m_pinModel->index(0));
             update();
             doLog(LOG_VERBOSE, "Selected cell %s\n", cell->m_name.c_str());
         }
@@ -112,6 +119,7 @@ void CellBrowser::onCellSelectionChanged(const QItemSelection &cur, const QItemS
 
 void CellBrowser::onPinSelectionChanged(const QItemSelection &cur, const QItemSelection &prev)
 {
+    #if 0
     QModelIndex index = m_pinListView->currentIndex();
 
     if (index.isValid())
@@ -124,4 +132,5 @@ void CellBrowser::onPinSelectionChanged(const QItemSelection &cur, const QItemSe
             doLog(LOG_VERBOSE, "Selected pin %s\n", pinInfo->m_name.c_str());
         }
     }
+    #endif
 }

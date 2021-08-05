@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QListView>
 #include <QTableView>
+#include <QTreeView>
 #include <QGroupBox>
 #include <QFrame>
 #include <QHBoxLayout>
@@ -27,6 +28,7 @@ public:
     
     QSize sizeHint() const;
 
+#if 0
     CellLibTableModel* getCellModel()
     {
         return m_cellModel.get();
@@ -36,6 +38,7 @@ public:
     {
         return m_pinModel.get();
     }
+#endif
 
 public slots:
     void onCellSelectionChanged(const QItemSelection &cur, const QItemSelection &prev);
@@ -43,17 +46,20 @@ public slots:
 
 protected:
     std::unique_ptr<CellLibTableModel> m_cellModel;
-    std::unique_ptr<CellPinListModel>  m_pinModel;
-    std::unique_ptr<PinInfoTableModel> m_pinInfoModel;
+    std::unique_ptr<CellTreeModel>  m_cellTreeModel;
+    //std::unique_ptr<PinInfoTableModel> m_pinInfoModel;
     
     QHBoxLayout     *m_layout;
     QVBoxLayout     *m_layout2;
     QFrame          *m_pinGroup;
     QTableView      *m_cellTableView;
     CellLayoutView  *m_cellLayoutView;
-    QListView       *m_pinListView;
+
+    QTreeView       *m_cellTreeView;
+
+    //QListView       *m_pinListView;
     //QTableView      *m_pinInfoTable;
-    PropertyView    *m_pinInfoView;
+    //PropertyView    *m_pinInfoView;
 };
 
 };  // namespace

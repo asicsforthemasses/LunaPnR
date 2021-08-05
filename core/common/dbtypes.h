@@ -56,26 +56,26 @@ namespace ChipDB
         int64_t m_x;   ///< x coordinate in nanometers
         int64_t m_y;   ///< y coordinate in nanometers
 
-        Coord64& operator+=(const Coord64& rhs) noexcept
+        constexpr Coord64& operator+=(const Coord64& rhs) noexcept
         { 
             m_x += rhs.m_x;
             m_y += rhs.m_y;
             return *this;
         }
 
-        Coord64& operator-=(const Coord64& rhs) noexcept
+        constexpr Coord64& operator-=(const Coord64& rhs) noexcept
         { 
             m_x -= rhs.m_x;
             m_y -= rhs.m_y;
             return *this;
         }
 
-        Coord64 operator+(const Coord64& rhs) const noexcept
+        constexpr Coord64 operator+(const Coord64& rhs) const noexcept
         { 
             return Coord64{m_x + rhs.m_x, m_y + rhs.m_y};
         }
 
-        Coord64 operator-(const Coord64& rhs) const noexcept
+        constexpr Coord64 operator-(const Coord64& rhs) const noexcept
         {
             return Coord64{m_x - rhs.m_x, m_y - rhs.m_y};
         } 
@@ -86,17 +86,17 @@ namespace ChipDB
         }
 
         // unary minus
-        Coord64 operator-() const noexcept
+        constexpr Coord64 operator-() const noexcept
         {
             return Coord64{-m_x, -m_y};
         } 
 
-        bool operator==(const Coord64& other) const noexcept
+        constexpr bool operator==(const Coord64& other) const noexcept
         {
             return (m_x == other.m_x) && (m_y == other.m_y);
         }   
 
-        bool operator!=(const Coord64& other) const noexcept
+        constexpr bool operator!=(const Coord64& other) const noexcept
         {
             return (m_x != other.m_x) || (m_y != other.m_y);
         }
@@ -150,43 +150,77 @@ namespace ChipDB
             m_ur.m_y = c;
         }
 
-        void setBottom(const int64_t c)
+        constexpr void setBottom(const int64_t c)
         {
             m_ll.m_y = c;
         }
 
-        void setSize(const Coord64 &s)
+        constexpr void setSize(const Coord64 &s)
         {
             m_ur.m_x = m_ll.m_x + s.m_x;
             m_ur.m_y = m_ll.m_y + s.m_y;
         }
 
-        Coord64 getSize() const
+        /** get lower left coordinate */
+        constexpr Coord64 getLL() const
+        {
+            return m_ll;
+        }
+
+        /** get upper left coordinate */
+        constexpr Coord64 getUL() const
+        {
+            return Coord64{m_ur.m_x, m_ll.m_y};
+        }
+
+        /** get lower right coordinate */
+        constexpr Coord64 getLR() const
+        {
+            return Coord64{m_ur.m_x, m_ll.m_y};
+        }
+
+        /** get upper right coordinate */
+        constexpr Coord64 getUR() const
+        {
+            return m_ur;
+        }
+
+        /** return the size of the rectangle */
+        constexpr Coord64 getSize() const
         {
             return Coord64{m_ur.m_x - m_ll.m_x, m_ur.m_y - m_ll.m_y};
         }
 
-        [[nodiscard]] Rect64 moveTo(const Coord64 &p) const
+        /** return a rectangle that is positioned at the given coordinate 
+         *  with it´s lower left vertex
+        */
+        [[nodiscard]] constexpr Rect64 movedTo(const Coord64 &p) const
         {
             auto delta = p - m_ll;
             return {p, m_ur + delta};
         }
 
-        void moveTo(const Coord64 &p)
+        /** move the rectangle to the given coordinate 
+         *  with it´s lower left vertex.
+        */
+        constexpr void moveTo(const Coord64 &p) noexcept
         {
             auto delta = p - m_ll;
             m_ll = p;
             m_ur = m_ur + delta;
         }
 
-
-        void moveBy(const Coord64 &offset)
+        /** return a rectangle that is moved by the given offset.
+        */
+        constexpr void moveBy(const Coord64 &offset) noexcept
         {
             m_ll = m_ll + offset;
             m_ur = m_ur + offset;
         }
 
-        [[nodiscard]] Rect64 moveBy(const Coord64 &offset) const 
+        /** move the rectangle by the given offset.
+        */
+        [[nodiscard]] Rect64 movedBy(const Coord64 &offset) const 
         {
             return {m_ll + offset, m_ur + offset};
         }
@@ -221,36 +255,38 @@ namespace ChipDB
             return m_ll.m_y;
         } 
 
-        Coord64 pos() const noexcept
+        /** return the (lower left vertex) position of the rectangle */
+        constexpr Coord64 pos() const noexcept
         {
             return m_ll;
         }   
 
-        Coord64 center() const noexcept
+        /** return the center coordinate of the rectangle */
+        constexpr Coord64 center() const noexcept
         {
             return Coord64{(m_ll.m_x + m_ur.m_x)/2, (m_ll.m_y + m_ur.m_y)/2};
         }
 
-        Rect64& operator+=(const Coord64& rhs) noexcept
+        constexpr Rect64& operator+=(const Coord64& rhs) noexcept
         { 
             m_ll += rhs;
             m_ur += rhs;
             return *this;
         }
 
-        Rect64& operator-=(const Coord64& rhs) noexcept
+        constexpr Rect64& operator-=(const Coord64& rhs) noexcept
         { 
             m_ll -= rhs;
             m_ur -= rhs;
             return *this;
         }
 
-        Rect64 operator+(const Coord64& rhs) const noexcept
+        constexpr Rect64 operator+(const Coord64& rhs) const noexcept
         { 
             return Rect64{m_ll + rhs, m_ur + rhs};
         }
 
-        Rect64 operator-(const Coord64& rhs) const noexcept
+        constexpr Rect64 operator-(const Coord64& rhs) const noexcept
         { 
             return Rect64{m_ll - rhs, m_ur - rhs};
         }        

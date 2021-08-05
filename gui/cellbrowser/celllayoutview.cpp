@@ -175,7 +175,7 @@ void CellLayoutView::setCell(const ChipDB::Cell *cell)
     m_cell = cell;
 }
 
-QPointF CellLayoutView::toScreen(const ChipDB::Coord64 &pos)
+QPointF CellLayoutView::toScreen(const ChipDB::Coord64 &pos) const
 {
     const float zoom = 1.0f;
 
