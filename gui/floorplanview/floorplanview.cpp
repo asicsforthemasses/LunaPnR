@@ -172,14 +172,14 @@ void FloorplanView::drawInstance(QPainter &p, const ChipDB::InstanceBase *ins)
 
         switch(ins->m_orientation)
         {
-        case ChipDB::ORIENT_R0: // aka North
+        case ChipDB::Orientation::R0: // aka North
             {
                 auto p1 = cellRect.bottomLeft() - QPointF{0, cellRect.height() / 2};
                 auto p2 = cellRect.bottomLeft() + QPointF{cellRect.width() / 2, 0};
                 p.drawLine(p1, p2);
             }
             break;
-        case ChipDB::ORIENT_MX: // aka flipped South
+        case ChipDB::Orientation::MX: // aka flipped South
             {
                 auto p1 = cellRect.topLeft() + QPointF{0, cellRect.height() / 2};
                 auto p2 = cellRect.topLeft() + QPointF{cellRect.width() / 2, 0};

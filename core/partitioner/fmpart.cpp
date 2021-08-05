@@ -135,7 +135,7 @@ bool FMPart::init(FMContainer &container)
         // check if the instance has a fixed position.
         // if so, assign the instance/node to the closest
         // partition
-        if (node.m_instance->m_placementInfo == ChipDB::PlacementInfo::PLACEMENT_PLACEDANDFIXED)
+        if (node.m_instance->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED)
         {
             auto const* insPtr = node.m_instance;
             auto distanceToPartition0 = distanceToPartition(container.m_partitions[0], insPtr->m_pos);

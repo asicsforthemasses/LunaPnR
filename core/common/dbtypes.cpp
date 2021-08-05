@@ -77,9 +77,10 @@ std::string ChipDB::toString(const CellSubclass &v)
         "BOTTOMRIGHT"
     }};
 
-    if (v < names.size())
+    auto index = static_cast<size_t>(v);
+    if (index < names.size())
     {
-        return std::string(names[v]);
+        return std::string(names[index]);
     }
     else
     {
@@ -94,9 +95,10 @@ std::string ChipDB::toString(const CellClass &v)
         "CORE", "COVER", "RING", "PAD", "ENDCAP", "BLOCK"
     }};
 
-    if (v < names.size())
+    auto index = static_cast<size_t>(v);
+    if (index < names.size())
     {
-        return std::string(names[v]);
+        return std::string(names[index]);
     }
     else
     {

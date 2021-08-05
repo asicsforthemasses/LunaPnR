@@ -32,9 +32,9 @@ void SimpleCellPlacer::place(ChipDB::Netlist *nl, const ChipDB::Rect64 &regionRe
         curPos.m_x += cellSize.m_x;
 
         if (flip)
-            ins->m_orientation = ChipDB::ORIENT_MX;
+            ins->m_orientation = ChipDB::Orientation::MX;
         else
-            ins->m_orientation = ChipDB::ORIENT_R0;
+            ins->m_orientation = ChipDB::Orientation::R0;
     }
 
     if (curPos.m_y >= regionRect.m_ur.m_y)

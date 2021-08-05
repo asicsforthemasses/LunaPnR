@@ -22,11 +22,11 @@ public:
         INS_PIN
     } m_insType;
 
-    InstanceBase() : m_parent(nullptr), m_insType(INS_ABSTRACT), m_orientation(ORIENT_R0), 
-        m_placementInfo(PLACEMENT_UNPLACED), m_id(-1), m_flags(0) {}
+    InstanceBase() : m_parent(nullptr), m_insType(INS_ABSTRACT), m_orientation(Orientation::R0), 
+        m_placementInfo(PlacementInfo::UNPLACED), m_id(-1), m_flags(0) {}
     
-    InstanceBase(InstanceBase *parent) : m_parent(parent), m_insType(INS_ABSTRACT), m_orientation(ORIENT_R0), 
-        m_placementInfo(PLACEMENT_UNPLACED), m_id(-1), m_flags(0) {}
+    InstanceBase(InstanceBase *parent) : m_parent(parent), m_insType(INS_ABSTRACT), m_orientation(Orientation::R0), 
+        m_placementInfo(PlacementInfo::UNPLACED), m_id(-1), m_flags(0) {}
 
     virtual ~InstanceBase() {}
 

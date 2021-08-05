@@ -709,13 +709,13 @@ BOOST_AUTO_TEST_CASE(can_partition_multiplier)
             if (pinInfo->isInput())
             {
                 ins->m_pos = {0, left_y};
-                ins->m_placementInfo = ChipDB::PLACEMENT_PLACEDANDFIXED;
+                ins->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
                 left_y += 5000;
             }
             else
             {
                 ins->m_pos = {65000, right_y};
-                ins->m_placementInfo = ChipDB::PLACEMENT_PLACEDANDFIXED;
+                ins->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
                 right_y += 5000;
             }
         }
@@ -770,13 +770,13 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv_concise)
             if (pinInfo->isInput())
             {
                 ins->m_pos = {0, left_y};
-                ins->m_placementInfo = ChipDB::PLACEMENT_PLACEDANDFIXED;
+                ins->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
                 left_y += 5000;
             }
             else
             {
                 ins->m_pos = {650000, right_y};
-                ins->m_placementInfo = ChipDB::PLACEMENT_PLACEDANDFIXED;
+                ins->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
                 right_y += 5000;
             }
         }

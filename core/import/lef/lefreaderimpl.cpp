@@ -147,23 +147,23 @@ void ReaderImpl::onClass(const std::string &className)
 
     if (classNameUpper == "CORE")
     {
-        m_curCell->m_class = CLASS_CORE;
+        m_curCell->m_class = CellClass::CORE;
     }
     else if (classNameUpper == "COVER")
     {
-        m_curCell->m_class = CLASS_COVER;
+        m_curCell->m_class = CellClass::COVER;
     }
     else if (classNameUpper == "PAD")
     {
-        m_curCell->m_class = CLASS_PAD;
+        m_curCell->m_class = CellClass::PAD;
     }
     else if (classNameUpper == "ENDCAP")
     {
-        m_curCell->m_class = CLASS_ENDCAP;
+        m_curCell->m_class = CellClass::ENDCAP;
     }
     else if (classNameUpper == "RING")
     {
-        m_curCell->m_class = CLASS_RING;
+        m_curCell->m_class = CellClass::RING;
     }
     else
     {
@@ -187,7 +187,7 @@ void ReaderImpl::onClass(const std::string &className,
 
     if (classNameUpper == "CORE")
     {
-        m_curCell->m_subclass = SUBCLASS_NONE;
+        m_curCell->m_subclass = CellSubclass::NONE;
         constexpr const std::array<const char*, 6> optstr
         {{
             "FEEDTHRU","TIEHIGH","TIELOW","SPACER","ANTENNACELL","WELLTAP"
@@ -195,12 +195,12 @@ void ReaderImpl::onClass(const std::string &className,
         
         constexpr const std::array<CellSubclass, 6> optval
         {{
-            SUBCLASS_FEEDTHRU,
-            SUBCLASS_TIEHIGH,
-            SUBCLASS_TIELOW,
-            SUBCLASS_SPACER,
-            SUBCLASS_ANTENNACELL,
-            SUBCLASS_WELLTAP
+            CellSubclass::FEEDTHRU,
+            CellSubclass::TIEHIGH,
+            CellSubclass::TIELOW,
+            CellSubclass::SPACER,
+            CellSubclass::ANTENNACELL,
+            CellSubclass::WELLTAP
         }};
 
         for(uint32_t i=0; i<optstr.size(); i++)
@@ -212,11 +212,11 @@ void ReaderImpl::onClass(const std::string &className,
             }
         }        
         
-        m_curCell->m_class = CLASS_CORE;
+        m_curCell->m_class = CellClass::CORE;
     }
     else if (classNameUpper == "COVER")
     {
-        m_curCell->m_class = CLASS_COVER;
+        m_curCell->m_class = CellClass::COVER;
         if (subclassUpper != "BUMP")
         {
             std::stringstream ss;
@@ -225,12 +225,12 @@ void ReaderImpl::onClass(const std::string &className,
         }
         else
         {
-            m_curCell->m_subclass = SUBCLASS_BUMP;
+            m_curCell->m_subclass = CellSubclass::BUMP;
         }
     }
     else if (classNameUpper == "PAD")
     {
-        m_curCell->m_subclass = SUBCLASS_NONE;
+        m_curCell->m_subclass = CellSubclass::NONE;
         constexpr const std::array<const char*, 6> optstr =
         {{
             "INPUT","OUTPUT","INOUT","POWER","SPACER","AREAIO"
@@ -238,12 +238,12 @@ void ReaderImpl::onClass(const std::string &className,
         
         constexpr const std::array<CellSubclass, 6> optval
         {
-            SUBCLASS_INPUT,
-            SUBCLASS_OUTPUT,
-            SUBCLASS_INOUT,
-            SUBCLASS_POWER,
-            SUBCLASS_SPACER,
-            SUBCLASS_AREAIO
+            CellSubclass::INPUT,
+            CellSubclass::OUTPUT,
+            CellSubclass::INOUT,
+            CellSubclass::POWER,
+            CellSubclass::SPACER,
+            CellSubclass::AREAIO
         };
 
         for(uint32_t i=0; i<optstr.size(); i++)
@@ -255,11 +255,11 @@ void ReaderImpl::onClass(const std::string &className,
             }
         }
 
-        m_curCell->m_class = CLASS_PAD;
+        m_curCell->m_class = CellClass::PAD;
     }
     else if (classNameUpper == "ENDCAP")
     {
-        m_curCell->m_subclass = SUBCLASS_NONE;
+        m_curCell->m_subclass = CellSubclass::NONE;
         constexpr const std::array<const char*, 6> optstr =
         {{
             "PRE","POST","TOPLEFT","TOPRIGHT","BOTTOMLEFT","BOTTOMRIGHT"
@@ -267,12 +267,12 @@ void ReaderImpl::onClass(const std::string &className,
         
         constexpr const std::array<CellSubclass, 6> optval
         {
-            SUBCLASS_PRE,
-            SUBCLASS_POST,
-            SUBCLASS_TOPLEFT,
-            SUBCLASS_TOPRIGHT,
-            SUBCLASS_BOTTOMLEFT,
-            SUBCLASS_BOTTOMRIGHT
+            CellSubclass::PRE,
+            CellSubclass::POST,
+            CellSubclass::TOPLEFT,
+            CellSubclass::TOPRIGHT,
+            CellSubclass::BOTTOMLEFT,
+            CellSubclass::BOTTOMRIGHT
         };
 
         for(uint32_t i=0; i<optstr.size(); i++)
@@ -283,29 +283,29 @@ void ReaderImpl::onClass(const std::string &className,
                 break;
             }
         }          
-        m_curCell->m_class = CLASS_ENDCAP;
+        m_curCell->m_class = CellClass::ENDCAP;
     }
     else if (classNameUpper == "RING")
     {
         // RING does not have any subclasses!
         error("RING cannot have a sub class!");
-        m_curCell->m_subclass = SUBCLASS_NONE;
-        m_curCell->m_class = CLASS_RING;
+        m_curCell->m_subclass = CellSubclass::NONE;
+        m_curCell->m_class = CellClass::RING;
     }
     else if (classNameUpper == "BLOCK")
     {
-        m_curCell->m_subclass = SUBCLASS_NONE;
+        m_curCell->m_subclass = CellSubclass::NONE;
         if (subclassUpper == "BLACKBOX")
-            m_curCell->m_subclass = SUBCLASS_BLACKBOX;
+            m_curCell->m_subclass = CellSubclass::BLACKBOX;
         else if (subclassUpper == "SOFT")
-            m_curCell->m_subclass = SUBCLASS_SOFT;
+            m_curCell->m_subclass = CellSubclass::SOFT;
         else
         {
             std::stringstream ss;
             ss << "Unknown sub class " << subclass << " for BLOCK";
             error(ss.str());
         }
-        m_curCell->m_class = CLASS_BLOCK;
+        m_curCell->m_class = CellClass::BLOCK;
     }    
     else
     {

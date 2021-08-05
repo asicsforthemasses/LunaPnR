@@ -326,25 +326,26 @@ namespace ChipDB
     };
 #endif
 
-    enum Orientation : uint8_t
+    /** cell/macro orientation following the LEF/DEF spec */
+    enum class Orientation : uint8_t
     {
-        ORIENT_UNDEFINED = 0,
-        ORIENT_R0,
-        ORIENT_R90,
-        ORIENT_R180,
-        ORIENT_R270,
-        ORIENT_MX,
-        ORIENT_MX90,
-        ORIENT_MY,
-        ORIENT_MY90
+        UNDEFINED = 0,
+        R0,
+        R90,
+        R180,
+        R270,
+        MX,
+        MX90,
+        MY,
+        MY90
     };
 
-    enum PlacementInfo : uint8_t
+    enum class PlacementInfo : uint8_t
     {
-        PLACEMENT_IGNORE = 0,       ///< ignore instance during placement
-        PLACEMENT_UNPLACED,         ///< instance unplaced
-        PLACEMENT_PLACED,           ///< instance placed but still movable
-        PLACEMENT_PLACEDANDFIXED,   ///< instance placed and not movable
+        IGNORE = 0,       ///< ignore instance during placement
+        UNPLACED,         ///< instance unplaced
+        PLACED,           ///< instance placed but still movable
+        PLACEDANDFIXED,   ///< instance placed and not movable
     };
 
     struct SymmetryFlags
@@ -360,39 +361,39 @@ namespace ChipDB
         static constexpr uint8_t SYM_R90 = 4;
     };
 
-    enum CellClass : uint8_t
+    enum class CellClass : uint8_t
     {
-        CLASS_CORE = 0,
-        CLASS_COVER,
-        CLASS_RING,
-        CLASS_PAD,
-        CLASS_ENDCAP,
-        CLASS_BLOCK
+        CORE = 0,
+        COVER,
+        RING,
+        PAD,
+        ENDCAP,
+        BLOCK
     };
 
-    enum CellSubclass : uint8_t
+    enum class CellSubclass : uint8_t
     {
-        SUBCLASS_NONE = 0,
-        SUBCLASS_BUMP,          ///< COVER subtype
-        SUBCLASS_BLACKBOX,      ///< BLOCK subtype
-        SUBCLASS_SOFT,          ///< BLOCK subtype
-        SUBCLASS_INPUT,         ///< PAD subtype
-        SUBCLASS_OUTPUT,        ///< PAD subtype
-        SUBCLASS_INOUT,         ///< PAD subtype
-        SUBCLASS_POWER,         ///< PAD subtype
-        SUBCLASS_SPACER,        ///< PAD or CORE subtype
-        SUBCLASS_AREAIO,        ///< PAD subtype
-        SUBCLASS_FEEDTHRU,      ///< CORE subtype
-        SUBCLASS_TIEHIGH,       ///< CORE subtype
-        SUBCLASS_TIELOW,        ///< CORE subtype
-        SUBCLASS_ANTENNACELL,   ///< CORE subtype
-        SUBCLASS_WELLTAP,       ///< CORE subtype
-        SUBCLASS_PRE,           ///< ENDCAP subtype
-        SUBCLASS_POST,          ///< ENDCAP subtype
-        SUBCLASS_TOPLEFT,       ///< ENDCAP subtype
-        SUBCLASS_TOPRIGHT,      ///< ENDCAP subtype
-        SUBCLASS_BOTTOMLEFT,    ///< ENDCAP subtype
-        SUBCLASS_BOTTOMRIGHT,   ///< ENDCAP subtype
+        NONE = 0,
+        BUMP,          ///< COVER subtype
+        BLACKBOX,      ///< BLOCK subtype
+        SOFT,          ///< BLOCK subtype
+        INPUT,         ///< PAD subtype
+        OUTPUT,        ///< PAD subtype
+        INOUT,         ///< PAD subtype
+        POWER,         ///< PAD subtype
+        SPACER,        ///< PAD or CORE subtype
+        AREAIO,        ///< PAD subtype
+        FEEDTHRU,      ///< CORE subtype
+        TIEHIGH,       ///< CORE subtype
+        TIELOW,        ///< CORE subtype
+        ANTENNACELL,   ///< CORE subtype
+        WELLTAP,       ///< CORE subtype
+        PRE,           ///< ENDCAP subtype
+        POST,          ///< ENDCAP subtype
+        TOPLEFT,       ///< ENDCAP subtype
+        TOPRIGHT,      ///< ENDCAP subtype
+        BOTTOMLEFT,    ///< ENDCAP subtype
+        BOTTOMRIGHT,   ///< ENDCAP subtype
     };
 
     std::string toString(const CellSubclass &v);

@@ -15,7 +15,7 @@ class Net;  // predeclaration
 class Cell
 {
 public:
-    Cell() : m_area(0), m_leakagePower(0), m_class(CLASS_CORE), m_subclass(SUBCLASS_NONE)
+    Cell() : m_area(0), m_leakagePower(0), m_class(CellClass::CORE), m_subclass(CellSubclass::NONE)
     {
     }
 
