@@ -63,6 +63,8 @@ BOOST_AUTO_TEST_CASE(can_read_lef)
     BOOST_CHECK(pin->m_iotype == ChipDB::IOType::OUTPUT);    
     BOOST_CHECK(!pin->m_pinLayout.empty()); // check that the pin has geometry
 
+    // check that the cell has obstructions
+    BOOST_CHECK(cell->m_obstructions.size() != 0);
 }
 
 BOOST_AUTO_TEST_CASE(can_read_lef2)

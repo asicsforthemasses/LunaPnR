@@ -4,6 +4,7 @@
 #include "../common/namedstorage.h"
 #include "../common/dbtypes.h"
 #include "../common/visitor.h"
+#include "../common/geometry.h"
 #include "../celllib/celllib.h"
 #include "../celllib/pin.h"
 #include "../techlib/techlib.h"

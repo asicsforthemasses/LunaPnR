@@ -71,6 +71,10 @@ protected:
     QPointF toScreen(const ChipDB::Coord64 &pos) const noexcept;
     ChipDB::Coord64 toChip(const QPointF &p) const noexcept;
 
+    void drawGeometry(QPainter &painter, const ChipDB::GeometryObjects &objs) const;
+    void drawGeometry(QPainter &painter, const ChipDB::Rectangle &objs) const;
+    void drawGeometry(QPainter &painter, const ChipDB::Polygon &objs) const;
+
     ChipDB::Rect64 m_viewport;
     ChipDB::Rect64 m_viewportReference;
     int32_t        m_zoomLevel;

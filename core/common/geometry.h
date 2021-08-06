@@ -23,5 +23,6 @@ public:
 };
 
 using GeometryObject = std::variant<Rectangle, Polygon>;
+using GeometryObjects = std::vector<GeometryObject>;
 
 };

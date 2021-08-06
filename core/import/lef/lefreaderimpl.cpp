@@ -42,8 +42,6 @@ void ReaderImpl::onMacro(const std::string &macroName)
 {
     // create a new cell/macro if necessary    
     m_curCell = m_design->m_cellLib.createCell(macroName);
-
-    std::cout << "Macro: " << macroName.c_str() << "\n";
     doLog(LOG_VERBOSE,"LEF MACRO: %s\n", macroName.c_str());
 }
 
@@ -332,17 +330,7 @@ void ReaderImpl::onSymmetry(const SymmetryFlags &symmetry)
 }
 
 void ReaderImpl::onRect(int64_t x1, int64_t y1, int64_t x2, int64_t y2)
-{
-    if (!checkPtr(m_curCell))
-    {
-        return;
-    }
-
-    if (!checkPtr(m_curPinInfo))
-    {
-        return;
-    }
-        
+{        
     Rectangle rect({Coord64{std::min(x1,x2), std::min(y1,y2)}, 
         Coord64{std::max(x1,x2), std::max(y1,y2)}});
 
@@ -350,6 +338,11 @@ void ReaderImpl::onRect(int64_t x1, int64_t y1, int64_t x2, int64_t y2)
     {
     case CONTEXT_PIN:
         {             
+            if (!checkPtr(m_curPinInfo))
+            {
+                return;
+            }
+
             if (m_curPinInfo  != nullptr)
             {
                 m_curPinInfo->m_pinLayout[m_activePinLayerIdx].push_back(rect);
@@ -361,10 +354,13 @@ void ReaderImpl::onRect(int64_t x1, int64_t y1, int64_t x2, int64_t y2)
         }
         break;
     case CONTEXT_OBS:
-        //rect->m_layerIndex = m_activeObsLayerIdx;
-        //cell->obstructions().push_back(rect);
-        break;
-    default:
+        {
+            if (!checkPtr(m_curCell))
+            {
+                return;
+            }            
+            m_curCell->m_obstructions[m_activeObsLayerIdx].push_back(rect);
+        }        
         break;
     }
 }
@@ -381,37 +377,16 @@ void ReaderImpl::onPolygon(const std::vector<Coord64> &points)
         return;
     }
 
-#if 0
-    auto pin = &cell->pins()[m_pinIndex];
-
-    CellPolygon *poly = new CellPolygon();
-    poly->m_poly.m_points = points;
-
+    Polygon poly(points);
     switch(m_context)
     {
     case CONTEXT_PIN:
-        {
-            auto pinLayout = cell->pinLayout(m_pinIndex);
-            if (pinLayout != nullptr)
-            {
-                poly->m_layerIndex = m_activePinLayerIdx;
-                pinLayout->push_back(poly);
-            }
-            else
-            {
-                doLog(LOG_ERROR,"LEF::Reader pin layout not found for pin %s\n", pin->getName());
-            }
-        }    
+        m_curPinInfo->m_pinLayout[m_activePinLayerIdx].push_back(poly);
         break;
     case CONTEXT_OBS:
-        poly->m_layerIndex = m_activeObsLayerIdx;
-        cell->obstructions().push_back(poly);
+        m_curCell->m_obstructions[m_activeObsLayerIdx].push_back(poly);
         break;
-    default:
-        delete poly;
     }
-#endif
-
 }
 
 void ReaderImpl::onPortLayer(const std::string &layerName)

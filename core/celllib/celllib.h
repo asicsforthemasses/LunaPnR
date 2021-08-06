@@ -2,7 +2,9 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 #include "common/dbtypes.h"
+#include "common/geometry.h"
 #include "common/namedstorage.h"
 #include "pin.h"
 #include "netlist/netlist.h"
@@ -54,6 +56,7 @@ public:
         return false;
     };
 
+    std::unordered_map<LayerID, GeometryObjects> m_obstructions;
 };
 
 class Module : public Cell

@@ -2,7 +2,10 @@
 #include <QFontMetricsF>
 #include <QPainter>
 #include <QWheelEvent>
+#include <QRectF>
+#include <QPolygonF>
 #include <algorithm>
+#include <variant>
 #include "celllayoutview.h"
 #include "../common/guihelpers.h"
 
@@ -316,7 +319,6 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
         painter.drawLine(2, p1.y(), dimWidth-2, p1.y());
         painter.drawLine(2, p2.y(), dimWidth-2, p2.y());
 
-#if 1
         // convert int32_t nanometers to microns
         const int64_t nm2 = m_cell->m_size.m_y % 1000;
         const int64_t um2 = m_cell->m_size.m_y / 1000;
@@ -324,23 +326,22 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
         snprintf(txtbuf, sizeof(txtbuf), "%ld.%03ld um", um2, nm2);
         QPointF txtpoint(2, (p1.y()+p2.y())/2);
         drawLeftText(painter, txtpoint, txtbuf, font(), Qt::black);
-#endif
 
         // draw pins
-#if 0        
+        painter.setPen(Qt::white);
+        painter.setBrush(QColor(255,255,255,80));
         size_t pinIndex = 0;
-        for(auto const& pin : m_cell->pins())
+        for(auto const& pin : m_cell->m_pins)
         {
-            auto layout = m_cell->pinLayout(pinIndex);
+            auto const& layout = pin.m_pinLayout;
 
-            DrawLayoutItemVisitor v(this, &painter);
-            auto iter = layout->begin();
-            while(iter != layout->end())
+            for(auto const& layer : layout)
             {
-                (*iter)->accept(&v);
-                iter++;
+                drawGeometry(painter, layer.second);
             }
+        }
 
+#if 0
             auto txtRect=v.getTextRect();
 
             // display text in largest pin rectangle
@@ -350,16 +351,50 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
             drawCenteredText(&painter, txtRect.center(), pin.getName(), font(), Qt::NoBrush);
             //painter.setBrush(Qt::NoBrush);
             //painter.drawRect(txtRect);
-            pinIndex++;
         }
-
-        // draw obstructions using the visitor pattern
-        DrawObstructionVisitor v(this, &painter);
-        for(auto const& obs : m_cell->obstructions())
+#endif
+        painter.setPen(Qt::red);
+        painter.setBrush(QColor(255,0,0,80));
+        for(auto const& layer : m_cell->m_obstructions)
         {
-            obs->accept(&v);           
+            drawGeometry(painter, layer.second);
         }
-#endif        
+        
     }
 }
 
+void CellLayoutView::drawGeometry(QPainter &painter, const ChipDB::GeometryObjects &objs) const
+{
+    for(auto const& obj : objs)
+    {
+        switch(obj.index())
+        {
+        case 0: // rectangle
+            drawGeometry(painter, std::get<ChipDB::Rectangle>(obj));
+            break;
+        case 1: // polygon
+            drawGeometry(painter, std::get<ChipDB::Polygon>(obj));
+            break;
+        }
+    }
+}
+
+void CellLayoutView::drawGeometry(QPainter &painter, const ChipDB::Rectangle &r) const
+{
+    QRectF screenRect(toScreen(r.m_rect.getLL()), toScreen(r.m_rect.getUR()));
+    painter.drawRect(screenRect);
+}
+
+void CellLayoutView::drawGeometry(QPainter &painter, const ChipDB::Polygon &r) const
+{
+    QPolygonF poly;
+
+    poly.resize(r.m_points.size());
+
+    for(size_t idx=0; idx<r.m_points.size(); idx++)
+    {
+        poly[idx] = toScreen(r.m_points.at(idx));
+    }
+    
+    painter.drawPolygon(poly);
+}

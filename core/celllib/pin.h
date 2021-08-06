@@ -90,8 +90,6 @@ PinInfo(const std::string &name) :
         return m_clock;
     }    
 
-    using GeometryObjects = std::vector<GeometryObject>;
-
     std::unordered_map<LayerID, GeometryObjects> m_pinLayout;
 };
 
