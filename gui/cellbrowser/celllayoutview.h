@@ -62,21 +62,32 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
 
-protected:
+    enum class MouseState
+    {
+        None,
+        Dragging
+    } m_mouseState;
+    
+    QPoint m_mouseDownPos;
+
     /** make sure p1 and p2 are upper left and lower right */
     void fixCoordinates(QPointF &p1, QPointF &p2);
 
     QPointF toScreen(const ChipDB::Coord64 &pos) const noexcept;
     ChipDB::Coord64 toChip(const QPointF &p) const noexcept;
+    ChipDB::Coord64 toChipDelta(const QPointF &delta) const noexcept;
 
     void drawGeometry(QPainter &painter, const ChipDB::GeometryObjects &objs) const;
     void drawGeometry(QPainter &painter, const ChipDB::Rectangle &objs) const;
     void drawGeometry(QPainter &painter, const ChipDB::Polygon &objs) const;
 
+    ChipDB::Rect64 m_viewportStartDrag;
     ChipDB::Rect64 m_viewport;
-    ChipDB::Rect64 m_viewportReference;
     int32_t        m_zoomLevel;
 
     const ChipDB::Cell *m_cell;

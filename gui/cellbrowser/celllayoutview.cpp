@@ -17,7 +17,7 @@ using namespace GUI;
 
 
 DrawObstructionVisitor::DrawObstructionVisitor(CellLayoutView *view, QPainter *painter) 
-    : m_view(view), m_painter(painter) 
+    : m_view(view), m_painter(painter)
 {
 }
 
@@ -119,7 +119,8 @@ QRectF DrawLayoutItemVisitor::getTextRect() const
 //   CellLayoutView
 // ********************************************************************************
 
-CellLayoutView::CellLayoutView(QWidget *parent) : QWidget(parent), m_cell(nullptr)
+CellLayoutView::CellLayoutView(QWidget *parent) : QWidget(parent), m_cell(nullptr),
+    m_mouseState(MouseState::None)
 {
     m_viewport = {{-10000,-10000},{10000, 10000}};
 }
@@ -183,18 +184,28 @@ void CellLayoutView::setCell(const ChipDB::Cell *cell)
     {
         auto margin = static_cast<int64_t>(std::max(cell->m_size.m_x, cell->m_size.m_y) * 0.1);
         m_viewport = {{-margin,-margin}, cell->m_size + ChipDB::Coord64{margin,margin}};
-        m_viewportReference = m_viewport;
     }
 }
 
-
-ChipDB::Coord64 CellLayoutView::toChip(const QPointF &p) const noexcept
+ChipDB::Coord64 CellLayoutView::toChipDelta(const QPointF &delta) const noexcept
 {
-    if (m_cell == nullptr)
+    if ((width() == 0) || (height() == 0))
     {
         return ChipDB::Coord64{0,0};
     }
 
+    const auto sx = static_cast<double>(m_viewport.width()) / width();
+    const auto sy = static_cast<double>(m_viewport.height()) / height();
+    const auto dx = static_cast<int64_t>(delta.x() * sx);
+    const auto dy = static_cast<int64_t>(delta.y() * sy);
+
+    std::cout << ChipDB::Coord64{dx,dy} << "\n";
+
+    return ChipDB::Coord64{dx,dy};
+}
+
+ChipDB::Coord64 CellLayoutView::toChip(const QPointF &p) const noexcept
+{
     if ((width() == 0) || (height() == 0))
     {
         return ChipDB::Coord64{0,0};
@@ -222,6 +233,27 @@ QPointF CellLayoutView::toScreen(const ChipDB::Coord64 &pos) const noexcept
     const auto y = localPos.m_y * sy;
 
     return QPointF{x,y};
+}
+
+void CellLayoutView::mousePressEvent(QMouseEvent *event)
+{    
+    setCursor(Qt::ClosedHandCursor);
+    m_mouseState = MouseState::Dragging;
+    m_mouseDownPos = event->pos();
+    m_viewportStartDrag = m_viewport;
+}
+
+void CellLayoutView::mouseReleaseEvent(QMouseEvent *event)
+{
+    setCursor(Qt::ArrowCursor);
+    m_mouseState = MouseState::None;
+}
+
+void CellLayoutView::mouseMoveEvent(QMouseEvent *event)
+{
+    auto offset = toChipDelta(m_mouseDownPos - event->pos());
+    m_viewport = m_viewportStartDrag.movedBy(offset);
+    update();
 }
 
 void CellLayoutView::wheelEvent(QWheelEvent *event)
