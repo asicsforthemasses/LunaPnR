@@ -1,7 +1,7 @@
 
 add_executable(lunapnr
     models/celllibmodel.cpp
-    models/cellpinmodel.cpp
+    models/cellinfomodel.cpp
     common/guihelpers.cpp
     floorplanview/floorplanview.cpp
     cellbrowser/cellbrowser.cpp

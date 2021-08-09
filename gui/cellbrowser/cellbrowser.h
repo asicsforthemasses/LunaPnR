@@ -9,7 +9,7 @@
 #include <QFrame>
 #include <QHBoxLayout>
 #include "../models/celllibmodel.h"
-#include "../models/cellpinmodel.h"
+#include "../models/cellinfomodel.h"
 #include "../propertyview/propertyview.h"
 #include "celllayoutview.h"
 
@@ -46,7 +46,7 @@ public slots:
 
 protected:
     std::unique_ptr<CellLibTableModel> m_cellModel;
-    std::unique_ptr<CellTreeModel>  m_cellTreeModel;
+    std::unique_ptr<CellInfoModel>     m_cellInfoModel;
     //std::unique_ptr<PinInfoTableModel> m_pinInfoModel;
     
     QHBoxLayout     *m_layout;

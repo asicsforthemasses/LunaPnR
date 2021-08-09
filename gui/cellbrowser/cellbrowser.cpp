@@ -27,8 +27,8 @@ CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
     
     // pin list view
     m_cellTreeView = new QTreeView();
-    m_cellTreeModel.reset(new CellTreeModel(nullptr));
-    m_cellTreeView->setModel(m_cellTreeModel.get());
+    m_cellInfoModel.reset(new CellInfoModel());
+    m_cellTreeView->setModel(m_cellInfoModel.get());
 
     //m_pinListView = new QListView();
     //m_pinListView->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -95,7 +95,7 @@ void CellBrowser::setCellLib(ChipDB::CellLib *cellLib)
     auto cellPtr = cellLib->m_cells.at(0);
 
     m_cellLayoutView->setCell(cellPtr);
-    m_cellTreeModel->setCell(cellPtr);
+    m_cellInfoModel->setCell(cellPtr);
 }
 
 void CellBrowser::onCellSelectionChanged(const QItemSelection &cur, const QItemSelection &prev)
@@ -108,7 +108,7 @@ void CellBrowser::onCellSelectionChanged(const QItemSelection &cur, const QItemS
         if (cell != nullptr)
         {
             m_cellLayoutView->setCell(cell);
-            m_cellTreeModel->setCell(cell);
+            m_cellInfoModel->setCell(cell);
             //m_pinModel->setCell(cell);
             //m_pinListView->setCurrentIndex(m_pinModel->index(0));
             update();
