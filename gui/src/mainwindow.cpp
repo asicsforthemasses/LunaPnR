@@ -35,9 +35,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     // create tabs
     m_mainTabWidget = new QTabWidget(this);
+
     m_cellBrowser = new GUI::CellBrowser(this);
     m_cellBrowser->setCellLib(&m_design.m_cellLib);
     m_mainTabWidget->addTab(m_cellBrowser, "Cell Browser");
+
+    m_techBrowser = new GUI::TechBrowser(this);
+    m_techBrowser->setTechLib(&m_design.m_techLib);
+    m_mainTabWidget->addTab(m_techBrowser, "Tech Browser");
 
     m_floorplanView = new GUI::FloorplanView(this);
     m_mainTabWidget->addTab(m_floorplanView, "Floorplan");

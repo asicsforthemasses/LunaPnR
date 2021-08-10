@@ -11,6 +11,8 @@ using namespace GUI;
 
 CellLibListModel::CellLibListModel(const ChipDB::CellLib *cellLib)
 {
+    m_lightColor = QColor("#F0F0F0");
+    m_darkColor  = QColor("#D0D0D0");
     setCellLib(cellLib);    
 }
 
@@ -19,7 +21,7 @@ void CellLibListModel::setCellLib(const ChipDB::CellLib *cellLib)
     beginResetModel();
     m_cellLib = cellLib;
     endResetModel();
-    //synchronizeCellIds(cellLib);
+    //synchronizeCellIds(cellLib);  
 }
 
 #if 0
@@ -75,9 +77,9 @@ QVariant CellLibListModel::data(const QModelIndex &index, int role) const
         break;
     case Qt::BackgroundColorRole:
         if (index.row() % 2)
-            return QColor(0xD0D0D0);
+            return m_darkColor;
         else
-            return QColor(0xF0F0F0);
+            return m_lightColor;
 
         break;    
     }
@@ -121,6 +123,8 @@ void CellLibListModel::cellLibUpdated()
 
 CellLibTableModel::CellLibTableModel(const ChipDB::CellLib *cellLib)
 {
+    m_lightColor = QColor("#F0F0F0");
+    m_darkColor  = QColor("#D0D0D0");  
     setCellLib(cellLib);
 }
 
@@ -206,9 +210,9 @@ QVariant CellLibTableModel::data(const QModelIndex &index, int role) const
         break;
     case Qt::BackgroundColorRole:
         if (index.row() % 2)
-            return QColor(0xD0D0D0);
+            return m_darkColor;
         else
-            return QColor(0xF0F0F0);
+            return m_lightColor;
 
         break;    
     }

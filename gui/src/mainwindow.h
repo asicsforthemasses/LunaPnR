@@ -11,6 +11,7 @@
 #include <QSplitter>
 
 #include "../console/mmconsole.h"
+#include "../techbrowser/techbrowser.h"
 #include "../cellbrowser/cellbrowser.h"
 #include "../floorplanview/floorplanview.h"
 
@@ -35,6 +36,7 @@ protected:
     
     GUI::MMConsole      *m_console;
     GUI::CellBrowser    *m_cellBrowser;
+    GUI::TechBrowser    *m_techBrowser;
     GUI::FloorplanView  *m_floorplanView;
 
     ChipDB::Design      m_design;   ///< current design

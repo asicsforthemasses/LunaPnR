@@ -42,6 +42,8 @@ public:
     void cellLibUpdated();
 
 protected:
+    QColor m_lightColor;
+    QColor m_darkColor;
     const ChipDB::CellLib *m_cellLib;
 };
 
@@ -74,6 +76,8 @@ public:
     void cellLibUpdated();
 
 protected:
+    QColor m_lightColor;
+    QColor m_darkColor;
     const ChipDB::CellLib *m_cellLib;
 };
 
