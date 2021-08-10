@@ -22,11 +22,18 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent)
     m_cellTableView->setModel(m_cellModel.get());
 #endif
 
+    m_layerTableView = new QTableView(this);
+    m_layerTableView->setSelectionBehavior(QTableView::SelectRows);
+    m_layerTableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    //m_layerTableView->setSizeAdjustPolicy(QAbstractScrollArea::adju);
+
+    m_layerTableModel.reset(new LayerTableModel(nullptr));
+    m_layerTableView->setModel(m_layerTableModel.get());
 
     // pin list view
-    m_layerTreeView = new QTreeView();
+    m_layerTreeView = new QTreeView(this);
     m_layerTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers); // make read-only
-    m_layerTreeView->setHeaderHidden(true);
+    //m_layerTreeView->setHeaderHidden(true);
 
     m_layerInfoModel.reset(new LayerInfoModel());
     m_layerTreeView->setModel(m_layerInfoModel.get());
@@ -36,7 +43,8 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent)
     //m_layout2->addWidget(m_cellTreeView,1);
 
     m_layout = new QHBoxLayout();
-    m_layout->addWidget(m_layerTreeView,1);
+    m_layout->addWidget(m_layerTableView,1);
+    m_layout->addWidget(m_layerTreeView,2);
     //m_layout->addWidget(m_cellLayoutView,2);
     //m_layout->addLayout(m_layout2,1);
 
@@ -64,6 +72,13 @@ void TechBrowser::setTechLib(ChipDB::TechLib *techLib)
 {
     auto layer = techLib->m_layers.at(0);
     m_layerInfoModel->setLayer(layer);
+    m_layerTableModel->setTechLib(techLib);
+
+    for(size_t c=0; c < m_layerTableView->horizontalHeader()->count(); c++)
+    {
+        m_layerTableView->horizontalHeader()->setSectionResizeMode(
+            c, QHeaderView::Stretch);
+    }
 }
 
 #if 0

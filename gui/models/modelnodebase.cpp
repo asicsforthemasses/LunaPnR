@@ -7,7 +7,7 @@ using namespace GUI;
 // ********************************************************************************
 
 NodeBase::NodeBase(const QString &valueName, QVariant value) :
-    m_valueName(valueName), m_value(value)
+    m_valueName(valueName), m_value(value), m_parent(nullptr)
 {
 }
 

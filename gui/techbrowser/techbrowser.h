@@ -30,12 +30,12 @@ public slots:
     //void onCellSelectionChanged(const QItemSelection &cur, const QItemSelection &prev);
 
 protected:
-    std::unique_ptr<LayerInfoModel> m_layerInfoModel;
-    //std::unique_ptr<TechInfoModel>     m_techInfoModel;
+    std::unique_ptr<LayerInfoModel>     m_layerInfoModel;
+    std::unique_ptr<LayerTableModel>    m_layerTableModel;
     
     QHBoxLayout     *m_layout;
     //QVBoxLayout     *m_layout2;
-    //QTableView      *m_cellTableView;
+    QTableView      *m_layerTableView;
     //CellLayoutView  *m_cellLayoutView;
 
     QTreeView       *m_layerTreeView;

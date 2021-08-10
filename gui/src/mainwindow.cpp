@@ -140,6 +140,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 #endif
 
+    m_techBrowser->setTechLib(&m_design.m_techLib);
+
     m_floorplanView->update();
 
 }
