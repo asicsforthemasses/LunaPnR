@@ -8,32 +8,16 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-    // cell table view
-
-#if 0
-    m_layerTreeView = new QTableView(parent);
-    m_layerTreeView->setSelectionBehavior(QTableView::SelectRows);
-    m_layerTreeView->setSelectionMode(QAbstractItemView::SingleSelection);
-    m_layerTreeView->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
-    m_layerTreeView->horizontalHeader()->setStretchLastSection(true);
-    m_layerTreeView = new CellLayoutView(parent);
-
-    m_cellModel.reset(new CellLibTableModel(nullptr));
-    m_cellTableView->setModel(m_cellModel.get());
-#endif
-
     m_layerTableView = new QTableView(this);
     m_layerTableView->setSelectionBehavior(QTableView::SelectRows);
     m_layerTableView->setSelectionMode(QAbstractItemView::SingleSelection);
-    //m_layerTableView->setSizeAdjustPolicy(QAbstractScrollArea::adju);
 
     m_layerTableModel.reset(new LayerTableModel(nullptr));
     m_layerTableView->setModel(m_layerTableModel.get());
 
-    // pin list view
+    // layer information tree view
     m_layerTreeView = new QTreeView(this);
     m_layerTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers); // make read-only
-    //m_layerTreeView->setHeaderHidden(true);
 
     m_layerInfoModel.reset(new LayerInfoModel());
     m_layerTreeView->setModel(m_layerInfoModel.get());
@@ -71,11 +55,19 @@ void TechBrowser::setTechLib(ChipDB::TechLib *techLib)
     m_layerInfoModel->setLayer(layer);
     m_layerTableModel->setTechLib(techLib);
 
+    // make sure all columns can expand
     for(size_t c=0; c < m_layerTableView->horizontalHeader()->count(); c++)
     {
         m_layerTableView->horizontalHeader()->setSectionResizeMode(
             c, QHeaderView::Stretch);
     }
+
+    for(size_t c=0; c < m_layerTreeView->header()->count(); c++)
+    {
+        m_layerTreeView->header()->setSectionResizeMode(
+            c, QHeaderView::Stretch);
+    }
+    m_layerTreeView->expandAll();
 }
 
 
@@ -89,7 +81,6 @@ void TechBrowser::onLayerSelectionChanged(const QItemSelection &cur, const QItem
         if (layer != nullptr)
         {
             m_layerInfoModel->setLayer(layer);
-            //m_cellInfoModel->setCell(cell);
             update();
             doLog(LOG_VERBOSE, "Selected layer %s\n", layer->m_name.c_str());
         }

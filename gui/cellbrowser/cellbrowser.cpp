@@ -23,7 +23,7 @@ CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
     // pin list view
     m_cellTreeView = new QTreeView();
     m_cellTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers); // make read-only
-    m_cellTreeView->setHeaderHidden(true);
+    //m_cellTreeView->setHeaderHidden(true);
 
     m_cellInfoModel.reset(new CellInfoModel());
     m_cellTreeView->setModel(m_cellInfoModel.get());
@@ -63,6 +63,13 @@ void CellBrowser::setCellLib(ChipDB::CellLib *cellLib)
 
     m_cellLayoutView->setCell(cellPtr);
     m_cellInfoModel->setCell(cellPtr);
+
+    // make sure all columns can expand
+    for(size_t c=0; c < m_cellTreeView->header()->count(); c++)
+    {
+        m_cellTreeView->header()->setSectionResizeMode(
+            c, QHeaderView::Stretch);
+    }    
 }
 
 void CellBrowser::onCellSelectionChanged(const QItemSelection &cur, const QItemSelection &prev)
