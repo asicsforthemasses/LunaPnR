@@ -27,7 +27,7 @@ public:
 
 
 public slots:
-    //void onCellSelectionChanged(const QItemSelection &cur, const QItemSelection &prev);
+    void onLayerSelectionChanged(const QItemSelection &cur, const QItemSelection &prev);
 
 protected:
     std::unique_ptr<LayerInfoModel>     m_layerInfoModel;

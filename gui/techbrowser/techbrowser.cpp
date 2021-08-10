@@ -50,17 +50,14 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent)
 
     setLayout(m_layout);
 
-#if 0
-    connect(m_cellTableView->selectionModel(), 
+    connect(m_layerTableView->selectionModel(), 
         SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), 
         this,
-        SLOT(onCellSelectionChanged(const QItemSelection&, const QItemSelection&)));
-#endif
+        SLOT(onLayerSelectionChanged(const QItemSelection&, const QItemSelection&)));
 }
 
 TechBrowser::~TechBrowser()
 {
-
 }
 
 QSize TechBrowser::sizeHint() const
@@ -81,21 +78,20 @@ void TechBrowser::setTechLib(ChipDB::TechLib *techLib)
     }
 }
 
-#if 0
-void TechBrowser::onCellSelectionChanged(const QItemSelection &cur, const QItemSelection &prev)
+
+void TechBrowser::onLayerSelectionChanged(const QItemSelection &cur, const QItemSelection &prev)
 {
-    QModelIndex index = m_cellTableView->currentIndex();
+    QModelIndex index = m_layerTableView->currentIndex();
 
     if (index.isValid())
     {        
-        auto cell = m_cellModel->getCell(index.row());
-        if (cell != nullptr)
+        auto layer = m_layerTableModel->getLayer(index.row());
+        if (layer != nullptr)
         {
-            m_cellLayoutView->setCell(cell);
-            m_cellInfoModel->setCell(cell);
+            m_layerInfoModel->setLayer(layer);
+            //m_cellInfoModel->setCell(cell);
             update();
-            doLog(LOG_VERBOSE, "Selected cell %s\n", cell->m_name.c_str());
+            doLog(LOG_VERBOSE, "Selected layer %s\n", layer->m_name.c_str());
         }
     }
 }
-#endif
