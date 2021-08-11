@@ -3,6 +3,7 @@
 #include <memory>
 #include "lunacore.h"
 #include "modelnodebase.h"
+#include "../common/guihelpers.h"
 
 namespace GUI
 {
@@ -34,8 +35,8 @@ public:
     void techLibUpdated();
 
 protected:
-    QColor m_lightColor;
     QColor m_darkColor;
+    QColor m_lightColor;
     const ChipDB::TechLib *m_techLib;
 };
 
@@ -53,18 +54,15 @@ public:
     virtual ~TechLibInfoModel();
 
     void setTechLib(const ChipDB::TechLib *techlib);
-
-protected:
-    //QColor m_pinColor;
-    //QColor m_separatorColor;
-    //AlternatingColors m_altColors;
+    
 };
 
 
 class LayerInfoNode : public NodeBase
 {
 public:
-    LayerInfoNode(const QString &valueName, const QVariant &value);
+    LayerInfoNode(const QString &valueName, const QVariant &value,
+        const QColor &bkColor);
 };
 
 
@@ -79,7 +77,7 @@ public:
 protected:
     //QColor m_pinColor;
     //QColor m_separatorColor;
-    //AlternatingColors m_altColors;
+    AlternatingColors m_altColors;
 };
 
 };  // namespace

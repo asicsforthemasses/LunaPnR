@@ -17,6 +17,8 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent)
 
     // layer information tree view
     m_layerTreeView = new QTreeView(this);
+    m_layerTreeView->setRootIsDecorated(false);
+    m_layerTreeView->setContentsMargins(6,6,6,6);
     m_layerTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers); // make read-only
 
     m_layerInfoModel.reset(new LayerInfoModel());
@@ -81,6 +83,7 @@ void TechBrowser::onLayerSelectionChanged(const QItemSelection &cur, const QItem
         if (layer != nullptr)
         {
             m_layerInfoModel->setLayer(layer);
+            m_layerTreeView->expandAll();
             update();
             doLog(LOG_VERBOSE, "Selected layer %s\n", layer->m_name.c_str());
         }
