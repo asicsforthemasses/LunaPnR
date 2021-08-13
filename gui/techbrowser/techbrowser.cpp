@@ -18,7 +18,6 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent)
     // layer information tree view
     m_layerTreeView = new QTreeView(this);
     m_layerTreeView->setRootIsDecorated(false);
-    m_layerTreeView->setContentsMargins(6,6,6,6);
     m_layerTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers); // make read-only
 
     m_layerInfoModel.reset(new LayerInfoModel());

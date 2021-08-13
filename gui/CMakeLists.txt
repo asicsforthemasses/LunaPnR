@@ -5,6 +5,7 @@ add_executable(lunapnr
     models/cellinfomodel.cpp
     models/techlibinfomodel.cpp
     common/guihelpers.cpp
+    common/layerrenderinfo.cpp
     floorplanview/floorplanview.cpp
     techbrowser/techbrowser.cpp
     cellbrowser/cellbrowser.cpp

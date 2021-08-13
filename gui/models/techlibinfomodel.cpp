@@ -53,6 +53,7 @@ void LayerInfoModel::setLayer(const ChipDB::LayerInfo *layer)
     auto layerNode = new LayerInfoNode("Layer", QString::fromStdString(layer->m_name), m_altColors.getColorAndUpdate());
     m_rootNode->addChild(layerNode);
 
+    layerNode->addChild(new LayerInfoNode("ID", layer->m_id, m_altColors.getColorAndUpdate()));
     layerNode->addChild(new LayerInfoNode("Type", QString::fromStdString(toString(layer->m_type)), m_altColors.getColorAndUpdate()));
     layerNode->addChild(new LayerInfoNode("Direction", QString::fromStdString(toString(layer->m_dir)), m_altColors.getColorAndUpdate()));
     layerNode->addChild(new LayerInfoNode("Thickness", layer->m_thickness, m_altColors.getColorAndUpdate()));

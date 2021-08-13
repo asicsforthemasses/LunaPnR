@@ -120,7 +120,7 @@ QRectF DrawLayoutItemVisitor::getTextRect() const
 // ********************************************************************************
 
 CellLayoutView::CellLayoutView(QWidget *parent) : QWidget(parent), m_cell(nullptr),
-    m_mouseState(MouseState::None)
+    m_mouseState(MouseState::None), m_renderInfoDB(nullptr)
 {
     m_viewport = {{-10000,-10000},{10000, 10000}};
 }
@@ -174,6 +174,11 @@ void CellLayoutView::fixCoordinates(QPointF &p1, QPointF &p2)
     p1.setY(y1);
     p2.setX(x2);
     p2.setY(y2);
+}
+
+void CellLayoutView::setLayerRenderInfoDB(const LayerRenderInfoDB &db)
+{
+    m_renderInfoDB = &db;
 }
 
 void CellLayoutView::setCell(const ChipDB::Cell *cell)
@@ -360,8 +365,8 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
         drawLeftText(painter, txtpoint, txtbuf, font(), Qt::black);
 
         // draw pins
-        painter.setPen(Qt::white);
-        painter.setBrush(QColor(255,255,255,80));
+        //painter.setPen(Qt::white);
+        //painter.setBrush(QColor(255,255,255,80));
         size_t pinIndex = 0;
         for(auto const& pin : m_cell->m_pins)
         {
@@ -369,7 +374,15 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
 
             for(auto const& layer : layout)
             {
-                drawGeometry(painter, layer.second);
+                auto info = getLayerRenderInfo(layer.first);
+                if (info)
+                {
+                    drawGeometry(painter, layer.second, info->getBrush());
+                }
+                else
+                {
+                    drawGeometry(painter, layer.second, QColor(255,255,255,80) /* default color / fill */);
+                }
             }
         }
 
@@ -386,17 +399,19 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
         }
 #endif
         painter.setPen(Qt::red);
-        painter.setBrush(QColor(255,0,0,80));
         for(auto const& layer : m_cell->m_obstructions)
         {
-            drawGeometry(painter, layer.second);
+            drawGeometry(painter, layer.second, QBrush(QColor(255,0,0,80)));
         }
-        
     }
 }
 
-void CellLayoutView::drawGeometry(QPainter &painter, const ChipDB::GeometryObjects &objs) const
+void CellLayoutView::drawGeometry(QPainter &painter, const ChipDB::GeometryObjects &objs,
+    const QBrush &brush) const
 {
+    painter.setBrush(brush);
+    painter.setPen(Qt::NoPen);
+
     for(auto const& obj : objs)
     {
         switch(obj.index())
@@ -429,4 +444,15 @@ void CellLayoutView::drawGeometry(QPainter &painter, const ChipDB::Polygon &r) c
     }
     
     painter.drawPolygon(poly);
+}
+
+std::optional<LayerRenderInfo> CellLayoutView::getLayerRenderInfo(ChipDB::LayerID id) const
+{
+    static LayerRenderInfo defaultBrush;
+    if (m_renderInfoDB == nullptr)
+    {
+        return std::nullopt;
+    }
+
+    return m_renderInfoDB->getRenderInfo(id);
 }

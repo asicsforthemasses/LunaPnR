@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QPainter>
 #include "lunacore.h"
-
+#include "../common/layerrenderinfo.h"
 
 namespace GUI
 {
@@ -59,6 +59,7 @@ public:
     virtual ~CellLayoutView();
 
     void setCell(const ChipDB::Cell *cell);
+    void setLayerRenderInfoDB(const LayerRenderInfoDB &renderInfo);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -82,15 +83,18 @@ protected:
     ChipDB::Coord64 toChip(const QPointF &p) const noexcept;
     ChipDB::Coord64 toChipDelta(const QPointF &delta) const noexcept;
 
-    void drawGeometry(QPainter &painter, const ChipDB::GeometryObjects &objs) const;
+    void drawGeometry(QPainter &painter, const ChipDB::GeometryObjects &objs, const QBrush &brush) const;
     void drawGeometry(QPainter &painter, const ChipDB::Rectangle &objs) const;
     void drawGeometry(QPainter &painter, const ChipDB::Polygon &objs) const;
+
+    std::optional<LayerRenderInfo> getLayerRenderInfo(ChipDB::LayerID id) const;
 
     ChipDB::Rect64 m_viewportStartDrag;
     ChipDB::Rect64 m_viewport;
     int32_t        m_zoomLevel;
 
-    const ChipDB::Cell *m_cell;
+    const ChipDB::Cell      *m_cell;
+    const LayerRenderInfoDB *m_renderInfoDB;
 };
 
 };  // namespace
