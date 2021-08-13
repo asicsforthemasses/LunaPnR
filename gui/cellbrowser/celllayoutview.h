@@ -59,7 +59,7 @@ public:
     virtual ~CellLayoutView();
 
     void setCell(const ChipDB::Cell *cell);
-    void setLayerRenderInfoDB(const LayerRenderInfoDB &renderInfo);
+    void setLayerRenderInfoDB(LayerRenderInfoDB *renderInfoDB);
 
 protected:
     void paintEvent(QPaintEvent *event) override;

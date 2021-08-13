@@ -16,7 +16,7 @@
 #include "../floorplanview/floorplanview.h"
 
 #include "lunacore.h"
-
+#include "common/layerrenderinfo.h"
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -39,5 +39,6 @@ protected:
     GUI::TechBrowser    *m_techBrowser;
     GUI::FloorplanView  *m_floorplanView;
 
-    ChipDB::Design      m_design;   ///< current design
+    GUI::LayerRenderInfoDB  m_layerRenderInfoDB;
+    ChipDB::Design          m_design;   ///< current design
 };

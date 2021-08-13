@@ -176,9 +176,10 @@ void CellLayoutView::fixCoordinates(QPointF &p1, QPointF &p2)
     p2.setY(y2);
 }
 
-void CellLayoutView::setLayerRenderInfoDB(const LayerRenderInfoDB &db)
+void CellLayoutView::setLayerRenderInfoDB(LayerRenderInfoDB *renderInfoDB)
 {
-    m_renderInfoDB = &db;
+    m_renderInfoDB = renderInfoDB;
+    update();
 }
 
 void CellLayoutView::setCell(const ChipDB::Cell *cell)
@@ -448,7 +449,6 @@ void CellLayoutView::drawGeometry(QPainter &painter, const ChipDB::Polygon &r) c
 
 std::optional<LayerRenderInfo> CellLayoutView::getLayerRenderInfo(ChipDB::LayerID id) const
 {
-    static LayerRenderInfo defaultBrush;
     if (m_renderInfoDB == nullptr)
     {
         return std::nullopt;

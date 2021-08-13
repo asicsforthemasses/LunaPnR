@@ -72,6 +72,11 @@ void CellBrowser::setCellLib(ChipDB::CellLib *cellLib)
     }    
 }
 
+void CellBrowser::setLayerRenderInfoDB(LayerRenderInfoDB *renderInfoDB)
+{
+    m_cellLayoutView->setLayerRenderInfoDB(renderInfoDB);
+}
+
 void CellBrowser::onCellSelectionChanged(const QItemSelection &cur, const QItemSelection &prev)
 {
     QModelIndex index = m_cellTableView->currentIndex();

@@ -140,7 +140,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 #endif
 
+    for(auto layer : m_design.m_techLib.m_layers)
+    {
+        if (layer != nullptr)
+        {
+            GUI::LayerRenderInfo info(layer->m_name, layer->m_id);
+            m_layerRenderInfoDB.addLayerInfo(info);
+        }
+    }
+
     m_techBrowser->setTechLib(&m_design.m_techLib);
+    m_techBrowser->setLayerRenderInfo(&m_layerRenderInfoDB);
+    m_cellBrowser->setLayerRenderInfoDB(&m_layerRenderInfoDB);
 
     m_floorplanView->update();
 

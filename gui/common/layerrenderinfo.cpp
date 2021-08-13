@@ -5,14 +5,7 @@ using namespace GUI;
 
 bool LayerRenderInfoDB::addLayerInfo(const LayerRenderInfo &info)
 {
-    if (info.getID() < 0)
-    {
-        // layer does not have a valid ID
-        return false;
-    }
-
-    m_layerInfos[info.getID()] = info;
-    return true;
+    return setRenderInfo(info.getID(), info);
 }
 
 std::optional<LayerRenderInfo> LayerRenderInfoDB::getRenderInfo(ChipDB::LayerID id) const
@@ -24,4 +17,16 @@ std::optional<LayerRenderInfo> LayerRenderInfoDB::getRenderInfo(ChipDB::LayerID 
     }
 
     return (*iter).second;
+}
+
+bool LayerRenderInfoDB::setRenderInfo(ChipDB::LayerID id, const LayerRenderInfo &info)
+{
+    if (id < 0)
+    {
+        // not a valid ID
+        return false;
+    }
+
+    m_layerInfos[info.getID()] = info;
+    return true;
 }
