@@ -1,11 +1,30 @@
 #include <iostream>
 #include <QApplication>
+#include <QTranslator>
+#include <QObject>
 #include <QDesktopWidget>
 #include "mainwindow.h"
+#include "common/logging.h"
 
 int main(int argc, char *argv[]) {
     
     QApplication app(argc, argv);
+
+    setLogLevel(LOG_INFO);
+
+    auto locale = QLocale();
+    QTranslator lunapnrTranslator;
+    lunapnrTranslator.load(locale, QLatin1String("lunapnr"), QLatin1String("_"), QLatin1String(":/i18n"));
+
+    auto localeNameStr = locale.name().toStdString();
+    if (!app.installTranslator(&lunapnrTranslator))
+    {        
+        doLog(LOG_WARN,"Failed to load translator for locale: %s\n", localeNameStr.c_str());
+    }
+    else
+    {
+        doLog(LOG_INFO,"Loaded translator for locale: %s\n", localeNameStr.c_str());
+    }
 
     qApp->setStyle("fusion");
 
@@ -17,19 +36,21 @@ int main(int argc, char *argv[]) {
 
     QLocale::setDefault(QLocale::C);
 
+    // create main window and place it in the center
+    // of the screen
     MainWindow window;
-
     QDesktopWidget widget;
     QRect screenGeometry = widget.screenGeometry();
 
     int height = screenGeometry.height();
     int width = screenGeometry.width();
 
+    window.resize(width/2, height/2);
+
     window.move((width - window.width()) / 2.0,
                     (height - window.height()) / 2.0);
 
-    window.resize(640, 480);
-    window.setWindowTitle("LUNA - a moonshot ASIC place&route tool" );
+    window.setWindowTitle(QObject::tr("LUNA - a moonshot ASIC place&route tool"));
     window.show();
 
     // run application

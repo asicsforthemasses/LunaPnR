@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 
+#include <QObject>
 #include <QString>
 #include <QVariant>
 #include <QPixmap>
@@ -12,8 +13,10 @@
 namespace GUI
 {
 
-class NodeBase
+class NodeBase : public QObject
 {
+    Q_OBJECT
+
 public:
     NodeBase(const QString &valueName, QVariant value);
     virtual ~NodeBase();
