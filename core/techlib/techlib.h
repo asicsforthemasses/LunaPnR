@@ -41,7 +41,6 @@ struct LayerInfo
         m_resistance(0.0),
         m_thickness(0.0),
         m_minArea(0.0),
-        m_id(-1),
         m_type(LAYER_UNDEFINED),
         m_dir(LAYERDIR_UNDEFINED)
     {}
@@ -58,7 +57,6 @@ struct LayerInfo
         m_resistance(0.0),
         m_thickness(0.0),
         m_minArea(0.0),
-        m_id(-1),
         m_type(LAYER_UNDEFINED),
         m_dir(LAYERDIR_UNDEFINED)        
     {}
@@ -80,7 +78,6 @@ struct LayerInfo
     double  m_thickness;
     double  m_minArea;
 
-    LayerID         m_id;       ///< unique ID used for internal purposes, -1 is no ID
     LayerType       m_type;     ///< layer type according to LEF/DEF
     LayerDirection  m_dir;      ///< preferred routing direction
 };
@@ -140,7 +137,7 @@ struct SiteInfo
 class TechLib
 {
 public:
-    TechLib() : m_manufacturingGrid(0), m_uniqueCounter(0) {}
+    TechLib() : m_manufacturingGrid(0) {}
 
     NamedStorage<LayerInfo*> m_layers;
     NamedStorage<SiteInfo*>  m_sites;
@@ -161,9 +158,6 @@ public:
 
     SiteInfo* createSiteInfo(const std::string &name);
     SiteInfo* lookupSiteInfo(const std::string &name) const; 
-
-protected:
-    ChipDB::LayerID m_uniqueCounter;
 };
 
 };

@@ -21,8 +21,8 @@ public:
     {
     }
 
-    std::string             m_name; ///< name of the cell
-    PinInfoList             m_pins; ///< pin information
+    std::string     m_name; ///< name of the cell
+    PinInfoList     m_pins; ///< pin information
 
     double          m_area;         ///< area in um^2
     double          m_leakagePower; ///< in Watts
@@ -56,7 +56,7 @@ public:
         return false;
     };
 
-    std::unordered_map<LayerID, GeometryObjects> m_obstructions;
+    std::unordered_map<std::string /* layer name */, GeometryObjects> m_obstructions;
 };
 
 class Module : public Cell

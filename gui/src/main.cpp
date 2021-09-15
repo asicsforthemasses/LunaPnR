@@ -3,6 +3,8 @@
 #include <QTranslator>
 #include <QObject>
 #include <QDesktopWidget>
+#include <QDirIterator>
+#include <QDebug>
 #include "mainwindow.h"
 #include "common/logging.h"
 
@@ -12,14 +14,30 @@ int main(int argc, char *argv[]) {
 
     setLogLevel(LOG_INFO);
 
+    // dump resources
+    #if 0
+    std::cout << "Resources:\n";
+    QDirIterator it(":", QDirIterator::Subdirectories);
+    while (it.hasNext()) 
+    {
+        auto s = it.next();
+        std::cout << s.toStdString() << "\n";
+    }    
+    #endif
+    
     auto locale = QLocale();
-    QTranslator lunapnrTranslator;
-    lunapnrTranslator.load(locale, QLatin1String("lunapnr"), QLatin1String("_"), QLatin1String(":/i18n"));
-
     auto localeNameStr = locale.name().toStdString();
+
+    QTranslator lunapnrTranslator;
+    auto langResourcePath = QString::asprintf(":/translations/lunapnr.%s.qm", localeNameStr.c_str());
+    if (!lunapnrTranslator.load(langResourcePath))
+    {
+        doLog(LOG_WARN,"Failed to load translator for locale: %s\n", localeNameStr.c_str());
+    }
+
     if (!app.installTranslator(&lunapnrTranslator))
     {        
-        doLog(LOG_WARN,"Failed to load translator for locale: %s\n", localeNameStr.c_str());
+        doLog(LOG_WARN,"Failed to install translator for locale: %s\n", localeNameStr.c_str());
     }
     else
     {
@@ -29,7 +47,9 @@ int main(int argc, char *argv[]) {
     qApp->setStyle("fusion");
 
     // set the local to C again because Qt 
-    // changes this..
+    // so functions will use the period as the decimal indicator.
+    // if we don't do this, the gates of hell will open.
+
     std::setlocale(LC_ALL, "C");            // for C and C++ where synced with stdio
     std::locale::global(std::locale("C"));  // for C++
     std::cout.imbue(std::locale());

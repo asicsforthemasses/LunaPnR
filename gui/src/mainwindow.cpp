@@ -37,11 +37,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_mainTabWidget = new QTabWidget(this);
 
     m_cellBrowser = new GUI::CellBrowser(this);
-    m_cellBrowser->setCellLib(&m_design.m_cellLib);
+    m_cellBrowser->setDatabase(&m_db);
     m_mainTabWidget->addTab(m_cellBrowser, "Cell Browser");
 
     m_techBrowser = new GUI::TechBrowser(this);
-    m_techBrowser->setTechLib(&m_design.m_techLib);
+    m_techBrowser->setDatabase(&m_db);
     m_mainTabWidget->addTab(m_techBrowser, "Tech Browser");
 
     m_floorplanView = new GUI::FloorplanView(this);
@@ -101,8 +101,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     }
     else
     {
-        ChipDB::Liberty::Reader::load(&m_design, libertyfile);
-        m_cellBrowser->setCellLib(&m_design.m_cellLib); // populate!
+        ChipDB::Liberty::Reader::load(&m_db.design(), libertyfile);
+        m_cellBrowser->setDatabase(&m_db); // populate!
     }
 
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
@@ -112,8 +112,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     }
     else
     {
-        ChipDB::LEF::Reader::load(&m_design, leffile);
-        m_cellBrowser->setCellLib(&m_design.m_cellLib); // populate!
+        ChipDB::LEF::Reader::load(&m_db.design(), leffile);
+        m_cellBrowser->setDatabase(&m_db); // populate!
     }
 
     std::ifstream verilogfile("test/files/verilog/nerv_tsmc018.v");
@@ -123,8 +123,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     }
     else
     {
-        ChipDB::Verilog::Reader::load(&m_design, verilogfile);
-        auto nervModule = m_design.m_moduleLib.lookup("nerv");
+        ChipDB::Verilog::Reader::load(&m_db.design(), verilogfile);
+        auto nervModule = m_db.moduleLib().lookup("nerv");
         if (nervModule != nullptr)
         {
             m_floorplanView->setFloorplan(&nervModule->m_netlist);
@@ -140,21 +140,39 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 #endif
 
-    for(auto layer : m_design.m_techLib.m_layers)
+    for(auto layer : m_db.techLib().m_layers)
     {
         if (layer != nullptr)
         {
-            GUI::LayerRenderInfo info(layer->m_name, layer->m_id);
-            m_layerRenderInfoDB.addLayerInfo(info);
+            GUI::LayerRenderInfo info(layer->m_name);
+            
+            info.setTextureFromString(
+                "*   *   *   *   " 
+                " *   *   *   *  " 
+                "  *   *   *   * "
+                "   *   *   *   *",
+                16,4);
+
+            info.setTextureFromString(
+                "                                " 
+                "                                " 
+                "                                " 
+                "*****   *****   *****           " 
+                "*   *   *    *  *               " 
+                "*   *   *****   *****           " 
+                "*   *   *    *      *           "
+                "*****   *****   *****           "
+                "                                "
+                "                                " 
+                "                                " ,
+                32,11);
+
+            m_db.m_layerRenderInfoDB.setRenderInfo(layer->m_name, info);
         }
-    }
+    }    
 
-    m_techBrowser->setTechLib(&m_design.m_techLib);
-    m_techBrowser->setLayerRenderInfo(&m_layerRenderInfoDB);
-    m_cellBrowser->setLayerRenderInfoDB(&m_layerRenderInfoDB);
-
+    m_techBrowser->setDatabase(&m_db);
     m_floorplanView->update();
-
 }
 
 MainWindow::~MainWindow()

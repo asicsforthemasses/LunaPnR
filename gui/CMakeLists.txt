@@ -17,6 +17,7 @@ set (LUNA_SRC_FILES
     common/guihelpers.cpp
     common/layerrenderinfo.cpp
     widgets/colorbutton.cpp
+    widgets/hatchbutton.cpp
     floorplanview/floorplanview.cpp
     techbrowser/techbrowser.cpp
     cellbrowser/cellbrowser.cpp
@@ -27,14 +28,19 @@ set (LUNA_SRC_FILES
     src/main.cpp
 )
 
-qt5_create_translation(QM_FILES ${LUNA_SRC_FILES} 
-    ${CMAKE_CURRENT_SOURCE_DIR}/translations/english.ts 
-    ${CMAKE_CURRENT_SOURCE_DIR}/translations/french.ts)
+#set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/translations/lunapnr.en_US.ts
+#    PROPERTIES OUTPUT_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/resources/translations")
+
+qt5_create_translation(QM_FILES ${LUNA_SRC_FILES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/lunapnr.en_US.ts
+)
+
+message(${QM_FILES})
 
 add_executable(lunapnr
     ${LUNA_SRC_FILES}
     resources/resources.qrc
-    #${CMAKE_CURRENT_BINARY_DIR}/translations.qrc
+    #${CMAKE_CURRENT_BINARY_DIR}/english.qm
     ${QM_FILES}
     )
 

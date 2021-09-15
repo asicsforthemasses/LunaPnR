@@ -179,8 +179,8 @@ protected:
 
     Design          *m_design;
 
-    size_t m_activePinLayerIdx;
-    size_t m_activeObsLayerIdx;
+    std::string m_activePinLayerName;
+    std::string m_activeObsLayerName;
 };
 
 }; //namespace

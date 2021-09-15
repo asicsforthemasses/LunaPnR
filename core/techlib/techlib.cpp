@@ -45,7 +45,6 @@ LayerInfo* TechLib::createLayer(const std::string &name)
 
     layer = new LayerInfo();
     layer->m_name = name;
-    layer->m_id   = m_uniqueCounter++;
     
     m_layers.add(name, layer);
     return layer;

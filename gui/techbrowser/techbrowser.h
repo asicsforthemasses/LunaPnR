@@ -8,9 +8,10 @@
 #include <QGroupBox>
 #include <QFrame>
 #include <QHBoxLayout>
-#include "../common/layerrenderinfo.h"
+#include "../common/database.h"
 #include "../models/techlibinfomodel.h"
 #include "../widgets/colorbutton.h"
+#include "../widgets/hatchbutton.h"
 
 namespace GUI
 {
@@ -23,29 +24,27 @@ public:
     explicit TechBrowser(QWidget *parent = nullptr);
     virtual ~TechBrowser();
 
-    void setTechLib(ChipDB::TechLib *techLib);
-    void setLayerRenderInfo(LayerRenderInfoDB *renderInfoDB);
-    
+    void setDatabase(Database *db);
     QSize sizeHint() const;
 
 
 public slots:
     void onLayerSelectionChanged(const QItemSelection &cur, const QItemSelection &prev);
     void onLayerColorChanged();
+    void onLayerHatchChanged();
 
 protected:
     std::unique_ptr<LayerInfoModel>     m_layerInfoModel;
     std::unique_ptr<LayerTableModel>    m_layerTableModel;
     
     QHBoxLayout     *m_layout;
-    //QVBoxLayout     *m_layout2;
     QTableView      *m_layerTableView;
-    //CellLayoutView  *m_cellLayoutView;
 
     QTreeView           *m_layerTreeView;
     SelectColorButton   *m_colorButton;
+    SelectHatchButton   *m_hatchButton;
 
-    LayerRenderInfoDB   *m_layerRenderInfoDB;
+    Database    *m_db;
 };
 
 };  // namespace

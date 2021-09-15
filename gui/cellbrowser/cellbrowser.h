@@ -27,8 +27,7 @@ public:
     explicit CellBrowser(QWidget *parent = nullptr);
     virtual ~CellBrowser();
 
-    void setLayerRenderInfoDB(LayerRenderInfoDB *m_renderInfoIB);
-    void setCellLib(ChipDB::CellLib *cellLib);
+    void setDatabase(Database *db);
     
     QSize sizeHint() const;
 

@@ -3,4 +3,7 @@
 <qresource>
     <file>pinicon.png</file>
 </qresource>
+<qresource prefix="/translations">
+    <file alias="lunapnr.en_US.qm">../../build/gui/lunapnr.en_US.qm</file>
+</qresource>
 </RCC>

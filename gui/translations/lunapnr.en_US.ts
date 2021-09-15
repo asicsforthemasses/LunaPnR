@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.1" language="en_US">
+<context>
+    <name>GUI::ModelBase</name>
+    <message>
+        <location filename="../models/modelnodebase.cpp" line="239"/>
+        <source>Node</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../models/modelnodebase.cpp" line="241"/>
+        <source>Value</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>GUI::SelectColorButton</name>
+    <message>
+        <location filename="../widgets/colorbutton.cpp" line="16"/>
+        <source>Select color</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MainWindow</name>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="21"/>
+        <source>&amp;File</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="24"/>
+        <source>&amp;Quit</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="29"/>
+        <source>&amp;Help</source>
+        <translation></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="32"/>
+        <source>&amp;About</source>
+        <translation></translation>
+    </message>
+</context>
+<context>
+    <name>QObject</name>
+    <message>
+        <location filename="../src/main.cpp" line="73"/>
+        <source>LUNA - a moonshot ASIC place&amp;route tool</source>
+        <translation></translation>
+    </message>
+</context>
+</TS>

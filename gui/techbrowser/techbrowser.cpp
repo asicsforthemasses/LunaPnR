@@ -29,10 +29,12 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent)
     //m_layout2->addWidget(m_cellTreeView,1);
 
     m_colorButton = new SelectColorButton(this);
+    m_hatchButton = new SelectHatchButton(this);
 
     m_layout = new QHBoxLayout();
     m_layout->addWidget(m_layerTableView,1);
     m_layout->addWidget(m_layerTreeView,2);
+    m_layout->addWidget(m_hatchButton,0);
     m_layout->addWidget(m_colorButton,0);
 
     //m_layout->addWidget(m_cellLayoutView,2);
@@ -49,6 +51,11 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent)
         SIGNAL(onColorChanged()), 
         this,
         SLOT(onLayerColorChanged()));
+
+    connect(m_hatchButton, 
+        SIGNAL(onHatchChanged()), 
+        this,
+        SLOT(onLayerHatchChanged()));
 }
 
 TechBrowser::~TechBrowser()
@@ -60,11 +67,20 @@ QSize TechBrowser::sizeHint() const
     return m_layerTreeView->sizeHint();
 }
 
-void TechBrowser::setTechLib(ChipDB::TechLib *techLib)
+void TechBrowser::setDatabase(Database *db)
 {
-    auto layer = techLib->m_layers.at(0);
+    m_db = db;
+
+    if (m_db == nullptr)
+    {
+        m_layerInfoModel->setLayer(nullptr);
+        m_layerTableModel->setTechLib(nullptr);
+        return;
+    }
+
+    auto layer = m_db->techLib().m_layers.at(0);
     m_layerInfoModel->setLayer(layer);
-    m_layerTableModel->setTechLib(techLib);
+    m_layerTableModel->setTechLib(&m_db->techLib());
 
     // make sure all columns can expand
     for(size_t c=0; c < m_layerTableView->horizontalHeader()->count(); c++)
@@ -78,12 +94,9 @@ void TechBrowser::setTechLib(ChipDB::TechLib *techLib)
         m_layerTreeView->header()->setSectionResizeMode(
             c, QHeaderView::Stretch);
     }
-    m_layerTreeView->expandAll();
-}
-
-void TechBrowser::setLayerRenderInfo(LayerRenderInfoDB *renderInfoDB)
-{
-    m_layerRenderInfoDB = renderInfoDB;
+    m_layerTreeView->expandAll();    
+    
+    m_layerTableView->selectRow(0);
 }
 
 void TechBrowser::onLayerSelectionChanged(const QItemSelection &cur, const QItemSelection &prev)
@@ -98,21 +111,26 @@ void TechBrowser::onLayerSelectionChanged(const QItemSelection &cur, const QItem
             m_layerInfoModel->setLayer(layer);
             m_layerTreeView->expandAll();
 
-            if (m_layerRenderInfoDB != nullptr)
+            if (m_db != nullptr)
             {
-                auto info = m_layerRenderInfoDB->getRenderInfo(layer->m_id);
+                auto info = m_db->m_layerRenderInfoDB.getRenderInfo(layer->m_name);
                 if (info.has_value())
                 {
+                    m_hatchButton->setEnabled(true);
+                    m_hatchButton->setEnabled(true);
                     m_colorButton->setColor(info->getBrush().color());
+                    m_hatchButton->setHatch(info->getPixmap());
                 }
                 else
                 {
                     m_colorButton->setDisabled(true);    
+                    m_hatchButton->setDisabled(true);
                 }
             }
             else
             {
                 m_colorButton->setDisabled(true);
+                m_hatchButton->setDisabled(true);
             }
 
             update();
@@ -126,14 +144,33 @@ void TechBrowser::onLayerColorChanged()
     std::cout << "onLayerColorChanged called!\n";
     QModelIndex index = m_layerTableView->currentIndex();
     auto layer = m_layerTableModel->getLayer(index.row());
-    if ((layer != nullptr) && (m_layerRenderInfoDB != nullptr))
+    
+    if ((layer != nullptr) && (m_db != nullptr))
     {
-        auto info = m_layerRenderInfoDB->getRenderInfo(layer->m_id);
+        auto info = m_db->m_layerRenderInfoDB.getRenderInfo(layer->m_name);
         if (info)
         {
             info->setColor(m_colorButton->getColor());
-            m_layerRenderInfoDB->setRenderInfo(layer->m_id, *info);
+            m_db->m_layerRenderInfoDB.setRenderInfo(layer->m_name, *info);
             std::cout << "new color set!\n";
         }        
+    }
+}
+
+void TechBrowser::onLayerHatchChanged()
+{
+    std::cout << "onLayerHatchChanged called!\n";
+    QModelIndex index = m_layerTableView->currentIndex();
+    auto layer = m_layerTableModel->getLayer(index.row());
+    
+    if ((layer != nullptr) && (m_db != nullptr))
+    {
+        auto info = m_db->m_layerRenderInfoDB.getRenderInfo(layer->m_name);
+        if (info)
+        {
+            info->setTexture(m_hatchButton->getHatch());
+            m_db->m_layerRenderInfoDB.setRenderInfo(layer->m_name, *info);
+            std::cout << "new hatch set!\n";
+        }
     }
 }

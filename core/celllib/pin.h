@@ -90,7 +90,7 @@ PinInfo(const std::string &name) :
         return m_clock;
     }    
 
-    std::unordered_map<LayerID, GeometryObjects> m_pinLayout;
+    std::unordered_map<std::string /* layer name */, GeometryObjects> m_pinLayout;
 };
 
 class PinInfoList

@@ -55,13 +55,14 @@ QSize CellBrowser::sizeHint() const
     return m_cellTableView->sizeHint();
 }
 
-void CellBrowser::setCellLib(ChipDB::CellLib *cellLib)
+void CellBrowser::setDatabase(Database *db)
 {
-    m_cellModel->setCellLib(cellLib);
+    m_cellLayoutView->setDatabase(db);
+    m_cellModel->setCellLib(&db->cellLib());
 
-    auto cellPtr = cellLib->m_cells.at(0);
-
-    m_cellLayoutView->setCell(cellPtr);
+    auto cellPtr = db->cellLib().m_cells.at(0);
+    
+    m_cellLayoutView->setCell(cellPtr);    
     m_cellInfoModel->setCell(cellPtr);
 
     // make sure all columns can expand
@@ -70,11 +71,6 @@ void CellBrowser::setCellLib(ChipDB::CellLib *cellLib)
         m_cellTreeView->header()->setSectionResizeMode(
             c, QHeaderView::Stretch);
     }    
-}
-
-void CellBrowser::setLayerRenderInfoDB(LayerRenderInfoDB *renderInfoDB)
-{
-    m_cellLayoutView->setLayerRenderInfoDB(renderInfoDB);
 }
 
 void CellBrowser::onCellSelectionChanged(const QItemSelection &cur, const QItemSelection &prev)

@@ -26,9 +26,7 @@
 using namespace ChipDB::LEF;
 
 ReaderImpl::ReaderImpl(Design *design) 
-    : m_design(design),    
-      m_activeObsLayerIdx(0),
-      m_activePinLayerIdx(0)  
+    : m_design(design) 
 {
     m_context = CONTEXT_PIN;
 
@@ -345,7 +343,7 @@ void ReaderImpl::onRect(int64_t x1, int64_t y1, int64_t x2, int64_t y2)
 
             if (m_curPinInfo  != nullptr)
             {
-                m_curPinInfo->m_pinLayout[m_activePinLayerIdx].push_back(rect);
+                m_curPinInfo->m_pinLayout[m_activePinLayerName].push_back(rect);
             }
             else
             {
@@ -359,7 +357,7 @@ void ReaderImpl::onRect(int64_t x1, int64_t y1, int64_t x2, int64_t y2)
             {
                 return;
             }            
-            m_curCell->m_obstructions[m_activeObsLayerIdx].push_back(rect);
+            m_curCell->m_obstructions[m_activeObsLayerName].push_back(rect);
         }        
         break;
     }
@@ -381,29 +379,17 @@ void ReaderImpl::onPolygon(const std::vector<Coord64> &points)
     switch(m_context)
     {
     case CONTEXT_PIN:
-        m_curPinInfo->m_pinLayout[m_activePinLayerIdx].push_back(poly);
+        m_curPinInfo->m_pinLayout[m_activePinLayerName].push_back(poly);
         break;
     case CONTEXT_OBS:
-        m_curCell->m_obstructions[m_activeObsLayerIdx].push_back(poly);
+        m_curCell->m_obstructions[m_activeObsLayerName].push_back(poly);
         break;
     }
 }
 
 void ReaderImpl::onPortLayer(const std::string &layerName)
 {
-    //FIXME:
-#if 0
-    auto layerInfoIndex = m_design->techLib()->layerInfos().indexOf(layerName);
-    if (layerInfoIndex >= 0)
-    {
-        m_activePinLayerIdx = layerInfoIndex;
-    }
-    else
-    {        
-        doLog(LOG_WARN,"CellLEFReader: cannot find PORT layer %s in database\n", layerName.c_str());
-        m_activePinLayerIdx = 0;
-    }
-#endif
+    m_activePinLayerName = layerName;
 }
 
 void ReaderImpl::onObstruction()
@@ -413,19 +399,7 @@ void ReaderImpl::onObstruction()
 
 void ReaderImpl::onObstructionLayer(const std::string &layerName)
 {
-    //FIXME:
-    #if 0
-    auto layerInfoIndex = m_design->techLib()->layerInfos().indexOf(layerName);
-    if (layerInfoIndex >= 0)
-    {
-        m_activeObsLayerIdx = layerInfoIndex;
-    }
-    else
-    {
-        doLog(LOG_WARN,"CellLEFReader: cannot find OBS layer %s in database\n", layerName.c_str());
-        m_activeObsLayerIdx = 0;
-    }
-#endif
+    m_activeObsLayerName = layerName;
 }
 
 void ReaderImpl::onLayer(const std::string &layerName)

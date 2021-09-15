@@ -120,7 +120,7 @@ QRectF DrawLayoutItemVisitor::getTextRect() const
 // ********************************************************************************
 
 CellLayoutView::CellLayoutView(QWidget *parent) : QWidget(parent), m_cell(nullptr),
-    m_mouseState(MouseState::None), m_renderInfoDB(nullptr)
+    m_mouseState(MouseState::None), m_db(nullptr)
 {
     m_viewport = {{-10000,-10000},{10000, 10000}};
 }
@@ -176,9 +176,9 @@ void CellLayoutView::fixCoordinates(QPointF &p1, QPointF &p2)
     p2.setY(y2);
 }
 
-void CellLayoutView::setLayerRenderInfoDB(LayerRenderInfoDB *renderInfoDB)
+void CellLayoutView::setDatabase(const Database *db)
 {
-    m_renderInfoDB = renderInfoDB;
+    m_db = db;
     update();
 }
 
@@ -366,8 +366,6 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
         drawLeftText(painter, txtpoint, txtbuf, font(), Qt::black);
 
         // draw pins
-        //painter.setPen(Qt::white);
-        //painter.setBrush(QColor(255,255,255,80));
         size_t pinIndex = 0;
         for(auto const& pin : m_cell->m_pins)
         {
@@ -411,7 +409,7 @@ void CellLayoutView::drawGeometry(QPainter &painter, const ChipDB::GeometryObjec
     const QBrush &brush) const
 {
     painter.setBrush(brush);
-    painter.setPen(Qt::NoPen);
+    painter.setPen(brush.color());
 
     for(auto const& obj : objs)
     {
@@ -430,6 +428,14 @@ void CellLayoutView::drawGeometry(QPainter &painter, const ChipDB::GeometryObjec
 void CellLayoutView::drawGeometry(QPainter &painter, const ChipDB::Rectangle &r) const
 {
     QRectF screenRect(toScreen(r.m_rect.getLL()), toScreen(r.m_rect.getUR()));
+
+    // transform the brush so the texture moves with the rectangle.
+    QTransform transf;
+    transf.translate(screenRect.left(), screenRect.top());
+    auto b = painter.brush();
+    b.setTransform(transf);
+    painter.setBrush(b);
+    
     painter.drawRect(screenRect);
 }
 
@@ -447,12 +453,12 @@ void CellLayoutView::drawGeometry(QPainter &painter, const ChipDB::Polygon &r) c
     painter.drawPolygon(poly);
 }
 
-std::optional<LayerRenderInfo> CellLayoutView::getLayerRenderInfo(ChipDB::LayerID id) const
+std::optional<LayerRenderInfo> CellLayoutView::getLayerRenderInfo(const std::string &layerName) const
 {
-    if (m_renderInfoDB == nullptr)
+    if (m_db == nullptr)
     {
         return std::nullopt;
     }
 
-    return m_renderInfoDB->getRenderInfo(id);
+    return m_db->m_layerRenderInfoDB.getRenderInfo(layerName);
 }
