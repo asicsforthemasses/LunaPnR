@@ -3,6 +3,7 @@
 #include<string>
 #include<QPainter>
 #include<QColor>
+#include<QPixmap>
 
 namespace GUI
 {
@@ -57,5 +58,7 @@ protected:
     bool   m_state;
     QColor m_colors[2];
 };
+
+std::optional<QPixmap> createPixmapFromString(const std::string &pixels, int width, int height);
 
 };

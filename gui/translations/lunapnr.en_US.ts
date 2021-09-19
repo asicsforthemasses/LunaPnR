@@ -2,6 +2,24 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
+    <name>GUI::HatchDialog</name>
+    <message>
+        <location filename="../widgets/hatchdialog.cpp" line="19"/>
+        <source>Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../widgets/hatchdialog.cpp" line="20"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../widgets/hatchdialog.cpp" line="32"/>
+        <source>Choose new layer hatch pattern</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>GUI::ModelBase</name>
     <message>
         <location filename="../models/modelnodebase.cpp" line="239"/>
@@ -43,6 +61,21 @@
         <location filename="../src/mainwindow.cpp" line="32"/>
         <source>&amp;About</source>
         <translation></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="41"/>
+        <source>Cell Browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="45"/>
+        <source>Tech Browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="48"/>
+        <source>Floorplan</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

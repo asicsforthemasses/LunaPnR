@@ -1,6 +1,7 @@
 
 #include "hatchbutton.h"
 #include "../core/common/logging.h"
+#include "hatchdialog.h"
 #include <QColorDialog>
 #include <QPainter>
 
@@ -20,8 +21,18 @@ SelectHatchButton::SelectHatchButton(QWidget *parent)
 
 void SelectHatchButton::changeHatch()
 {
-    setHatch(m_pixmap);
-    emit onHatchChanged();
+    HatchLibrary hatchLib;
+    HatchDialog dialog(hatchLib, this);
+    auto retval = dialog.exec();
+    if (retval == QDialog::Accepted)
+    {
+        auto index = dialog.getHatchIndex();
+        if (index >= 0)
+        {
+            setHatch(hatchLib.m_hatches.at(index));
+            emit onHatchChanged();
+        }        
+    }
 }
 
 void SelectHatchButton::setHatch(const QPixmap &pixmap)
@@ -42,6 +53,7 @@ void SelectHatchButton::paintEvent(QPaintEvent *event)
     auto r = rect().adjusted(2,2,-2,-2);
 
     painter.setPen(Qt::black);
+    painter.setBrush(Qt::white);
     if (!m_pixmap.isNull())
     {
         painter.setBrush(m_pixmap);

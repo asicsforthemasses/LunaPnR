@@ -38,14 +38,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     m_cellBrowser = new GUI::CellBrowser(this);
     m_cellBrowser->setDatabase(&m_db);
-    m_mainTabWidget->addTab(m_cellBrowser, "Cell Browser");
+    m_mainTabWidget->addTab(m_cellBrowser, tr("Cell Browser"));
 
     m_techBrowser = new GUI::TechBrowser(this);
     m_techBrowser->setDatabase(&m_db);
-    m_mainTabWidget->addTab(m_techBrowser, "Tech Browser");
+    m_mainTabWidget->addTab(m_techBrowser, tr("Tech Browser"));
 
     m_floorplanView = new GUI::FloorplanView(this);
-    m_mainTabWidget->addTab(m_floorplanView, "Floorplan");
+    m_mainTabWidget->addTab(m_floorplanView, tr("Floorplan"));
 
     // create console
     m_console = new GUI::MMConsole(this);
@@ -144,32 +144,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     {
         if (layer != nullptr)
         {
-            GUI::LayerRenderInfo info(layer->m_name);
-            
-            info.setTextureFromString(
-                "*   *   *   *   " 
-                " *   *   *   *  " 
-                "  *   *   *   * "
-                "   *   *   *   *",
-                16,4);
-
-            info.setTextureFromString(
-                "                                " 
-                "                                " 
-                "                                " 
-                "*****   *****   *****           " 
-                "*   *   *    *  *               " 
-                "*   *   *****   *****           " 
-                "*   *   *    *      *           "
-                "*****   *****   *****           "
-                "                                "
-                "                                " 
-                "                                " ,
-                32,11);
-
+            GUI::LayerRenderInfo info(layer->m_name);                
             m_db.m_layerRenderInfoDB.setRenderInfo(layer->m_name, info);
         }
-    }    
+    }
 
     m_techBrowser->setDatabase(&m_db);
     m_floorplanView->update();

@@ -15,9 +15,12 @@ set (LUNA_SRC_FILES
     models/cellinfomodel.cpp
     models/techlibinfomodel.cpp
     common/guihelpers.cpp
+    common/hatchlibrary.cpp
     common/layerrenderinfo.cpp
     widgets/colorbutton.cpp
     widgets/hatchbutton.cpp
+    widgets/hatchdialog.cpp
+    widgets/hatchdisplay.cpp
     floorplanview/floorplanview.cpp
     techbrowser/techbrowser.cpp
     cellbrowser/cellbrowser.cpp

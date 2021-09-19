@@ -1,4 +1,5 @@
 #include "techbrowser.h"
+#include "../widgets/hatchdialog.h"
 #include <QHeaderView>
 #include <QLabel>
 #include <QColor>
