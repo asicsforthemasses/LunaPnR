@@ -10,7 +10,7 @@ class SelectHatchButton : public QPushButton
 {
     Q_OBJECT
 public:
-    SelectHatchButton(QWidget *parent);
+    SelectHatchButton(QWidget *parent = nullptr);
 
     void setHatch(const QPixmap &hatch);
     QPixmap getHatch() const;

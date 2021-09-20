@@ -108,4 +108,25 @@ HatchLibrary::HatchLibrary()
     {
         m_hatches.push_back(*p);
     }
+
+    p = createPixmapFromString(
+        " ******    *******     ******            "
+        "*      *   *      *   *                  "
+        "*      *   *      *   *                  "
+        "*      *   *******     ******            "
+        "*      *   *      *          *           "
+        "*      *   *      *          *           "
+        " ******    *******     ******            "
+        "                                         "
+        "                                         "
+        "                                         "
+        "                                         "
+        "                                         "
+        ,41,12
+    );
+    
+    if (p.has_value())
+    {
+        m_hatches.push_back(*p);
+    }
 }

@@ -3,6 +3,7 @@
 #include <QHeaderView>
 #include <QLabel>
 #include <QColor>
+#include <QGroupBox>
 
 using namespace GUI;
 
@@ -29,19 +30,39 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent)
     //m_layout2->addWidget(new QLabel("Cell information"),0);
     //m_layout2->addWidget(m_cellTreeView,1);
 
-    m_colorButton = new SelectColorButton(this);
-    m_hatchButton = new SelectHatchButton(this);
+    m_mainLayout = new QHBoxLayout();
+    m_mainLayout->addWidget(m_layerTableView,1);
+    m_mainLayout->addWidget(m_layerTreeView,2);
 
-    m_layout = new QHBoxLayout();
-    m_layout->addWidget(m_layerTableView,1);
-    m_layout->addWidget(m_layerTreeView,2);
-    m_layout->addWidget(m_hatchButton,0);
-    m_layout->addWidget(m_colorButton,0);
+    m_colorButton = new SelectColorButton();
+    m_hatchButton = new SelectHatchButton();
+    m_colorObsButton = new SelectColorButton();
+    m_hatchObsButton = new SelectHatchButton();
+
+    auto gbox1 = new QGroupBox(tr("Routing"));
+    auto gbox1Layout = new QHBoxLayout();
+
+    gbox1Layout->addWidget(m_hatchButton,0);
+    gbox1Layout->addWidget(m_colorButton,0);
+    gbox1->setLayout(gbox1Layout);
+
+    auto gbox2 = new QGroupBox(tr("Obstructions"));
+    auto gbox2Layout = new QHBoxLayout();
+    
+    gbox2Layout->addWidget(m_hatchObsButton,0);
+    gbox2Layout->addWidget(m_colorObsButton,0);
+    gbox2->setLayout(gbox2Layout);
+
+    auto renderInfoBox = new QVBoxLayout();
+    renderInfoBox->addWidget(gbox1);
+    renderInfoBox->addWidget(gbox2);
+
+    m_mainLayout->addLayout(renderInfoBox);
 
     //m_layout->addWidget(m_cellLayoutView,2);
     //m_layout->addLayout(m_layout2,1);
 
-    setLayout(m_layout);
+    setLayout(m_mainLayout);
 
     connect(m_layerTableView->selectionModel(), 
         SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), 
@@ -57,6 +78,16 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent)
         SIGNAL(onHatchChanged()), 
         this,
         SLOT(onLayerHatchChanged()));
+
+    connect(m_colorObsButton, 
+        SIGNAL(onColorChanged()), 
+        this,
+        SLOT(onLayerObsColorChanged()));
+
+    connect(m_hatchObsButton, 
+        SIGNAL(onHatchChanged()), 
+        this,
+        SLOT(onLayerObsHatchChanged()));        
 }
 
 TechBrowser::~TechBrowser()
@@ -117,21 +148,29 @@ void TechBrowser::onLayerSelectionChanged(const QItemSelection &cur, const QItem
                 auto info = m_db->m_layerRenderInfoDB.getRenderInfo(layer->m_name);
                 if (info.has_value())
                 {
+                    m_colorButton->setEnabled(true);
                     m_hatchButton->setEnabled(true);
-                    m_hatchButton->setEnabled(true);
-                    m_colorButton->setColor(info->getBrush().color());
-                    m_hatchButton->setHatch(info->getPixmap());
+                    m_colorObsButton->setEnabled(true);
+                    m_hatchObsButton->setEnabled(true);
+                    m_colorButton->setColor(info->routing().getBrush().color());
+                    m_hatchButton->setHatch(info->routing().getPixmap());
+                    m_colorObsButton->setColor(info->obstruction().getBrush().color());
+                    m_hatchObsButton->setHatch(info->obstruction().getPixmap());                    
                 }
                 else
                 {
                     m_colorButton->setDisabled(true);    
                     m_hatchButton->setDisabled(true);
+                    m_colorObsButton->setDisabled(true);
+                    m_hatchObsButton->setDisabled(true);                    
                 }
             }
             else
             {
                 m_colorButton->setDisabled(true);
                 m_hatchButton->setDisabled(true);
+                m_colorObsButton->setDisabled(true);
+                m_hatchObsButton->setDisabled(true);
             }
 
             update();
@@ -142,7 +181,6 @@ void TechBrowser::onLayerSelectionChanged(const QItemSelection &cur, const QItem
 
 void TechBrowser::onLayerColorChanged()
 {
-    std::cout << "onLayerColorChanged called!\n";
     QModelIndex index = m_layerTableView->currentIndex();
     auto layer = m_layerTableModel->getLayer(index.row());
     
@@ -151,16 +189,14 @@ void TechBrowser::onLayerColorChanged()
         auto info = m_db->m_layerRenderInfoDB.getRenderInfo(layer->m_name);
         if (info)
         {
-            info->setColor(m_colorButton->getColor());
+            info->routing().setColor(m_colorButton->getColor());
             m_db->m_layerRenderInfoDB.setRenderInfo(layer->m_name, *info);
-            std::cout << "new color set!\n";
         }        
     }
 }
 
 void TechBrowser::onLayerHatchChanged()
 {
-    std::cout << "onLayerHatchChanged called!\n";
     QModelIndex index = m_layerTableView->currentIndex();
     auto layer = m_layerTableModel->getLayer(index.row());
     
@@ -169,9 +205,40 @@ void TechBrowser::onLayerHatchChanged()
         auto info = m_db->m_layerRenderInfoDB.getRenderInfo(layer->m_name);
         if (info)
         {
-            info->setTexture(m_hatchButton->getHatch());
+            info->routing().setTexture(m_hatchButton->getHatch());
             m_db->m_layerRenderInfoDB.setRenderInfo(layer->m_name, *info);
-            std::cout << "new hatch set!\n";
+        }
+    }
+}
+
+void TechBrowser::onLayerObsColorChanged()
+{
+    QModelIndex index = m_layerTableView->currentIndex();
+    auto layer = m_layerTableModel->getLayer(index.row());
+    
+    if ((layer != nullptr) && (m_db != nullptr))
+    {
+        auto info = m_db->m_layerRenderInfoDB.getRenderInfo(layer->m_name);
+        if (info)
+        {
+            info->obstruction().setColor(m_colorObsButton->getColor());
+            m_db->m_layerRenderInfoDB.setRenderInfo(layer->m_name, *info);
+        }        
+    }
+}
+
+void TechBrowser::onLayerObsHatchChanged()
+{
+    QModelIndex index = m_layerTableView->currentIndex();
+    auto layer = m_layerTableModel->getLayer(index.row());
+    
+    if ((layer != nullptr) && (m_db != nullptr))
+    {
+        auto info = m_db->m_layerRenderInfoDB.getRenderInfo(layer->m_name);
+        if (info)
+        {
+            info->obstruction().setTexture(m_hatchObsButton->getHatch());
+            m_db->m_layerRenderInfoDB.setRenderInfo(layer->m_name, *info);
         }
     }
 }

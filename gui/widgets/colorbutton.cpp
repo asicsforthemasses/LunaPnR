@@ -14,7 +14,7 @@ void SelectColorButton::changeColor()
 {
     QColor newColor = QColorDialog::getColor(m_color, parentWidget(), 
         tr("Select color"), QColorDialog::ShowAlphaChannel | QColorDialog::DontUseNativeDialog);
-    if (newColor != m_color)
+    if (newColor.isValid() && (newColor != m_color))
     {
         setColor(newColor);
         emit onColorChanged();

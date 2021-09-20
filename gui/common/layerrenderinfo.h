@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <optional>
+#include <array>
 
 #include "lunacore.h"
 #include <QPixmap>
@@ -13,57 +14,85 @@ namespace GUI
 class LayerRenderInfo
 {
 public:
-    LayerRenderInfo()
+    LayerRenderInfo(const std::string &layerName) : m_layerName(layerName)
     {
-        m_brush.setColor(QColor("#80FFFFFF"));
-        m_brush.setStyle(Qt::SolidPattern);
     }
 
-    LayerRenderInfo(const std::string &layerName) 
+    LayerRenderInfo() : m_layerName("INVALID")
     {
-        m_brush.setColor(QColor("#80FFFFFF"));
-        m_brush.setStyle(Qt::SolidPattern);
-        m_layerName = layerName;
     }
 
-    void setColor(const QColor &col)
+    class LayerType
     {
-        m_brush.setColor(col);
-        updateTextureWithColor(col);
-    }
+    public:
+        LayerType()
+        {
+            m_brush.setColor(QColor("#FFFFFF"));
+            m_brush.setStyle(Qt::SolidPattern);
+        }
 
-    bool setTextureFromString(const std::string &pixels, int width, int height);
+        LayerType(const LayerType &) = default;
 
-    void setTexture(const QPixmap &pixmap)
-    {
-        m_pixmap = pixmap;
-        updateTextureWithColor(m_brush.color());
-    }
+        void setColor(const QColor &col)
+        {
+            m_brush.setColor(col);
+            updateTextureWithColor(col);
+        }
 
-    QBrush getBrush() const noexcept
-    {
-        return m_brush;
-    }
+        void setTexture(const QPixmap &pixmap)
+        {
+            m_pixmap = pixmap;
+            updateTextureWithColor(m_brush.color());
+        }
 
-    QPixmap getPixmap() const noexcept
-    {
-        return m_pixmap;
-    }
+        QBrush getBrush() const noexcept
+        {
+            return m_brush;
+        }
+
+        QPixmap getPixmap() const noexcept
+        {
+            return m_pixmap;
+        }
+        
+    protected:
+        QImage createTextureImage(QColor col, const QPixmap &pixmap);
+        void   updateTextureWithColor(QColor col);
+
+        
+        QBrush          m_brush;
+        QPixmap         m_pixmap;
+    };
 
     std::string getName() const noexcept
     {
         return m_layerName;
     }
-    
+
+    auto& obstruction() const
+    {
+        return m_types.at(1);
+    }
+
+    auto& routing() const
+    {
+        return m_types.at(0);
+    }
+
+    auto& obstruction()
+    {
+        return m_types.at(1);
+    }
+
+    auto& routing()
+    {
+        return m_types.at(0);
+    }
+
 protected:
-    QImage createTextureImage(QColor col, const QPixmap &pixmap);
-    void   updateTextureWithColor(QColor col);
-
-    std::string     m_layerName;
-    QBrush          m_brush;
-    QPixmap         m_pixmap;
+    std::array<LayerType, 2>    m_types;
+    std::string                 m_layerName;
 };
-
 
 
 class LayerRenderInfoDB

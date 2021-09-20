@@ -41,6 +41,19 @@
     </message>
 </context>
 <context>
+    <name>GUI::TechBrowser</name>
+    <message>
+        <location filename="../techbrowser/techbrowser.cpp" line="42"/>
+        <source>Routing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../techbrowser/techbrowser.cpp" line="49"/>
+        <source>Obstructions</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>MainWindow</name>
     <message>
         <location filename="../src/mainwindow.cpp" line="21"/>

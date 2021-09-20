@@ -376,7 +376,7 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
                 auto info = getLayerRenderInfo(layer.first);
                 if (info)
                 {
-                    drawGeometry(painter, layer.second, info->getBrush());
+                    drawGeometry(painter, layer.second, info->routing().getBrush());
                 }
                 else
                 {
@@ -400,7 +400,18 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
         painter.setPen(Qt::red);
         for(auto const& layer : m_cell->m_obstructions)
         {
-            drawGeometry(painter, layer.second, QBrush(QColor(255,0,0,80)));
+            auto info = getLayerRenderInfo(layer.first);
+            if (info)
+            {
+                std::string obstructionLayerName = layer.first;
+                obstructionLayerName.append(":OBS");
+
+                drawGeometry(painter, layer.second, info->obstruction().getBrush());
+            }
+            else
+            {
+                drawGeometry(painter, layer.second, QBrush(QColor(255,0,0,80)));
+            }
         }
     }
 }

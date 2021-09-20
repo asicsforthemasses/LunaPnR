@@ -32,17 +32,21 @@ public slots:
     void onLayerSelectionChanged(const QItemSelection &cur, const QItemSelection &prev);
     void onLayerColorChanged();
     void onLayerHatchChanged();
+    void onLayerObsColorChanged();
+    void onLayerObsHatchChanged();
 
 protected:
     std::unique_ptr<LayerInfoModel>     m_layerInfoModel;
     std::unique_ptr<LayerTableModel>    m_layerTableModel;
     
-    QHBoxLayout     *m_layout;
+    QHBoxLayout     *m_mainLayout;
     QTableView      *m_layerTableView;
 
     QTreeView           *m_layerTreeView;
     SelectColorButton   *m_colorButton;
     SelectHatchButton   *m_hatchButton;
+    SelectColorButton   *m_colorObsButton;
+    SelectHatchButton   *m_hatchObsButton;
 
     Database    *m_db;
 };

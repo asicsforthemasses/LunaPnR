@@ -2,7 +2,7 @@
 
 using namespace GUI;
 
-QImage LayerRenderInfo::createTextureImage(QColor col, const QPixmap &pixmap)
+QImage LayerRenderInfo::LayerType::createTextureImage(QColor col, const QPixmap &pixmap)
 {
     if (!pixmap.isNull())
     {
@@ -20,46 +20,7 @@ QImage LayerRenderInfo::createTextureImage(QColor col, const QPixmap &pixmap)
     return QImage();
 }
 
-bool LayerRenderInfo::setTextureFromString(const std::string &pixels, int width, int height)
-{
-    QImage image(width, height, QImage::Format_Mono);
-    image.setColor(0, QColor("#000000").rgb());
-    image.setColor(1, QColor("#FFFFFF").rgb());
-
-    if (pixels.size() < (width*height))
-    {
-        doLog(LOG_ERROR, "Cannot set texture from string: not enough characters\n");
-        return false;
-    }
-
-    size_t ofs = 0;
-    for(int y=0; y<height; y++)
-    {
-        for(int x=0; x<width; x++)
-        {
-            if (pixels.at(ofs) != ' ')
-            {
-                image.setPixel(QPoint(x,y), 1);
-            }
-            else
-            {
-                image.setPixel(QPoint(x,y), 0);
-            }
-            ofs++;
-        }
-    }
-
-    QPixmap pixmap;
-    bool result = pixmap.convertFromImage(image, Qt::NoFormatConversion);
-    if (result)
-    {
-        setTexture(pixmap);
-    }
-
-    return result;
-}
-
-void LayerRenderInfo::updateTextureWithColor(QColor col)
+void LayerRenderInfo::LayerType::updateTextureWithColor(QColor col)
 {
     if (!m_pixmap.isNull())
     {

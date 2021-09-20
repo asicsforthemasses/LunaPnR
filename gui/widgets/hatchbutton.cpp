@@ -11,12 +11,6 @@ SelectHatchButton::SelectHatchButton(QWidget *parent)
 {
     setFixedSize(QSize{80,80});
     connect(this, SIGNAL(clicked()), this, SLOT(changeHatch()));
-
-    m_pixmap.load(":/hatch1.png", nullptr, Qt::NoFormatConversion);
-
-    std::stringstream ss;
-    ss << "Loaded pixmap depth: " << m_pixmap.depth() << "\n";
-    doLog(LOG_INFO, ss);    
 }
 
 void SelectHatchButton::changeHatch()
