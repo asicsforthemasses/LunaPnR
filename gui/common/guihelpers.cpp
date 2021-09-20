@@ -52,6 +52,10 @@ std::optional<QPixmap> GUI::createPixmapFromString(const std::string &pixels, in
     {
         for(int x=0; x<width; x++)
         {
+            // skip EOL
+            if (pixels.at(ofs) == '\n')
+                continue;
+
             if (pixels.at(ofs) != ' ')
             {
                 image.setPixel(QPoint(x,y), 1);
@@ -72,4 +76,40 @@ std::optional<QPixmap> GUI::createPixmapFromString(const std::string &pixels, in
     }
 
     return std::nullopt;
+}
+
+std::string GUI::pixmapToString(const QPixmap &p)
+{
+    std::string pattern;
+
+    if (p.isNull())
+    {
+        return "";
+    }
+
+    QImage image = p.toImage();
+
+    if (image.isNull())
+    {
+        return "";
+    }
+
+    for(int y=0; y < image.height(); y++)
+    {
+        for(int x=0; x < image.width(); x++)
+        {
+            auto pixel = image.pixelColor(x,y);
+            if (pixel == QColor("#000000"))
+            {
+                pattern += ' ';
+            }
+            else
+            {
+                pattern += '*';
+            }            
+        }
+        pattern += '\n';
+    }
+
+    return pattern;
 }

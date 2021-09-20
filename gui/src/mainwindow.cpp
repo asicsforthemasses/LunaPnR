@@ -7,6 +7,9 @@
 #include <QApplication>
 #include <QMessageBox>
 
+#include <QJsonDocument>
+#include <QFile>
+
 #include <fstream>
 
 #include "mainwindow.h"
@@ -148,6 +151,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
             m_db.m_layerRenderInfoDB.setRenderInfo(layer->m_name, info);
         }
     }
+        
+    {
+        std::ifstream ifile("layers.json", std::ios::in);
+        if (ifile.is_open())
+        {
+            std::stringstream buffer;
+            buffer << ifile.rdbuf();
+            m_db.m_layerRenderInfoDB.readJson(buffer.str());
+        }
+        else
+        {
+            doLog(LOG_ERROR, "Cannot open layers.json!\n");
+        }
+    }
 
     m_techBrowser->setDatabase(&m_db);
     m_floorplanView->update();
@@ -160,6 +177,9 @@ MainWindow::~MainWindow()
 
 void MainWindow::onQuit()
 {
+    auto json = m_db.m_layerRenderInfoDB.writeJson();
+    std::cout << json << "\n";
+
     QApplication::quit();
 }
 

@@ -56,37 +56,37 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/mainwindow.cpp" line="21"/>
+        <location filename="../src/mainwindow.cpp" line="24"/>
         <source>&amp;File</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="24"/>
+        <location filename="../src/mainwindow.cpp" line="27"/>
         <source>&amp;Quit</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="29"/>
+        <location filename="../src/mainwindow.cpp" line="32"/>
         <source>&amp;Help</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="32"/>
+        <location filename="../src/mainwindow.cpp" line="35"/>
         <source>&amp;About</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="41"/>
+        <location filename="../src/mainwindow.cpp" line="44"/>
         <source>Cell Browser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="45"/>
+        <location filename="../src/mainwindow.cpp" line="48"/>
         <source>Tech Browser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="48"/>
+        <location filename="../src/mainwindow.cpp" line="51"/>
         <source>Floorplan</source>
         <translation type="unfinished"></translation>
     </message>
@@ -95,8 +95,8 @@
     <name>QObject</name>
     <message>
         <location filename="../src/main.cpp" line="73"/>
-        <source>LUNA - a moonshot ASIC place&amp;route tool</source>
-        <translation></translation>
+        <source>LunaPnR - a moonshot ASIC place&amp;route tool</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

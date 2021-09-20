@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
     window.move((width - window.width()) / 2.0,
                     (height - window.height()) / 2.0);
 
-    window.setWindowTitle(QObject::tr("LUNA - a moonshot ASIC place&route tool"));
+    window.setWindowTitle(QObject::tr("LunaPnR - a moonshot ASIC place&route tool"));
     window.show();
 
     // run application

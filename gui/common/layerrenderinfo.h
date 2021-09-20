@@ -8,6 +8,9 @@
 #include <QPixmap>
 #include <QBrush>
 
+#include <QJsonObject>
+#include <QJsonArray>
+
 namespace GUI
 {
 
@@ -55,11 +58,13 @@ public:
             return m_pixmap;
         }
         
+        void read(const QJsonObject &json);
+        void write(QJsonObject &json) const;
+
     protected:
         QImage createTextureImage(QColor col, const QPixmap &pixmap);
         void   updateTextureWithColor(QColor col);
 
-        
         QBrush          m_brush;
         QPixmap         m_pixmap;
     };
@@ -67,6 +72,11 @@ public:
     std::string getName() const noexcept
     {
         return m_layerName;
+    }
+
+    void setName(const std::string &layerName)
+    {
+        m_layerName = layerName;
     }
 
     auto& obstruction() const
@@ -89,6 +99,9 @@ public:
         return m_types.at(0);
     }
 
+    void read(const QJsonObject &json);
+    void write(QJsonObject &json) const;
+
 protected:
     std::array<LayerType, 2>    m_types;
     std::string                 m_layerName;
@@ -101,9 +114,23 @@ public:
     std::optional<LayerRenderInfo> getRenderInfo(const std::string &layerName) const;
     void setRenderInfo(const std::string &layerName, const LayerRenderInfo &info);
 
+    auto begin() const
+    {
+        return m_layerInfos.begin();
+    }
+
+    auto end() const
+    {
+        return m_layerInfos.end();
+    }
+
+    bool readJson(const std::string &txt);
+    std::string writeJson() const;
+
 protected:
     std::unordered_map<std::string, LayerRenderInfo> m_layerInfos;
 };
 
-
 }; // namespace
+
+

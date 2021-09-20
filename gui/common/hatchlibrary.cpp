@@ -1,3 +1,4 @@
+#include <iostream>
 #include "hatchlibrary.h"
 #include "../common/guihelpers.h"
 
@@ -31,6 +32,31 @@ HatchLibrary::HatchLibrary()
     } 
 
     p = createPixmapFromString(
+        "*           *           "
+        "                        "
+        "      *           *     "
+        "                        "
+        "*           *           "
+        "                        "
+        "      *           *     "
+        "                        "
+        "*           *           "
+        "                        "
+        "      *           *     "
+        "                        "
+        "*           *           "
+        "                        "
+        "      *           *     "
+        "                        "                        
+        ,24,16
+    );
+    
+    if (p.has_value())
+    {
+        m_hatches.push_back(*p);
+    } 
+
+    p = createPixmapFromString(
         "*   *   *   *   *   *   *   *   "
         " *   *   *   *   *   *   *   *  "
         "  *   *   *   *   *   *   *   * "
@@ -50,6 +76,31 @@ HatchLibrary::HatchLibrary()
         ,32,16
     );
     
+    if (p.has_value())
+    {
+        m_hatches.push_back(*p);
+    } 
+
+    p = createPixmapFromString(
+        "*   *   *   *   *   *   *   *   "
+        "   *   *   *   *   *   *   *   *"
+        "  *   *   *   *   *   *   *   * "
+        " *   *   *   *   *   *   *   *  "
+        "*   *   *   *   *   *   *   *   "
+        "   *   *   *   *   *   *   *   *"
+        "  *   *   *   *   *   *   *   * "
+        " *   *   *   *   *   *   *   *  "
+        "*   *   *   *   *   *   *   *   "
+        "   *   *   *   *   *   *   *   *"
+        "  *   *   *   *   *   *   *   * "
+        " *   *   *   *   *   *   *   *  "
+        "*   *   *   *   *   *   *   *   "
+        "   *   *   *   *   *   *   *   *"
+        "  *   *   *   *   *   *   *   * "
+        " *   *   *   *   *   *   *   *  "
+        ,32,16
+    );
+
     if (p.has_value())
     {
         m_hatches.push_back(*p);
@@ -79,6 +130,26 @@ HatchLibrary::HatchLibrary()
     {
         m_hatches.push_back(*p);
     }   
+
+    p = createPixmapFromString(
+        "* * * * * * * * * * * * * * * * "
+        "                                "
+        "                                "
+        "                                "
+        "* * * * * * * * * * * * * * * * "
+        "                                "
+        "                                "
+        "                                "
+        "* * * * * * * * * * * * * * * * "
+        "                                "
+        "                                "
+        "                                "
+        "* * * * * * * * * * * * * * * * "
+        "                                "
+        "                                "
+        "                                "                
+        ,32,16
+    );
 
     p = createPixmapFromString(
         "* * * * * * * * * * * * * * * * "

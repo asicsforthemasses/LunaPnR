@@ -60,5 +60,6 @@ protected:
 };
 
 std::optional<QPixmap> createPixmapFromString(const std::string &pixels, int width, int height);
+std::string pixmapToString(const QPixmap &p);
 
 };
