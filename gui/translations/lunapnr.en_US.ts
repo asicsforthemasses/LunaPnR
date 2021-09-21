@@ -142,6 +142,8 @@
         <location filename="../src/mainwindow.cpp" line="277"/>
         <location filename="../src/mainwindow.cpp" line="303"/>
         <location filename="../src/mainwindow.cpp" line="328"/>
+        <location filename="../src/mainwindow.cpp" line="354"/>
+        <location filename="../src/mainwindow.cpp" line="360"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
@@ -203,6 +205,26 @@
     <message>
         <location filename="../src/mainwindow.cpp" line="328"/>
         <source>Cannot save Layer setup file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="344"/>
+        <source>load Verilog netlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="345"/>
+        <source>Verilog file (*.v)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="354"/>
+        <source>Could not parse Verilog file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="360"/>
+        <source>Could not open Verilog file</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

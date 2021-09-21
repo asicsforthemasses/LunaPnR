@@ -339,4 +339,26 @@ void MainWindow::onExportLayers()
 void MainWindow::onLoadVerilog()
 {
     // Fixme: remember the last directory
+    QString directory("");
+
+    QString fileName = QFileDialog::getOpenFileName(this, tr("load Verilog netlist"), directory,
+            tr("Verilog file (*.v)"));
+    
+    if (!fileName.isEmpty())
+    {
+        std::ifstream verilogfile(fileName.toStdString(), std::ios::in);
+        if (verilogfile.is_open())
+        {
+            if (!ChipDB::Verilog::Reader::load(&m_db.design(), verilogfile))
+            {
+                QMessageBox::critical(this, tr("Error"), tr("Could not parse Verilog file"), QMessageBox::Close);
+                doLog(LOG_ERROR, "Cannot read/parse verilog file!\n");
+            }
+        }
+        else
+        {
+            QMessageBox::critical(this, tr("Error"), tr("Could not open Verilog file"), QMessageBox::Close);
+            doLog(LOG_ERROR, "Cannot open verilog file!\n");
+        }
+    }   
 }
