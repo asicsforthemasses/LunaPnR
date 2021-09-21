@@ -9,6 +9,8 @@ For more information, please visit the [homepage](https://www.asicsforthemasses.
 * Cell browser works.
 * Tech browser works.
 
+LunaPnR can read the OSU 180nm and Nangate/FreePDK 45nm cell libraries.
+
 ## Build requirements
 * GCC 9.3 or higher
 * CMake 3.16 or higher
