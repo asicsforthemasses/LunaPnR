@@ -11,6 +11,7 @@ find_package(Qt5 REQUIRED QUIET COMPONENTS Core Widgets LinguistTools)
 
 set (LUNA_SRC_FILES
     models/modelnodebase.cpp
+    models/modulemodel.cpp
     models/celllibmodel.cpp
     models/cellinfomodel.cpp
     models/techlibinfomodel.cpp
@@ -23,6 +24,7 @@ set (LUNA_SRC_FILES
     widgets/hatchdisplay.cpp
     floorplanview/floorplanview.cpp
     techbrowser/techbrowser.cpp
+    designbrowser/designbrowser.cpp
     cellbrowser/cellbrowser.cpp
     cellbrowser/celllayoutview.cpp
     propertyview/propertyview.cpp

@@ -28,6 +28,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     // create tabs
     m_mainTabWidget = new QTabWidget(this);
 
+    m_designBrowser = new GUI::DesignBrowser(this);
+    m_designBrowser->setDatabase(&m_db);
+    m_mainTabWidget->addTab(m_designBrowser, tr("Design Browser"));
+
     m_cellBrowser = new GUI::CellBrowser(this);
     m_cellBrowser->setDatabase(&m_db);
     m_mainTabWidget->addTab(m_cellBrowser, tr("Cell Browser"));
@@ -360,5 +364,6 @@ void MainWindow::onLoadVerilog()
             QMessageBox::critical(this, tr("Error"), tr("Could not open Verilog file"), QMessageBox::Close);
             doLog(LOG_ERROR, "Cannot open verilog file!\n");
         }
+        m_designBrowser->refreshDatabase();
     }   
 }

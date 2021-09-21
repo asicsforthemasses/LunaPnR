@@ -13,6 +13,7 @@
 #include "../console/mmconsole.h"
 #include "../techbrowser/techbrowser.h"
 #include "../cellbrowser/cellbrowser.h"
+#include "../designbrowser/designbrowser.h"
 #include "../floorplanview/floorplanview.h"
 
 #include "lunacore.h"
@@ -54,6 +55,7 @@ protected:
     GUI::MMConsole      *m_console;
     GUI::CellBrowser    *m_cellBrowser;
     GUI::TechBrowser    *m_techBrowser;
+    GUI::DesignBrowser  *m_designBrowser;
     GUI::FloorplanView  *m_floorplanView;
 
     GUI::Database m_db;
