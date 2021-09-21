@@ -183,6 +183,7 @@ void MainWindow::createMenus()
     techMenu->addAction(m_importLEF);
     techMenu->addAction(m_importLIB);
     techMenu->addAction(m_importLayers);
+    techMenu->addAction(m_exportLayers);
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(m_aboutAct);
@@ -207,13 +208,13 @@ void MainWindow::createActions()
     
     m_importLayers = new QAction(tr("Import Layers"), this);
     connect(m_importLayers, &QAction::triggered, this, &MainWindow::onImportLayers);
+
+    m_exportLayers = new QAction(tr("Export layers"), this);
+    connect(m_exportLayers, &QAction::triggered, this, &MainWindow::onExportLayers);
 }
 
 void MainWindow::onQuit()
 {
-    auto json = m_db.m_layerRenderInfoDB.writeJson();
-    std::cout << json << "\n";
-
     QApplication::quit();
 }
 
@@ -310,6 +311,29 @@ void MainWindow::onImportLayers()
     }
 
     m_techBrowser->refreshDatabase();
+}
+
+void MainWindow::onExportLayers()
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Layer setup File"),
+                           "layers.json",
+                           tr("Layer file (*.json)"));
+
+    if (!fileName.isEmpty())
+    {
+        auto json = m_db.m_layerRenderInfoDB.writeJson();
+        std::ofstream ofile(fileName.toStdString());
+        if (!ofile.is_open())
+        {
+            QMessageBox::critical(this, tr("Error"), tr("Cannot save Layer setup file"), QMessageBox::Close);
+            doLog(LOG_ERROR, "Cannot save Layer setup file!\n");
+        }
+        else
+        {
+            ofile << json << "\n";
+            doLog(LOG_VERBOSE, "Layer setup file saved!\n");
+        }
+    }
 }
 
 void MainWindow::onLoadVerilog()

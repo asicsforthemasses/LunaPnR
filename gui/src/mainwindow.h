@@ -33,6 +33,7 @@ public slots:
     void onImportLEF();
     void onImportLIB();
     void onImportLayers();
+    void onExportLayers();
     
 protected:
     void createMenus();
@@ -44,6 +45,7 @@ protected:
     QAction *m_importLEF;
     QAction *m_importLIB;
     QAction *m_importLayers;
+    QAction *m_exportLayers;
 
     //QMenuBar    *m_menuBar;
     QSplitter   *m_splitter;
