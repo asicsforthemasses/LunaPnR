@@ -443,6 +443,23 @@ void Parser::error(const std::string &errstr) const
     throw std::runtime_error(ss.str());
 }
 
+bool Parser::skipUntilSemicolon()
+{
+    std::string name;
+    m_curtok = tokenize(name);
+    while(m_curtok != TOK_SEMICOL)
+    {        
+        if (atEnd())
+        {
+            error("Unexpected end of file\n");
+            return false;
+        }
+        m_curtok = tokenize(name);
+    }
+
+    return true;
+}
+
 bool Parser::parseMacro()
 {
     std::string name;
@@ -661,7 +678,19 @@ bool Parser::parsePin()
             {
                 onPort();
                 parsePort();
-            }           
+            }
+            else if (m_tokstr == "ANTENNAPARTIALMETALAREA")
+            {
+                skipUntilSemicolon();
+            }
+            else if (m_tokstr == "ANTENNAPARTIALMETALSIDEAREA")
+            {
+                skipUntilSemicolon();
+            }
+            else if (m_tokstr == "ANTENNAGATEAREA")
+            {
+                skipUntilSemicolon();
+            }
         }
 
         if (endFound)
@@ -1180,6 +1209,10 @@ bool Parser::parsePortLayerItem()
         if (m_tokstr == "RECT")
         {
             parseRect();
+        }
+        else if (m_tokstr == "POLYGON")
+        {
+            parsePolygon();
         }
 
         m_curtok = tokenize(m_tokstr);

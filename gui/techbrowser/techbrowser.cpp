@@ -135,6 +135,19 @@ void TechBrowser::refreshDatabase()
 {
     if (m_db != nullptr)
     {
+        // make sure that every layer in the tech library
+        // has a corresponding layer in the layer render library
+
+        for(auto techLayer : m_db->techLib().m_layers)
+        {
+            auto renderLayer = m_db->m_layerRenderInfoDB.getRenderInfo(techLayer->m_name);
+            if (!renderLayer.has_value())
+            {
+                LayerRenderInfo info(techLayer->m_name);
+                m_db->m_layerRenderInfoDB.setRenderInfo(techLayer->m_name, info);
+            }
+        }
+                
         m_layerTableModel->setTechLib(&m_db->techLib());
     }    
 }

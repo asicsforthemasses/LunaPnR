@@ -276,6 +276,8 @@ protected:
 
     bool expectSemicolonAndEOL();
 
+    bool skipUntilSemicolon();
+
     token_t tokenize(std::string &tokstr);
 
     token_t     m_curtok;

@@ -89,8 +89,6 @@ void DesignBrowser::onModuleSelectionChanged(const QItemSelection &cur, const QI
         auto module = m_moduleModel->getModule(index.row());
         if (module != nullptr)
         {
-            //m_cellLayoutView->setCell(cell);
-            //m_cellInfoModel->setCell(cell);
             update();
             doLog(LOG_VERBOSE, "Selected module %s\n", module->m_name.c_str());
         }

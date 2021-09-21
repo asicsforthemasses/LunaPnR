@@ -370,18 +370,21 @@ void ReaderImpl::onPolygon(const std::vector<Coord64> &points)
         return;
     }
 
-    if (!checkPtr(m_curPinInfo))
-    {
-        return;
-    }
-
     Polygon poly(points);
     switch(m_context)
     {
     case CONTEXT_PIN:
+        if (!checkPtr(m_curPinInfo))
+        {
+            return;
+        }    
         m_curPinInfo->m_pinLayout[m_activePinLayerName].push_back(poly);
         break;
     case CONTEXT_OBS:
+        if (!checkPtr(m_curCell))
+        {
+            return;
+        }      
         m_curCell->m_obstructions[m_activeObsLayerName].push_back(poly);
         break;
     }
