@@ -25,8 +25,9 @@ public:
     virtual ~TechBrowser();
 
     void setDatabase(Database *db);
+    void refreshDatabase();
+    
     QSize sizeHint() const;
-
 
 public slots:
     void onLayerSelectionChanged(const QItemSelection &cur, const QItemSelection &prev);

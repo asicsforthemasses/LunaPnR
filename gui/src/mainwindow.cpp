@@ -6,6 +6,7 @@
 #include <QHBoxLayout>
 #include <QApplication>
 #include <QMessageBox>
+#include <QFileDialog>
 
 #include <QJsonDocument>
 #include <QFile>
@@ -18,24 +19,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     setLogLevel(LOG_VERBOSE);
 
-    m_menuBar = new QMenuBar();
-    setMenuBar(m_menuBar);
+    //m_menuBar = new QMenuBar();
+    //setMenuBar(m_menuBar);
 
-    QMenu *fileMenu = new QMenu(tr("&File"));
-    m_menuBar->addMenu(fileMenu);
+    createActions();
+    createMenus();
     
-    QAction *exitAction = new QAction(tr("&Quit"), this);
-    exitAction->setShortcuts(QKeySequence::Quit);
-    connect(exitAction, &QAction::triggered, this, &MainWindow::onQuit);
-    fileMenu->addAction(exitAction);
-
-    QMenu *helpMenu = new QMenu(tr("&Help"));
-    m_menuBar->addMenu(helpMenu);
-
-    QAction *aboutAction = new QAction(tr("&About"), this);
-    connect(aboutAction, &QAction::triggered, this, &MainWindow::onAbout);
-    helpMenu->addAction(aboutAction);
-
     // create tabs
     m_mainTabWidget = new QTabWidget(this);
 
@@ -95,8 +84,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         m_cellBrowser->setCellLib(&m_design.m_cellLib); // populate!
     }
 
-#else
+#endif
 
+
+#if 0
     std::ifstream libertyfile("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib");
     if (!libertyfile.good())
     {
@@ -143,6 +134,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 #endif
 
+    m_techBrowser->setDatabase(&m_db);
+    m_cellBrowser->setDatabase(&m_db);
+
+#if 0
     for(auto layer : m_db.techLib().m_layers)
     {
         if (layer != nullptr)
@@ -166,7 +161,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         }
     }
 
-    m_techBrowser->setDatabase(&m_db);
+#endif
+
+    //m_techBrowser->setDatabase(&m_db);
     m_floorplanView->update();
 }
 
@@ -174,6 +171,43 @@ MainWindow::~MainWindow()
 {
 }
 
+void MainWindow::createMenus()
+{
+    QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(m_quitAct);
+
+    QMenu *designMenu = menuBar()->addMenu(tr("&Design"));
+    designMenu->addAction(m_loadVerilog);
+
+    QMenu *techMenu = menuBar()->addMenu(tr("&Technology"));
+    techMenu->addAction(m_importLEF);
+    techMenu->addAction(m_importLIB);
+    techMenu->addAction(m_importLayers);
+
+    QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
+    helpMenu->addAction(m_aboutAct);
+}
+
+void MainWindow::createActions()
+{
+    m_quitAct = new QAction(tr("&Quit"), this);
+    connect(m_quitAct, &QAction::triggered, this, &MainWindow::onQuit);
+
+    m_aboutAct = new QAction(tr("&About"), this);
+    connect(m_aboutAct, &QAction::triggered, this, &MainWindow::onAbout);
+
+    m_loadVerilog = new QAction(tr("&Load Verilog"), this);
+    connect(m_loadVerilog, &QAction::triggered, this, &MainWindow::onLoadVerilog);
+
+    m_importLEF = new QAction(tr("Import LEF"), this);
+    connect(m_importLEF, &QAction::triggered, this, &MainWindow::onImportLEF);
+    
+    m_importLIB = new QAction(tr("Import LIB"), this);
+    connect(m_importLIB, &QAction::triggered, this, &MainWindow::onImportLIB);
+    
+    m_importLayers = new QAction(tr("Import Layers"), this);
+    connect(m_importLayers, &QAction::triggered, this, &MainWindow::onImportLayers);
+}
 
 void MainWindow::onQuit()
 {
@@ -186,4 +220,99 @@ void MainWindow::onQuit()
 void MainWindow::onAbout()
 {
     QMessageBox::aboutQt(this, "Luna place and route version " __DATE__ " " __TIME__ );
+}
+
+void MainWindow::onImportLEF()
+{
+    QString directory("");
+
+    // Fixme: remember the last directory
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Import LEF file"), directory,
+            tr("LEF file (*.lef *.tlef)"));
+    
+    if (!fileName.isEmpty())
+    {
+        std::ifstream leffile(fileName.toStdString());
+        if (!leffile.good())
+        {
+            doLog(LOG_ERROR,"LEF file '%s' cannot be opened for reading\n", fileName.toStdString().c_str());
+            QMessageBox::critical(this, tr("Error"), tr("The LEF file could not be opened for reading"), QMessageBox::Close);
+            return;
+        }
+
+        if (!ChipDB::LEF::Reader::load(&m_db.design(), leffile))
+        {
+            doLog(LOG_ERROR,"LEF file '%s' contains errors\n", fileName.toStdString().c_str());
+            QMessageBox::critical(this, tr("Error"), tr("The LEF file contains errors"), QMessageBox::Close);
+        }
+
+        m_techBrowser->refreshDatabase();
+        m_cellBrowser->refreshDatabase();
+    }
+}
+
+void MainWindow::onImportLIB()
+{
+    // Fixme: remember the last directory
+    QString directory("");
+
+    // Fixme: remember the last directory
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Import Liberty timing file"), directory,
+            tr("LIB file (*.lib)"));
+    
+    if (!fileName.isEmpty())
+    {
+        std::ifstream libfile(fileName.toStdString());
+        if (!libfile.good())
+        {
+            doLog(LOG_ERROR,"LIB file '%s' cannot be opened for reading\n", fileName.toStdString().c_str());
+            QMessageBox::critical(this, tr("Error"), tr("The Liberty file could not be opened for reading"), QMessageBox::Close);
+            return;
+        }
+
+        if (!ChipDB::Liberty::Reader::load(&m_db.design(), libfile))
+        {
+            doLog(LOG_ERROR,"LIB file '%s' contains errors\n", fileName.toStdString().c_str());
+            QMessageBox::critical(this, tr("Error"), tr("The LIB file contains errors"), QMessageBox::Close);
+        }
+
+        m_techBrowser->refreshDatabase();
+        m_cellBrowser->refreshDatabase();
+    }    
+}
+
+void MainWindow::onImportLayers()
+{
+    // Fixme: remember the last directory
+    QString directory("");
+
+    // Fixme: remember the last directory
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Import layer setup"), directory,
+            tr("JSON file (*.json)"));
+    
+    if (!fileName.isEmpty())
+    {
+        std::ifstream ifile(fileName.toStdString(), std::ios::in);
+        if (ifile.is_open())
+        {
+            std::stringstream buffer;
+            buffer << ifile.rdbuf();
+            if(!m_db.m_layerRenderInfoDB.readJson(buffer.str()))
+            {
+                QMessageBox::critical(this, tr("Error"), tr("The Layer setup file contains errors"), QMessageBox::Close);
+                doLog(LOG_ERROR, "Cannot read/parse Layer setup file!\n");
+            }
+        }
+        else
+        {
+            doLog(LOG_ERROR, "Cannot open Layer setup file!\n");
+        }
+    }
+
+    m_techBrowser->refreshDatabase();
+}
+
+void MainWindow::onLoadVerilog()
+{
+    // Fixme: remember the last directory
 }

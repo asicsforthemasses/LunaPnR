@@ -40,17 +40,21 @@ void LayerRenderInfo::LayerType::read(const QJsonObject &json)
 
     int w = 0;
     int h = 0;
+
     if (json.contains("width") && json["width"].isDouble())
     {
         w = json["width"].toInt();
     }
+
     if (json.contains("height") && json["height"].isDouble())
     {
         h = json["height"].toInt();
     }
+    
     if (json.contains("pixmap") && json["pixmap"].isString())
     {
-        auto pixmap = GUI::createPixmapFromString(json["pixmap"].toString().toStdString(),
+        auto str = json["pixmap"].toString();
+        auto pixmap = GUI::createPixmapFromString(str.toStdString(),
             w,h);
 
         if (pixmap.has_value())

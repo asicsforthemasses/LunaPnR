@@ -4,6 +4,11 @@
 
 For more information, please visit the [homepage](https://www.asicsforthemasses.com "Luna PnR homepage").
 
+## Current development status
+* TLDR; Don't expect anything.
+* Cell browser works.
+* Tech browser works.
+
 ## Build requirements
 * GCC 9.3 or higher
 * CMake 3.16 or higher

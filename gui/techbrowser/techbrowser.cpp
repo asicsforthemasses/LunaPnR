@@ -131,6 +131,14 @@ void TechBrowser::setDatabase(Database *db)
     m_layerTableView->selectRow(0);
 }
 
+void TechBrowser::refreshDatabase()
+{
+    if (m_db != nullptr)
+    {
+        m_layerTableModel->setTechLib(&m_db->techLib());
+    }    
+}
+
 void TechBrowser::onLayerSelectionChanged(const QItemSelection &cur, const QItemSelection &prev)
 {
     QModelIndex index = m_layerTableView->currentIndex();

@@ -29,9 +29,23 @@ public:
 public slots:
     void onQuit();
     void onAbout();
+    void onLoadVerilog();
+    void onImportLEF();
+    void onImportLIB();
+    void onImportLayers();
     
 protected:
-    QMenuBar    *m_menuBar;
+    void createMenus();
+    void createActions();
+
+    QAction *m_quitAct;    
+    QAction *m_aboutAct;
+    QAction *m_loadVerilog;
+    QAction *m_importLEF;
+    QAction *m_importLIB;
+    QAction *m_importLayers;
+
+    //QMenuBar    *m_menuBar;
     QSplitter   *m_splitter;
     QTabWidget  *m_mainTabWidget;
     

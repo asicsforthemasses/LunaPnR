@@ -48,24 +48,36 @@ std::optional<QPixmap> GUI::createPixmapFromString(const std::string &pixels, in
     }
 
     size_t ofs = 0;
-    for(int y=0; y<height; y++)
+    size_t numPixels = width*height;
+    int x=0;
+    int y=0;
+    while(numPixels > 0)
     {
-        for(int x=0; x<width; x++)
+        char c = pixels.at(ofs);
+        if (c == '\n')
         {
-            // skip EOL
-            if (pixels.at(ofs) == '\n')
-                continue;
-
-            if (pixels.at(ofs) != ' ')
-            {
-                image.setPixel(QPoint(x,y), 1);
-            }
-            else
-            {
-                image.setPixel(QPoint(x,y), 0);
-            }
             ofs++;
+            continue;
         }
+
+        if (c != ' ')
+        {
+            image.setPixel(QPoint(x,y), 1);
+        }
+        else
+        {
+            image.setPixel(QPoint(x,y), 0);
+        }
+
+        x++;
+        if (x == width)
+        {
+            x = 0;
+            y++;
+        }
+        
+        numPixels--;
+        ofs++;
     }
 
     QPixmap pixmap;

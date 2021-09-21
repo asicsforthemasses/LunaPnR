@@ -57,6 +57,8 @@ QSize CellBrowser::sizeHint() const
 
 void CellBrowser::setDatabase(Database *db)
 {
+    m_db = db;
+    
     m_cellLayoutView->setDatabase(db);
     m_cellModel->setCellLib(&db->cellLib());
 
@@ -71,6 +73,11 @@ void CellBrowser::setDatabase(Database *db)
         m_cellTreeView->header()->setSectionResizeMode(
             c, QHeaderView::Stretch);
     }    
+}
+
+void CellBrowser::refreshDatabase()
+{
+    setDatabase(m_db);
 }
 
 void CellBrowser::onCellSelectionChanged(const QItemSelection &cur, const QItemSelection &prev)

@@ -87,30 +87,7 @@ void LayerTableModel::setTechLib(const ChipDB::TechLib *techLib)
     beginResetModel();
     m_techLib = techLib;
     endResetModel();
-    //synchronizeCellIds(cellLib);
 }
-
-#if 0
-void LayerTableModel::synchronizeCellIds(const ChipDB::CellLib *cellLib)
-{
-    if (cellLib == nullptr)
-        return;    
-
-    beginResetModel();
-    m_cellLib = cellLib;
-    m_cellsIndex.resize(m_cellLib->size());
-    
-    auto cellIter = m_cellLib->cells().begin();
-    size_t idx = 0;
-    while(cellIter != m_cellLib->cells().end())
-    {
-        m_cellsIndex[idx] = cellIter.index();
-        idx++;
-        ++cellIter;
-    }
-    endResetModel();
-}
-#endif
 
 int LayerTableModel::rowCount(const QModelIndex &parent) const
 {
@@ -215,9 +192,3 @@ const ChipDB::LayerInfo* LayerTableModel::getLayer(int row) const
         return nullptr;
     }
 }
-
-void LayerTableModel::techLibUpdated()
-{
-    //synchronizeCellIds(m_cellLib);
-}
-

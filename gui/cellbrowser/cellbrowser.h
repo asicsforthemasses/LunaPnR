@@ -28,7 +28,8 @@ public:
     virtual ~CellBrowser();
 
     void setDatabase(Database *db);
-    
+    void refreshDatabase();
+
     QSize sizeHint() const;
 
 public slots:
@@ -44,6 +45,8 @@ protected:
     CellLayoutView  *m_cellLayoutView;
 
     QTreeView       *m_cellTreeView;
+
+    Database        *m_db;
 };
 
 };  // namespace

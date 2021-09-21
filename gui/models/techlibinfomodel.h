@@ -32,8 +32,6 @@ public:
 
     const ChipDB::LayerInfo* getLayer(int row) const;
 
-    void techLibUpdated();
-
 protected:
     QColor m_darkColor;
     QColor m_lightColor;
