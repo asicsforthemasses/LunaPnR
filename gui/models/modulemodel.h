@@ -38,4 +38,31 @@ protected:
     const ChipDB::ModuleLib *m_moduleLib;
 };
 
+
+/** gives a list of all available models */
+class ModuleListModel : public QAbstractListModel
+{
+public:
+    ModuleListModel(const ChipDB::ModuleLib *moduleLib);
+
+    void setModuleLib(const ChipDB::ModuleLib *moduleLib);
+
+    /** returns various information about enabled/disabled items etc */
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+
+    /** return the number of rows in the list */
+    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+
+    /** query the data a 'index' position */
+    virtual QVariant data(const QModelIndex &index, int role) const override;
+
+    /** query the view/list header information */
+    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+
+protected:
+    QColor m_lightColor;
+    QColor m_darkColor;
+    const ChipDB::ModuleLib *m_moduleLib;
+};
+
 }; // namespace

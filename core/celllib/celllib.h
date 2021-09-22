@@ -71,7 +71,6 @@ public:
     Net* createNet(const std::string &netName);
 
     Netlist m_netlist;
-    
 };
 
 class CellLib

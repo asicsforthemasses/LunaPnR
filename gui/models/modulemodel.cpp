@@ -15,7 +15,6 @@ void ModuleTableModel::setModuleLib(const ChipDB::ModuleLib *moduleLib)
     beginResetModel();
     m_moduleLib = moduleLib;
     endResetModel();
-    //synchronizeCellIds(cellLib);
 }
 
 int ModuleTableModel::rowCount(const QModelIndex &parent) const
@@ -64,7 +63,6 @@ QVariant ModuleTableModel::data(const QModelIndex &index, int role) const
                     //return QString::fromStdString(ChipDB::toString(cell->m_subclass));
                 }
             }
-                
             else
                 return QString("(null)");
         }
@@ -85,7 +83,7 @@ QVariant ModuleTableModel::headerData(int section, Qt::Orientation orientation, 
 {
     const std::array<const char *,1> headerNames= 
     {
-        "Name"
+        "Module"
     };
 
     QVariant v;
@@ -121,4 +119,76 @@ const ChipDB::Module* ModuleTableModel::getModule(int row) const
     {
         return nullptr;
     }
+}
+
+
+// ********************************************************************************
+//    ModuleListModel
+// ********************************************************************************
+
+ModuleListModel::ModuleListModel(const ChipDB::ModuleLib *moduleLib)
+{
+    setModuleLib(moduleLib);
+}
+
+int ModuleListModel::rowCount(const QModelIndex &parent) const
+{
+    if (m_moduleLib == nullptr)
+    {
+        return 0;
+    }
+    return m_moduleLib->size();
+}
+
+void ModuleListModel::setModuleLib(const ChipDB::ModuleLib *moduleLib)
+{
+    beginResetModel();
+    m_moduleLib = moduleLib;
+    endResetModel();
+}
+
+    /** query the view/list header information */
+QVariant ModuleListModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    return "Modules";
+}
+
+Qt::ItemFlags ModuleListModel::flags(const QModelIndex &index) const
+{
+    return Qt::ItemIsEnabled;
+}
+
+QVariant ModuleListModel::data(const QModelIndex &index, int role) const
+{
+    QVariant v;
+
+    if ((m_moduleLib == nullptr) || (!index.isValid()))
+        return v;
+
+    size_t idx = index.row();
+    switch(role)
+    {
+    case Qt::DisplayRole:
+    case Qt::EditRole:
+        if (idx < rowCount())
+        {
+            auto module = m_moduleLib->m_modules.at(idx);
+            if (module != nullptr)
+            {
+                return QString::fromStdString(module->m_name);
+            }                
+            else
+                return QString("(null)");
+        }
+        break;
+    case Qt::BackgroundColorRole:
+        if (index.row() % 2)
+            return m_darkColor;
+        else
+            return m_lightColor;
+
+        break;    
+    }
+
+    return v;    
 }

@@ -57,6 +57,7 @@ protected:
 
 class ModelBase : public QAbstractItemModel
 {
+    Q_OBJECT
 public:
     ModelBase();
     virtual ~ModelBase();

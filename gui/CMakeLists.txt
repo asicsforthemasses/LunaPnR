@@ -12,6 +12,7 @@ find_package(Qt5 REQUIRED QUIET COMPONENTS Core Widgets LinguistTools)
 set (LUNA_SRC_FILES
     models/modelnodebase.cpp
     models/modulemodel.cpp
+    models/moduleinfomodel.cpp
     models/celllibmodel.cpp
     models/cellinfomodel.cpp
     models/techlibinfomodel.cpp

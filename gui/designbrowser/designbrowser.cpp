@@ -14,19 +14,17 @@ DesignBrowser::DesignBrowser(QWidget *parent) : QWidget(parent)
     m_moduleTableView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_moduleTableView->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     m_moduleTableView->horizontalHeader()->setStretchLastSection(true);
-    
-    //m_cellLayoutView = new CellLayoutView(parent);
 
     m_moduleModel.reset(new ModuleTableModel(nullptr));
     m_moduleTableView->setModel(m_moduleModel.get());
     
-    // pin list view
-    //m_cellTreeView = new QTreeView();
-    //m_cellTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers); // make read-only
-    //m_cellTreeView->setHeaderHidden(true);
+    // module information view
+    m_moduleTreeView = new QTreeView();
+    m_moduleTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers); // make read-only
+    m_moduleTreeView->setHeaderHidden(true);
 
-    //m_cellInfoModel.reset(new CellInfoModel());
-    //m_cellTreeView->setModel(m_cellInfoModel.get());
+    m_moduleInfoModel.reset(new ModuleInfoModel());
+    m_moduleTreeView->setModel(m_moduleInfoModel.get());
 
     //m_layout2 = new QVBoxLayout();
     //m_layout2->addWidget(new QLabel("Cell information"),0);
@@ -34,17 +32,15 @@ DesignBrowser::DesignBrowser(QWidget *parent) : QWidget(parent)
 
     m_layout = new QHBoxLayout();
     m_layout->addWidget(m_moduleTableView,1);
-    //m_layout->addWidget(m_cellLayoutView,2);
+    m_layout->addWidget(m_moduleTreeView,2);
     //m_layout->addLayout(m_layout2,1);
 
     setLayout(m_layout);
 
-#if 0
-    connect(m_cellTableView->selectionModel(), 
+    connect(m_moduleTableView->selectionModel(), 
         SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), 
         this,
-        SLOT(onCellSelectionChanged(const QItemSelection&, const QItemSelection&)));
-#endif
+        SLOT(onModuleSelectionChanged(const QItemSelection&, const QItemSelection&)));
 }
 
 DesignBrowser::~DesignBrowser()
@@ -54,7 +50,7 @@ DesignBrowser::~DesignBrowser()
 
 QSize DesignBrowser::sizeHint() const
 {
-    return m_moduleTableView->sizeHint();
+    return m_moduleTreeView->sizeHint();
 }
 
 void DesignBrowser::setDatabase(Database *db)
@@ -89,6 +85,7 @@ void DesignBrowser::onModuleSelectionChanged(const QItemSelection &cur, const QI
         auto module = m_moduleModel->getModule(index.row());
         if (module != nullptr)
         {
+            m_moduleInfoModel->setModule(module);
             update();
             doLog(LOG_VERBOSE, "Selected module %s\n", module->m_name.c_str());
         }

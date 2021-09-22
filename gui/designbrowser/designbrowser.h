@@ -12,6 +12,7 @@
 
 #include "../common/database.h"
 #include "../models/modulemodel.h"
+#include "../models/moduleinfomodel.h"
 
 namespace GUI
 {
@@ -34,14 +35,12 @@ public slots:
 
 protected:
     std::unique_ptr<ModuleTableModel>  m_moduleModel;
-    //std::unique_ptr<CellInfoModel>      m_cellInfoModel;
+    std::unique_ptr<ModuleInfoModel>   m_moduleInfoModel;
     
     QHBoxLayout     *m_layout;
     QVBoxLayout     *m_layout2;
     QTableView      *m_moduleTableView;
-    //CellLayoutView  *m_cellLayoutView;
-
-    //QTreeView       *m_cellTreeView;
+    QTreeView       *m_moduleTreeView;
 
     Database        *m_db;
 };
