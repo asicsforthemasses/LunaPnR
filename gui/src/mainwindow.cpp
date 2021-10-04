@@ -46,6 +46,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     // create console
     m_console = new GUI::MMConsole(this);
 
+    connect(m_console, &GUI::MMConsole::newCommand, this, &MainWindow::onConsoleCommand);
+
     m_splitter = new QSplitter(Qt::Vertical, this);
     m_splitter->addWidget(m_mainTabWidget);
     m_splitter->addWidget(m_console);
@@ -169,6 +171,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     //m_techBrowser->setDatabase(&m_db);
     m_floorplanView->update();
+
+    m_lua.reset(new GUI::LuaWrapper(m_console));
+
+    m_lua->run("print(\"Running \" .. _VERSION)\n");
 }
 
 MainWindow::~MainWindow()
@@ -366,4 +372,12 @@ void MainWindow::onLoadVerilog()
         }
         m_designBrowser->refreshDatabase();
     }   
+}
+
+void MainWindow::onConsoleCommand(const char *cmd)
+{
+    if (m_lua)
+    {
+        m_lua->run(cmd);
+    }
 }

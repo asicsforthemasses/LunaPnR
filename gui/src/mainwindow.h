@@ -17,6 +17,7 @@
 #include "../floorplanview/floorplanview.h"
 
 #include "lunacore.h"
+#include "luawrapper.h"
 #include "../common/database.h"
 
 class MainWindow : public QMainWindow
@@ -35,6 +36,7 @@ public slots:
     void onImportLIB();
     void onImportLayers();
     void onExportLayers();
+    void onConsoleCommand(const char *cmd);
     
 protected:
     void createMenus();
@@ -59,4 +61,6 @@ protected:
     GUI::FloorplanView  *m_floorplanView;
 
     GUI::Database m_db;
+
+    std::unique_ptr<GUI::LuaWrapper> m_lua;
 };

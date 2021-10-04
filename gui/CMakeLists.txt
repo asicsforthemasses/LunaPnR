@@ -30,6 +30,7 @@ set (LUNA_SRC_FILES
     cellbrowser/celllayoutview.cpp
     propertyview/propertyview.cpp
     console/mmconsole.cpp
+    src/luawrapper.cpp
     src/mainwindow.cpp
     src/main.cpp
 )
@@ -50,8 +51,8 @@ add_executable(lunapnr
     ${QM_FILES}
     )
 
-target_link_libraries(lunapnr lunacore Qt5::Widgets)
-target_include_directories(lunapnr PUBLIC ../core/include .)
+target_link_libraries(lunapnr lunacore Qt5::Widgets liblua)
+target_include_directories(lunapnr PUBLIC ../core/include ../contrib/lua-5.4.3/src .)
 
 set_property(TARGET lunapnr PROPERTY AUTOMOC ON)
 set_property(TARGET lunapnr PROPERTY AUTOUIC ON)

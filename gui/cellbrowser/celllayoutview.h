@@ -9,40 +9,6 @@
 namespace GUI
 {
 
-class CellLayoutView;   // pre-declaration
-
-class DrawObstructionVisitor : public ChipDB::ConstVisitor
-{
-public:
-    DrawObstructionVisitor(CellLayoutView *view, QPainter *painter);
-
-    //virtual void visit(const ChipDB::CellRect *rect) override;
-
-    //virtual void visit(const ChipDB::CellPolygon *rect) override;
-    
-protected:
-    QPainter       *m_painter;
-    CellLayoutView *m_view;
-};
-
-class DrawLayoutItemVisitor : public ChipDB::ConstVisitor
-{
-public:
-    DrawLayoutItemVisitor(CellLayoutView *view, QPainter *painter);
-
-    //virtual void visit(const ChipDB::CellRect *rect) override;
-
-    //virtual void visit(const ChipDB::CellPolygon *rect) override;
-    
-    QRectF getTextRect() const;
-
-protected:
-    QPainter       *m_painter;
-    CellLayoutView *m_view;
-    int64_t        m_largestArea;
-    QRectF         m_txtrect;
-};
-
 /** display standard cell layout */
 class CellLayoutView : public QWidget
 {
@@ -52,9 +18,6 @@ class CellLayoutView : public QWidget
     //QSize sizeHint() const override;
 
 public:    
-    friend DrawObstructionVisitor;
-    friend DrawLayoutItemVisitor;
-
     explicit CellLayoutView(QWidget *parent = nullptr);
     virtual ~CellLayoutView();
 

@@ -25,6 +25,9 @@ enum class IOType : uint8_t
 
 std::string toString(const IOType &iotype);
 
+/** describes the location of an accessible pin location on a cell. */
+
+
 struct PinInfo
 {
 PinInfo() :
@@ -90,7 +93,17 @@ PinInfo(const std::string &name) :
         return m_clock;
     }    
 
+    /** geometry description of pin */
     std::unordered_map<std::string /* layer name */, GeometryObjects> m_pinLayout;
+
+    struct Location
+    {
+        std::string     m_layer;
+        ChipDB::Rect64  m_rect;
+    };
+
+    /** valid accessible locations determined by the given routing grid */
+    std::vector<Location> m_pinLocations;
 };
 
 class PinInfoList
