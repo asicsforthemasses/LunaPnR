@@ -1,6 +1,7 @@
 // see: https://www.fatalerrors.org/a/lua-and-c-c-interoperation.html
 
 #include "luawrapper.h"
+#include "../luafuncs/luafuncs.h"
 #include <iostream>
 #include <sstream>
 
@@ -30,14 +31,25 @@ static int wrapper_print(lua_State *L)
     return 0;
 }
 
-LuaWrapper::LuaWrapper(MMConsole *console) : m_console(console)
+LuaWrapper::LuaWrapper(MMConsole *console, Database &db) : m_console(console), m_db(db)
 {
     m_L = luaL_newstate();
     luaL_openlibs(m_L);
+
+    // replace the LUA print function with our own
     lua_register(m_L,"print", wrapper_print);
 
+    //FIXME: this pointer should not be mutable by the VM..
+    // expose the LuaWrapper object to the LUA VM
     lua_pushlightuserdata(m_L, this);
     lua_setglobal(m_L, "luawrapperobj");
+
+    //FIXME: this pointer should not be mutable by the VM..
+    // expose the Database object to the LUA VM
+    lua_pushlightuserdata(m_L, &m_db);
+    lua_setglobal(m_L, "databaseobj");
+
+    Lua::registerFunctions(m_L);
 }
 
 LuaWrapper::~LuaWrapper()

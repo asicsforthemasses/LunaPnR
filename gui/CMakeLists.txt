@@ -30,6 +30,7 @@ set (LUNA_SRC_FILES
     cellbrowser/celllayoutview.cpp
     propertyview/propertyview.cpp
     console/mmconsole.cpp
+    luafuncs/luafuncs.cpp
     src/luawrapper.cpp
     src/mainwindow.cpp
     src/main.cpp

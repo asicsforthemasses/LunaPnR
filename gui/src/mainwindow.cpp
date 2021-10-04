@@ -172,8 +172,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     //m_techBrowser->setDatabase(&m_db);
     m_floorplanView->update();
 
-    m_lua.reset(new GUI::LuaWrapper(m_console));
-
+    m_lua.reset(new GUI::LuaWrapper(m_console, m_db));
+    
     m_lua->run("print(\"Running \" .. _VERSION)\n");
 }
 
@@ -379,5 +379,9 @@ void MainWindow::onConsoleCommand(const char *cmd)
     if (m_lua)
     {
         m_lua->run(cmd);
+    }
+    else
+    {
+        doLog(LOG_ERROR, "LUA not available!\n");
     }
 }
