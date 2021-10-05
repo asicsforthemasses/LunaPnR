@@ -15,12 +15,6 @@ public:
     void setHatch(const QPixmap &hatch);
     QPixmap getHatch() const;
 
-public slots:
-    void changeHatch();
-
-signals:
-    void onHatchChanged();
-
 protected:
     void paintEvent(QPaintEvent *event);
 

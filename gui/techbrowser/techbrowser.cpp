@@ -75,9 +75,9 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent)
         SLOT(onLayerColorChanged()));
 
     connect(m_hatchButton, 
-        SIGNAL(onHatchChanged()), 
+        SIGNAL(clicked()), 
         this,
-        SLOT(onLayerHatchChanged()));
+        SLOT(onChangeHatch()) );
 
     connect(m_colorObsButton, 
         SIGNAL(onColorChanged()), 
@@ -85,9 +85,9 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent)
         SLOT(onLayerObsColorChanged()));
 
     connect(m_hatchObsButton, 
-        SIGNAL(onHatchChanged()), 
+        SIGNAL(clicked()), 
         this,
-        SLOT(onLayerObsHatchChanged()));        
+        SLOT(onChangeObsHatch()) );        
 }
 
 TechBrowser::~TechBrowser()
@@ -222,20 +222,37 @@ void TechBrowser::onLayerColorChanged()
     }
 }
 
-void TechBrowser::onLayerHatchChanged()
-{
-    QModelIndex index = m_layerTableView->currentIndex();
-    auto layer = m_layerTableModel->getLayer(index.row());
-    
-    if ((layer != nullptr) && (m_db != nullptr))
+void TechBrowser::onChangeHatch()
+{    
+    if (m_db == nullptr)
     {
-        auto info = m_db->m_layerRenderInfoDB.getRenderInfo(layer->m_name);
-        if (info)
-        {
-            info->routing().setTexture(m_hatchButton->getHatch());
-            m_db->m_layerRenderInfoDB.setRenderInfo(layer->m_name, *info);
-        }
+        return;
     }
+
+    HatchDialog dialog(m_db->m_hatchLib, this);
+
+    auto retval = dialog.exec();
+    if (retval == QDialog::Accepted)
+    {
+        auto index = dialog.getHatchIndex();
+        if (index >= 0)
+        {
+            auto hatch = m_db->m_hatchLib.m_hatches.at(index);
+            m_hatchButton->setHatch(hatch);
+
+            QModelIndex index = m_layerTableView->currentIndex();
+            auto layer = m_layerTableModel->getLayer(index.row());
+            if (layer != nullptr)
+            {
+                auto info = m_db->m_layerRenderInfoDB.getRenderInfo(layer->m_name);
+                if (info)
+                {
+                    info->routing().setTexture(hatch);
+                    m_db->m_layerRenderInfoDB.setRenderInfo(layer->m_name, *info);
+                }
+            }            
+        }        
+    }    
 }
 
 void TechBrowser::onLayerObsColorChanged()
@@ -254,7 +271,7 @@ void TechBrowser::onLayerObsColorChanged()
     }
 }
 
-void TechBrowser::onLayerObsHatchChanged()
+void TechBrowser::onChangeObsHatch()
 {
     QModelIndex index = m_layerTableView->currentIndex();
     auto layer = m_layerTableModel->getLayer(index.row());

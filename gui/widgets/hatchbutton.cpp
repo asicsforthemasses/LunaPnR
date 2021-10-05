@@ -10,13 +10,14 @@ using namespace GUI;
 SelectHatchButton::SelectHatchButton(QWidget *parent)
 {
     setFixedSize(QSize{80,80});
-    connect(this, SIGNAL(clicked()), this, SLOT(changeHatch()));
 }
 
+#if 0
 void SelectHatchButton::changeHatch()
 {
     HatchLibrary hatchLib;
     HatchDialog dialog(hatchLib, this);
+
     auto retval = dialog.exec();
     if (retval == QDialog::Accepted)
     {
@@ -28,6 +29,7 @@ void SelectHatchButton::changeHatch()
         }        
     }
 }
+#endif
 
 void SelectHatchButton::setHatch(const QPixmap &pixmap)
 {

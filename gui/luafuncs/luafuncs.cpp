@@ -3,6 +3,7 @@
 #include <sstream>
 #include "luafuncs.h"
 
+#include "common/guihelpers.h"
 #include "common/database.h"
 #include "src/luawrapper.h"
 
@@ -171,11 +172,49 @@ static int clear(lua_State *L)
     return 0;
 }
 
+// width, height, string
+static int add_hatch(lua_State *L)
+{
+    auto db = getDB(L);
+
+    if (!lua_isinteger(L, 1))
+    {
+        reportError(L, "Expected an integer for width");
+        return 0;
+    }
+
+    if (!lua_isinteger(L, 2))
+    {
+        reportError(L, "Expected an integer for height");
+        return 0;
+    }
+
+    if (!lua_isstring(L, 3))
+    {
+        reportError(L, "Expected a string as third parameter");
+        return 0;
+    }    
+
+    auto width  = lua_tointeger(L, 1);
+    auto height = lua_tointeger(L, 2);
+    auto str    = lua_tostring(L, 3);
+
+    auto hatchPixmap = GUI::createPixmapFromString(std::string(str), width, height);
+    if (hatchPixmap.has_value())
+    {
+        db->m_hatchLib.m_hatches.push_back(*hatchPixmap);
+    }
+
+    return 0;
+}
+
 void Lua::registerFunctions(lua_State *L)
 {
     lua_register(L, "clear", clear);
+    lua_register(L, "add_hatch", add_hatch);
     lua_register(L, "load_verilog", load_verilog);
     lua_register(L, "load_lef", load_lef);
     lua_register(L, "load_lib", load_lib);
     lua_register(L, "load_layers", load_layers);
 }
+

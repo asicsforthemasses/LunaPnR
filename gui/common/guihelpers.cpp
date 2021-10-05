@@ -60,7 +60,7 @@ std::optional<QPixmap> GUI::createPixmapFromString(const std::string &pixels, in
             continue;
         }
 
-        if (c != ' ')
+        if ((c != ' ') && (c != '.'))
         {
             image.setPixel(QPoint(x,y), 1);
         }

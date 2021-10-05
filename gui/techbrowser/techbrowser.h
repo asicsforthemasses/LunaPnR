@@ -32,9 +32,9 @@ public:
 public slots:
     void onLayerSelectionChanged(const QItemSelection &cur, const QItemSelection &prev);
     void onLayerColorChanged();
-    void onLayerHatchChanged();
+    void onChangeHatch();
     void onLayerObsColorChanged();
-    void onLayerObsHatchChanged();
+    void onChangeObsHatch();
 
 protected:
     std::unique_ptr<LayerInfoModel>     m_layerInfoModel;
