@@ -184,6 +184,8 @@ MainWindow::~MainWindow()
 void MainWindow::createMenus()
 {
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(m_runScriptAct);
+    fileMenu->addSeparator();
     fileMenu->addAction(m_quitAct);
 
     QMenu *designMenu = menuBar()->addMenu(tr("&Design"));
@@ -201,6 +203,9 @@ void MainWindow::createMenus()
 
 void MainWindow::createActions()
 {
+    m_runScriptAct = new QAction(tr("Run script..."), this);
+    connect(m_runScriptAct, &QAction::triggered, this, &MainWindow::onRunScript);
+
     m_quitAct = new QAction(tr("&Quit"), this);
     connect(m_quitAct, &QAction::triggered, this, &MainWindow::onQuit);
 
@@ -383,5 +388,29 @@ void MainWindow::onConsoleCommand(const char *cmd)
     else
     {
         doLog(LOG_ERROR, "LUA not available!\n");
+    }
+}
+
+void MainWindow::onRunScript()
+{
+    QString directory("");
+
+    // Fixme: remember the last directory
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Run LUA Script"), directory,
+            tr("LUA script (*.lua)"));
+
+    if ((!fileName.isEmpty()) && m_lua)
+    {
+        std::ifstream luafile(fileName.toStdString());
+        if (!luafile.good())
+        {
+            doLog(LOG_ERROR,"Script file '%s' cannot be opened for reading\n", fileName.toStdString().c_str());
+            QMessageBox::critical(this, tr("Error"), tr("The LUA script file could not be opened for reading"), QMessageBox::Close);
+            return;
+        }
+
+        std::stringstream ss;
+        ss << luafile.rdbuf();
+        m_lua->run(ss.str());
     }
 }

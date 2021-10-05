@@ -148,7 +148,7 @@ Module* ModuleLib::createModule(const std::string &name)
 {
     auto newModule = new Module();
     newModule->m_name = name;
-    m_modules.push_back(newModule);
+    m_modules.add(name, newModule);
     return newModule;
 }
 

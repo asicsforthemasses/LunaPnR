@@ -19,6 +19,7 @@ set (LUNA_SRC_FILES
     common/guihelpers.cpp
     common/hatchlibrary.cpp
     common/layerrenderinfo.cpp
+    common/database.cpp
     widgets/colorbutton.cpp
     widgets/hatchbutton.cpp
     widgets/hatchdialog.cpp

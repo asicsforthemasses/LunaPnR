@@ -112,51 +112,37 @@ const ChipDB::Cell* CellLibListModel::getCell(int row) const
     }
 }
 
-void CellLibListModel::cellLibUpdated()
-{
-    //synchronizeCellIds(m_cellLib);
-}
 
 // ********************************************************************************
 //    CellLibTableModel
 // ********************************************************************************
 
-CellLibTableModel::CellLibTableModel(const ChipDB::CellLib *cellLib)
+CellLibTableModel::CellLibTableModel(ChipDB::CellLib *cellLib) : m_cellLib(nullptr)
 {
     m_lightColor = QColor("#F0F0F0");
     m_darkColor  = QColor("#D0D0D0");  
     setCellLib(cellLib);
 }
 
-void CellLibTableModel::setCellLib(const ChipDB::CellLib *cellLib)
+CellLibTableModel::~CellLibTableModel()
 {
-    beginResetModel();
-    m_cellLib = cellLib;
-    endResetModel();
-    //synchronizeCellIds(cellLib);
 }
 
-#if 0
-void CellLibTableModel::synchronizeCellIds(const ChipDB::CellLib *cellLib)
+void CellLibTableModel::setCellLib(ChipDB::CellLib *cellLib)
 {
-    if (cellLib == nullptr)
-        return;    
+    if (m_cellLib != nullptr)
+    {
+        m_cellLib->m_cells.removeListener(this);
+    }
 
     beginResetModel();
     m_cellLib = cellLib;
-    m_cellsIndex.resize(m_cellLib->size());
-    
-    auto cellIter = m_cellLib->cells().begin();
-    size_t idx = 0;
-    while(cellIter != m_cellLib->cells().end())
+    if (m_cellLib != nullptr)
     {
-        m_cellsIndex[idx] = cellIter.index();
-        idx++;
-        ++cellIter;
+        m_cellLib->m_cells.addListener(this);
     }
     endResetModel();
 }
-#endif
 
 int CellLibTableModel::rowCount(const QModelIndex &parent) const
 {
@@ -262,7 +248,8 @@ const ChipDB::Cell* CellLibTableModel::getCell(int row) const
     }
 }
 
-void CellLibTableModel::cellLibUpdated()
+void CellLibTableModel::notify(ssize_t index, ChipDB::INamedStorageListener::NotificationType t)
 {
-    //synchronizeCellIds(m_cellLib);
+    beginResetModel();
+    endResetModel();    
 }

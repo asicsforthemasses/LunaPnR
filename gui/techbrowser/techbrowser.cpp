@@ -166,6 +166,12 @@ void TechBrowser::onLayerSelectionChanged(const QItemSelection &cur, const QItem
 
             if (m_db != nullptr)
             {
+                // make sure the layer render info database stays in sync
+                if (m_db->m_layerRenderInfoDB.numberOfLayers() != m_db->techLib().m_layers.size())
+                {
+                    refreshDatabase();
+                }
+
                 auto info = m_db->m_layerRenderInfoDB.getRenderInfo(layer->m_name);
                 if (info.has_value())
                 {

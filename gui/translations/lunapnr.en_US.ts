@@ -61,12 +61,12 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="204"/>
+        <location filename="../src/mainwindow.cpp" line="209"/>
         <source>&amp;Quit</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="198"/>
+        <location filename="../src/mainwindow.cpp" line="200"/>
         <source>&amp;Help</source>
         <translation></translation>
     </message>
@@ -91,145 +91,166 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="189"/>
+        <location filename="../src/mainwindow.cpp" line="191"/>
         <source>&amp;Design</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="192"/>
+        <location filename="../src/mainwindow.cpp" line="194"/>
         <source>&amp;Technology</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="207"/>
+        <location filename="../src/mainwindow.cpp" line="206"/>
+        <source>Run script...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="212"/>
         <source>&amp;About</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="210"/>
+        <location filename="../src/mainwindow.cpp" line="215"/>
         <source>&amp;Load Verilog</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="213"/>
+        <location filename="../src/mainwindow.cpp" line="218"/>
         <source>Import LEF</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="216"/>
+        <location filename="../src/mainwindow.cpp" line="221"/>
         <source>Import LIB</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="219"/>
+        <location filename="../src/mainwindow.cpp" line="224"/>
         <source>Import Layers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="222"/>
+        <location filename="../src/mainwindow.cpp" line="227"/>
         <source>Export layers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="241"/>
+        <location filename="../src/mainwindow.cpp" line="246"/>
         <source>Import LEF file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="242"/>
+        <location filename="../src/mainwindow.cpp" line="247"/>
         <source>LEF file (*.lef *.tlef)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="250"/>
-        <location filename="../src/mainwindow.cpp" line="257"/>
-        <location filename="../src/mainwindow.cpp" line="280"/>
-        <location filename="../src/mainwindow.cpp" line="287"/>
-        <location filename="../src/mainwindow.cpp" line="313"/>
-        <location filename="../src/mainwindow.cpp" line="338"/>
-        <location filename="../src/mainwindow.cpp" line="364"/>
-        <location filename="../src/mainwindow.cpp" line="370"/>
+        <location filename="../src/mainwindow.cpp" line="255"/>
+        <location filename="../src/mainwindow.cpp" line="262"/>
+        <location filename="../src/mainwindow.cpp" line="285"/>
+        <location filename="../src/mainwindow.cpp" line="292"/>
+        <location filename="../src/mainwindow.cpp" line="318"/>
+        <location filename="../src/mainwindow.cpp" line="343"/>
+        <location filename="../src/mainwindow.cpp" line="369"/>
+        <location filename="../src/mainwindow.cpp" line="375"/>
+        <location filename="../src/mainwindow.cpp" line="408"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="250"/>
+        <location filename="../src/mainwindow.cpp" line="255"/>
         <source>The LEF file could not be opened for reading</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="257"/>
+        <location filename="../src/mainwindow.cpp" line="262"/>
         <source>The LEF file contains errors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="271"/>
+        <location filename="../src/mainwindow.cpp" line="276"/>
         <source>Import Liberty timing file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="272"/>
+        <location filename="../src/mainwindow.cpp" line="277"/>
         <source>LIB file (*.lib)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="280"/>
+        <location filename="../src/mainwindow.cpp" line="285"/>
         <source>The Liberty file could not be opened for reading</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="287"/>
+        <location filename="../src/mainwindow.cpp" line="292"/>
         <source>The LIB file contains errors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="301"/>
+        <location filename="../src/mainwindow.cpp" line="306"/>
         <source>Import layer setup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="302"/>
+        <location filename="../src/mainwindow.cpp" line="307"/>
         <source>JSON file (*.json)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="313"/>
+        <location filename="../src/mainwindow.cpp" line="318"/>
         <source>The Layer setup file contains errors</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="328"/>
+        <location filename="../src/mainwindow.cpp" line="333"/>
         <source>Save Layer setup File</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="330"/>
+        <location filename="../src/mainwindow.cpp" line="335"/>
         <source>Layer file (*.json)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="338"/>
+        <location filename="../src/mainwindow.cpp" line="343"/>
         <source>Cannot save Layer setup file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="354"/>
+        <location filename="../src/mainwindow.cpp" line="359"/>
         <source>load Verilog netlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="355"/>
+        <location filename="../src/mainwindow.cpp" line="360"/>
         <source>Verilog file (*.v)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="364"/>
+        <location filename="../src/mainwindow.cpp" line="369"/>
         <source>Could not parse Verilog file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="370"/>
+        <location filename="../src/mainwindow.cpp" line="375"/>
         <source>Could not open Verilog file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="399"/>
+        <source>Run LUA Script</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="400"/>
+        <source>LUA script (*.lua)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="408"/>
+        <source>The LUA script file could not be opened for reading</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

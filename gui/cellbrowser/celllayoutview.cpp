@@ -291,8 +291,8 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
             drawCenteredText(&painter, txtRect.center(), pin.getName(), font(), Qt::NoBrush);
             //painter.setBrush(Qt::NoBrush);
             //painter.drawRect(txtRect);
-        }
 #endif
+
         painter.setPen(Qt::red);
         for(auto const& layer : m_cell->m_obstructions)
         {

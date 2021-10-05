@@ -39,8 +39,6 @@ public:
 
     const ChipDB::Cell* getCell(int row) const;
 
-    void cellLibUpdated();
-
 protected:
     QColor m_lightColor;
     QColor m_darkColor;
@@ -49,12 +47,14 @@ protected:
 
 
 /** String list model that adapts a vector of strings to a QAbstractListModel */
-class CellLibTableModel : public QAbstractTableModel
+class CellLibTableModel : public QAbstractTableModel, ChipDB::INamedStorageListener
 {
 public:
-    CellLibTableModel(const ChipDB::CellLib *m_cellLib);
+    CellLibTableModel(ChipDB::CellLib *m_cellLib);
 
-    void setCellLib(const ChipDB::CellLib *m_cellLib);
+    virtual ~CellLibTableModel();
+
+    void setCellLib(ChipDB::CellLib *m_cellLib);
 
     /** return the number of rows in the table */
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -73,12 +73,12 @@ public:
 
     const ChipDB::Cell* getCell(int row) const;
 
-    void cellLibUpdated();
+    void notify(ssize_t index, ChipDB::INamedStorageListener::NotificationType t) override;
 
 protected:
     QColor m_lightColor;
     QColor m_darkColor;
-    const ChipDB::CellLib *m_cellLib;
+    ChipDB::CellLib *m_cellLib;
 };
 
 

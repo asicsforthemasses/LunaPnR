@@ -36,6 +36,7 @@ public slots:
     void onImportLIB();
     void onImportLayers();
     void onExportLayers();
+    void onRunScript();
     void onConsoleCommand(const char *cmd);
     
 protected:
@@ -49,6 +50,7 @@ protected:
     QAction *m_importLIB;
     QAction *m_importLayers;
     QAction *m_exportLayers;
+    QAction *m_runScriptAct;
 
     //QMenuBar    *m_menuBar;
     QSplitter   *m_splitter;

@@ -8,12 +8,14 @@
 namespace GUI
 {
 
-class LayerTableModel : public QAbstractTableModel
+class LayerTableModel : public QAbstractTableModel, ChipDB::INamedStorageListener
 {
 public:
-    LayerTableModel(const ChipDB::TechLib *techLib);
+    LayerTableModel(ChipDB::TechLib *techLib);
 
-    void setTechLib(const ChipDB::TechLib *m_techLib);
+    virtual ~LayerTableModel();
+
+    void setTechLib(ChipDB::TechLib *m_techLib);
 
     /** return the number of rows in the table */
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -32,10 +34,12 @@ public:
 
     const ChipDB::LayerInfo* getLayer(int row) const;
 
+    void notify(ssize_t index, ChipDB::INamedStorageListener::NotificationType t) override;
+
 protected:
     QColor m_darkColor;
     QColor m_lightColor;
-    const ChipDB::TechLib *m_techLib;
+    ChipDB::TechLib *m_techLib;
 };
 
 
@@ -73,8 +77,6 @@ public:
     void setLayer(const ChipDB::LayerInfo *layer);
 
 protected:
-    //QColor m_pinColor;
-    //QColor m_separatorColor;
     AlternatingColors m_altColors;
 };
 

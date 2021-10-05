@@ -1,0 +1,277 @@
+{
+    "layers": [
+        {
+            "layer": "via4",
+            "types": [
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                },
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                }
+            ]
+        },
+        {
+            "layer": "via",
+            "types": [
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                },
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                }
+            ]
+        },
+        {
+            "layer": "metal4",
+            "types": [
+                {
+                    "color": "#ffffffcc",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                },
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                }
+            ]
+        },
+        {
+            "layer": "metal6",
+            "types": [
+                {
+                    "color": "#ff5e00e6",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                },
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                }
+            ]
+        },
+        {
+            "layer": "poly",
+            "types": [
+                {
+                    "color": "#ff00cc66",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                },
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                }
+            ]
+        },
+        {
+            "layer": "via5",
+            "types": [
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                },
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                }
+            ]
+        },
+        {
+            "layer": "metal5",
+            "types": [
+                {
+                    "color": "#ff81b3ff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                },
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                }
+            ]
+        },
+        {
+            "layer": "pactive",
+            "types": [
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                },
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                }
+            ]
+        },
+        {
+            "layer": "via3",
+            "types": [
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                },
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                }
+            ]
+        },
+        {
+            "layer": "cc",
+            "types": [
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                },
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                }
+            ]
+        },
+        {
+            "layer": "nactive",
+            "types": [
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                },
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                }
+            ]
+        },
+        {
+            "layer": "metal1",
+            "types": [
+                {
+                    "color": "#ffccccd9",
+                    "height": 16,
+                    "pixmap": "*           *           \n                        \n      *           *     \n                        \n*           *           \n                        \n      *           *     \n                        \n*           *           \n                        \n      *           *     \n                        \n*           *           \n                        \n      *           *     \n                        \n",
+                    "width": 24
+                },
+                {
+                    "color": "#ffccccd9",
+                    "height": 12,
+                    "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
+                    "width": 41
+                }
+            ]
+        },
+        {
+            "layer": "metal2",
+            "types": [
+                {
+                    "color": "#ffd9cc00",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                },
+                {
+                    "color": "#ffd9cc00",
+                    "height": 12,
+                    "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
+                    "width": 41
+                }
+            ]
+        },
+        {
+            "layer": "nwell",
+            "types": [
+                {
+                    "color": "#ffffff00",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                },
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                }
+            ]
+        },
+        {
+            "layer": "via2",
+            "types": [
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                },
+                {
+                    "color": "#ffffffff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                }
+            ]
+        },
+        {
+            "layer": "metal3",
+            "types": [
+                {
+                    "color": "#ff00ffff",
+                    "height": 16,
+                    "pixmap": "*   *   *   *   *   *   *   *   \n   *   *   *   *   *   *   *   *\n  *   *   *   *   *   *   *   * \n *   *   *   *   *   *   *   *  \n*   *   *   *   *   *   *   *   \n   *   *   *   *   *   *   *   *\n  *   *   *   *   *   *   *   * \n *   *   *   *   *   *   *   *  \n*   *   *   *   *   *   *   *   \n   *   *   *   *   *   *   *   *\n  *   *   *   *   *   *   *   * \n *   *   *   *   *   *   *   *  \n*   *   *   *   *   *   *   *   \n   *   *   *   *   *   *   *   *\n  *   *   *   *   *   *   *   * \n *   *   *   *   *   *   *   *  \n",
+                    "width": 32
+                },
+                {
+                    "color": "#ff00ffff",
+                    "height": 12,
+                    "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
+                    "width": 41
+                }
+            ]
+        }
+    ]
+}
+

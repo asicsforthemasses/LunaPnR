@@ -113,7 +113,7 @@ class ModuleLib
 public:
     virtual ~ModuleLib();
 
-    std::vector<Module*> m_modules;
+    NamedStorage<Module*> m_modules;
 
     size_t size() const
     {

@@ -13,6 +13,9 @@ class Design
 public:
     Design() : m_uniqueIDCounter(0) {}
 
+    /** clear netlist, celllib, modules and technology information */
+    void clear();
+
     Module* createModule(const std::string &name);
 
     Netlist                 m_netlist;

@@ -4,23 +4,64 @@
 #include <sstream>
 #include <vector>
 #include <string>
+#include <atomic>
+#include <algorithm>
 #include <unordered_map>
 
 namespace ChipDB {
 
-/** container to store object pointers and provides fast named lookup. */
-template <class T>
+struct INamedStorageListener
+{
+    enum class NotificationType
+    {
+        UNSPECIFIED = 0,
+        ADD,
+        REMOVE
+    };
+
+    virtual void notify(ssize_t index = -1, NotificationType t = NotificationType::UNSPECIFIED) = 0;
+};
+
+/** container to store object pointers and provides fast named lookup. 
+*/
+template <class T, bool owning = false>
 class NamedStorage
 {
 public:
-    NamedStorage() : m_numberOfObjects(0)
+    NamedStorage()
     {
         static_assert(std::is_pointer<T>::value, "Stored object type must be a pointer");
     }
 
+    virtual ~NamedStorage()
+    {
+        if constexpr (owning)
+        {
+            for(auto ptr : m_objects)
+            {
+                delete ptr;
+            }
+        }
+    }
+
+    void clear()
+    {
+        if constexpr (owning)
+        {
+            for(auto ptr : m_objects)
+            {
+                delete ptr;
+            }
+        }
+
+        m_objects.clear();
+        m_nameToIndex.clear();
+        notifyAll();
+    }
+
     size_t size() const
     {
-        return m_numberOfObjects;
+        return m_objects.size();
     }
 
     bool add(const std::string &name, T object)
@@ -29,9 +70,10 @@ public:
         if (iter == m_nameToIndex.end())
         {
             // no such named object, okay to add!
+            ssize_t index = m_objects.size()-1;
             m_objects.push_back(object);
-            m_nameToIndex[name] = m_objects.size()-1;
-            m_numberOfObjects++;
+            m_nameToIndex[name] = index;
+            notifyAll(index, INamedStorageListener::NotificationType::ADD);
             return true;
         }
         return false;   // object already exists
@@ -64,10 +106,9 @@ public:
             m_nameToIndex.erase(iter);
             if (index < m_objects.size())
             {
-                m_numberOfObjects--;
                 m_objects[index] = nullptr;
-            }
-
+                notifyAll(index, INamedStorageListener::NotificationType::REMOVE);
+            }            
             return true;
         }
     }
@@ -149,8 +190,39 @@ public:
         return m_objects.end();
     }
 
+    void addListener(INamedStorageListener *listener)
+    {
+        auto iter = std::find(m_listeners.begin(), m_listeners.end(), listener);
+        if (iter == m_listeners.end())
+        {
+            m_listeners.push_back(listener);
+        }
+    }
+
+    void removeListener(INamedStorageListener *listener)
+    {
+        auto iter = std::find(m_listeners.begin(), m_listeners.end(), listener);
+        if (iter != m_listeners.end())
+        {
+            m_listeners.erase(iter);
+        }        
+    }
+
 protected:
-    size_t m_numberOfObjects;
+    
+    void notifyAll(ssize_t index = -1, INamedStorageListener::NotificationType t = 
+        INamedStorageListener::NotificationType::UNSPECIFIED)
+    {
+        for(auto const listener : m_listeners)
+        {
+            if (listener != nullptr)
+            {
+                listener->notify(index, t);
+            }
+        }
+    }
+
+    std::vector<INamedStorageListener*> m_listeners;
     std::vector<T> m_objects;
     std::unordered_map<std::string, size_t> m_nameToIndex;
 };

@@ -10,6 +10,9 @@ class Database
 {
 public:
 
+    /** clear the entire database */
+    void clear();
+
     const ChipDB::Design& design() const
     {
         return m_design;

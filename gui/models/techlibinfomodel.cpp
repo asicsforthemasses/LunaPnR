@@ -74,7 +74,7 @@ void LayerInfoModel::setLayer(const ChipDB::LayerInfo *layer)
 //    LayerTableModel
 // ********************************************************************************
 
-LayerTableModel::LayerTableModel(const ChipDB::TechLib *techLib)
+LayerTableModel::LayerTableModel(ChipDB::TechLib *techLib) : m_techLib(nullptr)
 {
     m_lightColor = QColor("#F0F0F0");
     m_darkColor  = QColor("#D0D0D0");
@@ -82,10 +82,34 @@ LayerTableModel::LayerTableModel(const ChipDB::TechLib *techLib)
     setTechLib(techLib);
 }
 
-void LayerTableModel::setTechLib(const ChipDB::TechLib *techLib)
+LayerTableModel::~LayerTableModel()
 {
+    if (m_techLib != nullptr)
+    {
+        m_techLib->m_layers.removeListener(this);
+    }
+}
+
+void LayerTableModel::setTechLib(ChipDB::TechLib *techLib)
+{
+    if (m_techLib != nullptr)
+    {
+        m_techLib->m_layers.removeListener(this);
+    }
+
     beginResetModel();
     m_techLib = techLib;
+    if (m_techLib != nullptr)
+    {
+        m_techLib->m_layers.addListener(this);
+    }
+
+    endResetModel();
+}
+
+void LayerTableModel::notify(ssize_t index, ChipDB::INamedStorageListener::NotificationType t)
+{
+    beginResetModel();
     endResetModel();
 }
 

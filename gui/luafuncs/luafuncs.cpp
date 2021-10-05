@@ -47,6 +47,7 @@ static void reportError(lua_State *L, const char *fmt, ...)
     wrapper->print();
 }
 
+// load_verilog(filename)
 static int load_verilog(lua_State *L)
 {
     auto db = getDB(L);
@@ -73,6 +74,7 @@ static int load_verilog(lua_State *L)
     return 0;
 }
 
+// load_lef(filename)
 static int load_lef(lua_State *L)
 {
     auto db = getDB(L);
@@ -100,6 +102,7 @@ static int load_lef(lua_State *L)
     return 0;
 }
 
+// load_lib(filename)
 static int load_lib(lua_State *L)
 {
     auto db = getDB(L);
@@ -127,6 +130,7 @@ static int load_lib(lua_State *L)
     return 0;
 }
 
+// load_layers(filename)
 static int load_layers(lua_State *L)
 {
     auto db = getDB(L);
@@ -143,19 +147,33 @@ static int load_layers(lua_State *L)
     {
         std::stringstream buffer;
         buffer << layersFile.rdbuf();
-        db->m_layerRenderInfoDB.readJson(buffer.str());
+        if (!db->m_layerRenderInfoDB.readJson(buffer.str()))
+        {
+            reportError(L, "Error parsing Layers file '%s'", filename);
+        }
     }
     else
     {
-        reportError(L, "Error parsing Layers file '%s'", filename);
+        reportError(L, "Error opening Layers file '%s'", filename);
         return 0;
     }   
 
     return 0;
 }
 
+// clear - clear the database
+static int clear(lua_State *L)
+{
+    auto db = getDB(L);
+
+    db->clear();
+
+    return 0;
+}
+
 void Lua::registerFunctions(lua_State *L)
 {
+    lua_register(L, "clear", clear);
     lua_register(L, "load_verilog", load_verilog);
     lua_register(L, "load_lef", load_lef);
     lua_register(L, "load_lib", load_lib);

@@ -127,6 +127,11 @@ public:
     bool readJson(const std::string &txt);
     std::string writeJson() const;
 
+    ssize_t numberOfLayers() const
+    {
+        return m_layerInfos.size();
+    }
+
 protected:
     std::unordered_map<std::string, LayerRenderInfo> m_layerInfos;
 };
