@@ -35,6 +35,13 @@ std::string ChipDB::toString(const LayerDirection &ldir)
     }
 }
 
+void TechLib::clear()
+{
+    m_layers.clear();
+    m_sites.clear();
+    m_manufacturingGrid = 0;
+}
+
 LayerInfo* TechLib::createLayer(const std::string &name)
 {
     auto layer = lookupLayer(name);

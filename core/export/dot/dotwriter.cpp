@@ -24,8 +24,14 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
     os << "  fontsize  = 30;\n";
     os << "  label=\"" << escapeString(m_module->m_name) << "\";\n";
 
+    if (!m_module->m_netlist)
+    {
+        doLog(LOG_ERROR, "Cannot write netlist of a black box");
+        return false;
+    }
+
     // write all instances as nodes
-    for(auto const ins : m_module->m_netlist.m_instances)
+    for(auto const ins : m_module->m_netlist->m_instances)
     {
         if (ins->m_insType == ChipDB::InstanceBase::INS_PIN)
         {
@@ -48,7 +54,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
     }
 
     // stream out all the connections
-    for(auto const net : m_module->m_netlist.m_nets)
+    for(auto const net : m_module->m_netlist->m_nets)
     {   
         if (net == nullptr)
             continue;

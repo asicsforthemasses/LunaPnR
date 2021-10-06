@@ -55,10 +55,20 @@ void ModuleInfoModel::setModule(const ChipDB::Module *module)
 
     m_altColors.resetState();
 
-    // generic cell information
-    int32_t numberOfInstances = module->m_netlist.m_instances.size();
-    auto instancesNode = new ModuleInfoNode("Instances #", numberOfInstances, m_altColors.getColorAndUpdate());
-    m_rootNode->addChild(instancesNode);
+    if (module->m_netlist)
+    {
+        // generic cell information
+        int32_t numberOfInstances = module->m_netlist->m_instances.size();
+        auto instancesNode = new ModuleInfoNode("Instances #", numberOfInstances, m_altColors.getColorAndUpdate());
+        m_rootNode->addChild(instancesNode);
+    }
+    else
+    {
+        // generic cell information
+        int32_t numberOfInstances = module->m_netlist->m_instances.size();
+        auto instancesNode = new ModuleInfoNode("Instances #", "BLACK BOX", m_altColors.getColorAndUpdate());
+        m_rootNode->addChild(instancesNode);        
+    }
 
     int32_t numberOfPins = module->m_pins.size();
     auto pinsNode = new ModuleInfoNode("Pins #", numberOfPins, m_altColors.getColorAndUpdate());

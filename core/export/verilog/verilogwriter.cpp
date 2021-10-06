@@ -1,11 +1,12 @@
 
 #include "common/logging.h"
-#include "common/visitor.h"
 
 #include "celllib/celllib.h"
 #include "netlist/net.h"
 #include "netlist/instance.h"
 #include "lunapnr_version.h"
+
+#include "common/visitor.h"
 
 #include "verilogwriter.h"
 
@@ -41,7 +42,7 @@ bool Writer::write(std::ostream &os, const ChipDB::Module *mod)
         return false;
     }
 
-    for(auto const* netPtr : mod->m_netlist.m_nets)
+    for(auto const* netPtr : mod->m_netlist->m_nets)
     {
         if (!netPtr->m_isPortNet)
         {
@@ -217,7 +218,7 @@ bool Writer::writeModuleInstances(std::ostream &os, const ChipDB::Module *mod)
 {
     ExportConstVisitor v(os);
 
-    for(auto const* ins : mod->m_netlist.m_instances)
+    for(auto const* ins : mod->m_netlist->m_instances)
     {
         ins->accept(&v);
         if (!v.isOk())

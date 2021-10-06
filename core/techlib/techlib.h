@@ -139,9 +139,11 @@ class TechLib
 public:
     TechLib() : m_manufacturingGrid(0) {}
 
-    NamedStorage<LayerInfo*> m_layers;
-    NamedStorage<SiteInfo*>  m_sites;
+    NamedStorage<LayerInfo*, true>  m_layers;
+    NamedStorage<SiteInfo*,  true>  m_sites;
     int32_t                  m_manufacturingGrid; // in nm.
+
+    void clear();
 
     size_t getNumberOfLayers() const
     {

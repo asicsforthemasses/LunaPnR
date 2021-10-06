@@ -38,7 +38,9 @@ add_library(lunacore
     netlist/instance.cpp
     netlist/netlist.cpp
     cellplacer/cellplacer.cpp
+    celllib/cell.cpp
     celllib/pin.cpp
+    celllib/module.cpp
     celllib/celllib.cpp
     techlib/techlib.cpp
     partitioner/fmpart.cpp

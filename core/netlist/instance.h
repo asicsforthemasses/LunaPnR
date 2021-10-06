@@ -2,14 +2,13 @@
 
 #include <string>
 #include <vector>
-#include "celllib/celllib.h"
-#include "netlist/net.h"
 #include "common/visitor.h"
+#include "celllib/cell.h"
+#include "celllib/module.h"
+#include "net.h"
 
 namespace ChipDB
 {
-
-class Net;  // pre-declaration
 
 class InstanceBase
 {
@@ -28,7 +27,7 @@ public:
     InstanceBase(InstanceBase *parent) : m_parent(parent), m_insType(INS_ABSTRACT), m_orientation(Orientation::R0), 
         m_placementInfo(PlacementInfo::UNPLACED), m_id(-1), m_flags(0) {}
 
-    virtual ~InstanceBase() {}
+    virtual ~InstanceBase() = default;
 
     IMPLEMENT_ACCEPT
 
@@ -121,7 +120,7 @@ public:
         m_pinToNet.resize(cell->m_pins.size());
     }    
 
-    virtual ~Instance() {};
+    virtual ~Instance() = default;
 
     IMPLEMENT_ACCEPT_OVERRIDE;
 

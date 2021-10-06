@@ -70,7 +70,7 @@ public:
         if (iter == m_nameToIndex.end())
         {
             // no such named object, okay to add!
-            ssize_t index = m_objects.size()-1;
+            ssize_t index = m_objects.size();
             m_objects.push_back(object);
             m_nameToIndex[name] = index;
             notifyAll(index, INamedStorageListener::NotificationType::ADD);
@@ -160,12 +160,14 @@ public:
  
     const T at(size_t index) const
     {
+        #if 0
         if (index >= m_objects.size())
         {
             std::stringstream ss;
             ss << "NamedStorage out of range: max=" << m_objects.size()-1 << " requested=" << index;
             throw std::out_of_range(ss.str());
         }
+        #endif
 
         return m_objects.at(index);
     }

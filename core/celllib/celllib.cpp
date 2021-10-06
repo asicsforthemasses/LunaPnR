@@ -1,77 +1,16 @@
 #include <algorithm>
 #include "celllib.h"
-#include "netlist/netlist.h"
-#include "netlist/net.h"
 
 using namespace ChipDB;
-
-// **********************************************************************
-//   Cell
-// **********************************************************************
-
-PinInfo& Cell::createPin(const std::string &name)
-{
-    return m_pins.createPin(name);
-}
-
-PinInfo* Cell::lookupPin(const std::string &name)
-{
-    return m_pins.lookup(name);
-}
-
-const PinInfo* Cell::lookupPin(const std::string &name) const
-{
-    return m_pins.lookup(name);
-}
-
-ssize_t Cell::lookupPinIndex(const std::string &name) const
-{
-    return m_pins.lookupIndex(name);
-}
-
-PinInfo* Cell::lookupPin(ssize_t index)
-{
-    return m_pins[index];
-}
-
-const PinInfo* Cell::lookupPin(ssize_t index) const
-{
-    return m_pins[index];
-}
-
-// **********************************************************************
-//   Module
-// **********************************************************************
-
-bool Module::addInstance(const std::string &insName, InstanceBase* insPtr)
-{
-    return m_netlist.m_instances.add(insName, insPtr);
-}
-
-Net* Module::createNet(const std::string &netName)
-{
-    // if the net already exists, return that one.
-    auto myNet = m_netlist.m_nets.lookup(netName);
-    if (myNet != nullptr)
-        return myNet;
-
-    myNet = new Net;
-    myNet->m_name = netName;
-    m_netlist.m_nets.add(netName, myNet);
-
-    return myNet;
-}
 
 // **********************************************************************
 //   CellLib
 // **********************************************************************
 
-CellLib::~CellLib()
+void CellLib::clear()
 {
-    for(auto ptr : m_cells)
-    {
-        delete ptr;
-    }
+    m_cells.clear();
+    createNetConCell();
 }
 
 Cell* CellLib::createCell(const std::string &name)
@@ -110,8 +49,8 @@ void CellLib::createNetConCell()
     netConCell->m_size = {0,0};
     netConCell->m_area = 0;
     netConCell->m_leakagePower = 0;
-    auto inPin  = netConCell->m_pins.createPin("A");
-    auto outPin = netConCell->m_pins.createPin("Y");
+    auto &inPin  = netConCell->m_pins.createPin("A");
+    auto &outPin = netConCell->m_pins.createPin("Y");
     inPin.m_iotype  = IOType::INPUT;
     outPin.m_iotype = IOType::OUTPUT;
 }
@@ -121,12 +60,13 @@ void CellLib::createNetConCell()
 //   ModuleLib
 // **********************************************************************
 
-ModuleLib::~ModuleLib()
+//ModuleLib::~ModuleLib()
+//{
+//}
+
+void ModuleLib::clear()
 {
-    for(auto ptr : m_modules)
-    {
-        delete ptr;
-    }
+    m_modules.clear();
 }
 
 Module* ModuleLib::lookup(const std::string &name) const

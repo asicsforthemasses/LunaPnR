@@ -1,8 +1,16 @@
 #include <algorithm>
 #include "netlist.h"
+#include "instance.h"
+#include "net.h"
 
 using namespace ChipDB;
 
+
+void Netlist::clear()
+{
+    m_instances.clear();
+    m_nets.clear();
+}
 
 #if 0
 // ************************************************************************

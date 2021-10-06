@@ -26,37 +26,37 @@ public:
     };
 
     /** callback for each wire in the netlist with [start:stop] range */
-    virtual void onWire(const std::string &netname, uint32_t start, uint32_t stop) 
+    virtual void onWire(const std::string &netname, uint32_t start, uint32_t stop) override
     {
         m_wireCount += std::max(start, stop) - std::min(start, stop);
     };
 
     /** callback for each wire in the netlist that does not have a range */
-    virtual void onWire(const std::string &netname) 
+    virtual void onWire(const std::string &netname) override
     {
         m_wireCount++;
     };
 
     /** callback for each module input port with optional [start:stop] range */
-    virtual void onInput(const std::string &netname, uint32_t start, uint32_t stop) 
+    virtual void onInput(const std::string &netname, uint32_t start, uint32_t stop) override
     {
         m_inputCount += std::max(start, stop) - std::min(start, stop);
     };
 
     /** callback for each module single wire input port */
-    virtual void onInput(const std::string &netname) 
+    virtual void onInput(const std::string &netname) override
     {
         m_inputCount++;
     };
 
     /** callback for each module output port with optional [start:stop] range */
-    virtual void onOutput(const std::string &netname, uint32_t start, uint32_t stop) 
+    virtual void onOutput(const std::string &netname, uint32_t start, uint32_t stop) override
     {
         m_outputCount += std::max(start, stop) - std::min(start, stop);
     };
 
     /** callback for each module single wire output port */
-    virtual void onOutput(const std::string &netname) 
+    virtual void onOutput(const std::string &netname) override
     {
         m_outputCount++;
     };

@@ -14,7 +14,7 @@ public:
     explicit FloorplanView(QWidget *parent = nullptr);
     virtual ~FloorplanView();
 
-    QSize sizeHint() const;
+    QSize sizeHint() const override;
 
     // For now we use a netlist that holds instances
     // with positions as the floorplan..

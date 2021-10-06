@@ -701,7 +701,7 @@ BOOST_AUTO_TEST_CASE(can_partition_multiplier)
     // allocate pin instances
     int64_t left_y    = 0;
     int64_t right_y = 0;
-    for(auto ins : mod->m_netlist.m_instances)
+    for(auto ins : mod->m_netlist->m_instances)
     {
         if (ins->m_insType == ChipDB::Instance::INS_PIN)
         {
@@ -724,7 +724,7 @@ BOOST_AUTO_TEST_CASE(can_partition_multiplier)
     auto prevLogLevel = getLogLevel();
     setLogLevel(LOG_VERBOSE);
 
-    partitioner.doPartitioning(&mod->m_netlist, container);
+    partitioner.doPartitioning(mod->m_netlist.get(), container);
 
     // write partition out as a dot file
     std::ofstream dotfile("test/files/results/multiplier_after.dot");
@@ -759,10 +759,13 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv_concise)
     LunaCore::Partitioner::FMContainer container;
     container.m_region = {{0,0}, {650000, 650000}};
 
+    // check that netlist exists
+    BOOST_CHECK(mod->m_netlist); 
+
     // allocate pin instances
     int64_t left_y  = 0;
     int64_t right_y = 0;
-    for(auto ins : mod->m_netlist.m_instances)
+    for(auto ins : mod->m_netlist->m_instances)
     {
         if (ins->m_insType == ChipDB::Instance::INS_PIN)
         {
@@ -785,14 +788,14 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv_concise)
     auto prevLogLevel = getLogLevel();
     setLogLevel(LOG_VERBOSE);
 
-    if (!partitioner.doPartitioning(&mod->m_netlist, container))
+    if (!partitioner.doPartitioning(mod->m_netlist.get(), container))
     {
         doLog(LOG_ERROR, "Partitioning failed!\n");
         BOOST_CHECK(false);
     }
 
     // check that the clock net is huge
-    auto clknet = mod->m_netlist.m_nets.lookup("clock");
+    auto clknet = mod->m_netlist->m_nets.lookup("clock");
     BOOST_ASSERT(clknet != nullptr);
     auto cnet = container.m_nets.at(clknet->m_id);
     BOOST_ASSERT(cnet.m_nodes.size() > 25);

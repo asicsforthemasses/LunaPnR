@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE(can_read_netlist)
     std::ifstream verilogfile("test/files/verilog/adder2.v");
     BOOST_CHECK(verilogfile.good());
 
-    ChipDB::Verilog::Reader::load(&design, verilogfile);
+    BOOST_CHECK(ChipDB::Verilog::Reader::load(&design, verilogfile));
 
     // check the design
     std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";
@@ -32,10 +32,12 @@ BOOST_AUTO_TEST_CASE(can_read_netlist)
     
     auto mod = design.m_moduleLib.lookup("adder2");
 
-    std::cout << "  module has " << mod->m_netlist.m_instances.size() << " instances:\n";
-    BOOST_CHECK(mod->m_netlist.m_instances.size() != 0);
+    BOOST_CHECK(mod->m_netlist);
 
-    for(auto ins : mod->m_netlist.m_instances)
+    std::cout << "  module has " << mod->m_netlist->m_instances.size() << " instances:\n";
+    BOOST_CHECK(mod->m_netlist->m_instances.size() != 0);
+
+    for(auto ins : mod->m_netlist->m_instances)
     {
         switch(ins->m_insType)
         {
@@ -58,9 +60,9 @@ BOOST_AUTO_TEST_CASE(can_read_netlist)
         }
     }
     
-    std::cout << "  module has " << mod->m_netlist.m_nets.size() << " nets\n";
-    BOOST_CHECK(mod->m_netlist.m_nets.size() == 29);
-    for(auto const net : mod->m_netlist.m_nets)
+    std::cout << "  module has " << mod->m_netlist->m_nets.size() << " nets\n";
+    BOOST_CHECK(mod->m_netlist->m_nets.size() == 29);
+    for(auto const net : mod->m_netlist->m_nets)
     {
         std::cout << "    " << net->m_name << "\n";
     }
@@ -75,7 +77,7 @@ BOOST_AUTO_TEST_CASE(can_read_netlist)
     // check that module pins have a __pin instance in the netlist
     for(auto const& modPin : mod->m_pins)
     {
-        BOOST_CHECK(mod->m_netlist.m_instances.lookup(modPin.m_name) != nullptr);
+        BOOST_CHECK(mod->m_netlist->m_instances.lookup(modPin.m_name) != nullptr);
     }    
 }
 
@@ -92,7 +94,7 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
     std::ifstream verilogfile("test/files/verilog/multiplier.v");
     BOOST_CHECK(verilogfile.good());
 
-    ChipDB::Verilog::Reader::load(&design, verilogfile);
+    BOOST_CHECK(ChipDB::Verilog::Reader::load(&design, verilogfile));
 
     // check the design
     std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";
@@ -102,11 +104,11 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
     auto mod = design.m_moduleLib.lookup("multiplier");
     if (mod != nullptr)
     {
-        std::cout << "  module has " << mod->m_netlist.m_instances.size() << " instances\n";
-        BOOST_CHECK(mod->m_netlist.m_instances.size() != 0);
+        std::cout << "  module has " << mod->m_netlist->m_instances.size() << " instances\n";
+        BOOST_CHECK(mod->m_netlist->m_instances.size() != 0);
 
-        std::cout << "  module has " << mod->m_netlist.m_nets.size() << " nets\n";
-        BOOST_CHECK(mod->m_netlist.m_nets.size() != 0);
+        std::cout << "  module has " << mod->m_netlist->m_nets.size() << " nets\n";
+        BOOST_CHECK(mod->m_netlist->m_nets.size() != 0);
 
         std::cout << "  module has " << mod->m_pins.size() << " pins\n";
         BOOST_CHECK(mod->m_pins.size() != 0);       
@@ -114,8 +116,8 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
         // check that module pins have a __pin instance in the netlist
         for(auto const& modPin : mod->m_pins)
         {
-            BOOST_CHECK(mod->m_netlist.m_instances.lookup(modPin.m_name) != nullptr);
-            if (mod->m_netlist.m_instances.lookup(modPin.m_name) == nullptr)
+            BOOST_CHECK(mod->m_netlist->m_instances.lookup(modPin.m_name) != nullptr);
+            if (mod->m_netlist->m_instances.lookup(modPin.m_name) == nullptr)
             {
                 std::cout << "  missing pin instance for pin '" << modPin.m_name << "'\n";
             }
@@ -123,7 +125,7 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
 
         // determine cell area
         double area = 0;
-        for(auto ins : mod->m_netlist.m_instances)
+        for(auto ins : mod->m_netlist->m_instances)
         {
             area += ins->getArea();
         }
@@ -145,7 +147,7 @@ BOOST_AUTO_TEST_CASE(can_read_nerv32)
     std::ifstream verilogfile("test/files/verilog/nerv_tsmc018.v");
     BOOST_CHECK(verilogfile.good());
 
-    ChipDB::Verilog::Reader::load(&design, verilogfile);
+    BOOST_CHECK(ChipDB::Verilog::Reader::load(&design, verilogfile));
 
     // check the design
     std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";
@@ -155,11 +157,11 @@ BOOST_AUTO_TEST_CASE(can_read_nerv32)
     auto mod = design.m_moduleLib.lookup("nerv");
     if (mod != nullptr)
     {
-        std::cout << "  module has " << mod->m_netlist.m_instances.size() << " instances\n";
-        BOOST_CHECK(mod->m_netlist.m_instances.size() != 0);
+        std::cout << "  module has " << mod->m_netlist->m_instances.size() << " instances\n";
+        BOOST_CHECK(mod->m_netlist->m_instances.size() != 0);
 
-        std::cout << "  module has " << mod->m_netlist.m_nets.size() << " nets\n";
-        BOOST_CHECK(mod->m_netlist.m_nets.size() != 0);
+        std::cout << "  module has " << mod->m_netlist->m_nets.size() << " nets\n";
+        BOOST_CHECK(mod->m_netlist->m_nets.size() != 0);
 
         std::cout << "  module has " << mod->m_pins.size() << " pins\n";
         BOOST_CHECK(mod->m_pins.size() != 0);                
@@ -167,12 +169,12 @@ BOOST_AUTO_TEST_CASE(can_read_nerv32)
         // check that module pins have a __pin instance in the netlist
         for(auto const& modPin : mod->m_pins)
         {
-            BOOST_CHECK(mod->m_netlist.m_instances.lookup(modPin.m_name) != nullptr);
+            BOOST_CHECK(mod->m_netlist->m_instances.lookup(modPin.m_name) != nullptr);
         }
 
         // determine cell area
         double area = 0;
-        for(auto ins : mod->m_netlist.m_instances)
+        for(auto ins : mod->m_netlist->m_instances)
         {
             area += ins->getArea();
         }
@@ -194,21 +196,23 @@ BOOST_AUTO_TEST_CASE(can_read_picorv32)
     std::ifstream verilogfile("test/files/verilog/picorv32.v");
     BOOST_CHECK(verilogfile.good());
 
-    ChipDB::Verilog::Reader::load(&design, verilogfile);
+    BOOST_CHECK(ChipDB::Verilog::Reader::load(&design, verilogfile));
 
     // check the design
     std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";
     BOOST_CHECK(design.m_moduleLib.size() == 1);
     BOOST_CHECK(design.m_moduleLib.lookup("picorv32") != nullptr);
     
-    auto mod = design.m_moduleLib.lookup("picorv32");
+    auto mod = design.m_moduleLib.lookup("picorv32");    
     if (mod != nullptr)
     {
-        std::cout << "  module has " << mod->m_netlist.m_instances.size() << " instances\n";
-        BOOST_CHECK(mod->m_netlist.m_instances.size() != 0);
+        BOOST_CHECK(mod->m_netlist.get() != nullptr);
 
-        std::cout << "  module has " << mod->m_netlist.m_nets.size() << " nets\n";
-        BOOST_CHECK(mod->m_netlist.m_nets.size() != 0);
+        std::cout << "  module has " << mod->m_netlist->m_instances.size() << " instances\n";
+        BOOST_CHECK(mod->m_netlist->m_instances.size() != 0);
+
+        std::cout << "  module has " << mod->m_netlist->m_nets.size() << " nets\n";
+        BOOST_CHECK(mod->m_netlist->m_nets.size() != 0);
 
         std::cout << "  module has " << mod->m_pins.size() << " pins\n";
         BOOST_CHECK(mod->m_pins.size() != 0);       
@@ -216,12 +220,12 @@ BOOST_AUTO_TEST_CASE(can_read_picorv32)
         // check that module pins have a __pin instance in the netlist
         for(auto const& modPin : mod->m_pins)
         {
-            BOOST_CHECK(mod->m_netlist.m_instances.lookup(modPin.m_name) != nullptr);
+            BOOST_CHECK(mod->m_netlist->m_instances.lookup(modPin.m_name) != nullptr);
         }
 
         // determine cell area
         double area = 0;
-        for(auto ins : mod->m_netlist.m_instances)
+        for(auto ins : mod->m_netlist->m_instances)
         {
             area += ins->getArea();
         }

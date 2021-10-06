@@ -33,10 +33,12 @@ BOOST_AUTO_TEST_CASE(can_read_assign_statements)
     if (mod == nullptr)
         return;
 
-    std::cout << "  module has " << mod->m_netlist.m_instances.size() << " instances:\n";
-    BOOST_CHECK(mod->m_netlist.m_instances.size() != 0);
+    BOOST_CHECK(mod->m_netlist);
 
-    for(auto ins : mod->m_netlist.m_instances)
+    std::cout << "  module has " << mod->m_netlist->m_instances.size() << " instances:\n";
+    BOOST_CHECK(mod->m_netlist->m_instances.size() != 0);
+
+    for(auto ins : mod->m_netlist->m_instances)
     {
         switch(ins->m_insType)
         {
@@ -59,9 +61,9 @@ BOOST_AUTO_TEST_CASE(can_read_assign_statements)
         }
     }
     
-    std::cout << "  module has " << mod->m_netlist.m_nets.size() << " nets\n";
-    BOOST_CHECK(mod->m_netlist.m_nets.size() == 8);
-    for(auto const net : mod->m_netlist.m_nets)
+    std::cout << "  module has " << mod->m_netlist->m_nets.size() << " nets\n";
+    BOOST_CHECK(mod->m_netlist->m_nets.size() == 8);
+    for(auto const net : mod->m_netlist->m_nets)
     {
         std::cout << "    " << net->m_name << "\n";
     }
@@ -76,7 +78,7 @@ BOOST_AUTO_TEST_CASE(can_read_assign_statements)
     // check that module pins have a __pin instance in the netlist
     for(auto const& modPin : mod->m_pins)
     {
-        BOOST_CHECK(mod->m_netlist.m_instances.lookup(modPin.m_name) != nullptr);
+        BOOST_CHECK(mod->m_netlist->m_instances.lookup(modPin.m_name) != nullptr);
     }
 
     // write to DOT

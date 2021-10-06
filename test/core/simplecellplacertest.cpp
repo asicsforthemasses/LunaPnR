@@ -27,13 +27,13 @@ BOOST_AUTO_TEST_CASE(check_simplecellplacer)
     auto mod = design.m_moduleLib.lookup("nerv");
     BOOST_CHECK(mod != nullptr);
 
-    LunaCore::SimpleCellPlacer::place(&mod->m_netlist, ChipDB::Rect64{{0,0},{650000,650000}}, 10000);
+    LunaCore::SimpleCellPlacer::place(mod->m_netlist.get(), ChipDB::Rect64{{0,0},{650000,650000}}, 10000);
 
-    auto hpwl = LunaCore::HPWLCalculator::calc(&mod->m_netlist);
+    auto hpwl = LunaCore::HPWLCalculator::calc(mod->m_netlist.get());
     BOOST_CHECK(hpwl > 0);
     std::cout << "  HPWL = " << hpwl << " nm\n";
 
-    auto area = LunaCore::CellAreaCalculator::calc(&mod->m_netlist);
+    auto area = LunaCore::CellAreaCalculator::calc(mod->m_netlist.get());
     BOOST_CHECK(area > 0.0);
     std::cout << "  Area = " << area << " um²\n";
 };
