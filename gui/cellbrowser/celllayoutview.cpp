@@ -15,7 +15,7 @@ using namespace GUI;
 //   CellLayoutView
 // ********************************************************************************
 
-CellLayoutView::CellLayoutView(QWidget *parent) : QWidget(parent), m_cell(nullptr),
+CellLayoutView::CellLayoutView(QWidget *parent) : QWidget(parent),
     m_mouseState(MouseState::None), m_db(nullptr)
 {
     m_viewport = {{-10000,-10000},{10000, 10000}};
@@ -80,12 +80,18 @@ void CellLayoutView::setDatabase(const Database *db)
 
 void CellLayoutView::setCell(const ChipDB::Cell *cell)
 {
-    m_cell = cell;
     m_zoomLevel = 1;
-    if (m_cell != nullptr)
+
+    if (cell != nullptr)
     {
+        m_cell = *cell;
         auto margin = static_cast<int64_t>(std::max(cell->m_size.m_x, cell->m_size.m_y) * 0.1);
         m_viewport = {{-margin,-margin}, cell->m_size + ChipDB::Coord64{margin,margin}};
+    }
+    else
+    {
+        m_cell.m_pins.clear();
+        m_cell.m_obstructions.clear();
     }
 }
 
@@ -123,11 +129,6 @@ ChipDB::Coord64 CellLayoutView::toChip(const QPointF &p) const noexcept
 
 QPointF CellLayoutView::toScreen(const ChipDB::Coord64 &pos) const noexcept
 {
-    if (m_cell == nullptr)
-    {
-        return QPointF(0.0,0.0);
-    }
-
     const auto sx = width() / static_cast<double>(m_viewport.width());
     const auto sy = height() / static_cast<double>(m_viewport.height());
     const auto localPos = pos - m_viewport.getLL();
@@ -213,73 +214,71 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
     // physical information, like when only the .lib was loaded
     // tell the user there is no geometry information
 
-    if (m_cell != nullptr)
+    // draw cell boundary 0,0 - m_size
+    ChipDB::Coord64 pp = {0,0};
+    QPointF p1 = toScreen(pp);
+    QPointF p2 = toScreen(m_cell.m_size);
+
+    painter.setPen(QColor(255,255,255,255));
+    painter.drawRect(p1.x(),p1.y(),p2.x()-p1.x(),p2.y()-p1.y());
+
+    // draw the cell name at the top
+    drawCenteredText(painter, QPointF(width()/2, 20), m_cell.m_name, font());
+
+    // draw the horizontal dimensions of the cell
+    //
+    // toScreen leaves 10% of the widget size for dimensional
+    // drawing
+    // 
+    const float dimWidth = std::min(width() * 0.1f, height() * 0.1f);
+    const float d2 = dimWidth / 2.0f;
+    QRectF txtrect(p1.x(), height() - dimWidth, p2.x() - p1.x(), dimWidth);
+    painter.drawLine(p1.x(), height() - d2, p2.x(), height() - d2);
+    painter.drawLine(p1.x(), height() - dimWidth+2, p1.x(), height()-2);
+    painter.drawLine(p2.x(), height() - dimWidth+2, p2.x(), height()-2);
+
+    // convert int32_t nanometers to microns
+    const int64_t nm = m_cell.m_size.m_x % 1000;
+    const int64_t um = m_cell.m_size.m_x / 1000;
+
+    char txtbuf[20];
+    snprintf(txtbuf, sizeof(txtbuf), "%ld.%03ld um", um, nm);
+    
+    drawCenteredText(painter, txtrect.center(), txtbuf, font(), Qt::black);
+
+    // draw the vertical dimensions of the cell
+    QRectF txtrect2(0, p1.y(), dimWidth, p2.y());
+    painter.drawLine(d2, p1.y(), d2, p2.y());
+    painter.drawLine(2, p1.y(), dimWidth-2, p1.y());
+    painter.drawLine(2, p2.y(), dimWidth-2, p2.y());
+
+    // convert int32_t nanometers to microns
+    const int64_t nm2 = m_cell.m_size.m_y % 1000;
+    const int64_t um2 = m_cell.m_size.m_y / 1000;
+
+    snprintf(txtbuf, sizeof(txtbuf), "%ld.%03ld um", um2, nm2);
+    QPointF txtpoint(2, (p1.y()+p2.y())/2);
+    drawLeftText(painter, txtpoint, txtbuf, font(), Qt::black);
+
+    // draw pins
+    size_t pinIndex = 0;
+    for(auto const& pin : m_cell.m_pins)
     {
-        // draw cell boundary 0,0 - m_size
-        ChipDB::Coord64 pp = {0,0};
-        QPointF p1 = toScreen(pp);
-        QPointF p2 = toScreen(m_cell->m_size);
+        auto const& layout = pin.m_pinLayout;
 
-        painter.setPen(QColor(255,255,255,255));
-        painter.drawRect(p1.x(),p1.y(),p2.x()-p1.x(),p2.y()-p1.y());
-
-        // draw the cell name at the top
-        drawCenteredText(painter, QPointF(width()/2, 20), m_cell->m_name, font());
-
-        // draw the horizontal dimensions of the cell
-        //
-        // toScreen leaves 10% of the widget size for dimensional
-        // drawing
-        // 
-        const float dimWidth = std::min(width() * 0.1f, height() * 0.1f);
-        const float d2 = dimWidth / 2.0f;
-        QRectF txtrect(p1.x(), height() - dimWidth, p2.x() - p1.x(), dimWidth);
-        painter.drawLine(p1.x(), height() - d2, p2.x(), height() - d2);
-        painter.drawLine(p1.x(), height() - dimWidth+2, p1.x(), height()-2);
-        painter.drawLine(p2.x(), height() - dimWidth+2, p2.x(), height()-2);
-
-        // convert int32_t nanometers to microns
-        const int64_t nm = m_cell->m_size.m_x % 1000;
-        const int64_t um = m_cell->m_size.m_x / 1000;
-
-        char txtbuf[20];
-        snprintf(txtbuf, sizeof(txtbuf), "%ld.%03ld um", um, nm);
-        
-        drawCenteredText(painter, txtrect.center(), txtbuf, font(), Qt::black);
-
-        // draw the vertical dimensions of the cell
-        QRectF txtrect2(0, p1.y(), dimWidth, p2.y());
-        painter.drawLine(d2, p1.y(), d2, p2.y());
-        painter.drawLine(2, p1.y(), dimWidth-2, p1.y());
-        painter.drawLine(2, p2.y(), dimWidth-2, p2.y());
-
-        // convert int32_t nanometers to microns
-        const int64_t nm2 = m_cell->m_size.m_y % 1000;
-        const int64_t um2 = m_cell->m_size.m_y / 1000;
-
-        snprintf(txtbuf, sizeof(txtbuf), "%ld.%03ld um", um2, nm2);
-        QPointF txtpoint(2, (p1.y()+p2.y())/2);
-        drawLeftText(painter, txtpoint, txtbuf, font(), Qt::black);
-
-        // draw pins
-        size_t pinIndex = 0;
-        for(auto const& pin : m_cell->m_pins)
+        for(auto const& layer : layout)
         {
-            auto const& layout = pin.m_pinLayout;
-
-            for(auto const& layer : layout)
+            auto info = getLayerRenderInfo(layer.first);
+            if (info)
             {
-                auto info = getLayerRenderInfo(layer.first);
-                if (info)
-                {
-                    drawGeometry(painter, layer.second, info->routing().getBrush());
-                }
-                else
-                {
-                    drawGeometry(painter, layer.second, QColor(255,255,255,80) /* default color / fill */);
-                }
+                drawGeometry(painter, layer.second, info->routing().getBrush());
+            }
+            else
+            {
+                drawGeometry(painter, layer.second, QColor(255,255,255,80) /* default color / fill */);
             }
         }
+    }
 
 #if 0
             auto txtRect=v.getTextRect();
@@ -293,21 +292,20 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
             //painter.drawRect(txtRect);
 #endif
 
-        painter.setPen(Qt::red);
-        for(auto const& layer : m_cell->m_obstructions)
+    painter.setPen(Qt::red);
+    for(auto const& layer : m_cell.m_obstructions)
+    {
+        auto info = getLayerRenderInfo(layer.first);
+        if (info)
         {
-            auto info = getLayerRenderInfo(layer.first);
-            if (info)
-            {
-                std::string obstructionLayerName = layer.first;
-                obstructionLayerName.append(":OBS");
+            std::string obstructionLayerName = layer.first;
+            obstructionLayerName.append(":OBS");
 
-                drawGeometry(painter, layer.second, info->obstruction().getBrush());
-            }
-            else
-            {
-                drawGeometry(painter, layer.second, QBrush(QColor(255,0,0,80)));
-            }
+            drawGeometry(painter, layer.second, info->obstruction().getBrush());
+        }
+        else
+        {
+            drawGeometry(painter, layer.second, QBrush(QColor(255,0,0,80)));
         }
     }
 }

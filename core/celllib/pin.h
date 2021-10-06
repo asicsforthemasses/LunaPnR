@@ -112,6 +112,11 @@ public:
 
     PinInfo& createPin(const std::string &name);
 
+    void clear()
+    {
+        m_pins.clear();   
+    }
+
     void resize(size_t num)
     {
         m_pins.resize(num);

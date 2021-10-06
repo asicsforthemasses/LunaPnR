@@ -14,9 +14,6 @@ class CellLayoutView : public QWidget
 {
     Q_OBJECT
 
-    //QSize minimumSizeHint() const override;
-    //QSize sizeHint() const override;
-
 public:    
     explicit CellLayoutView(QWidget *parent = nullptr);
     virtual ~CellLayoutView();
@@ -56,7 +53,7 @@ protected:
     ChipDB::Rect64 m_viewport;
     int32_t        m_zoomLevel;
 
-    const ChipDB::Cell  *m_cell;
+    ChipDB::Cell   m_cell;  ///< (partial) local copy of cell
     const Database      *m_db;
 };
 
