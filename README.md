@@ -4,12 +4,14 @@
 
 For more information, please visit the [homepage](https://www.asicsforthemasses.com "Luna PnR homepage").
 
+<figure><img src="doc/screenshots/screenshot_8_10_2021.png"></figure>
+
 ## Current development status
 * TLDR; Don't expect anything.
 * Cell browser works.
 * Tech browser works.
 
-LunaPnR can read the OSU 180nm and Nangate/FreePDK 45nm cell libraries.
+LunaPnR can read the [SKY130](https://github.com/asicsforthemasses/sky130_testing), OSU 180nm, Nangate/FreePDK 45nm cell libraries.
 
 ## Build requirements
 * GCC 9.3 or higher

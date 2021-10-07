@@ -15,11 +15,11 @@ public:
     std::string m_name;
 };
 
-BOOST_AUTO_TEST_CASE(check_Coord64)
+BOOST_AUTO_TEST_CASE(check_NamedStorage)
 {
     std::cout << "--== CHECK NAMEDSTORAGE ==--\n";
 
-    ChipDB::NamedStorage<MyObject*> storage;
+    ChipDB::NamedStorage<MyObject*, true> storage;
 
     // at() does not throw!
     BOOST_CHECK_NO_THROW(storage.at(0));
@@ -48,5 +48,53 @@ BOOST_AUTO_TEST_CASE(check_Coord64)
     BOOST_CHECK(storage.remove("FakeName") == false);
 }
 
+struct MyListener : public ChipDB::INamedStorageListener
+{
+    MyListener() : 
+        m_mostRecentIndex(-1),
+        m_mostRecentNotificationType(NotificationType::UNSPECIFIED)
+    {
+    }
+
+    void notify(ssize_t index, NotificationType t)
+    {
+        m_mostRecentIndex = index;
+        m_mostRecentNotificationType = t;
+    }
+
+    ssize_t m_mostRecentIndex;
+    NotificationType m_mostRecentNotificationType;
+};
+
+BOOST_AUTO_TEST_CASE(check_Notifier)
+{
+    std::cout << "--== CHECK NAMEDSTORAGE NOTIFIER ==--\n";
+
+    MyListener listener;
+    ChipDB::NamedStorage<MyObject*, true> storage;
+    storage.addListener(&listener);
+
+    BOOST_CHECK(listener.m_mostRecentIndex == -1);
+    BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::UNSPECIFIED);
+
+    storage.add("Obj1", new MyObject());
+
+    BOOST_CHECK(listener.m_mostRecentIndex == 0); 
+    BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::ADD);
+
+    storage.add("Obj2", new MyObject());
+
+    BOOST_CHECK(listener.m_mostRecentIndex == 1); 
+    BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::ADD);
+
+    BOOST_CHECK(storage.remove("Obj1"));
+
+    BOOST_CHECK(listener.m_mostRecentIndex == 0); 
+    BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::REMOVE);
+
+    storage.clear();
+
+    BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::UNSPECIFIED);
+}
 
 BOOST_AUTO_TEST_SUITE_END()

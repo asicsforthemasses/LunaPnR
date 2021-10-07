@@ -63,6 +63,11 @@ BOOST_AUTO_TEST_CASE(can_read_lef)
     BOOST_CHECK(pin->m_iotype == ChipDB::IOType::OUTPUT);    
     BOOST_CHECK(!pin->m_pinLayout.empty()); // check that the pin has geometry
 
+    // OAI22X1
+    cell = design.m_cellLib.lookup("OAI22X1");
+    BOOST_CHECK(cell != nullptr);
+    BOOST_CHECK(cell->m_pins.size() == 7);
+
     // check that the cell has obstructions
     BOOST_CHECK(cell->m_obstructions.size() != 0);
 }

@@ -836,21 +836,21 @@ bool Parser::parseOrigin()
     m_curtok = tokenize(xnum);
     if (m_curtok != TOK_NUMBER)
     {
-        error("Expected a number\n");
+        error("parseOrigin: Expected a number\n");
         return false;
     }
 
     m_curtok = tokenize(ynum);
     if (m_curtok != TOK_NUMBER)
     {
-        error("Expected a number\n");
+        error("parseOrigin: Expected a number\n");
         return false;
     }
 
     m_curtok = tokenize(m_tokstr);
     if (m_curtok != TOK_SEMICOL)
     {
-        error("Expected a semicolon\n");
+        error("parseOrigin: Expected a semicolon\n");
         return false;
     }
 
@@ -907,28 +907,28 @@ bool Parser::parseSize()
     m_curtok = tokenize(xnum);
     if (m_curtok != TOK_NUMBER)
     {
-        error("Expected a number\n");
+        error("parseSize: Expected a number\n");
         return false;
     }
 
     m_curtok = tokenize(m_tokstr);
     if ((m_curtok != TOK_IDENT) && (m_tokstr != "BY"))
     {
-        error("Expected 'BY'\n");
+        error("parseSize: Expected 'BY'\n");
         return false;
     }
 
     m_curtok = tokenize(ynum);
     if (m_curtok != TOK_NUMBER)
     {
-        error("Expected a number\n");
+        error("parseSize: Expected a number\n");
         return false;
     }
 
     m_curtok = tokenize(m_tokstr);
     if (m_curtok != TOK_SEMICOL)
     {
-        error("Expected a semicolon\n");
+        error("parseSize: Expected a semicolon\n");
         return false;
     }
 
@@ -988,7 +988,7 @@ bool Parser::parseSymmetry()
 
 bool Parser::parseForeign()
 {
-    // FOREIGN <cellname> <number> <number> ; 
+    // FOREIGN <cellname> [<number> <number>] ;
 
     std::string cellname;
     std::string xnum;
@@ -997,28 +997,36 @@ bool Parser::parseForeign()
     m_curtok = tokenize(cellname);
     if (m_curtok != TOK_IDENT)
     {
-        error("Expected the cell name\n");
+        error("parseForeign: Expected the cell name\n");
         return false;
     }
 
+    // the statement can end here
     m_curtok = tokenize(xnum);
+    if (m_curtok == TOK_SEMICOL)
+    {
+        onForeign(cellname, 0, 0);
+        return true;
+    }
+
+    // or may continue with a number
     if (m_curtok != TOK_NUMBER)
     {
-        error("Expected a number\n");
+        error("parseForeign: Expected a number\n");
         return false;
     }
 
     m_curtok = tokenize(ynum);
     if (m_curtok != TOK_NUMBER)
     {
-        error("Expected a number\n");
+        error("parseForeign: Expected a number\n");
         return false;
     }
 
     m_curtok = tokenize(m_tokstr);
     if (m_curtok != TOK_SEMICOL)
     {
-        error("Expected a semicolon\n");
+        error("parseForeign: Expected a semicolon\n");
         return false;
     }
 
