@@ -10,6 +10,8 @@ For more information, please visit the [homepage](https://www.asicsforthemasses.
 * TLDR; Don't expect anything.
 * Cell browser works.
 * Tech browser works.
+* Has layer rendering customization.
+* Reads flat Verilog netlist (no busses - expand them, YMMV).
 
 LunaPnR can read the [SKY130](https://github.com/asicsforthemasses/sky130_testing), OSU 180nm, Nangate/FreePDK 45nm cell libraries.
 
