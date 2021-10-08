@@ -32,6 +32,8 @@ std::ostream& operator<<(std::ostream& os, const ChipDB::Rect64& r)
     return os;    
 }
 
+#if 0
+
 bool ChipDB::isInsideRect(const ChipDB::Coord64 &p, const ChipDB::Rect64 &r) noexcept
 {
     bool inx = ((p.m_x >= r.m_ll.m_x) && (p.m_x <= r.m_ur.m_x));
@@ -44,6 +46,7 @@ bool ChipDB::isInsideRect(const ChipDB::Coord64 &p, const ChipDB::Rect64 &r) noe
 
     return true;
 }
+
 
 bool ChipDB::intersects(const ChipDB::Rect64 &p, const ChipDB::Rect64 &q) noexcept
 {
@@ -65,6 +68,7 @@ ChipDB::Rect64 ChipDB::unionRect(const ChipDB::Rect64 &r1, const ChipDB::Rect64 
     result.m_ur.m_y = std::min(r1.m_ur.m_y, r2.m_ur.m_y);    
     return std::move(result);
 }
+#endif
 
 std::string ChipDB::toString(const CellSubclass &v)
 {

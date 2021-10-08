@@ -358,12 +358,12 @@ void CellLayoutView::drawGeometry(QPainter &painter, const ChipDB::Polygon &r) c
     painter.drawPolygon(poly);
 }
 
-std::optional<LayerRenderInfo> CellLayoutView::getLayerRenderInfo(const std::string &layerName) const
+LayerRenderInfo* CellLayoutView::getLayerRenderInfo(const std::string &layerName) const
 {
     if (m_db == nullptr)
     {
-        return std::nullopt;
+        return nullptr;
     }
 
-    return m_db->m_layerRenderInfoDB.getRenderInfo(layerName);
+    return m_db->m_layerRenderInfoDB.lookup(layerName);
 }

@@ -47,7 +47,7 @@ protected:
     void drawGeometry(QPainter &painter, const ChipDB::Rectangle &objs) const;
     void drawGeometry(QPainter &painter, const ChipDB::Polygon &objs) const;
 
-    std::optional<LayerRenderInfo> getLayerRenderInfo(const std::string &layerName) const;
+    LayerRenderInfo* getLayerRenderInfo(const std::string &layerName) const;
 
     ChipDB::Rect64 m_viewportStartDrag;
     ChipDB::Rect64 m_viewport;

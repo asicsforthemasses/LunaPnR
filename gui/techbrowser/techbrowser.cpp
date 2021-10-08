@@ -139,13 +139,8 @@ void TechBrowser::refreshDatabase()
         // has a corresponding layer in the layer render library
 
         for(auto techLayer : m_db->techLib().m_layers)
-        {
-            auto renderLayer = m_db->m_layerRenderInfoDB.getRenderInfo(techLayer->m_name);
-            if (!renderLayer.has_value())
-            {
-                LayerRenderInfo info(techLayer->m_name);
-                m_db->m_layerRenderInfoDB.setRenderInfo(techLayer->m_name, info);
-            }
+        {   
+            m_db->m_layerRenderInfoDB.createLayer(techLayer->m_name);
         }
                 
         m_layerTableModel->setTechLib(&m_db->techLib());
@@ -167,13 +162,13 @@ void TechBrowser::onLayerSelectionChanged(const QItemSelection &cur, const QItem
             if (m_db != nullptr)
             {
                 // make sure the layer render info database stays in sync
-                if (m_db->m_layerRenderInfoDB.numberOfLayers() != m_db->techLib().m_layers.size())
+                if (m_db->m_layerRenderInfoDB.size() != m_db->techLib().m_layers.size())
                 {
                     refreshDatabase();
                 }
 
-                auto info = m_db->m_layerRenderInfoDB.getRenderInfo(layer->m_name);
-                if (info.has_value())
+                auto info = m_db->m_layerRenderInfoDB.lookup(layer->m_name);
+                if (info != nullptr)
                 {
                     m_colorButton->setEnabled(true);
                     m_hatchButton->setEnabled(true);
@@ -213,11 +208,10 @@ void TechBrowser::onLayerColorChanged()
     
     if ((layer != nullptr) && (m_db != nullptr))
     {
-        auto info = m_db->m_layerRenderInfoDB.getRenderInfo(layer->m_name);
-        if (info)
+        auto info = m_db->m_layerRenderInfoDB.lookup(layer->m_name);
+        if (info != nullptr)
         {
             info->routing().setColor(m_colorButton->getColor());
-            m_db->m_layerRenderInfoDB.setRenderInfo(layer->m_name, *info);
         }        
     }
 }
@@ -244,11 +238,10 @@ void TechBrowser::onChangeHatch()
             auto layer = m_layerTableModel->getLayer(index.row());
             if (layer != nullptr)
             {
-                auto info = m_db->m_layerRenderInfoDB.getRenderInfo(layer->m_name);
-                if (info)
+                auto info = m_db->m_layerRenderInfoDB.lookup(layer->m_name);
+                if (info != nullptr)
                 {
                     info->routing().setTexture(hatch);
-                    m_db->m_layerRenderInfoDB.setRenderInfo(layer->m_name, *info);
                 }
             }            
         }        
@@ -262,11 +255,10 @@ void TechBrowser::onLayerObsColorChanged()
     
     if ((layer != nullptr) && (m_db != nullptr))
     {
-        auto info = m_db->m_layerRenderInfoDB.getRenderInfo(layer->m_name);
-        if (info)
+        auto info = m_db->m_layerRenderInfoDB.lookup(layer->m_name);
+        if (info != nullptr)
         {
             info->obstruction().setColor(m_colorObsButton->getColor());
-            m_db->m_layerRenderInfoDB.setRenderInfo(layer->m_name, *info);
         }        
     }
 }
@@ -278,11 +270,10 @@ void TechBrowser::onChangeObsHatch()
     
     if ((layer != nullptr) && (m_db != nullptr))
     {
-        auto info = m_db->m_layerRenderInfoDB.getRenderInfo(layer->m_name);
-        if (info)
+        auto info = m_db->m_layerRenderInfoDB.lookup(layer->m_name);
+        if (info != nullptr)
         {
             info->obstruction().setTexture(m_hatchObsButton->getHatch());
-            m_db->m_layerRenderInfoDB.setRenderInfo(layer->m_name, *info);
         }
     }
 }

@@ -295,6 +295,7 @@ namespace ChipDB
         }        
     };
 
+#if 0
     struct Polygon64
     {
         std::vector<Coord64> m_points;
@@ -307,6 +308,7 @@ namespace ChipDB
     bool isInsideRect(const ChipDB::Coord64 &p, const ChipDB::Rect64 &r) noexcept;
 
     ChipDB::Rect64 unionRect(const ChipDB::Rect64 &r1, const ChipDB::Rect64 &r2) noexcept;
+#endif
 
 #if 0
     /* StrEnum for cell/site symmetry */

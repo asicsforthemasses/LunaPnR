@@ -108,32 +108,17 @@ protected:
 };
 
 
-class LayerRenderInfoDB
+class LayerRenderInfoDB : public ChipDB::NamedStorage<LayerRenderInfo*, true>
 {
 public:
-    std::optional<LayerRenderInfo> getRenderInfo(const std::string &layerName) const;
-    void setRenderInfo(const std::string &layerName, const LayerRenderInfo &info);
 
-    auto begin() const
-    {
-        return m_layerInfos.begin();
-    }
-
-    auto end() const
-    {
-        return m_layerInfos.end();
-    }
+    /** create a layer with the given name and return a pointer to the new layer.
+     *  if it already exists, a pointer to the existing layer is returned.
+    */
+    LayerRenderInfo* createLayer(const std::string &name);
 
     bool readJson(const std::string &txt);
     std::string writeJson() const;
-
-    ssize_t numberOfLayers() const
-    {
-        return m_layerInfos.size();
-    }
-
-protected:
-    std::unordered_map<std::string, LayerRenderInfo> m_layerInfos;
 };
 
 }; // namespace

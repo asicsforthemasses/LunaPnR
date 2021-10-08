@@ -107,24 +107,6 @@ void LayerRenderInfo::write(QJsonObject &json) const
     json["types"] = arr;
 }
 
-
-std::optional<LayerRenderInfo> LayerRenderInfoDB::getRenderInfo(const std::string &layerName) const
-{
-    auto iter = m_layerInfos.find(layerName);
-    if (iter == m_layerInfos.end())
-    {
-        return std::nullopt;
-    }
-
-    return (*iter).second;
-}
-
-void LayerRenderInfoDB::setRenderInfo(const std::string &layerName, const LayerRenderInfo &info)
-{
-    m_layerInfos[layerName] = info;
-}
-
-
 bool LayerRenderInfoDB::readJson(const std::string &txt)
 {
     auto doc = QJsonDocument::fromJson(QByteArray(txt.c_str(), txt.size()));
@@ -138,14 +120,14 @@ bool LayerRenderInfoDB::readJson(const std::string &txt)
 
     if (topObj.contains("layers") && (topObj["layers"].isArray()))
     {
-        m_layerInfos.clear();
+        clear();
 
         auto arr = topObj["layers"].toArray();
         for(auto const& obj : arr)
         {
-            LayerRenderInfo info;
-            info.read(obj.toObject());
-            m_layerInfos[info.getName()] = info;
+            LayerRenderInfo *info = new LayerRenderInfo();
+            info->read(obj.toObject());
+            add(info->getName(), info);
         }
     }
     else
@@ -155,18 +137,21 @@ bool LayerRenderInfoDB::readJson(const std::string &txt)
     }
 
 
-    doLog(LOG_VERBOSE,"Loaded %d layers from JSON file\n", m_layerInfos.size());
+    doLog(LOG_VERBOSE,"Loaded %d layers from JSON file\n", m_objects.size());
     return true;
 }
 
 std::string LayerRenderInfoDB::writeJson() const
 {    
     QJsonArray  arr;
-    for(auto layer : m_layerInfos)
+    for(auto layer : m_objects)
     {        
         QJsonObject obj;
-        layer.second.write(obj);
-        arr.append(obj);        
+        if (layer != nullptr)
+        {
+            layer->write(obj);
+            arr.append(obj);
+        }
     }
     
     QJsonObject obj;
@@ -174,4 +159,16 @@ std::string LayerRenderInfoDB::writeJson() const
 
     QJsonDocument doc(obj);
     return doc.toJson().toStdString();
+}
+
+LayerRenderInfo* LayerRenderInfoDB::createLayer(const std::string &name)
+{
+    auto layer = lookup(name);
+    if (layer == nullptr)
+    {
+        layer = new LayerRenderInfo(name);
+        add(name, layer);
+    }
+
+    return layer;
 }

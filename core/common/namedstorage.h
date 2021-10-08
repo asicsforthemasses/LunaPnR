@@ -126,7 +126,7 @@ public:
         }
     }
 
-    const T lookup(const std::string &name) const
+    T lookup(const std::string &name) const
     {
         auto iter = m_nameToIndex.find(name);
         if (iter == m_nameToIndex.end())
