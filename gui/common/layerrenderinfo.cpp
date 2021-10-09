@@ -4,6 +4,48 @@
 
 using namespace GUI;
 
+void LayerRenderInfo::LayerType::updateColorPixmap()
+{
+    if (!m_patternPixmap.isNull())
+    {
+        QPixmap canvas(24,24);
+        canvas.fill(Qt::transparent);
+        
+        QPainter painter(&canvas);
+        QImage image(m_patternPixmap.toImage().convertToFormat(QImage::Format_Mono));
+        image.setColor(0, QColor("#00000000").rgba());
+        image.setColor(1, m_color.rgba());
+        //auto colorTexture = QPixmap::fromImage(image);
+
+        QBrush brush;
+        brush.setTextureImage(image);
+        brush.setColor(m_color);
+
+        std::cout << ((m_patternPixmap.depth() == 1) ? "BITMAP OK\n" : "BITMAP FUCKED\n");
+
+        painter.setPen(Qt::black);
+        painter.setBrush(brush);
+        painter.drawRect(canvas.rect().adjusted(0,0,-1,-1));
+        painter.end();
+
+        m_colorPixmap = canvas;
+    }
+    else
+    {
+        QPixmap canvas(24,24);
+        canvas.fill(Qt::black);
+
+        QPainter painter(&canvas);
+        painter.setBrush(m_color);
+        painter.setPen(Qt::black);
+        painter.drawRect(canvas.rect().adjusted(0,0,-1,-1));
+        painter.end();
+
+        m_colorPixmap = canvas;
+    }
+}
+
+#if 0
 QImage LayerRenderInfo::LayerType::createTextureImage(QColor col, const QPixmap &pixmap)
 {
     if (!pixmap.isNull())
@@ -26,10 +68,11 @@ void LayerRenderInfo::LayerType::updateTextureWithColor(QColor col)
 {
     if (!m_pixmap.isNull())
     {
-        auto textureImage = createTextureImage(m_brush.color(), m_pixmap);
+        auto textureImage = createTextureImage(col, m_pixmap);
         m_brush.setTextureImage(textureImage);
     }    
 }
+#endif
 
 void LayerRenderInfo::LayerType::read(const QJsonObject &json)
 {
@@ -66,10 +109,19 @@ void LayerRenderInfo::LayerType::read(const QJsonObject &json)
 
 void LayerRenderInfo::LayerType::write(QJsonObject &json) const
 {
-    json["color"]  = m_brush.color().name(QColor::HexArgb);
-    json["width"]  = m_brush.texture().width();
-    json["height"]  = m_brush.texture().height();
-    json["pixmap"] = QString::fromStdString(pixmapToString(getPixmap()));
+    json["color"] = m_color.name();
+    if (!m_patternPixmap.isNull())
+    {
+        json["width"]  = m_patternPixmap.width();
+        json["height"] = m_patternPixmap.height();
+        json["pixmap"] = QString::fromStdString(pixmapToString(m_patternPixmap));
+    }
+    else
+    {
+        json["width"]  = 0;
+        json["height"] = 0;
+        json["pixmap"] = "";
+    }
 }
 
 

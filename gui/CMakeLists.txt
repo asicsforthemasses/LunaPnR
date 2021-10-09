@@ -15,6 +15,7 @@ set (LUNA_SRC_FILES
     models/moduleinfomodel.cpp
     models/celllibmodel.cpp
     models/cellinfomodel.cpp
+    models/layermodel.cpp
     models/techlibinfomodel.cpp
     common/guihelpers.cpp
     common/hatchlibrary.cpp

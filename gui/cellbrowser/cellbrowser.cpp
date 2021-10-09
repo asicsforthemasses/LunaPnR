@@ -9,7 +9,6 @@ CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
     // cell table view
-
     m_cellTableView = new QTableView(parent);
     m_cellTableView->setSelectionBehavior(QTableView::SelectRows);
     m_cellTableView->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -25,6 +24,10 @@ CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
     m_cellTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers); // make read-only
     //m_cellTreeView->setHeaderHidden(true);
 
+    m_layerListModel.reset(new LayerListModel());
+    m_layerView = new QListView();
+    m_layerView->setModel(m_layerListModel.get());
+
     m_cellInfoModel.reset(new CellInfoModel());
     m_cellTreeView->setModel(m_cellInfoModel.get());
 
@@ -33,8 +36,9 @@ CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
     m_layout2->addWidget(m_cellTreeView,1);
 
     m_layout = new QHBoxLayout();
-    m_layout->addWidget(m_cellTableView,1);
-    m_layout->addWidget(m_cellLayoutView,2);
+    m_layout->addWidget(m_cellTableView,2);
+    m_layout->addWidget(m_cellLayoutView,4);
+    m_layout->addWidget(m_layerView,1);
     m_layout->addLayout(m_layout2,1);
 
     setLayout(m_layout);
@@ -61,6 +65,7 @@ void CellBrowser::setDatabase(Database *db)
     
     m_cellLayoutView->setDatabase(db);
     m_cellModel->setCellLib(&db->cellLib());
+    m_layerListModel->setLayers(&db->m_layerRenderInfoDB);
 
     auto cellPtr = db->cellLib().m_cells.at(0);
     
@@ -77,7 +82,7 @@ void CellBrowser::setDatabase(Database *db)
 
 void CellBrowser::refreshDatabase()
 {
-    setDatabase(m_db);
+    setDatabase(m_db);    
 }
 
 void CellBrowser::onCellSelectionChanged(const QItemSelection &cur, const QItemSelection &prev)
@@ -91,6 +96,7 @@ void CellBrowser::onCellSelectionChanged(const QItemSelection &cur, const QItemS
         {
             m_cellLayoutView->setCell(cell);
             m_cellInfoModel->setCell(cell);
+            m_layerView->update();   // ?? 
             update();
             doLog(LOG_VERBOSE, "Selected cell %s\n", cell->m_name.c_str());
         }

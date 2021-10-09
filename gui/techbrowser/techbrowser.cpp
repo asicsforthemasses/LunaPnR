@@ -174,10 +174,10 @@ void TechBrowser::onLayerSelectionChanged(const QItemSelection &cur, const QItem
                     m_hatchButton->setEnabled(true);
                     m_colorObsButton->setEnabled(true);
                     m_hatchObsButton->setEnabled(true);
-                    m_colorButton->setColor(info->routing().getBrush().color());
-                    m_hatchButton->setHatch(info->routing().getPixmap());
-                    m_colorObsButton->setColor(info->obstruction().getBrush().color());
-                    m_hatchObsButton->setHatch(info->obstruction().getPixmap());                    
+                    m_colorButton->setColor(info->routing().getColor());
+                    m_hatchButton->setHatch(info->routing().getTexture());
+                    m_colorObsButton->setColor(info->obstruction().getColor());
+                    m_hatchObsButton->setHatch(info->obstruction().getTexture());
                 }
                 else
                 {

@@ -28,45 +28,49 @@ public:
     class LayerType
     {
     public:
-        LayerType()
+        LayerType() : m_color(Qt::black)
         {
-            m_brush.setColor(QColor("#FFFFFF"));
-            m_brush.setStyle(Qt::SolidPattern);
+            updateColorPixmap();
         }
 
         LayerType(const LayerType &) = default;
 
         void setColor(const QColor &col)
         {
-            m_brush.setColor(col);
-            updateTextureWithColor(col);
+            m_color = col;
+            updateColorPixmap();
+        }
+
+        QColor getColor() const
+        {
+            return m_color;
         }
 
         void setTexture(const QPixmap &pixmap)
         {
-            m_pixmap = pixmap;
-            updateTextureWithColor(m_brush.color());
+            m_patternPixmap = pixmap;
+            updateColorPixmap();
         }
 
-        QBrush getBrush() const noexcept
+        QPixmap getTexture() const
         {
-            return m_brush;
+            return m_patternPixmap;
         }
 
-        QPixmap getPixmap() const noexcept
+        QPixmap getColorPixmap() const noexcept
         {
-            return m_pixmap;
+            return m_colorPixmap;
         }
         
         void read(const QJsonObject &json);
         void write(QJsonObject &json) const;
 
     protected:
-        QImage createTextureImage(QColor col, const QPixmap &pixmap);
-        void   updateTextureWithColor(QColor col);
+        void updateColorPixmap();
 
-        QBrush          m_brush;
-        QPixmap         m_pixmap;
+        QColor          m_color;
+        QPixmap         m_patternPixmap;
+        QPixmap         m_colorPixmap;
     };
 
     std::string getName() const noexcept
