@@ -34,8 +34,6 @@ void LayerRenderInfo::LayerType::updateColorPixmap()
         brush.setTextureImage(image);
         brush.setColor(m_color);
 
-        //painter.setPen(Qt::NoPen);
-        //painter.setBrush(brush);
         painter.fillRect(canvas.rect(), brush);
         painter.end();
 
@@ -54,34 +52,6 @@ void LayerRenderInfo::LayerType::updateColorPixmap()
     }
 }
 
-#if 0
-QImage LayerRenderInfo::LayerType::createTextureImage(QColor col, const QPixmap &pixmap)
-{
-    if (!pixmap.isNull())
-    {
-        if (pixmap.depth() != 1)
-        {
-            doLog(LOG_ERROR,"LayerRenderInfo::createTextureImage: bitmap depth != 1 -> cannot create brush\n");
-            return QImage();
-        }
-
-        QImage image(pixmap.toImage().convertToFormat(QImage::Format_Mono));
-        image.setColor(0, QColor("#00000000").rgba());
-        image.setColor(1, col.rgba());
-        return image;
-    }
-    return QImage();
-}
-
-void LayerRenderInfo::LayerType::updateTextureWithColor(QColor col)
-{
-    if (!m_pixmap.isNull())
-    {
-        auto textureImage = createTextureImage(col, m_pixmap);
-        m_brush.setTextureImage(textureImage);
-    }    
-}
-#endif
 
 void LayerRenderInfo::LayerType::read(const QJsonObject &json)
 {
