@@ -4,28 +4,39 @@
 
 using namespace GUI;
 
+QPixmap LayerRenderInfo::LayerType::createToolbarPixmap(const QSize &s, const QColor &background)
+{
+    QPixmap pixmap(s);
+    pixmap.fill(background.rgba());
+
+    QPainter painter(&pixmap);
+    QBrush brush(m_colorPixmap);
+    painter.setBrush(brush);
+    painter.setPen(Qt::black);
+    painter.drawRect(pixmap.rect().adjusted(0,0,-1,-1));
+    painter.end();
+    return pixmap;
+}
+
 void LayerRenderInfo::LayerType::updateColorPixmap()
 {
     if (!m_patternPixmap.isNull())
     {
-        QPixmap canvas(24,24);
+        QPixmap canvas(m_patternPixmap.size());
         canvas.fill(Qt::transparent);
         
         QPainter painter(&canvas);
         QImage image(m_patternPixmap.toImage().convertToFormat(QImage::Format_Mono));
         image.setColor(0, QColor("#00000000").rgba());
         image.setColor(1, m_color.rgba());
-        //auto colorTexture = QPixmap::fromImage(image);
 
         QBrush brush;
         brush.setTextureImage(image);
         brush.setColor(m_color);
 
-        std::cout << ((m_patternPixmap.depth() == 1) ? "BITMAP OK\n" : "BITMAP FUCKED\n");
-
-        painter.setPen(Qt::black);
-        painter.setBrush(brush);
-        painter.drawRect(canvas.rect().adjusted(0,0,-1,-1));
+        //painter.setPen(Qt::NoPen);
+        //painter.setBrush(brush);
+        painter.fillRect(canvas.rect(), brush);
         painter.end();
 
         m_colorPixmap = canvas;
@@ -36,9 +47,7 @@ void LayerRenderInfo::LayerType::updateColorPixmap()
         canvas.fill(Qt::black);
 
         QPainter painter(&canvas);
-        painter.setBrush(m_color);
-        painter.setPen(Qt::black);
-        painter.drawRect(canvas.rect().adjusted(0,0,-1,-1));
+        painter.fillRect(canvas.rect(), m_color);
         painter.end();
 
         m_colorPixmap = canvas;

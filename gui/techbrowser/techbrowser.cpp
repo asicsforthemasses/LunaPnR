@@ -212,6 +212,7 @@ void TechBrowser::onLayerColorChanged()
         if (info != nullptr)
         {
             info->routing().setColor(m_colorButton->getColor());
+            m_db->m_layerRenderInfoDB.contentsChanged();
         }        
     }
 }
@@ -242,6 +243,7 @@ void TechBrowser::onChangeHatch()
                 if (info != nullptr)
                 {
                     info->routing().setTexture(hatch);
+                    m_db->m_layerRenderInfoDB.contentsChanged();
                 }
             }            
         }        
@@ -259,6 +261,7 @@ void TechBrowser::onLayerObsColorChanged()
         if (info != nullptr)
         {
             info->obstruction().setColor(m_colorObsButton->getColor());
+            m_db->m_layerRenderInfoDB.contentsChanged();
         }        
     }
 }
@@ -274,6 +277,7 @@ void TechBrowser::onChangeObsHatch()
         if (info != nullptr)
         {
             info->obstruction().setTexture(m_hatchObsButton->getHatch());
+            m_db->m_layerRenderInfoDB.contentsChanged();
         }
     }
 }

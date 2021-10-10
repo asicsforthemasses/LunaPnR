@@ -68,9 +68,9 @@ QVariant LayerListModel::data(const QModelIndex &index, int role) const
             return m_lightColor;
         break;
     case Qt::DecorationRole:
-        if (idx < m_iconCache.size())
+        if (idx < m_pixmapCache.size())
         {              
-            return m_iconCache.at(idx).m_pixmap;
+            return m_pixmapCache.at(idx).m_pixmap;
         }
         break;
     }
@@ -88,14 +88,14 @@ Qt::ItemFlags LayerListModel::flags(const QModelIndex &index) const
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-void LayerListModel::updateIconCache()
+void LayerListModel::updatePixmapCache()
 {
     if (m_layers == nullptr)
     {
         return;
     }
 
-    m_iconCache.resize(m_layers->size());
+    m_pixmapCache.resize(m_layers->size());
 
     // update icon cache
     ssize_t idx = 0;
@@ -105,10 +105,10 @@ void LayerListModel::updateIconCache()
         auto layer = m_layers->at(idx);
         if (layer != nullptr)
         {
-            pixmap = layer->routing().getColorPixmap();
+            pixmap = layer->routing().createToolbarPixmap(QSize(24,24), Qt::black);
         }
 
-        m_iconCache.at(idx).m_pixmap = pixmap;
+        m_pixmapCache.at(idx).m_pixmap = pixmap;
         idx++;
     }
 }
@@ -118,5 +118,5 @@ void LayerListModel::notify(ssize_t index, NotificationType t)
     beginResetModel();
     endResetModel();
 
-    updateIconCache();
+    updatePixmapCache();
 }

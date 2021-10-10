@@ -29,19 +29,19 @@ public:
     void notify(ssize_t index, NotificationType t) override;
 
 protected:
-    void updateIconCache();
+    void updatePixmapCache();
 
     QColor m_lightColor;
     QColor m_darkColor;
     
     LayerRenderInfoDB *m_layers;
 
-    struct IconCacheEntry
+    struct PixmapCacheEntry
     {
         QPixmap     m_pixmap;
     };
 
-    std::vector<IconCacheEntry> m_iconCache;
+    std::vector<PixmapCacheEntry> m_pixmapCache;
 };
 
 };

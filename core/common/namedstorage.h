@@ -210,10 +210,16 @@ public:
         }        
     }
 
+    /** trigger a generic message to all the listeners that the data has changed */
+    void contentsChanged() const
+    {
+        notifyAll();
+    }
+
 protected:
     
     void notifyAll(ssize_t index = -1, INamedStorageListener::NotificationType t = 
-        INamedStorageListener::NotificationType::UNSPECIFIED)
+        INamedStorageListener::NotificationType::UNSPECIFIED) const
     {
         for(auto const listener : m_listeners)
         {
