@@ -51,8 +51,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_splitter = new QSplitter(Qt::Vertical, this);
     m_splitter->addWidget(m_mainTabWidget);
     m_splitter->addWidget(m_console);
-    m_splitter->setStretchFactor(0,3);
-    m_splitter->setStretchFactor(1,2);
+    m_splitter->setStretchFactor(0,4);
+    m_splitter->setStretchFactor(1,1);
 
     auto vLayout = new QVBoxLayout;
     vLayout->addWidget(m_splitter);

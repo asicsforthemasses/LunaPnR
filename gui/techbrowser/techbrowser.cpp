@@ -268,16 +268,33 @@ void TechBrowser::onLayerObsColorChanged()
 
 void TechBrowser::onChangeObsHatch()
 {
-    QModelIndex index = m_layerTableView->currentIndex();
-    auto layer = m_layerTableModel->getLayer(index.row());
-    
-    if ((layer != nullptr) && (m_db != nullptr))
+    if (m_db == nullptr)
     {
-        auto info = m_db->m_layerRenderInfoDB.lookup(layer->m_name);
-        if (info != nullptr)
-        {
-            info->obstruction().setTexture(m_hatchObsButton->getHatch());
-            m_db->m_layerRenderInfoDB.contentsChanged();
-        }
+        return;
     }
+
+    HatchDialog dialog(m_db->m_hatchLib, this);
+
+    auto retval = dialog.exec();
+    if (retval == QDialog::Accepted)
+    {
+        auto index = dialog.getHatchIndex();
+        if (index >= 0)
+        {
+            auto hatch = m_db->m_hatchLib.m_hatches.at(index);
+            m_hatchObsButton->setHatch(hatch);
+
+            QModelIndex index = m_layerTableView->currentIndex();
+            auto layer = m_layerTableModel->getLayer(index.row());
+            if (layer != nullptr)
+            {
+                auto info = m_db->m_layerRenderInfoDB.lookup(layer->m_name);
+                if (info != nullptr)
+                {
+                    info->obstruction().setTexture(hatch);
+                    m_db->m_layerRenderInfoDB.contentsChanged();
+                }
+            }            
+        }        
+    } 
 }

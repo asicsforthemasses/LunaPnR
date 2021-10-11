@@ -25,34 +25,6 @@ CellLayoutView::~CellLayoutView()
 {
 }
 
-#if 0
-Qt::BrushStyle CellLayoutView::toBrushStyle(CellDB::LayerInfo::fillStyle_t s) const
-{
-    Qt::BrushStyle style = Qt::SolidPattern;
-    switch(s)
-    {
-    case CellDB::LayerInfo::FS_SOLID:
-        style = Qt::SolidPattern;
-        break;
-    case CellDB::LayerInfo::FS_HORIZONTAL:
-        style = Qt::HorPattern;
-        break;
-    case CellDB::LayerInfo::FS_FDIAG:
-        style = Qt::FDiagPattern;
-        break;
-    case CellDB::LayerInfo::FS_CROSS:
-        style = Qt::CrossPattern;
-        break;
-    case CellDB::LayerInfo::FS_BDIAG:
-        style = Qt::BDiagPattern;
-        break;
-    default:
-        break;
-    }
-    return style;
-}
-#endif
-
 void CellLayoutView::fixCoordinates(QPointF &p1, QPointF &p2)
 {
     double x1 = p1.x();
@@ -282,18 +254,7 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
         }
     }
 
-#if 0
-            auto txtRect=v.getTextRect();
-
-            // display text in largest pin rectangle
-            // FIXME: pre-process the text location and put it in the cell data structure?
-            painter.setPen(Qt::white);            
-            //painter.drawText(txtRect, Qt::AlignCenter, QString::fromStdString(pin.m_name));
-            drawCenteredText(&painter, txtRect.center(), pin.getName(), font(), Qt::NoBrush);
-            //painter.setBrush(Qt::NoBrush);
-            //painter.drawRect(txtRect);
-#endif
-
+    // paint all obstructions
     painter.setPen(Qt::red);
     for(auto const& layer : m_cell.m_obstructions)
     {
@@ -310,6 +271,34 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
         else
         {
             drawGeometry(painter, layer.second, QBrush(QColor(255,0,0,80)));
+        }
+    }
+
+    // draw all the text for the pins
+    for(auto const& pin : m_cell.m_pins)
+    {
+        // don't display power and ground pins
+        // FIXME: make this configurable
+        if ((pin.m_iotype == ChipDB::IOType::GROUND) || 
+            (pin.m_iotype == ChipDB::IOType::POWER))
+        {
+            continue;
+        }
+
+        for(auto const& layer : pin.m_pinLayout)
+        {
+            auto layerObjects = layer.second;
+            for(auto const &obj : layerObjects)
+            {
+                // FIXME: we only support rectangles for now..
+                if (obj.index() == 0 /* rectangle */)
+                {
+                    auto txtRect = std::get<ChipDB::Rectangle>(obj);
+                    QRectF screenRect(toScreen(txtRect.m_rect.getLL()), toScreen(txtRect.m_rect.getUR()));
+                    painter.setPen(Qt::white);
+                    drawCenteredText(painter, screenRect.center() , pin.m_name, font(), Qt::NoBrush);
+                }
+            }
         }
     }
 }

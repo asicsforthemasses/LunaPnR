@@ -4,16 +4,16 @@
             "layer": "via4",
             "types": [
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#0000ff",
+                    "height": 16,
+                    "pixmap": "** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n",
+                    "width": 16
                 },
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#0000ff",
+                    "height": 12,
+                    "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
+                    "width": 41
                 }
             ]
         },
@@ -21,16 +21,16 @@
             "layer": "via",
             "types": [
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#ff00ff",
+                    "height": 16,
+                    "pixmap": "** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n",
+                    "width": 16
                 },
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#ff00ff",
+                    "height": 12,
+                    "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
+                    "width": 41
                 }
             ]
         },
@@ -38,16 +38,16 @@
             "layer": "metal4",
             "types": [
                 {
-                    "color": "#ffffffcc",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#ffffcc",
+                    "height": 16,
+                    "pixmap": "                \n                \n *   *     *    \n                \n                \n        *     * \n                \n                \n *   *     *    \n                \n                \n        *     * \n                \n                \n *   *     *    \n                \n",
+                    "width": 16
                 },
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#ffffcc",
+                    "height": 12,
+                    "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
+                    "width": 41
                 }
             ]
         },
@@ -55,16 +55,16 @@
             "layer": "metal6",
             "types": [
                 {
-                    "color": "#ff5e00e6",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#5e00e6",
+                    "height": 16,
+                    "pixmap": "       *        \n      *         \n     *          \n    *           \n   *            \n  *             \n *              \n*               \n               *\n              * \n             *  \n            *   \n           *    \n          *     \n         *      \n        *       \n",
+                    "width": 16
                 },
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#5e00e6",
+                    "height": 12,
+                    "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
+                    "width": 41
                 }
             ]
         },
@@ -72,16 +72,16 @@
             "layer": "poly",
             "types": [
                 {
-                    "color": "#ff00cc66",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#ff0000",
+                    "height": 16,
+                    "pixmap": " * * * * * * * *\n* * * * * * * * \n * * * * * * * *\n* * * * * * * * \n * * * * * * * *\n* * * * * * * * \n * * * * * * * *\n* * * * * * * * \n * * * * * * * *\n* * * * * * * * \n * * * * * * * *\n* * * * * * * * \n * * * * * * * *\n* * * * * * * * \n * * * * * * * *\n* * * * * * * * \n",
+                    "width": 16
                 },
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#ff0000",
+                    "height": 12,
+                    "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
+                    "width": 41
                 }
             ]
         },
@@ -89,16 +89,16 @@
             "layer": "via5",
             "types": [
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#ffff00",
+                    "height": 16,
+                    "pixmap": "** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n",
+                    "width": 16
                 },
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#ffff00",
+                    "height": 12,
+                    "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
+                    "width": 41
                 }
             ]
         },
@@ -106,16 +106,16 @@
             "layer": "metal5",
             "types": [
                 {
-                    "color": "#ff81b3ff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#39bfff",
+                    "height": 16,
+                    "pixmap": "*              *\n                \n                \n                \n           *    \n     *          \n                \n                \n                \n  *             \n                \n          *     \n                \n                \n     *          \n*              *\n",
+                    "width": 16
                 },
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#39bfff",
+                    "height": 12,
+                    "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
+                    "width": 41
                 }
             ]
         },
@@ -123,16 +123,16 @@
             "layer": "pactive",
             "types": [
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#ff8000",
+                    "height": 16,
+                    "pixmap": "**      **      \n**      **      \n                \n                \n    **      **  \n    **      **  \n                \n                \n**      **      \n**      **      \n                \n                \n    **      **  \n    **      **  \n                \n                \n",
+                    "width": 16
                 },
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#ff8000",
+                    "height": 12,
+                    "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
+                    "width": 41
                 }
             ]
         },
@@ -140,16 +140,16 @@
             "layer": "via3",
             "types": [
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#ffe6bf",
+                    "height": 16,
+                    "pixmap": "** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n",
+                    "width": 16
                 },
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#ffe6bf",
+                    "height": 12,
+                    "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
+                    "width": 41
                 }
             ]
         },
@@ -157,16 +157,16 @@
             "layer": "cc",
             "types": [
                 {
-                    "color": "#ffffffff",
+                    "color": "#ffff00",
                     "height": 0,
                     "pixmap": "",
                     "width": 0
                 },
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#ffff00",
+                    "height": 12,
+                    "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
+                    "width": 41
                 }
             ]
         },
@@ -174,16 +174,16 @@
             "layer": "nactive",
             "types": [
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#268c6b",
+                    "height": 16,
+                    "pixmap": " *   *   *   *  \n                \n   *   *   *   *\n                \n *   *   *   *  \n                \n   *   *   *   *\n                \n *   *   *   *  \n                \n   *   *   *   *\n                \n *   *   *   *  \n                \n   *   *   *   *\n                \n",
+                    "width": 16
                 },
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#268c6b",
+                    "height": 12,
+                    "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
+                    "width": 41
                 }
             ]
         },
@@ -191,13 +191,13 @@
             "layer": "metal1",
             "types": [
                 {
-                    "color": "#ffccccd9",
+                    "color": "#0000ff",
                     "height": 16,
-                    "pixmap": "*           *           \n                        \n      *           *     \n                        \n*           *           \n                        \n      *           *     \n                        \n*           *           \n                        \n      *           *     \n                        \n*           *           \n                        \n      *           *     \n                        \n",
-                    "width": 24
+                    "pixmap": "*   *   *   *   \n *   *   *   *  \n  *   *   *   * \n   *   *   *   *\n*   *   *   *   \n *   *   *   *  \n  *   *   *   * \n   *   *   *   *\n*   *   *   *   \n *   *   *   *  \n  *   *   *   * \n   *   *   *   *\n*   *   *   *   \n *   *   *   *  \n  *   *   *   * \n   *   *   *   *\n",
+                    "width": 16
                 },
                 {
-                    "color": "#ffccccd9",
+                    "color": "#0000ff",
                     "height": 12,
                     "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
                     "width": 41
@@ -208,13 +208,13 @@
             "layer": "metal2",
             "types": [
                 {
-                    "color": "#ffd9cc00",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#ff00ff",
+                    "height": 16,
+                    "pixmap": " *   *   *   *  \n                \n   *   *   *   *\n                \n *   *   *   *  \n                \n   *   *   *   *\n                \n *   *   *   *  \n                \n   *   *   *   *\n                \n *   *   *   *  \n                \n   *   *   *   *\n                \n",
+                    "width": 16
                 },
                 {
-                    "color": "#ffd9cc00",
+                    "color": "#ff00ff",
                     "height": 12,
                     "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
                     "width": 41
@@ -225,16 +225,16 @@
             "layer": "nwell",
             "types": [
                 {
-                    "color": "#ffffff00",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#00cc66",
+                    "height": 32,
+                    "pixmap": "                                \n                                \n                                \n                                \n                                \n                                \n                                \n                                \n                                \n                                \n                                \n          *           *         \n          *     *     *         \n           *   * *   *          \n           *   * *   *          \n            * *   * *           \n            * *   * *           \n             *     *            \n                                \n                                \n                                \n                                \n                                \n                                \n                                \n                                \n                                \n                                \n                                \n                                \n                                \n                                \n",
+                    "width": 32
                 },
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#00cc66",
+                    "height": 12,
+                    "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
+                    "width": 41
                 }
             ]
         },
@@ -242,16 +242,16 @@
             "layer": "via2",
             "types": [
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#39bfff",
+                    "height": 16,
+                    "pixmap": "** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n** *** *** *** *\n* * * * * * * * \n *** *** *** ***\n* * * * * * * * \n",
+                    "width": 16
                 },
                 {
-                    "color": "#ffffffff",
-                    "height": 0,
-                    "pixmap": "",
-                    "width": 0
+                    "color": "#39bfff",
+                    "height": 12,
+                    "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
+                    "width": 41
                 }
             ]
         },
@@ -259,13 +259,13 @@
             "layer": "metal3",
             "types": [
                 {
-                    "color": "#ff00ffff",
+                    "color": "#00ffff",
                     "height": 16,
-                    "pixmap": "*   *   *   *   *   *   *   *   \n   *   *   *   *   *   *   *   *\n  *   *   *   *   *   *   *   * \n *   *   *   *   *   *   *   *  \n*   *   *   *   *   *   *   *   \n   *   *   *   *   *   *   *   *\n  *   *   *   *   *   *   *   * \n *   *   *   *   *   *   *   *  \n*   *   *   *   *   *   *   *   \n   *   *   *   *   *   *   *   *\n  *   *   *   *   *   *   *   * \n *   *   *   *   *   *   *   *  \n*   *   *   *   *   *   *   *   \n   *   *   *   *   *   *   *   *\n  *   *   *   *   *   *   *   * \n *   *   *   *   *   *   *   *  \n",
-                    "width": 32
+                    "pixmap": "   *       *    \n  *       *     \n *       *      \n*       *       \n       *       *\n      *       * \n     *       *  \n    *       *   \n   *       *    \n  *       *     \n *       *      \n*       *       \n       *       *\n      *       * \n     *       *  \n    *       *   \n",
+                    "width": 16
                 },
                 {
-                    "color": "#ff00ffff",
+                    "color": "#00ffff",
                     "height": 12,
                     "pixmap": " ******    *******     ******            \n*      *   *      *   *                  \n*      *   *      *   *                  \n*      *   *******     ******            \n*      *   *      *          *           \n*      *   *      *          *           \n ******    *******     ******            \n                                         \n                                         \n                                         \n                                         \n                                         \n",
                     "width": 41

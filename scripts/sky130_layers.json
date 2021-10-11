@@ -1,0 +1,226 @@
+{
+    "layers": [
+        {
+            "layer": "mcon",
+            "types": [
+                {
+                    "color": "#ffccccd9",
+                    "height": 16,
+                    "pixmap": "                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n",
+                    "width": 16
+                },
+                {
+                    "color": "#ffccccd9",
+                    "height": 16,
+                    "pixmap": "                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n",
+                    "width": 16
+                }
+            ]
+        },
+        {
+            "layer": "via4",
+            "types": [
+                {
+                    "color": "#ffffff00",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                },
+                {
+                    "color": "#ff0080ff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                }
+            ]
+        },
+        {
+            "layer": "via",
+            "types": [
+                {
+                    "color": "#ff5e00e6",
+                    "height": 16,
+                    "pixmap": "                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n                \n",
+                    "width": 16
+                },
+                {
+                    "color": "#ff80a8ff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                }
+            ]
+        },
+        {
+            "layer": "via3",
+            "types": [
+                {
+                    "color": "#ff268c6b",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                },
+                {
+                    "color": "#ff8000ff",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                }
+            ]
+        },
+        {
+            "layer": "nwell",
+            "types": [
+                {
+                    "color": "#ff00cc66",
+                    "height": 16,
+                    "pixmap": "                \n *     *     *  \n  *   **    *   \n   * * *   *    \n    *  *  *     \n     * * *      \n      ***       \n       *        \n      ***       \n     * * *      \n    *  *  *     \n   *   *   *    \n  *    *    *   \n *  *******  *  \n                \n                \n",
+                    "width": 16
+                },
+                {
+                    "color": "#ff00cc66",
+                    "height": 16,
+                    "pixmap": "                \n *     *     *  \n  *   **    *   \n   * * *   *    \n    *  *  *     \n     * * *      \n      ***       \n       *        \n      ***       \n     * * *      \n    *  *  *     \n   *   *   *    \n  *    *    *   \n *  *******  *  \n                \n                \n",
+                    "width": 16
+                }
+            ]
+        },
+        {
+            "layer": "met5",
+            "types": [
+                {
+                    "color": "#ffd9cc00",
+                    "height": 16,
+                    "pixmap": "    *           \n   * *          \n  *   *         \n *     *        \n*       *       \n *       *      \n  *       *     \n   *       *    \n    *       *   \n     *       *  \n      *       * \n       *       *\n        *     * \n         *   *  \n          * *   \n           *    \n",
+                    "width": 16
+                },
+                {
+                    "color": "#ffd9cc00",
+                    "height": 16,
+                    "pixmap": "           *    \n          * *   \n         *   *  \n        *     * \n         *   *  \n          * *   \n           *    \n                \n                \n   *            \n  * *           \n *   *          \n*     *         \n *   *          \n  * *           \n   *            \n",
+                    "width": 16
+                }
+            ]
+        },
+        {
+            "layer": "met4",
+            "types": [
+                {
+                    "color": "#ff5e00e6",
+                    "height": 16,
+                    "pixmap": "                \n  *       *     \n  *       *     \n  *       *     \n*****   *****   \n  *       *     \n  *       *     \n  *       *     \n                \n     *       *  \n     *       *  \n     *       *  \n   *****   *****\n     *       *  \n     *       *  \n     *       *  \n",
+                    "width": 16
+                },
+                {
+                    "color": "#ff5e00e6",
+                    "height": 16,
+                    "pixmap": "           *    \n          * *   \n         *   *  \n        *     * \n         *   *  \n          * *   \n           *    \n                \n                \n   *            \n  * *           \n *   *          \n*     *         \n *   *          \n  * *           \n   *            \n",
+                    "width": 16
+                }
+            ]
+        },
+        {
+            "layer": "met3",
+            "types": [
+                {
+                    "color": "#ff00ffff",
+                    "height": 16,
+                    "pixmap": "               *\n              * \n             *  \n            *   \n           *    \n          *     \n         *      \n        *       \n       *        \n      *         \n     *          \n    *           \n   *            \n  *             \n *              \n*               \n",
+                    "width": 16
+                },
+                {
+                    "color": "#ff00ffff",
+                    "height": 16,
+                    "pixmap": "           *    \n          * *   \n         *   *  \n        *     * \n         *   *  \n          * *   \n           *    \n                \n                \n   *            \n  * *           \n *   *          \n*     *         \n *   *          \n  * *           \n   *            \n",
+                    "width": 16
+                }
+            ]
+        },
+        {
+            "layer": "met2",
+            "types": [
+                {
+                    "color": "#ffff00ff",
+                    "height": 16,
+                    "pixmap": "*   *   *   *   \n                \n  *   *   *   * \n                \n*   *   *   *   \n                \n  *   *   *   * \n                \n*   *   *   *   \n                \n  *   *   *   * \n                \n*   *   *   *   \n                \n  *   *   *   * \n                \n",
+                    "width": 16
+                },
+                {
+                    "color": "#ffff00ff",
+                    "height": 16,
+                    "pixmap": "           *    \n          * *   \n         *   *  \n        *     * \n         *   *  \n          * *   \n           *    \n                \n                \n   *            \n  * *           \n *   *          \n*     *         \n *   *          \n  * *           \n   *            \n",
+                    "width": 16
+                }
+            ]
+        },
+        {
+            "layer": "via2",
+            "types": [
+                {
+                    "color": "#ffff8000",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                },
+                {
+                    "color": "#ffff0080",
+                    "height": 0,
+                    "pixmap": "",
+                    "width": 0
+                }
+            ]
+        },
+        {
+            "layer": "pwell",
+            "types": [
+                {
+                    "color": "#ff00ffff",
+                    "height": 16,
+                    "pixmap": "                \n *     *     *  \n  *   **    *   \n   * * *   *    \n    *  *  *     \n     * * *      \n      ***       \n       *        \n      ***       \n     * * *      \n    *  *  *     \n   *   *   *    \n  *    *    *   \n *  *******  *  \n                \n                \n",
+                    "width": 16
+                },
+                {
+                    "color": "#ff00ffff",
+                    "height": 16,
+                    "pixmap": "                \n *     *     *  \n  *   **    *   \n   * * *   *    \n    *  *  *     \n     * * *      \n      ***       \n       *        \n      ***       \n     * * *      \n    *  *  *     \n   *   *   *    \n  *    *    *   \n *  *******  *  \n                \n                \n",
+                    "width": 16
+                }
+            ]
+        },
+        {
+            "layer": "met1",
+            "types": [
+                {
+                    "color": "#ff0000ff",
+                    "height": 16,
+                    "pixmap": "   *   *   *   *\n   *   *   *   *\n   *   *   *   *\n****************\n   *   *   *   *\n   *   *   *   *\n   *   *   *   *\n****************\n   *   *   *   *\n   *   *   *   *\n   *   *   *   *\n****************\n   *   *   *   *\n   *   *   *   *\n   *   *   *   *\n****************\n",
+                    "width": 16
+                },
+                {
+                    "color": "#ff0000ff",
+                    "height": 16,
+                    "pixmap": "           *    \n          * *   \n         *   *  \n        *     * \n         *   *  \n          * *   \n           *    \n                \n                \n   *            \n  * *           \n *   *          \n*     *         \n *   *          \n  * *           \n   *            \n",
+                    "width": 16
+                }
+            ]
+        },
+        {
+            "layer": "li1",
+            "types": [
+                {
+                    "color": "#ffffe6bf",
+                    "height": 16,
+                    "pixmap": "  *   *   *   * \n  *   *   *   * \n  *   *   *   * \n  *   *   *   * \n  *   *   *   * \n  *   *   *   * \n  *   *   *   * \n  *   *   *   * \n  *   *   *   * \n  *   *   *   * \n  *   *   *   * \n  *   *   *   * \n  *   *   *   * \n  *   *   *   * \n  *   *   *   * \n  *   *   *   * \n",
+                    "width": 16
+                },
+                {
+                    "color": "#ffbf4026",
+                    "height": 16,
+                    "pixmap": "           *    \n          * *   \n         *   *  \n        *     * \n         *   *  \n          * *   \n           *    \n                \n                \n   *            \n  * *           \n *   *          \n*     *         \n *   *          \n  * *           \n   *            \n",
+                    "width": 16
+                }
+            ]
+        }
+    ]
+}
+
