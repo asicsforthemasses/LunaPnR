@@ -72,6 +72,16 @@ BOOST_AUTO_TEST_CASE(check_Rect64)
     BOOST_CHECK(r1.width() == 100);
     BOOST_CHECK(r1.height() == 150);
 
+    // test margins on rectangle
+    auto r1_reference = r1;
+    
+    ChipDB::Margins64 margins{10,10,20,20}; // top, bottom, left, right
+    r1.adjust(margins);
+
+    BOOST_CHECK(r1.left() == (r1_reference.left()+20));
+    BOOST_CHECK(r1.bottom() == (r1_reference.bottom()+10));
+    BOOST_CHECK(r1.right() == (r1_reference.right()-20));
+    BOOST_CHECK(r1.top() == (r1_reference.top()-10));
 }
 
 

@@ -105,7 +105,13 @@ namespace ChipDB
 
     };
 
-    
+    struct Margins64
+    {
+        int64_t m_top;      ///< in nm
+        int64_t m_bottom;   ///< in nm
+        int64_t m_left;     ///< in nm
+        int64_t m_right;    ///< in nm
+    };
 
     struct Rect64
     {
@@ -292,6 +298,26 @@ namespace ChipDB
         constexpr Rect64 operator-(const Coord64& rhs) const noexcept
         { 
             return Rect64{m_ll - rhs, m_ur - rhs};
+        }        
+
+        /** return a rectangle that has been decreased in size by the margins */
+        constexpr Rect64 adjusted(const Margins64 &margins) const noexcept
+        {
+            auto newRect = *this;
+            newRect.m_ll.m_x += margins.m_left;
+            newRect.m_ur.m_x -= margins.m_right;
+            newRect.m_ll.m_y += margins.m_bottom;
+            newRect.m_ur.m_y -= margins.m_top;
+            return newRect;
+        }
+
+        /** reduce the rectangle by the given margins */
+        constexpr void adjust(const Margins64 &margins) noexcept
+        {
+            m_ll.m_x += margins.m_left;
+            m_ur.m_x -= margins.m_right;
+            m_ll.m_y += margins.m_bottom;
+            m_ur.m_y -= margins.m_top;
         }        
     };
 

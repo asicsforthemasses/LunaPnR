@@ -43,6 +43,9 @@ add_library(lunacore
     celllib/module.cpp
     celllib/celllib.cpp
     techlib/techlib.cpp
+    floorplan/floorplan.cpp
+    floorplan/region.cpp
+    floorplan/row.cpp
     partitioner/fmpart.cpp
     import/liberty/libparser.cpp
     import/liberty/libreader.cpp

@@ -167,8 +167,8 @@ bool LayerRenderInfoDB::readJson(const std::string &txt)
         return false;
     }
 
-
-    doLog(LOG_VERBOSE,"Loaded %d layers from JSON file\n", m_objects.size());
+    notifyAll();
+    doLog(LOG_VERBOSE,"Loaded %d layers from JSON file\n", m_objects.size());    
     return true;
 }
 
