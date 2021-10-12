@@ -20,9 +20,9 @@
 #include <iostream>
 #include "veriloglexer.h"
 #include "verilogparser.h"
-#include "netlist/design.h"
 #include "celllib/celllib.h"
 #include "celllib/pin.h"
+#include "design/design.h"
 
 /** Namespace for the Verilog importers and exporters */
 namespace ChipDB::Verilog

@@ -6,7 +6,7 @@ using namespace ChipDB;
 Module* Design::createModule(const std::string &name)
 {
     auto newModule = m_moduleLib.createModule(name);
-    newModule->m_netlist.reset(new Netlist());
+    newModule->m_netlist = std::make_unique<Netlist>();
     return newModule;
 }
 

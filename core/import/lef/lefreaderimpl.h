@@ -19,7 +19,7 @@
 
 #include "lefparser.h"
 #include "common/dbtypes.h"
-#include "netlist/design.h"
+#include "design/design.h"
 
 namespace ChipDB::LEF
 {

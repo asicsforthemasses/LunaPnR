@@ -20,7 +20,7 @@
 #include <stack>
 #include "common/dbtypes.h"
 #include "celllib/pin.h"
-#include "netlist/design.h"
+#include "design/design.h"
 #include "libparser.h"
 
 namespace ChipDB

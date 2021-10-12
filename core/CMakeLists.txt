@@ -33,7 +33,6 @@ endif()
 add_library(lunacore 
     common/logging.cpp
     common/dbtypes.cpp
-    netlist/design.cpp
     netlist/net.cpp
     netlist/instance.cpp
     netlist/netlist.cpp
@@ -46,6 +45,7 @@ add_library(lunacore
     floorplan/floorplan.cpp
     floorplan/region.cpp
     floorplan/row.cpp
+    design/design.cpp
     partitioner/fmpart.cpp
     import/liberty/libparser.cpp
     import/liberty/libreader.cpp

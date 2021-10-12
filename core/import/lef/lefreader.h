@@ -1,7 +1,7 @@
 #pragma once
 
 #include <istream>
-#include "netlist/design.h"
+#include "design/design.h"
 
 /** Namespace for the LEF importers and exporters */
 namespace ChipDB::LEF

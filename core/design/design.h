@@ -1,7 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "netlist.h"
+#include "floorplan/floorplan.h"
+#include "netlist/netlist.h"
 #include "techlib/techlib.h"
 #include "celllib/celllib.h"
 
@@ -22,7 +23,8 @@ public:
     CellLib                 m_cellLib;
     ModuleLib               m_moduleLib;
     TechLib                 m_techLib;
-
+    Floorplan               m_floorplan;
+    
     auto createUniqueID()
     {
         return m_uniqueIDCounter++;

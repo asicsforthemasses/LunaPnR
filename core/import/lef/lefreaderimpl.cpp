@@ -20,7 +20,7 @@
 #include <string>
 #include <memory>
 #include "lefreaderimpl.h"
-#include "netlist/design.h"
+#include "design/design.h"
 #include "common/logging.h"
 
 using namespace ChipDB::LEF;
