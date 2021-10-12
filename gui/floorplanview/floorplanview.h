@@ -1,7 +1,7 @@
 #pragma once
 
 #include <QWidget>
-#include "lunacore.h"
+#include "common/database.h"
 
 namespace GUI
 {
@@ -16,9 +16,8 @@ public:
 
     QSize sizeHint() const override;
 
-    // For now we use a netlist that holds instances
-    // with positions as the floorplan..
-    void setFloorplan(const ChipDB::Netlist *nl);
+    /** set the database which contains the floorplan object */
+    void setDatabase(Database *db);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -29,10 +28,12 @@ protected:
     void paintEvent(QPaintEvent *event) override;
 
     void drawInstance(QPainter &p, const ChipDB::InstanceBase *ins);
+    void drawRegions(QPainter &p);
+    void drawRows(QPainter &p, const ChipDB::Region *region);
 
     QRectF m_viewPort;  ///< viewport in floorplan coordinates
 
-    const ChipDB::Netlist *m_netlist;
+    Database *m_db;
     bool  m_dirty;
 };
 

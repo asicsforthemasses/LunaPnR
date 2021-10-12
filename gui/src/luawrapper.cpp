@@ -76,6 +76,22 @@ void LuaWrapper::print()
     }    
 }
 
+void LuaWrapper::print(const std::string &txt)
+{
+    if (m_console != nullptr)
+    {
+        m_console->putData(txt);
+    }
+}
+
+void LuaWrapper::print(const std::stringstream &ss)
+{
+    if (m_console != nullptr)
+    {
+        m_console->putData(ss.str());
+    }
+}
+
 bool LuaWrapper::run(const char *txt)
 {
     auto result = luaL_dostring(m_L, txt);

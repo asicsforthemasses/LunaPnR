@@ -8,7 +8,7 @@ DesignBrowser::DesignBrowser(QWidget *parent) : QWidget(parent)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
-    // cell table view
+    // module table view
     m_moduleTableView = new QTableView(parent);
     m_moduleTableView->setSelectionBehavior(QTableView::SelectRows);
     m_moduleTableView->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -57,18 +57,6 @@ void DesignBrowser::setDatabase(Database *db)
 {
     m_db = db;
     m_moduleModel->setModuleLib(&db->moduleLib());
-
-    //auto cellPtr = db->cellLib().m_cells.at(0);
-    
-    //m_cellLayoutView->setCell(cellPtr);    
-    //m_cellInfoModel->setCell(cellPtr);
-
-    // make sure all columns can expand
-    //for(size_t c=0; c < m_cellTreeView->header()->count(); c++)
-    //{
-    //    m_cellTreeView->header()->setSectionResizeMode(
-    //        c, QHeaderView::Stretch);
-    //}    
 }
 
 void DesignBrowser::refreshDatabase()

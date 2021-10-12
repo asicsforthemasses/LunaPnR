@@ -12,6 +12,8 @@ class Floorplan
 public:
     NamedStorage<Region*, true> m_regions;
 
+    void clear();
+
 protected:
 
 };

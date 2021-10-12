@@ -8,12 +8,12 @@
 namespace GUI
 {
 
-class ModuleTableModel : public QAbstractTableModel
+class ModuleTableModel : public QAbstractTableModel,  ChipDB::INamedStorageListener
 {
 public:
-    ModuleTableModel(const ChipDB::ModuleLib *moduleLib);
+    ModuleTableModel(ChipDB::ModuleLib *moduleLib);
 
-    void setModuleLib(const ChipDB::ModuleLib *moduleLib);
+    void setModuleLib(ChipDB::ModuleLib *moduleLib);
 
     /** return the number of rows in the table */
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -32,20 +32,23 @@ public:
 
     const ChipDB::Module* getModule(int row) const;
 
+    /** called by ChipdB::ModuleLib */
+    void notify(ssize_t index, NotificationType t) override;
+
 protected:
     QColor m_lightColor;
     QColor m_darkColor;
-    const ChipDB::ModuleLib *m_moduleLib;
+    ChipDB::ModuleLib *m_moduleLib;
 };
 
 
 /** gives a list of all available models */
-class ModuleListModel : public QAbstractListModel
+class ModuleListModel : public QAbstractListModel, ChipDB::INamedStorageListener
 {
 public:
-    ModuleListModel(const ChipDB::ModuleLib *moduleLib);
+    ModuleListModel(ChipDB::ModuleLib *moduleLib);
 
-    void setModuleLib(const ChipDB::ModuleLib *moduleLib);
+    void setModuleLib(ChipDB::ModuleLib *moduleLib);
 
     /** returns various information about enabled/disabled items etc */
     Qt::ItemFlags flags(const QModelIndex &index) const override;
@@ -59,10 +62,13 @@ public:
     /** query the view/list header information */
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
+    /** called by ChipdB::ModuleLib */
+    void notify(ssize_t index, NotificationType t) override;
+
 protected:
     QColor m_lightColor;
     QColor m_darkColor;
-    const ChipDB::ModuleLib *m_moduleLib;
+    ChipDB::ModuleLib *m_moduleLib;
 };
 
 }; // namespace

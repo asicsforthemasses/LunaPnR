@@ -3,17 +3,33 @@
 
 using namespace GUI;
 
-ModuleTableModel::ModuleTableModel(const ChipDB::ModuleLib *moduleLib)
+ModuleTableModel::ModuleTableModel(ChipDB::ModuleLib *moduleLib) : m_moduleLib(nullptr)
 {
     m_lightColor = QColor("#F0F0F0");
     m_darkColor  = QColor("#D0D0D0");  
     setModuleLib(moduleLib);
 }
 
-void ModuleTableModel::setModuleLib(const ChipDB::ModuleLib *moduleLib)
+void ModuleTableModel::setModuleLib(ChipDB::ModuleLib *moduleLib)
 {
+    if (m_moduleLib != nullptr)
+    {
+        m_moduleLib->m_modules.removeListener(this);
+    }
+
     beginResetModel();
     m_moduleLib = moduleLib;
+    endResetModel();
+
+    if (m_moduleLib != nullptr)
+    {
+        m_moduleLib->m_modules.addListener(this);
+    }
+}
+
+void ModuleTableModel::notify(ssize_t index, NotificationType t)
+{
+    beginResetModel();
     endResetModel();
 }
 
@@ -126,7 +142,7 @@ const ChipDB::Module* ModuleTableModel::getModule(int row) const
 //    ModuleListModel
 // ********************************************************************************
 
-ModuleListModel::ModuleListModel(const ChipDB::ModuleLib *moduleLib)
+ModuleListModel::ModuleListModel(ChipDB::ModuleLib *moduleLib) : m_moduleLib(nullptr)
 {
     setModuleLib(moduleLib);
 }
@@ -140,11 +156,21 @@ int ModuleListModel::rowCount(const QModelIndex &parent) const
     return m_moduleLib->size();
 }
 
-void ModuleListModel::setModuleLib(const ChipDB::ModuleLib *moduleLib)
+void ModuleListModel::setModuleLib(ChipDB::ModuleLib *moduleLib)
 {
+    if (m_moduleLib != nullptr)
+    {
+        m_moduleLib->m_modules.removeListener(this);
+    }
+
     beginResetModel();
     m_moduleLib = moduleLib;
     endResetModel();
+
+    if (m_moduleLib != nullptr)
+    {
+        m_moduleLib->m_modules.addListener(this);
+    }
 }
 
     /** query the view/list header information */
@@ -191,4 +217,10 @@ QVariant ModuleListModel::data(const QModelIndex &index, int role) const
     }
 
     return v;    
+}
+
+void ModuleListModel::notify(ssize_t index, NotificationType t)
+{
+    beginResetModel();
+    endResetModel();
 }

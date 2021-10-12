@@ -208,6 +208,168 @@ static int add_hatch(lua_State *L)
     return 0;
 }
 
+// create_region(regionname, x, y, width, height)
+static int create_region(lua_State *L)
+{
+    auto db = getDB(L);
+
+    if (!lua_isstring(L, 1))
+    {
+        reportError(L, "Param 1: Expected a string for region name");
+        return 0;
+    }
+
+    if (!lua_isinteger(L, 2))
+    {
+        reportError(L, "Param 2: Expected an integer for lower left x coordinate");
+        return 0;
+    }
+
+    if (!lua_isinteger(L, 3))
+    {
+        reportError(L, "Param 3: Expected an integer for lower left y coordinate");
+        return 0;
+    }
+
+    if (!lua_isinteger(L, 4))
+    {
+        reportError(L, "Param 4: Expected an integer for width");
+        return 0;
+    }    
+
+    if (!lua_isinteger(L, 5))
+    {
+        reportError(L, "Param 5: Expected an integer for height");
+        return 0;
+    }
+
+    auto name = lua_tostring(L, 1);
+    auto x = lua_tointeger(L, 2);
+    auto y = lua_tointeger(L, 3);
+    auto width  = lua_tointeger(L, 4);
+    auto height = lua_tointeger(L, 5);
+
+    auto region = new ChipDB::Region();
+    region->m_rect = ChipDB::Rect64(ChipDB::Coord64{x,y}, ChipDB::Coord64{x+width,y+height});
+
+    if (!db->floorplan().m_regions.add(name, region))
+    {
+        reportError(L, "Region with name %s already exists!", name);
+        delete region;
+        return 0;
+    }
+
+    auto wrapper = getLuaWrapper(L);
+    if (wrapper != nullptr)
+    {
+        std::stringstream ss;
+        ss << "Created region '" << name << "' at " << region->m_rect << "\n";
+        wrapper->print(ss);
+    }
+
+    return 0;
+}
+
+// create_rows(regionname, startY, rowHeight, numberOfRows)
+static int create_rows(lua_State *L)
+{
+    auto db = getDB(L);
+
+    if (!lua_isstring(L, 1))
+    {
+        reportError(L, "Param 1: Expected a string for region name");
+        return 0;
+    }
+
+    if (!lua_isinteger(L, 2))
+    {
+        reportError(L, "Param 2: Expected an integer for start y coordinate");
+        return 0;
+    }
+
+    if (!lua_isinteger(L, 3))
+    {
+        reportError(L, "Param 3: Expected an integer for the row height");
+        return 0;
+    }
+
+    if (!lua_isinteger(L, 4))
+    {
+        reportError(L, "Param 4: Expected an integer for the number of rows");
+        return 0;
+    }    
+
+    auto name      = lua_tostring(L, 1);
+    auto starty    = lua_tointeger(L, 2);
+    auto rowHeight = lua_tointeger(L, 3);
+    auto numRows   = lua_tointeger(L, 4);
+
+    auto region = db->floorplan().m_regions.lookup(name);
+    if (region == nullptr)
+    {
+        reportError(L, "Region with name %s does not exists!", name);
+        return 0;
+    }
+    
+    ChipDB::Coord64 ll = region->m_rect.m_ll + ChipDB::Coord64{0,starty};
+    ChipDB::Coord64 ur = ll + ChipDB::Coord64{region->m_rect.width(), rowHeight};
+    for(int i=0; i<numRows; i++)
+    {
+        region->m_rows.emplace_back();
+        auto& row = region->m_rows.back();
+
+        row.m_region = region;
+        row.m_rect = ChipDB::Rect64(ll,ur);
+        ll += ChipDB::Coord64{0, rowHeight};
+        ur += ChipDB::Coord64{0, rowHeight};
+    }
+
+    return 0;
+}
+
+static int remove_rows(lua_State *L)
+{
+    auto db = getDB(L);
+
+    if (!lua_isstring(L, 1))
+    {
+        reportError(L, "Param 1: Expected a string for region name");
+        return 0;
+    }
+
+    auto name      = lua_tostring(L, 1);
+
+    auto region = db->floorplan().m_regions.lookup(name);
+    if (region == nullptr)
+    {
+        reportError(L, "Region with name %s does not exists!", name);
+        return 0;
+    }
+    
+    region->m_rows.clear();
+    return 0;
+}
+
+static int remove_region(lua_State *L)
+{
+    auto db = getDB(L);
+
+    if (!lua_isstring(L, 1))
+    {
+        reportError(L, "Param 1: Expected a string for region name");
+        return 0;
+    }
+
+    auto name      = lua_tostring(L, 1);
+
+    if (!db->floorplan().m_regions.remove(name))
+    {
+        reportError(L, "Could not regomve region with name %s!", name);
+    }
+
+    return 0;    
+}
+
 void Lua::registerFunctions(lua_State *L)
 {
     lua_register(L, "clear", clear);
@@ -216,5 +378,9 @@ void Lua::registerFunctions(lua_State *L)
     lua_register(L, "load_lef", load_lef);
     lua_register(L, "load_lib", load_lib);
     lua_register(L, "load_layers", load_layers);
+    lua_register(L, "create_region", create_region);
+    lua_register(L, "remove_region", remove_region);
+    lua_register(L, "create_rows", create_rows);
+    lua_register(L, "remove_rows", remove_rows);
 }
 

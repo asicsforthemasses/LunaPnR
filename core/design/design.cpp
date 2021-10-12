@@ -17,4 +17,5 @@ void Design::clear()
     m_techLib.clear();
     m_cellLib.clear();
     m_moduleLib.clear();
+    m_floorplan.clear();
 }

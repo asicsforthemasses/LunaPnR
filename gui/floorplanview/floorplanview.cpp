@@ -24,6 +24,15 @@ constexpr const QPointF toScreen(const ChipDB::Coord64 &p, const QRectF &viewpor
     return QPointF{sx, sy};
 }
 
+constexpr const QRectF toScreen(const ChipDB::Rect64 &p, const QRectF &viewport,
+    const QSizeF &screenSize)
+{
+    auto ll = toScreen(p.m_ll, viewport, screenSize);
+    auto ur = toScreen(p.m_ur, viewport, screenSize);
+
+    return QRectF(ll,ur);
+}
+
 constexpr const ChipDB::Coord64 fromScreen(const QPointF &p, const QRectF &viewport,
     const QSizeF &screenSize)
 {
@@ -32,11 +41,10 @@ constexpr const ChipDB::Coord64 fromScreen(const QPointF &p, const QRectF &viewp
     return ChipDB::Coord64{static_cast<int64_t>(x),static_cast<int64_t>(y)};
 }
 
-FloorplanView::FloorplanView(QWidget *parent) : QWidget(parent)
+FloorplanView::FloorplanView(QWidget *parent) : QWidget(parent), m_db(nullptr)
 {
     m_viewPort.setHeight(100000.0);
     m_viewPort.setWidth(100000.0);
-    m_netlist = nullptr;
     m_dirty   = true;
 }
 
@@ -50,9 +58,9 @@ QSize FloorplanView::sizeHint() const
     return QWidget::sizeHint();    
 }
 
-void FloorplanView::setFloorplan(const ChipDB::Netlist *nl)
+void FloorplanView::setDatabase(Database *db)
 {
-    m_netlist = nl;
+    m_db = db;
     m_dirty = true;
 }
 
@@ -141,9 +149,12 @@ void FloorplanView::paintEvent(QPaintEvent *event)
     // draw background
     painter.fillRect(rect(), Qt::black);
 
-    if (m_netlist == nullptr)
+    if (m_db == nullptr)
         return;
 
+    drawRegions(painter);
+
+#if 0
     // TODO: draw ruler
 
     // TODO: draw cells
@@ -152,6 +163,43 @@ void FloorplanView::paintEvent(QPaintEvent *event)
     for(auto const ins : m_netlist->m_instances)
     {   
         drawInstance(painter, ins);
+    }
+#endif    
+}
+
+void FloorplanView::drawRegions(QPainter &p)
+{
+    if (m_db == nullptr)
+    {
+        return;
+    }
+
+    const QColor regionColor("#FF90EE90"); // light green
+    auto screenSize = size();
+
+    p.setBrush(Qt::NoBrush);
+    p.setPen(regionColor);
+    for(auto region : m_db->floorplan().m_regions)
+    {
+        auto regionRect = toScreen(region->m_rect, m_viewPort, screenSize);
+        p.drawRect(regionRect);
+
+        drawRows(p, region);
+    }
+}
+
+void FloorplanView::drawRows(QPainter &p, const ChipDB::Region *region)
+{
+    const QColor rowColor("#FFADD8E6"); // light blue
+    auto screenSize = size();
+
+    p.setBrush(Qt::NoBrush);
+    p.setPen(rowColor);
+    
+    for(auto const& row : region->m_rows)
+    {
+        auto rowRect = toScreen(row.m_rect, m_viewPort, screenSize);
+        p.drawRect(rowRect);
     }
 }
 

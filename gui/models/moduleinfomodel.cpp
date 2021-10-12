@@ -65,7 +65,6 @@ void ModuleInfoModel::setModule(const ChipDB::Module *module)
     else
     {
         // generic cell information
-        int32_t numberOfInstances = module->m_netlist->m_instances.size();
         auto instancesNode = new ModuleInfoNode("Instances #", "BLACK BOX", m_altColors.getColorAndUpdate());
         m_rootNode->addChild(instancesNode);        
     }

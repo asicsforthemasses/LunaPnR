@@ -64,6 +64,16 @@ public:
         return m_design.m_moduleLib;
     }
 
+    const ChipDB::Floorplan& floorplan() const
+    {
+        return m_design.m_floorplan;
+    }
+
+    ChipDB::Floorplan& floorplan()
+    {
+        return m_design.m_floorplan;
+    }
+
     LayerRenderInfoDB m_layerRenderInfoDB;
     HatchLibrary      m_hatchLib;
     

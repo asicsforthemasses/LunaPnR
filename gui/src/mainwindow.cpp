@@ -169,7 +169,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 #endif
 
-    //m_techBrowser->setDatabase(&m_db);
+    m_floorplanView->setDatabase(&m_db);
     m_floorplanView->update();
 
     m_lua.reset(new GUI::LuaWrapper(m_console, m_db));

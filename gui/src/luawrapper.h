@@ -26,6 +26,10 @@ public:
     /** replacement print function for LUA */
     void print();
 
+    /** print function to call in lua C functions */
+    void print(const std::string &txt);
+    void print(const std::stringstream &ss);
+
 protected:
     MMConsole *m_console;
     Database &m_db;    
