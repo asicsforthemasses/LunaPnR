@@ -6,19 +6,6 @@
 namespace ChipDB
 {
 
-#if 0
-    using InstanceIndex = int32_t;
-    using PinIndex      = int32_t;
-    using NetIndex      = int32_t;
-    using CellIndex     = int32_t;
-    using ModuleIndex   = int32_t;
-    using LayerInfoIndex = int32_t;
-    using SiteInfoIndex  = int32_t;
-    using RegionIndex    = int32_t;
-    using RowIndex      = int32_t;
-    using ObstructionIndex = int32_t;
-#endif
-
     using LayerID = int32_t;
 
     /** base object that provides a getName() function */
@@ -107,6 +94,18 @@ namespace ChipDB
 
     struct Margins64
     {
+        Margins64() : m_top(0), m_bottom(0), m_left(0), m_right(0) {}
+
+        Margins64(int64_t top, int64_t bottom, int64_t left, int64_t right)
+            : m_top(top), m_bottom(bottom), m_left(left), m_right(right)
+            {}
+
+        /** true if all margins are zero */
+        [[nodiscard]] constexpr bool isNull() const noexcept
+        {
+            return (m_top == 0) && (m_bottom == 0) && (m_left == 0) && (m_right == 0);
+        }
+
         int64_t m_top;      ///< in nm
         int64_t m_bottom;   ///< in nm
         int64_t m_left;     ///< in nm
@@ -301,7 +300,7 @@ namespace ChipDB
         }        
 
         /** return a rectangle that has been decreased in size by the margins */
-        constexpr Rect64 adjusted(const Margins64 &margins) const noexcept
+        [[nodiscard]] constexpr Rect64 contracted(const Margins64 &margins) const noexcept
         {
             auto newRect = *this;
             newRect.m_ll.m_x += margins.m_left;
@@ -311,14 +310,34 @@ namespace ChipDB
             return newRect;
         }
 
+        /** return a rectangle that has been increased in size by the margins */
+        [[nodiscard]] constexpr Rect64 expanded(const Margins64 &margins) const noexcept
+        {
+            auto newRect = *this;
+            newRect.m_ll.m_x -= margins.m_left;
+            newRect.m_ur.m_x += margins.m_right;
+            newRect.m_ll.m_y -= margins.m_bottom;
+            newRect.m_ur.m_y += margins.m_top;
+            return newRect;
+        }
+
         /** reduce the rectangle by the given margins */
-        constexpr void adjust(const Margins64 &margins) noexcept
+        constexpr void contract(const Margins64 &margins) noexcept
         {
             m_ll.m_x += margins.m_left;
             m_ur.m_x -= margins.m_right;
             m_ll.m_y += margins.m_bottom;
             m_ur.m_y -= margins.m_top;
-        }        
+        }
+
+        /** increase the rectangle by the given margins */
+        constexpr void expand(const Margins64 &margins) noexcept
+        {
+            m_ll.m_x -= margins.m_left;
+            m_ur.m_x += margins.m_right;
+            m_ll.m_y -= margins.m_bottom;
+            m_ur.m_y += margins.m_top;
+        }
     };
 
 #if 0

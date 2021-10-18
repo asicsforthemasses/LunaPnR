@@ -178,11 +178,21 @@ void FloorplanView::drawRegions(QPainter &p)
     auto screenSize = size();
 
     p.setBrush(Qt::NoBrush);
-    p.setPen(regionColor);
     for(auto region : m_db->floorplan().m_regions)
     {
-        auto regionRect = toScreen(region->m_rect, m_viewPort, screenSize);
-        p.drawRect(regionRect);
+        auto regionRect     = toScreen(region->m_rect, m_viewPort, screenSize);
+        auto placementRect  = toScreen(region->getPlacementRect(), m_viewPort, screenSize);
+        
+        // draw outer region (with halo)
+        if (!region->m_halo.isNull())
+        {
+            p.setPen(QPen(regionColor, 1, Qt::DashDotDotLine));
+            p.drawRect(regionRect);
+        }
+
+        // draw placeable region
+        p.setPen(QPen(regionColor, 1, Qt::SolidLine));
+        p.drawRect(placementRect);
 
         drawRows(p, region);
     }

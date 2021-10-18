@@ -30,12 +30,15 @@ if (UseCLANGTIDY)
     )
 endif()
 
+find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+
 add_library(lunacore 
     common/logging.cpp
     common/dbtypes.cpp
     netlist/net.cpp
     netlist/instance.cpp
     netlist/netlist.cpp
+    cellplacer/qplacer.cpp
     cellplacer/cellplacer.cpp
     celllib/cell.cpp
     celllib/pin.cpp
@@ -61,3 +64,4 @@ add_library(lunacore
     )
 
 target_include_directories(lunacore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(lunacore Eigen3::Eigen)

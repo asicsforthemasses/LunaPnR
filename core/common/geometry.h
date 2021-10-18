@@ -22,7 +22,7 @@ public:
     std::vector<ChipDB::Coord64> m_points;
 };
 
-using GeometryObject = std::variant<Rectangle, Polygon>;
+using GeometryObject  = std::variant<Rectangle, Polygon>;
 using GeometryObjects = std::vector<GeometryObject>;
 
 };

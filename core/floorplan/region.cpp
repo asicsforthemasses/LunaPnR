@@ -1,6 +1,12 @@
 #include <cmath>
+
 #include "common/logging.h"
 #include "region.h"
+
+ChipDB::Rect64 ChipDB::Region::getPlacementRect() const
+{
+    return m_rect.contracted(m_halo);
+}
 
 static double roundUp(double v, double resolution)
 {
@@ -12,7 +18,8 @@ ChipDB::Region* ChipDB::createRegion(
     int64_t minCellWidth, 
     int64_t rowHeight, 
     int64_t rowDistance,
-    int64_t totalCellWidth)
+    int64_t totalCellWidth,
+    std::optional<Margins64> halo)
 {
     auto effectiveRowHeight = rowHeight + rowDistance;
 
@@ -41,6 +48,12 @@ ChipDB::Region* ChipDB::createRegion(
         region->m_rows.back().m_region = region;
         region->m_rows.back().m_rect   = Rect64({0,ll_y}, {rowWidth, rowHeight});
         ll_y += effectiveRowHeight;
+    }
+
+    if (halo)
+    {
+        region->m_halo = *halo;
+        region->m_rect.expand(*halo);
     }
 
     return region;

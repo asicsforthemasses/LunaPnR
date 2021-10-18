@@ -24,12 +24,12 @@
     <message>
         <location filename="../models/modelnodebase.cpp" line="239"/>
         <source>Node</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../models/modelnodebase.cpp" line="241"/>
         <source>Value</source>
-        <translation></translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -56,21 +56,6 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/mainwindow.cpp" line="186"/>
-        <source>&amp;File</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.cpp" line="209"/>
-        <source>&amp;Quit</source>
-        <translation></translation>
-    </message>
-    <message>
-        <location filename="../src/mainwindow.cpp" line="200"/>
-        <source>&amp;Help</source>
-        <translation></translation>
-    </message>
-    <message>
         <location filename="../src/mainwindow.cpp" line="33"/>
         <source>Design Browser</source>
         <translation type="unfinished"></translation>
@@ -91,6 +76,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mainwindow.cpp" line="186"/>
+        <source>&amp;File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../src/mainwindow.cpp" line="191"/>
         <source>&amp;Design</source>
         <translation type="unfinished"></translation>
@@ -101,8 +91,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mainwindow.cpp" line="200"/>
+        <source>&amp;Help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../src/mainwindow.cpp" line="206"/>
         <source>Run script...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="209"/>
+        <source>&amp;Quit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

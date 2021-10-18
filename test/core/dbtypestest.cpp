@@ -76,12 +76,18 @@ BOOST_AUTO_TEST_CASE(check_Rect64)
     auto r1_reference = r1;
     
     ChipDB::Margins64 margins{10,10,20,20}; // top, bottom, left, right
-    r1.adjust(margins);
+    r1.contract(margins);
 
     BOOST_CHECK(r1.left() == (r1_reference.left()+20));
     BOOST_CHECK(r1.bottom() == (r1_reference.bottom()+10));
     BOOST_CHECK(r1.right() == (r1_reference.right()-20));
     BOOST_CHECK(r1.top() == (r1_reference.top()-10));
+
+    r1.expand(margins);
+    BOOST_CHECK(r1.left() == r1_reference.left());
+    BOOST_CHECK(r1.bottom() == r1_reference.bottom());
+    BOOST_CHECK(r1.right() == r1_reference.right());
+    BOOST_CHECK(r1.top() == r1_reference.top());
 }
 
 

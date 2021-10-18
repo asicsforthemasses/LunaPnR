@@ -15,6 +15,7 @@
 #include "../floorplan/region.h"
 #include "../floorplan/floorplan.h"
 #include "../cellplacer/cellplacer.h"
+#include "../cellplacer/qplacer.h"
 #include "../partitioner/fmpart.h"
 #include "../import/liberty/libparser.h"
 #include "../import/liberty/libreaderimpl.h"

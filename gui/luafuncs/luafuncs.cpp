@@ -267,6 +267,8 @@ static int create_region(lua_State *L)
         wrapper->print(ss);
     }
 
+    db->floorplan().m_regions.contentsChanged();
+
     return 0;
 }
 
@@ -324,9 +326,12 @@ static int create_rows(lua_State *L)
         ur += ChipDB::Coord64{0, rowHeight};
     }
 
+    db->floorplan().m_regions.contentsChanged();
+
     return 0;
 }
 
+// remove_rows(regionname)
 static int remove_rows(lua_State *L)
 {
     auto db = getDB(L);
@@ -346,10 +351,13 @@ static int remove_rows(lua_State *L)
         return 0;
     }
     
+    db->floorplan().m_regions.contentsChanged();
+
     region->m_rows.clear();
     return 0;
 }
 
+// remove_region(regionname)
 static int remove_region(lua_State *L)
 {
     auto db = getDB(L);
@@ -365,7 +373,83 @@ static int remove_region(lua_State *L)
     if (!db->floorplan().m_regions.remove(name))
     {
         reportError(L, "Could not regomve region with name %s!", name);
+        return 0;
     }
+
+    db->floorplan().m_regions.contentsChanged();
+    return 0;    
+}
+
+// set_region_halo(regionname, top, bottom, left, right)
+static int set_region_halo(lua_State *L)
+{
+    auto db = getDB(L);
+
+    if (!lua_isstring(L, 1))
+    {
+        reportError(L, "Param 1: Expected a string for region name");
+        return 0;
+    }
+
+    if (!lua_isinteger(L, 2))
+    {
+        reportError(L, "Param 2: Expected an integer for top halo");
+        return 0;
+    }
+
+    if (!lua_isinteger(L, 3))
+    {
+        reportError(L, "Param 3: Expected an integer for bottom halo");
+        return 0;
+    }
+
+    if (!lua_isinteger(L, 4))
+    {
+        reportError(L, "Param 4: Expected an integer for left halo");
+        return 0;
+    }    
+
+    if (!lua_isinteger(L, 5))
+    {
+        reportError(L, "Param 5: Expected an integer for right halo");
+        return 0;
+    }
+
+    auto name   = lua_tostring(L, 1);
+    auto top    = lua_tointeger(L, 2);
+    auto bottom = lua_tointeger(L, 3);
+    auto left   = lua_tointeger(L, 4);
+    auto right  = lua_tointeger(L, 5);
+
+    auto region = db->floorplan().m_regions.lookup(name);
+    if (region == nullptr)
+    {
+        reportError(L, "Could not find region with name %s!", name);
+        return 0;
+    }
+
+    // remove the previous halo
+    region->m_rect.contract(region->m_halo);
+
+    region->m_halo.m_top = top;
+    region->m_halo.m_bottom = bottom;
+    region->m_halo.m_left = left;
+    region->m_halo.m_right = right;
+
+    // increase the region size by the new halo
+    region->m_rect.expand(region->m_halo);
+
+    db->floorplan().m_regions.contentsChanged();
+
+#if 0
+    auto wrapper = getLuaWrapper(L);
+    if (wrapper != nullptr)
+    {
+        std::stringstream ss;
+        ss << "Created region '" << name << "' at " << region->m_rect << "\n";
+        wrapper->print(ss);
+    }
+#endif
 
     return 0;    
 }
@@ -380,6 +464,7 @@ void Lua::registerFunctions(lua_State *L)
     lua_register(L, "load_layers", load_layers);
     lua_register(L, "create_region", create_region);
     lua_register(L, "remove_region", remove_region);
+    lua_register(L, "set_region_halo", set_region_halo);
     lua_register(L, "create_rows", create_rows);
     lua_register(L, "remove_rows", remove_rows);
 }
