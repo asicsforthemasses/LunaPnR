@@ -12,7 +12,7 @@ namespace ChipDB
 class Design
 {
 public:
-    Design() : m_uniqueIDCounter(0) {}
+    Design() : m_topModule(nullptr), m_uniqueIDCounter(0) {}
 
     /** clear netlist, celllib, modules and technology information */
     void clear();
@@ -24,13 +24,21 @@ public:
     ModuleLib               m_moduleLib;
     TechLib                 m_techLib;
     Floorplan               m_floorplan;
-    
+
     auto createUniqueID()
     {
         return m_uniqueIDCounter++;
     }
 
+    bool setTopModule(const std::string &moduleName);
+    
+    ChipDB::Module* getTopModule()
+    {
+        return m_topModule;
+    }
+
 protected:
+    ChipDB::Module  *m_topModule;
     uint32_t m_uniqueIDCounter;
 };
 

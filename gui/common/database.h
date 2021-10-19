@@ -10,6 +10,7 @@ namespace GUI
 class Database
 {
 public:
+    Database() {}
 
     /** clear the entire database */
     void clear();
@@ -76,7 +77,7 @@ public:
 
     LayerRenderInfoDB m_layerRenderInfoDB;
     HatchLibrary      m_hatchLib;
-    
+
 protected:    
     ChipDB::Design  m_design;
 };

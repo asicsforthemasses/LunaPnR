@@ -27,7 +27,7 @@ protected:
 
     void paintEvent(QPaintEvent *event) override;
 
-    void drawInstance(QPainter &p, const ChipDB::InstanceBase *ins);
+    void drawInstances(QPainter &p);
     void drawRegions(QPainter &p);
     void drawRows(QPainter &p, const ChipDB::Region *region);
 

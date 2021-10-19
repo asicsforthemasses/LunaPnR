@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include "common/visitor.h"
 #include "celllib/cell.h"
 #include "celllib/module.h"

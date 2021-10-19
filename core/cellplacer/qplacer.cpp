@@ -1,6 +1,11 @@
 #include <cassert>
 #include "qplacer.h"
 
+#include "common/logging.h"
+//#include "netlist/netlist.h"
+//#include "celllib/module.h"
+#include "design/design.h"
+
 using namespace LunaCore::QPlacer;
 
 void Placer::checkAndSetUnmovableNet(PlacerNet &net, const std::vector<PlacerNode> &nodes)
@@ -104,4 +109,109 @@ std::string toString(const PlacerNetType &t)
     case PlacerNetType::Undefined:
         return "Undefined";
     }
+}
+
+bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB::Module *mod, const ChipDB::Region *region)
+{
+    if (design == nullptr)
+    {
+        return false;
+    }
+
+    if (mod == nullptr)
+    {
+        return false;
+    }
+
+    if (region == nullptr)
+    {
+        return false;
+    }
+
+    if (!mod->m_netlist)
+    {
+        return false;
+    }
+
+    // check if pins have been fixed
+    for(auto ins : mod->m_netlist->m_instances)
+    {
+        if (ins->m_insType == ChipDB::Instance::InstanceType::INS_PIN)
+        {
+            if (ins->m_placementInfo != ChipDB::PlacementInfo::PLACEDANDFIXED)
+            {
+                doLog(LOG_ERROR,"Not all pins have been placed and fixed\n");
+                return false;
+            }
+        }
+    }
+
+    // generate QPlacer netlist
+    std::vector<LunaCore::QPlacer::PlacerNode> nodes;
+    std::vector<LunaCore::QPlacer::PlacerNet>  nets;
+    
+    std::unordered_map<ChipDB::InstanceBase*, LunaCore::QPlacer::PlacerNodeId> ins2nodeId;
+    std::unordered_map<ChipDB::Net*, LunaCore::QPlacer::PlacerNetId> net2netId;
+
+    // create placer nodes
+    for(auto ins : mod->m_netlist->m_instances)
+    {
+        nodes.emplace_back();
+        auto& placerNode = nodes.back();
+        placerNode.m_type = LunaCore::QPlacer::PlacerNodeType::MovableNode;
+        placerNode.m_pos  = ChipDB::Coord64{0,0};
+
+        if (ins->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED)
+        {
+            placerNode.m_type = LunaCore::QPlacer::PlacerNodeType::FixedNode;
+            placerNode.m_pos  = ins->m_pos;
+        }
+
+        ins2nodeId[ins] = nodes.size()-1;
+    }
+
+    // create placer nets
+    for(auto net : mod->m_netlist->m_nets)
+    {
+        nets.emplace_back();
+        auto& placerNet = nets.back();
+        auto placerNetId = nets.size()-1;
+
+        for(auto& conn : net->m_connections)
+        {
+            auto ins = conn.m_instance;
+            auto iter = ins2nodeId.find(ins);
+
+
+            if (iter == ins2nodeId.end())
+            {
+                doLog(LOG_ERROR, "Cannot find node\n");
+                return false;
+            }
+            
+            auto placerNodeId = iter->second;
+            placerNet.m_nodes.push_back(placerNodeId);
+            nodes.at(placerNodeId).m_connections.push_back(placerNetId);
+        }
+    }
+
+    Eigen::VectorXd xpos;
+    Eigen::VectorXd ypos;
+    LunaCore::QPlacer::Placer placer;
+    placer.solve(nodes, nets, xpos, ypos);
+
+    ssize_t idx = 0;
+    for(auto ins : mod->m_netlist->m_instances)
+    {
+        if (ins->m_placementInfo != ChipDB::PlacementInfo::PLACEDANDFIXED)
+        {
+            ins->m_placementInfo = ChipDB::PlacementInfo::PLACED;
+            ins->m_pos = ChipDB::Coord64(xpos[idx], ypos[idx]);
+        }
+        idx++;
+    }
+
+    // FIXME: legalisation and detail placement
+
+    return true;
 }

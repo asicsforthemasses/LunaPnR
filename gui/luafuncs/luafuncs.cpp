@@ -441,18 +441,145 @@ static int set_region_halo(lua_State *L)
 
     db->floorplan().m_regions.contentsChanged();
 
-#if 0
-    auto wrapper = getLuaWrapper(L);
-    if (wrapper != nullptr)
-    {
-        std::stringstream ss;
-        ss << "Created region '" << name << "' at " << region->m_rect << "\n";
-        wrapper->print(ss);
-    }
-#endif
-
     return 0;    
 }
+
+// place_module(modulename, regionname)
+static int place_module(lua_State *L)
+{
+    auto db = getDB(L);
+
+    if (!lua_isstring(L, 1))
+    {
+        reportError(L, "Param 1: Expected a string for module name");
+        return 0;
+    }
+
+    if (!lua_isstring(L, 2))
+    {
+        reportError(L, "Param 2: Expected a string for region name");
+        return 0;
+    }
+
+    auto moduleName = lua_tostring(L, 1);
+    auto regionName = lua_tostring(L, 2);
+    
+    auto *region = db->floorplan().m_regions.lookup(regionName);
+    if (region == nullptr)
+    {
+        reportError(L, "Could not find region with name %s!", regionName);
+        return 0;
+    }
+
+    auto *mod = db->moduleLib().lookup(moduleName);
+    if (mod == nullptr)
+    {
+        reportError(L, "Could not find module with name %s!", moduleName);
+        return 0;
+    }
+
+    if (!LunaCore::QPlacer::placeModuleInRegion(&db->design(), mod, region))
+    {
+        reportError(L, "Placement failed!");
+    }
+    else
+    {
+        auto wrapper = getLuaWrapper(L);
+        if (wrapper != nullptr)
+        {
+            wrapper->print("Placement succeeded!\n");
+        }     
+    }
+
+    db->floorplan().m_regions.contentsChanged();
+
+    return 0;
+}
+
+// place_instance(insname, module, x, y)
+static int place_instance(lua_State *L)
+{
+    auto db = getDB(L);
+
+    if (!lua_isstring(L, 1))
+    {
+        reportError(L, "Param 1: Expected a string for instance name");
+        return 0;
+    }
+
+    if (!lua_isstring(L, 2))
+    {
+        reportError(L, "Param 2: Expected a string for module name");
+        return 0;
+    }
+
+    if (!lua_isinteger(L, 3))
+    {
+        reportError(L, "Param 3: Expected an integer for x location");
+        return 0;
+    }
+
+    if (!lua_isinteger(L, 4))
+    {
+        reportError(L, "Param 4: Expected an integer for y location");
+        return 0;
+    }
+
+    auto insName = lua_tostring(L, 1);
+    auto moduleName = lua_tostring(L, 2);
+    auto x = lua_tointeger(L,3);
+    auto y = lua_tointeger(L,4);
+
+    auto *mod = db->moduleLib().lookup(moduleName);
+    if (mod == nullptr)
+    {
+        reportError(L, "Could not find module with name %s!", moduleName);
+        return 0;
+    }
+
+    if (!mod->m_netlist)
+    {
+        reportError(L, "Module %s has no instances!", moduleName);
+        return 0;        
+    }
+
+    auto *ins = mod->m_netlist.get()->m_instances.lookup(insName);
+    if (ins == nullptr)
+    {
+        reportError(L, "Could not find instance with name %s!", insName);
+        return 0;
+    }
+
+    ins->m_pos.m_x = x;
+    ins->m_pos.m_y = y;
+    ins->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
+
+    db->floorplan().m_regions.contentsChanged();
+
+    return 0;
+}
+
+// set_toplevel_module(module)
+static int set_toplevel_module(lua_State *L)
+{
+    auto db = getDB(L);
+
+    if (!lua_isstring(L, 1))
+    {
+        reportError(L, "Param 1: Expected a string for module name");
+        return 0;
+    }
+
+    auto moduleName = lua_tostring(L, 1);
+
+    if (!db->design().setTopModule(moduleName))
+    {
+        reportError(L, "Could not find module with name %s!", moduleName);
+        return 0;        
+    }
+
+    return 0;
+};
 
 void Lua::registerFunctions(lua_State *L)
 {
@@ -467,5 +594,7 @@ void Lua::registerFunctions(lua_State *L)
     lua_register(L, "set_region_halo", set_region_halo);
     lua_register(L, "create_rows", create_rows);
     lua_register(L, "remove_rows", remove_rows);
+    lua_register(L, "place_module", place_module);
+    lua_register(L, "place_instance", place_instance);
+    lua_register(L, "set_toplevel_module", set_toplevel_module);
 }
-

@@ -9,6 +9,14 @@
 #include <Eigen/Sparse>
 #include <Eigen/IterativeLinearSolvers>
 
+// predeclarations
+namespace ChipDB
+{
+    class Module;   
+    class Region;
+    class Design;
+};
+
 namespace LunaCore::QPlacer
 {
 
@@ -190,5 +198,8 @@ protected:
     Eigen::VectorXd m_Bvec_x;
     Eigen::VectorXd m_Bvec_y;
 };
+
+
+bool placeModuleInRegion(const ChipDB::Design *design, ChipDB::Module *mod, const ChipDB::Region *region);
 
 };  // namespace

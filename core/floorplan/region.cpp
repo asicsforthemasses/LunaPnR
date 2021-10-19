@@ -23,7 +23,7 @@ ChipDB::Region* ChipDB::createRegion(
 {
     auto effectiveRowHeight = rowHeight + rowDistance;
 
-    //FIXME: adjust for fill rate
+    //FIXME: adjust for utilisation factor
     double effectiveCellArea = static_cast<double>(totalCellWidth)*static_cast<double>(effectiveRowHeight);
     double rowWidthDouble = sqrt(aspectRatio * effectiveCellArea);
 
