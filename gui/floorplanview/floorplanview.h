@@ -36,6 +36,15 @@ protected:
 
     QRectF m_viewPort;  ///< viewport in floorplan coordinates
 
+    enum class MouseState
+    {
+        None,
+        Dragging
+    } m_mouseState;
+
+    QRectF m_viewPortRef;
+    QPoint m_mouseDownPos;
+
     Database *m_db;
     bool  m_dirty;
 };

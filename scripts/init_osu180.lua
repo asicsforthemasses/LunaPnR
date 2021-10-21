@@ -18,10 +18,10 @@ xinc = 4000
 x = 10000
 for idx=0,7 do
     pinName = "a[" .. tostring(idx) .. "]"
-    place_instance(pinName, "adder8", x, 80000)
+    place_instance(pinName, "adder8", x, 90000)
     x = x + xinc
     pinName = "b[" .. tostring(idx) .. "]"
-    place_instance(pinName, "adder8", x, 80000)
+    place_instance(pinName, "adder8", x, 90000)
     x = x + xinc    
 end
 

@@ -41,7 +41,16 @@ constexpr const ChipDB::Coord64 fromScreen(const QPointF &p, const QRectF &viewp
     return ChipDB::Coord64{static_cast<int64_t>(x),static_cast<int64_t>(y)};
 }
 
-FloorplanView::FloorplanView(QWidget *parent) : QWidget(parent), m_db(nullptr)
+constexpr const ChipDB::Coord64 deltaFromScreen(const QPointF &screenp1, const QPointF &screenp2,
+    const QRectF &viewport, const QSizeF &screenSize)
+{
+    auto screenDelta = screenp2 - screenp1;
+    const double x = screenDelta.x() * (viewport.width() / static_cast<double>(screenSize.width()));
+    const double y = -screenDelta.y() * (viewport.height() / static_cast<double>(screenSize.height()));
+    return ChipDB::Coord64{static_cast<int64_t>(x), static_cast<int64_t>(y)};
+}
+
+FloorplanView::FloorplanView(QWidget *parent) : QWidget(parent), m_db(nullptr), m_mouseState(MouseState::None)
 {
     m_viewPort.setHeight(100000.0);
     m_viewPort.setWidth(100000.0);
@@ -66,14 +75,45 @@ void FloorplanView::setDatabase(Database *db)
 
 void FloorplanView::mousePressEvent(QMouseEvent *event)
 {
+    m_mouseDownPos = event->pos();
+    m_mouseState = MouseState::Dragging;
+    m_viewPortRef = m_viewPort;
+
+    setCursor(Qt::ClosedHandCursor);
 }
 
 void FloorplanView::mouseReleaseEvent(QMouseEvent *event)
 {
+    if (m_mouseState == MouseState::Dragging)
+    {
+            auto delta = deltaFromScreen(event->pos(), m_mouseDownPos, m_viewPortRef, size());
+
+            m_viewPort = m_viewPortRef;
+            m_viewPort.translate(delta.m_x, delta.m_y);
+
+            setCursor(Qt::ArrowCursor);
+
+            update();
+    }
+    m_mouseState = MouseState::None;
 }
 
 void FloorplanView::mouseMoveEvent(QMouseEvent *event)
 {
+    switch(m_mouseState)
+    {
+    case MouseState::Dragging:
+        {
+            auto delta = deltaFromScreen(event->pos(), m_mouseDownPos, m_viewPortRef, size());
+
+            m_viewPort = m_viewPortRef;
+            m_viewPort.translate(delta.m_x, delta.m_y);
+            update();
+        }
+        break;
+    case MouseState::None:
+        break;
+    };
 }
 
 void FloorplanView::wheelEvent(QWheelEvent *event)
@@ -223,8 +263,8 @@ void FloorplanView::drawCell(QPainter &p, const ChipDB::InstanceBase *ins)
     cellRect.setTopRight(toScreen(ins->m_pos + ins->instanceSize(), m_viewPort, screenSize));
 
     // check if the instance is in view
-    if (!cellRect.intersects(m_viewPort))
-        return;
+    //if (!cellRect.intersects(m_viewPort))
+    //    return;
 
     p.setPen(Qt::green);
     p.drawRect(cellRect);
@@ -278,12 +318,13 @@ void FloorplanView::drawPin(QPainter &p, const ChipDB::InstanceBase *ins)
     cellRect.setTopRight(toScreen(ins->m_pos + ChipDB::Coord64{1000,1000}, m_viewPort, screenSize));
 
     // check if the instance is in view
-    if (!cellRect.intersects(m_viewPort))
-        return;
+    //if (!cellRect.intersects(m_viewPort))
+    //    return;
 
     p.setPen(Qt::white);
     p.drawRect(cellRect);
 
+#if 0
     switch(ins->m_orientation)
     {
     case ChipDB::Orientation::R0: // aka North
@@ -303,6 +344,8 @@ void FloorplanView::drawPin(QPainter &p, const ChipDB::InstanceBase *ins)
     default:
         break;            
     }
+#endif
+
 
     QFontMetrics fm(font());
     auto txtpoint = cellRect.center();
