@@ -52,8 +52,19 @@ constexpr const ChipDB::Coord64 deltaFromScreen(const QPointF &screenp1, const Q
 
 FloorplanView::FloorplanView(QWidget *parent) : QWidget(parent), m_db(nullptr), m_mouseState(MouseState::None)
 {
-    m_viewPort.setHeight(100000.0);
-    m_viewPort.setWidth(100000.0);
+    // make sure viewport pixels are 1:1
+
+    if (width() > height())
+    {
+        m_viewPort.setHeight(100000.0);
+        m_viewPort.setWidth(100000.0 / static_cast<double>(height()) * width());
+    }
+    else
+    {
+        m_viewPort.setWidth(100000.0);
+        m_viewPort.setHeight(100000.0 / static_cast<double>(width()) * height());
+    }
+
     m_dirty   = true;
 }
 
@@ -65,6 +76,18 @@ FloorplanView::~FloorplanView()
 QSize FloorplanView::sizeHint() const
 {
     return QWidget::sizeHint();    
+}
+
+void FloorplanView::resizeEvent(QResizeEvent *event)
+{
+    if (width() > height())
+    {
+        m_viewPort.setWidth(m_viewPort.height() / static_cast<double>(height()) * width());
+    }
+    else
+    {
+        m_viewPort.setHeight(m_viewPortRef.width() / static_cast<double>(width()) * height());
+    }
 }
 
 void FloorplanView::setDatabase(Database *db)
@@ -323,29 +346,6 @@ void FloorplanView::drawPin(QPainter &p, const ChipDB::InstanceBase *ins)
 
     p.setPen(Qt::white);
     p.drawRect(cellRect);
-
-#if 0
-    switch(ins->m_orientation)
-    {
-    case ChipDB::Orientation::R0: // aka North
-        {
-            auto p1 = cellRect.bottomLeft() - QPointF{0, cellRect.height() / 2};
-            auto p2 = cellRect.bottomLeft() + QPointF{cellRect.width() / 2, 0};
-            p.drawLine(p1, p2);
-        }
-        break;
-    case ChipDB::Orientation::MX: // aka flipped South
-        {
-            auto p1 = cellRect.topLeft() + QPointF{0, cellRect.height() / 2};
-            auto p2 = cellRect.topLeft() + QPointF{cellRect.width() / 2, 0};
-            p.drawLine(p1, p2);
-        }            
-        break;
-    default:
-        break;            
-    }
-#endif
-
 
     QFontMetrics fm(font());
     auto txtpoint = cellRect.center();

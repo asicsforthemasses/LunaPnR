@@ -27,6 +27,8 @@ protected:
 
     void paintEvent(QPaintEvent *event) override;
 
+    void resizeEvent(QResizeEvent *event) override;
+
     void drawInstances(QPainter &p);
     void drawRegions(QPainter &p);
     void drawRows(QPainter &p, const ChipDB::Region *region);
