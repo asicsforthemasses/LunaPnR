@@ -11,21 +11,23 @@
 namespace ChipDB
 {
 
+enum class InstanceType
+{
+        ABSTRACT = 0,
+        CELL,
+        MODULE,
+        PIN
+};
+
 class InstanceBase
 {
 public:
-    enum InstanceType : uint8_t
-    {
-        INS_ABSTRACT = 0,
-        INS_CELL,
-        INS_MODULE,
-        INS_PIN
-    } m_insType;
+    InstanceType m_insType;
 
-    InstanceBase() : m_parent(nullptr), m_insType(INS_ABSTRACT), m_orientation(Orientation::R0), 
+    InstanceBase() : m_parent(nullptr), m_insType(InstanceType::ABSTRACT), m_orientation(Orientation::R0), 
         m_placementInfo(PlacementInfo::UNPLACED), m_id(-1), m_flags(0) {}
     
-    InstanceBase(InstanceBase *parent) : m_parent(parent), m_insType(INS_ABSTRACT), m_orientation(Orientation::R0), 
+    InstanceBase(InstanceBase *parent) : m_parent(parent), m_insType(InstanceType::ABSTRACT), m_orientation(Orientation::R0), 
         m_placementInfo(PlacementInfo::UNPLACED), m_id(-1), m_flags(0) {}
 
     virtual ~InstanceBase() = default;
@@ -35,7 +37,7 @@ public:
     /** returns true if the instance is a module */
     bool isModule() const noexcept
     {
-        return m_insType == INS_MODULE;
+        return m_insType == InstanceType::MODULE;
     }
 
     /** get area in um² */
@@ -104,9 +106,9 @@ public:
     Instance(const Cell *cell) : m_cell(cell)
     {
         if (cell->isModule())
-            m_insType = INS_MODULE;
+            m_insType = InstanceType::MODULE;
         else
-            m_insType = INS_CELL;
+            m_insType = InstanceType::CELL;
 
         m_pinToNet.resize(cell->m_pins.size());
     }
@@ -114,9 +116,9 @@ public:
     Instance(const Cell *cell, InstanceBase *parent) : InstanceBase(parent), m_cell(cell)
     {
         if (cell->isModule())
-            m_insType = INS_MODULE;
+            m_insType = InstanceType::MODULE;
         else
-            m_insType = INS_CELL;
+            m_insType = InstanceType::CELL;
 
         m_pinToNet.resize(cell->m_pins.size());
     }    
@@ -204,7 +206,7 @@ public:
     PinInstance(const std::string &name)
     {
         m_name = name;
-        m_insType = INS_PIN;
+        m_insType = InstanceType::PIN;
         m_connectedNet = nullptr;
         m_pinInfo.m_name = name;
     }
@@ -212,7 +214,7 @@ public:
     PinInstance(const std::string &name, InstanceBase *parent) : InstanceBase(parent)
     {
         m_name = name;
-        m_insType = INS_PIN;
+        m_insType = InstanceType::PIN;
         m_connectedNet = nullptr;
         m_pinInfo.m_name = name;
     }

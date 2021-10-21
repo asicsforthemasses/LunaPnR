@@ -33,7 +33,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
     // write all instances as nodes
     for(auto const ins : m_module->m_netlist->m_instances)
     {
-        if (ins->m_insType == ChipDB::InstanceBase::INS_PIN)
+        if (ins->m_insType == ChipDB::InstanceType::PIN)
         {
             os << "  " << escapeString(ins->m_name) << R"( [shape="circle", label = ")"  << ins->m_name << "\"];\n";
         }
@@ -62,7 +62,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
         // find the driver on the net
         std::string driverName;
         std::string driverPinName;
-        ChipDB::Instance::InstanceType driverInsType = ChipDB::Instance::INS_ABSTRACT;
+        ChipDB::InstanceType driverInsType = ChipDB::InstanceType::ABSTRACT;
 
         ssize_t driverIdx = -1;
         ssize_t idx = 0;        
@@ -105,7 +105,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
                 auto dstPinInfo = conn.m_instance->getPinInfo(conn.m_pinIndex);
                 if (dstPinInfo != nullptr)
                 {
-                    if (driverInsType != ChipDB::InstanceBase::INS_PIN)
+                    if (driverInsType != ChipDB::InstanceType::PIN)
                     {
                         os << "  " << escapeString(driverName) << ":" << escapeString(driverPinName) << "->";
                     }
@@ -114,7 +114,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
                         os << "  " << escapeString(driverPinName) << "->";
                     }
 
-                    if (conn.m_instance->m_insType != ChipDB::InstanceBase::INS_PIN)
+                    if (conn.m_instance->m_insType != ChipDB::InstanceType::PIN)
                         os << escapeString(conn.m_instance->m_name) << ":" << escapeString(dstPinInfo->m_name) << ";\n";
                     else
                         os << escapeString(conn.m_instance->m_name) << ";\n";

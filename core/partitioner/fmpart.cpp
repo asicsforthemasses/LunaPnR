@@ -462,7 +462,7 @@ void FMPart::exportToDot(std::ostream &dotFile, FMContainer &container)
     for(auto const& node : container.m_nodes)
     {
         std::stringstream nodeLabel;
-        if ((node.m_instance != nullptr) && (node.m_instance->m_insType == ChipDB::InstanceBase::INS_PIN))
+        if ((node.m_instance != nullptr) && (node.m_instance->m_insType == ChipDB::InstanceType::PIN))
         {
             const auto *pinInfo = node.m_instance->getPinInfo(0);
             if (pinInfo == nullptr)
@@ -644,7 +644,7 @@ bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
                 continue;
             }
 
-            if (node.m_instance->m_insType == ChipDB::InstanceBase::INS_PIN)
+            if (node.m_instance->m_insType == ChipDB::InstanceType::PIN)
             {
                 net.m_weight += 4;
                 break;

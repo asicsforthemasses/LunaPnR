@@ -214,6 +214,102 @@ void FloorplanView::drawRows(QPainter &p, const ChipDB::Region *region)
     }
 }
 
+void FloorplanView::drawCell(QPainter &p, const ChipDB::InstanceBase *ins)
+{
+    auto screenSize = size();
+    
+    QRectF cellRect;
+    cellRect.setBottomLeft(toScreen(ins->m_pos, m_viewPort, screenSize));
+    cellRect.setTopRight(toScreen(ins->m_pos + ins->instanceSize(), m_viewPort, screenSize));
+
+    // check if the instance is in view
+    if (!cellRect.intersects(m_viewPort))
+        return;
+
+    p.setPen(Qt::green);
+    p.drawRect(cellRect);
+
+    switch(ins->m_orientation)
+    {
+    case ChipDB::Orientation::R0: // aka North
+        {
+            auto p1 = cellRect.bottomLeft() - QPointF{0, cellRect.height() / 2};
+            auto p2 = cellRect.bottomLeft() + QPointF{cellRect.width() / 2, 0};
+            p.drawLine(p1, p2);
+        }
+        break;
+    case ChipDB::Orientation::MX: // aka flipped South
+        {
+            auto p1 = cellRect.topLeft() + QPointF{0, cellRect.height() / 2};
+            auto p2 = cellRect.topLeft() + QPointF{cellRect.width() / 2, 0};
+            p.drawLine(p1, p2);
+        }            
+        break;
+    default:
+        break;            
+    }
+
+    // check if there is enough room to display the cell type
+    // if so, draw the instance name and archetype
+    QFontMetrics fm(font());
+    int textWidth = fm.horizontalAdvance(QString::fromStdString(ins->getArchetypeName()));
+
+    if (cellRect.width() > textWidth)
+    {
+        drawCenteredText(p, cellRect.center(), ins->getArchetypeName(), font());
+    }
+
+    textWidth = fm.horizontalAdvance(QString::fromStdString(ins->m_name));
+
+    if (cellRect.width() > textWidth)
+    {
+        auto txtpoint = cellRect.center();
+        txtpoint += {0, static_cast<qreal>(fm.height())};
+        drawCenteredText(p, txtpoint, ins->m_name, font());
+    }
+}
+
+void FloorplanView::drawPin(QPainter &p, const ChipDB::InstanceBase *ins)
+{
+    auto screenSize = size();
+    
+    QRectF cellRect;
+    cellRect.setBottomLeft(toScreen(ins->m_pos, m_viewPort, screenSize));
+    cellRect.setTopRight(toScreen(ins->m_pos + ChipDB::Coord64{1000,1000}, m_viewPort, screenSize));
+
+    // check if the instance is in view
+    if (!cellRect.intersects(m_viewPort))
+        return;
+
+    p.setPen(Qt::white);
+    p.drawRect(cellRect);
+
+    switch(ins->m_orientation)
+    {
+    case ChipDB::Orientation::R0: // aka North
+        {
+            auto p1 = cellRect.bottomLeft() - QPointF{0, cellRect.height() / 2};
+            auto p2 = cellRect.bottomLeft() + QPointF{cellRect.width() / 2, 0};
+            p.drawLine(p1, p2);
+        }
+        break;
+    case ChipDB::Orientation::MX: // aka flipped South
+        {
+            auto p1 = cellRect.topLeft() + QPointF{0, cellRect.height() / 2};
+            auto p2 = cellRect.topLeft() + QPointF{cellRect.width() / 2, 0};
+            p.drawLine(p1, p2);
+        }            
+        break;
+    default:
+        break;            
+    }
+
+    QFontMetrics fm(font());
+    auto txtpoint = cellRect.center();
+    txtpoint += {0, static_cast<qreal>(fm.height())};
+    drawCenteredText(p, txtpoint, ins->m_name, font());
+}
+
 void FloorplanView::drawInstances(QPainter &p)
 {
     if (m_db == nullptr)
@@ -227,59 +323,24 @@ void FloorplanView::drawInstances(QPainter &p)
         return;
     }
 
-    auto screenSize = size();
-
     for(auto ins : topModule->m_netlist->m_instances)
     {
         if ((ins != nullptr) && (ins->m_placementInfo != ChipDB::PlacementInfo::UNPLACED) && (ins->m_placementInfo != ChipDB::PlacementInfo::IGNORE))
         {
-            QRectF cellRect;
-            cellRect.setBottomLeft(toScreen(ins->m_pos, m_viewPort, screenSize));
-            cellRect.setTopRight(toScreen(ins->m_pos + ins->instanceSize(), m_viewPort, screenSize));
-
-            // check if the instance is in view
-            //if (!cellRect.intersects(m_viewPort))
-            //    return;
-
-            p.drawRect(cellRect);
-
-            switch(ins->m_orientation)
+            switch(ins->m_insType)
             {
-            case ChipDB::Orientation::R0: // aka North
-                {
-                    auto p1 = cellRect.bottomLeft() - QPointF{0, cellRect.height() / 2};
-                    auto p2 = cellRect.bottomLeft() + QPointF{cellRect.width() / 2, 0};
-                    p.drawLine(p1, p2);
-                }
+            case ChipDB::InstanceType::ABSTRACT:
                 break;
-            case ChipDB::Orientation::MX: // aka flipped South
-                {
-                    auto p1 = cellRect.topLeft() + QPointF{0, cellRect.height() / 2};
-                    auto p2 = cellRect.topLeft() + QPointF{cellRect.width() / 2, 0};
-                    p.drawLine(p1, p2);
-                }            
+            case ChipDB::InstanceType::PIN:
+                drawPin(p, ins);
+                break;
+            case ChipDB::InstanceType::MODULE:
+                break;
+            case ChipDB::InstanceType::CELL:
+                drawCell(p, ins);
                 break;
             default:
-                break;            
-            }
-
-            // check if there is enough room to display the cell type
-            // if so, draw the instance name and archetype
-            QFontMetrics fm(font());
-            int textWidth = fm.horizontalAdvance(QString::fromStdString(ins->getArchetypeName()));
-
-            if (cellRect.width() > textWidth)
-            {
-                drawCenteredText(p, cellRect.center(), ins->getArchetypeName(), font());
-            }
-
-            textWidth = fm.horizontalAdvance(QString::fromStdString(ins->m_name));
-
-            if (cellRect.width() > textWidth)
-            {
-                auto txtpoint = cellRect.center();
-                txtpoint += {0, static_cast<qreal>(fm.height())};
-                drawCenteredText(p, txtpoint, ins->m_name, font());
+                break;         
             }
         }
     }

@@ -136,7 +136,7 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
     // check if pins have been fixed
     for(auto ins : mod->m_netlist->m_instances)
     {
-        if (ins->m_insType == ChipDB::Instance::InstanceType::INS_PIN)
+        if (ins->m_insType == ChipDB::InstanceType::PIN)
         {
             if (ins->m_placementInfo != ChipDB::PlacementInfo::PLACEDANDFIXED)
             {

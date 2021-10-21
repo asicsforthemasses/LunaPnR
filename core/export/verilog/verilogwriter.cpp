@@ -135,7 +135,7 @@ namespace LunaCore::Verilog
                 return;
             }
 
-            if (instance->m_insType != ChipDB::Instance::INS_CELL)
+            if (instance->m_insType != ChipDB::InstanceType::CELL)
             {
                 m_ok = false;
                 doLog(LOG_ERROR, "Verilog writer: expected a Cell instance but got %s\n", instance->m_name.c_str());

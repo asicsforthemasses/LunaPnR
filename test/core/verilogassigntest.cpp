@@ -42,16 +42,16 @@ BOOST_AUTO_TEST_CASE(can_read_assign_statements)
     {
         switch(ins->m_insType)
         {
-        case ChipDB::InstanceBase::INS_MODULE:
+        case ChipDB::InstanceType::MODULE:
             std::cout << "    module " << ins->m_name << "\n";
             break;
-        case ChipDB::InstanceBase::INS_CELL:
+        case ChipDB::InstanceType::CELL:
             {
                 std::cout << "    cell " << ins->m_name << " " << ins->getArchetypeName() << "\tarea: " << ins->getArea() << " um²\n";
                 BOOST_CHECK(ins->getArea() >= 0);   // NETCON cells have area 0
             }
             break;
-        case ChipDB::InstanceBase::INS_PIN:
+        case ChipDB::InstanceType::PIN:
             {
                 std::cout << "    pin  " << ins->m_name << " " << ins->getArchetypeName() << "\tarea: " << ins->getArea() << " um²\n";
             }

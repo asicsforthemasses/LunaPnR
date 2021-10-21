@@ -31,6 +31,9 @@ protected:
     void drawRegions(QPainter &p);
     void drawRows(QPainter &p, const ChipDB::Region *region);
 
+    void drawCell(QPainter &p, const ChipDB::InstanceBase *ins);
+    void drawPin(QPainter &p, const ChipDB::InstanceBase *ins);
+
     QRectF m_viewPort;  ///< viewport in floorplan coordinates
 
     Database *m_db;
