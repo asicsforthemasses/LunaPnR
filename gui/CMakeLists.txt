@@ -60,4 +60,3 @@ target_include_directories(lunapnr PUBLIC ../core/include ../contrib/lua-5.4.3/s
 set_property(TARGET lunapnr PROPERTY AUTOMOC ON)
 set_property(TARGET lunapnr PROPERTY AUTOUIC ON)
 set_property(TARGET lunapnr PROPERTY AUTORCC ON)
-
