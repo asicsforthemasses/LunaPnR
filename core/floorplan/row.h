@@ -1,12 +1,14 @@
 #pragma once
 
+#include <vector>
 #include "common/dbtypes.h"
 
 namespace ChipDB
 {
 
-// predeclaration
+// predeclarations
 struct Region;
+class InstanceBase;
 
 enum class RowType
 {

@@ -44,10 +44,11 @@ std::string toString(const PlacerNetType &t);
 
 struct PlacerNode
 {
-    PlacerNode() : m_type(PlacerNodeType::Undefined) {}
+    PlacerNode() : m_type(PlacerNodeType::Undefined), m_weight(1.0f) {}
 
-    ChipDB::Coord64 m_pos;  ///< center position of node
-    PlacerNodeType m_type;  ///< node type
+    ChipDB::Coord64 m_pos;      ///< center position of node
+    PlacerNodeType  m_type;     ///< node type
+    float           m_weight;   ///< default = 1.0, and 10.0 for fixed pins
 
     constexpr bool isFixed() const noexcept
     {
@@ -63,7 +64,7 @@ struct PlacerNode
         os << "\n";
     }
 
-    std::vector<PlacerNetId> m_connections;
+    std::vector<PlacerNetId> m_connections;    
 };
 
 struct PlacerNet
@@ -105,6 +106,7 @@ struct YAxisAccessor
     }
 };
 
+
 class Placer
 {
 public:
@@ -140,7 +142,7 @@ protected:
                 // https://www.researchgate.net/publication/220915658_FastPlace_Efficient_analytical_placement_using_cell_shifting_iterative_local_refinement_and_a_hybrid_net_model
                 // recommends 1/(k-1) for star nets
                 //
-                //size_t netSize = net.m_nodes.size() - 1;    // -1 because we discard the star node
+
                 size_t netSize = net.m_nodes.size();    // -1 because we discard the star node
                 auto effectiveWeight = net.m_weight / static_cast<double>(netSize-1);
 
@@ -156,8 +158,8 @@ protected:
                     }
                     else
                     {
-                        Amat.coeffRef(starNodeId, starNodeId)+= effectiveWeight;
-                        Bvec[starNodeId] += effectiveWeight * AxisAccessor::get(netNode.m_pos);
+                        Amat.coeffRef(starNodeId, starNodeId)+= effectiveWeight * netNode.m_weight;
+                        Bvec[starNodeId] += effectiveWeight * netNode.m_weight * AxisAccessor::get(netNode.m_pos);
                     }
                 }
             }
@@ -186,8 +188,8 @@ protected:
                 }
                 else
                 {
-                    Amat.coeffRef(node1Idx, node1Idx)  += effectiveWeight;
-                    Bvec[node1Idx] += effectiveWeight * AxisAccessor::get(node2.m_pos);
+                    Amat.coeffRef(node1Idx, node1Idx)  += effectiveWeight * node2.m_weight;
+                    Bvec[node1Idx] += effectiveWeight * node2.m_weight * AxisAccessor::get(node2.m_pos);
                 }
             }
         }

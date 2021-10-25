@@ -140,7 +140,9 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
         {
             if (ins->m_placementInfo != ChipDB::PlacementInfo::PLACEDANDFIXED)
             {
-                doLog(LOG_ERROR,"Not all pins have been placed and fixed\n");
+                std::stringstream ss;
+                ss << "Not all pins have been placed and fixed - for example: " << ins->m_name << "\n";
+                doLog(LOG_ERROR, ss);
                 return false;
             }
         }
@@ -165,6 +167,7 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
         {
             placerNode.m_type = LunaCore::QPlacer::PlacerNodeType::FixedNode;
             placerNode.m_pos  = ins->m_pos;
+            placerNode.m_weight = 10.0; // increase the weight of fixed nodes to pull apart the movable instances
         }
 
         ins2nodeId[ins] = nodes.size()-1;
@@ -182,13 +185,12 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
             auto ins = conn.m_instance;
             auto iter = ins2nodeId.find(ins);
 
-
             if (iter == ins2nodeId.end())
             {
                 doLog(LOG_ERROR, "Cannot find node\n");
                 return false;
             }
-            
+
             auto placerNodeId = iter->second;
             placerNet.m_nodes.push_back(placerNodeId);
             nodes.at(placerNodeId).m_connections.push_back(placerNetId);
@@ -206,12 +208,25 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
         if (ins->m_placementInfo != ChipDB::PlacementInfo::PLACEDANDFIXED)
         {
             ins->m_placementInfo = ChipDB::PlacementInfo::PLACED;
-            ins->m_pos = ChipDB::Coord64(xpos[idx], ypos[idx]);
+
+            // positions returned from the quadratic placement
+            // are cell centers, not lower-left.
+
+            const ChipDB::Coord64 llpos = {xpos[idx] - ins->instanceSize().m_x/2, ypos[idx] - ins->instanceSize().m_y/2};
+            ins->m_pos = llpos;
         }
         idx++;
     }
 
     // FIXME: legalisation and detail placement
 
+    // for now, assume there are no obstacles
+
+    // Do:
+    // 1) sort cells in x direction
+    // 2) assign cells to row
+    // 3) do greedy layout
+
     return true;
 }
+

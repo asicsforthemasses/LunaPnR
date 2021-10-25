@@ -178,7 +178,7 @@ namespace ChipDB
         /** get upper left coordinate */
         constexpr Coord64 getUL() const
         {
-            return Coord64{m_ur.m_x, m_ll.m_y};
+            return Coord64{m_ll.m_x, m_ur.m_y};
         }
 
         /** get lower right coordinate */

@@ -7,6 +7,7 @@
 
 using namespace GUI;
 
+#if 0
 constexpr const QPointF toScreen(const ChipDB::Coord64 &p, const QRectF &viewport,
     const QSizeF &screenSize)
 {
@@ -49,21 +50,26 @@ constexpr const ChipDB::Coord64 deltaFromScreen(const QPointF &screenp1, const Q
     const double y = -screenDelta.y() * (viewport.height() / static_cast<double>(screenSize.height()));
     return ChipDB::Coord64{static_cast<int64_t>(x), static_cast<int64_t>(y)};
 }
+#endif
 
-FloorplanView::FloorplanView(QWidget *parent) : QWidget(parent), m_db(nullptr), m_mouseState(MouseState::None)
+FloorplanView::FloorplanView(QWidget *parent) : QWidget(parent), m_db(nullptr), 
+    m_mouseState(MouseState::None),
+    m_overlay(nullptr)
 {
     // make sure viewport pixels are 1:1
 
     if (width() > height())
     {
-        m_viewPort.setHeight(100000.0);
-        m_viewPort.setWidth(100000.0 / static_cast<double>(height()) * width());
+        auto w = static_cast<int64_t>(100000.0 / static_cast<double>(height()) * width());
+        m_viewPort.setViewportRect(ChipDB::Rect64({0,0}, {w, 100000}));
     }
     else
     {
-        m_viewPort.setWidth(100000.0);
-        m_viewPort.setHeight(100000.0 / static_cast<double>(width()) * height());
+        auto h = static_cast<int64_t>(100000.0 / static_cast<double>(width()) * height());
+        m_viewPort.setViewportRect(ChipDB::Rect64({0,0},{100000,h}));
     }
+
+    m_viewPort.setScreenRect(rect());
 
     m_dirty   = true;
 }
@@ -80,14 +86,19 @@ QSize FloorplanView::sizeHint() const
 
 void FloorplanView::resizeEvent(QResizeEvent *event)
 {
+    m_viewPort.setScreenRect(rect());
+
+#if 0    
     if (width() > height())
     {
-        m_viewPort.setWidth(m_viewPort.height() / static_cast<double>(height()) * width());
+        m_viewPort.setScreenRect(rect());
+        //m_viewPort.setWidth(m_viewPort.height() / static_cast<double>(height()) * width());
     }
     else
     {
         m_viewPort.setHeight(m_viewPortRef.width() / static_cast<double>(width()) * height());
     }
+#endif
 }
 
 void FloorplanView::setDatabase(Database *db)
@@ -100,7 +111,7 @@ void FloorplanView::mousePressEvent(QMouseEvent *event)
 {
     m_mouseDownPos = event->pos();
     m_mouseState = MouseState::Dragging;
-    m_viewPortRef = m_viewPort;
+    m_viewPortRef = m_viewPort.getViewportRect();
 
     setCursor(Qt::ClosedHandCursor);
 }
@@ -109,13 +120,12 @@ void FloorplanView::mouseReleaseEvent(QMouseEvent *event)
 {
     if (m_mouseState == MouseState::Dragging)
     {
-            auto delta = deltaFromScreen(event->pos(), m_mouseDownPos, m_viewPortRef, size());
+            auto deltaInChipCoordinates = m_viewPort.toViewport(event->pos()) 
+                - m_viewPort.toViewport(m_mouseDownPos);
 
-            m_viewPort = m_viewPortRef;
-            m_viewPort.translate(delta.m_x, delta.m_y);
+            m_viewPort.setViewportRect(m_viewPortRef - deltaInChipCoordinates);
 
             setCursor(Qt::ArrowCursor);
-
             update();
     }
     m_mouseState = MouseState::None;
@@ -127,10 +137,11 @@ void FloorplanView::mouseMoveEvent(QMouseEvent *event)
     {
     case MouseState::Dragging:
         {
-            auto delta = deltaFromScreen(event->pos(), m_mouseDownPos, m_viewPortRef, size());
+            auto deltaInChipCoordinates = m_viewPort.toViewport(event->pos()) 
+                - m_viewPort.toViewport(m_mouseDownPos);
 
-            m_viewPort = m_viewPortRef;
-            m_viewPort.translate(delta.m_x, delta.m_y);
+            m_viewPort.setViewportRect(m_viewPortRef - deltaInChipCoordinates);
+
             update();
         }
         break;
@@ -145,57 +156,49 @@ void FloorplanView::wheelEvent(QWheelEvent *event)
     QPoint numDegrees = event->angleDelta() / 8;
 
     //FIXME: for 5.14 it is called position()
-    auto mousePos = event->pos();
-    auto mousePosInViewport = fromScreen(mousePos, m_viewPort, size());
+    const auto mousePos = event->pos();
+    auto mousePosInViewport = m_viewPort.toViewport(mousePos);
 
-    auto tmpViewPort = m_viewPort;
+    auto tmpViewPortRect = m_viewPort.getViewportRect();
     
     if (!numPixels.isNull()) 
     {
-        tmpViewPort.translate(-mousePosInViewport.m_x, -mousePosInViewport.m_y);
+        tmpViewPortRect -= mousePosInViewport;
         if (numPixels.ry() > 0)
         {
-            tmpViewPort.setHeight(tmpViewPort.height() * 1.1);
-            tmpViewPort.setWidth(tmpViewPort.width() * 1.1);
-            tmpViewPort.setX(tmpViewPort.x() * 1.1);
-            tmpViewPort.setY(tmpViewPort.y() * 1.1);
-            tmpViewPort.translate(mousePosInViewport.m_x, mousePosInViewport.m_y);
-            m_viewPort = tmpViewPort;
+            tmpViewPortRect.m_ll = ChipDB::Coord64{tmpViewPortRect.m_ll.m_x * 1.1, tmpViewPortRect.m_ll.m_y * 1.1};
+            tmpViewPortRect.m_ur = ChipDB::Coord64{tmpViewPortRect.m_ur.m_x * 1.1, tmpViewPortRect.m_ur.m_y * 1.1};
+            tmpViewPortRect += mousePosInViewport;
+            m_viewPort.setViewportRect(tmpViewPortRect);
             update();
         }
         else
         {
-            tmpViewPort.setHeight(tmpViewPort.height() / 1.1);
-            tmpViewPort.setWidth(tmpViewPort.width() / 1.1);
-            tmpViewPort.setX(tmpViewPort.x() / 1.1);
-            tmpViewPort.setY(tmpViewPort.y() / 1.1);            
-            tmpViewPort.translate(mousePosInViewport.m_x, mousePosInViewport.m_y);
-            m_viewPort = tmpViewPort;
+            tmpViewPortRect.m_ll = ChipDB::Coord64{tmpViewPortRect.m_ll.m_x / 1.1, tmpViewPortRect.m_ll.m_y / 1.1};
+            tmpViewPortRect.m_ur = ChipDB::Coord64{tmpViewPortRect.m_ur.m_x / 1.1, tmpViewPortRect.m_ur.m_y / 1.1};
+            tmpViewPortRect += mousePosInViewport;
+            m_viewPort.setViewportRect(tmpViewPortRect);
             update();
         }
     } 
     else if (!numDegrees.isNull()) 
     {
-        tmpViewPort.translate(-mousePosInViewport.m_x, -mousePosInViewport.m_y);
+        tmpViewPortRect -= mousePosInViewport;
         QPoint numSteps = numDegrees / 15;
         if (numSteps.ry() > 0)
         {
-            tmpViewPort.setHeight(tmpViewPort.height() * 1.1);
-            tmpViewPort.setWidth(tmpViewPort.width() * 1.1);
-            tmpViewPort.setX(tmpViewPort.x() * 1.1);
-            tmpViewPort.setY(tmpViewPort.y() * 1.1);                        
-            tmpViewPort.translate(mousePosInViewport.m_x, mousePosInViewport.m_y);
-            m_viewPort = tmpViewPort;            
+            tmpViewPortRect.m_ll = ChipDB::Coord64{tmpViewPortRect.m_ll.m_x * 1.1, tmpViewPortRect.m_ll.m_y * 1.1};
+            tmpViewPortRect.m_ur = ChipDB::Coord64{tmpViewPortRect.m_ur.m_x * 1.1, tmpViewPortRect.m_ur.m_y * 1.1};
+            tmpViewPortRect += mousePosInViewport;
+            m_viewPort.setViewportRect(tmpViewPortRect);           
             update();
         }
         else
         {
-            tmpViewPort.setHeight(tmpViewPort.height() / 1.1);
-            tmpViewPort.setWidth(tmpViewPort.width() / 1.1);
-            tmpViewPort.setX(tmpViewPort.x() / 1.1);
-            tmpViewPort.setY(tmpViewPort.y() / 1.1);
-            tmpViewPort.translate(mousePosInViewport.m_x, mousePosInViewport.m_y);
-            m_viewPort = tmpViewPort;            
+            tmpViewPortRect.m_ll = ChipDB::Coord64{tmpViewPortRect.m_ll.m_x / 1.1, tmpViewPortRect.m_ll.m_y / 1.1};
+            tmpViewPortRect.m_ur = ChipDB::Coord64{tmpViewPortRect.m_ur.m_x / 1.1, tmpViewPortRect.m_ur.m_y / 1.1};
+            tmpViewPortRect += mousePosInViewport;
+            m_viewPort.setViewportRect(tmpViewPortRect);
             update();
         }
     }
@@ -218,6 +221,11 @@ void FloorplanView::paintEvent(QPaintEvent *event)
     drawRegions(painter);
     drawInstances(painter);
 
+    if (m_overlay != nullptr)
+    {
+        m_overlay->paint(painter);
+    }
+
 #if 0
     // TODO: draw ruler
 
@@ -239,13 +247,12 @@ void FloorplanView::drawRegions(QPainter &p)
     }
 
     const QColor regionColor("#FF90EE90"); // light green
-    auto screenSize = size();
 
     p.setBrush(Qt::NoBrush);
     for(auto region : m_db->floorplan().m_regions)
     {
-        auto regionRect     = toScreen(region->m_rect, m_viewPort, screenSize);
-        auto placementRect  = toScreen(region->getPlacementRect(), m_viewPort, screenSize);
+        auto regionRect     = m_viewPort.toScreen(region->m_rect);
+        auto placementRect  = m_viewPort.toScreen(region->getPlacementRect());
         
         // draw outer region (with halo)
         if (!region->m_halo.isNull())
@@ -265,25 +272,22 @@ void FloorplanView::drawRegions(QPainter &p)
 void FloorplanView::drawRows(QPainter &p, const ChipDB::Region *region)
 {
     const QColor rowColor("#FFADD8E6"); // light blue
-    auto screenSize = size();
 
     p.setBrush(Qt::NoBrush);
     p.setPen(rowColor);
     
     for(auto const& row : region->m_rows)
     {
-        auto rowRect = toScreen(row.m_rect, m_viewPort, screenSize);
+        auto rowRect = m_viewPort.toScreen(row.m_rect);
         p.drawRect(rowRect);
     }
 }
 
 void FloorplanView::drawCell(QPainter &p, const ChipDB::InstanceBase *ins)
-{
-    auto screenSize = size();
-    
+{    
     QRectF cellRect;
-    cellRect.setBottomLeft(toScreen(ins->m_pos, m_viewPort, screenSize));
-    cellRect.setTopRight(toScreen(ins->m_pos + ins->instanceSize(), m_viewPort, screenSize));
+    cellRect.setBottomLeft(m_viewPort.toScreen(ins->m_pos));
+    cellRect.setTopRight(m_viewPort.toScreen(ins->m_pos + ins->instanceSize() ));
 
     // check if the instance is in view
     //if (!cellRect.intersects(m_viewPort))
@@ -334,11 +338,9 @@ void FloorplanView::drawCell(QPainter &p, const ChipDB::InstanceBase *ins)
 
 void FloorplanView::drawPin(QPainter &p, const ChipDB::InstanceBase *ins)
 {
-    auto screenSize = size();
-    
     QRectF cellRect;
-    cellRect.setBottomLeft(toScreen(ins->m_pos, m_viewPort, screenSize));
-    cellRect.setTopRight(toScreen(ins->m_pos + ChipDB::Coord64{1000,1000}, m_viewPort, screenSize));
+    cellRect.setBottomLeft(m_viewPort.toScreen(ins->m_pos));
+    cellRect.setTopRight(m_viewPort.toScreen(ins->m_pos + ChipDB::Coord64{1000,1000}));
 
     // check if the instance is in view
     //if (!cellRect.intersects(m_viewPort))

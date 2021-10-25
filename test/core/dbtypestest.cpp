@@ -56,6 +56,11 @@ BOOST_AUTO_TEST_CASE(check_Rect64)
     BOOST_CHECK((r1.m_ll.m_x == 0) && (r1.m_ll.m_y == 0));
     BOOST_CHECK((r1.m_ur.m_x == 100) && (r1.m_ur.m_y == 150));
 
+    BOOST_CHECK((r1.getLL() == ChipDB::Coord64{0,0}));
+    BOOST_CHECK((r1.getUR() == ChipDB::Coord64{100,150}));
+    BOOST_CHECK((r1.getLR() == ChipDB::Coord64{100,0}));
+    BOOST_CHECK((r1.getUL() == ChipDB::Coord64{0,150}));
+
     r1.moveTo({200,200});
     BOOST_CHECK((r1.m_ll.m_x == 200) && (r1.m_ll.m_y == 200));
     BOOST_CHECK((r1.m_ur.m_x == 300) && (r1.m_ur.m_y == 350));
