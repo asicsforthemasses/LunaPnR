@@ -581,6 +581,110 @@ static int set_toplevel_module(lua_State *L)
     return 0;
 };
 
+// write_placement(module)
+static int write_placement(lua_State *L)
+{
+    auto db = getDB(L);
+
+    if (!lua_isstring(L, 1))
+    {
+        reportError(L, "Param 1: Expected a string for module name");
+        return 0;
+    }
+
+    if (!lua_isstring(L, 2))
+    {
+        reportError(L, "Param 2: Expected a string for file name");
+        return 0;
+    }
+
+    auto moduleName = lua_tostring(L, 1);
+
+    auto mod = db->moduleLib().lookup(moduleName);
+
+    if (mod == nullptr)
+    {
+        reportError(L, "Could not find module with name %s!", moduleName);
+        return 0;        
+    }
+
+    auto fileName = lua_tostring(L,2);
+
+    std::ofstream ofile(fileName);
+    if (!ofile.good())
+    {
+        reportError(L, "Could not write placement file%s!", fileName);
+        return 0;
+    }
+
+    mod->m_netlist->writePlacementFile(ofile);
+
+    return 0;
+};
+
+
+// write_density_bitmap(modulename, regionname, bitmapname)
+static int write_density_bitmap(lua_State *L)
+{
+    auto db = getDB(L);
+
+    if (!lua_isstring(L, 1))
+    {
+        reportError(L, "Param 1: Expected a string for module name");
+        return 0;
+    }
+
+    if (!lua_isstring(L, 2))
+    {
+        reportError(L, "Param 2: Expected a string for region name");
+        return 0;
+    }
+
+    if (!lua_isstring(L, 3))
+    {
+        reportError(L, "Param 3: Expected a string for file name");
+        return 0;
+    }
+
+    auto moduleName = lua_tostring(L, 1);
+    auto regionName = lua_tostring(L, 2);
+    auto fileName   = lua_tostring(L, 3);
+    
+    auto *region = db->floorplan().m_regions.lookup(regionName);
+    if (region == nullptr)
+    {
+        reportError(L, "Could not find region with name %s!", regionName);
+        return 0;
+    }
+
+    auto *mod = db->moduleLib().lookup(moduleName);
+    if (mod == nullptr)
+    {
+        reportError(L, "Could not find module with name %s!", moduleName);
+        return 0;
+    }
+
+    auto bitmap = LunaCore::createDensityBitmap(mod->m_netlist.get(), region,
+        10000,10000);
+
+    if (!bitmap)
+    {
+        reportError(L, "Could not create bitmap!");
+        return 0;
+    }
+
+    std::ofstream ofile(fileName);
+    if (!ofile.good())
+    {
+        reportError(L, "Could not create bitmap file!");
+        return 0;        
+    }
+
+    bitmap->writeToPGM(ofile);
+
+    return 0;
+}
+
 void Lua::registerFunctions(lua_State *L)
 {
     lua_register(L, "clear", clear);
@@ -597,4 +701,6 @@ void Lua::registerFunctions(lua_State *L)
     lua_register(L, "place_module", place_module);
     lua_register(L, "place_instance", place_instance);
     lua_register(L, "set_toplevel_module", set_toplevel_module);
+    lua_register(L, "write_placement", write_placement);
+    lua_register(L, "write_density_bitmap", write_density_bitmap);
 }

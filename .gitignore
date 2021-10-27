@@ -2,6 +2,7 @@
 AppDir
 appimage-builder-cache
 build
+test/files/iitcells_lib*
 test/files/iit_stdcells
 test/files/nangate
 test/files/results
