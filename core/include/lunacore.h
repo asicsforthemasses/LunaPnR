@@ -16,6 +16,7 @@
 #include "../floorplan/floorplan.h"
 #include "../cellplacer/cellplacer.h"
 #include "../cellplacer/qplacer.h"
+#include "../cellplacer/placementbitmap.h"
 #include "../partitioner/fmpart.h"
 #include "../import/liberty/libparser.h"
 #include "../import/liberty/libreaderimpl.h"

@@ -212,7 +212,8 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
             // positions returned from the quadratic placement
             // are cell centers, not lower-left.
 
-            const ChipDB::Coord64 llpos = {xpos[idx] - ins->instanceSize().m_x/2, ypos[idx] - ins->instanceSize().m_y/2};
+            const ChipDB::Coord64 llpos = {static_cast<int64_t>(xpos[idx] - ins->instanceSize().m_x/2), 
+                static_cast<int64_t>(ypos[idx] - ins->instanceSize().m_y/2)};
             ins->m_pos = llpos;
         }
         idx++;
@@ -229,4 +230,3 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
 
     return true;
 }
-

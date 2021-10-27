@@ -163,19 +163,30 @@ void FloorplanView::wheelEvent(QWheelEvent *event)
     
     if (!numPixels.isNull()) 
     {
+        // FIXME: zoom in then zoom out should lead to the same extents
+        //        right now this isn't the case due to rounding.
+        //
+        //        it is probably better to derive the viewport extents
+        //        from a constant reference viewport and multiply by
+        //        a zoom factor.
+
         tmpViewPortRect -= mousePosInViewport;
         if (numPixels.ry() > 0)
         {
-            tmpViewPortRect.m_ll = ChipDB::Coord64{tmpViewPortRect.m_ll.m_x * 1.1, tmpViewPortRect.m_ll.m_y * 1.1};
-            tmpViewPortRect.m_ur = ChipDB::Coord64{tmpViewPortRect.m_ur.m_x * 1.1, tmpViewPortRect.m_ur.m_y * 1.1};
+            tmpViewPortRect.m_ll = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ll.m_x * 1.1), 
+                static_cast<int64_t>(tmpViewPortRect.m_ll.m_y * 1.1)};
+            tmpViewPortRect.m_ur = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ur.m_x * 1.1), 
+                static_cast<int64_t>(tmpViewPortRect.m_ur.m_y * 1.1)};
             tmpViewPortRect += mousePosInViewport;
             m_viewPort.setViewportRect(tmpViewPortRect);
             update();
         }
         else
         {
-            tmpViewPortRect.m_ll = ChipDB::Coord64{tmpViewPortRect.m_ll.m_x / 1.1, tmpViewPortRect.m_ll.m_y / 1.1};
-            tmpViewPortRect.m_ur = ChipDB::Coord64{tmpViewPortRect.m_ur.m_x / 1.1, tmpViewPortRect.m_ur.m_y / 1.1};
+            tmpViewPortRect.m_ll = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ll.m_x / 1.1), 
+                static_cast<int64_t>(tmpViewPortRect.m_ll.m_y / 1.1)};
+            tmpViewPortRect.m_ur = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ur.m_x / 1.1), 
+                static_cast<int64_t>(tmpViewPortRect.m_ur.m_y / 1.1)};
             tmpViewPortRect += mousePosInViewport;
             m_viewPort.setViewportRect(tmpViewPortRect);
             update();
@@ -187,16 +198,20 @@ void FloorplanView::wheelEvent(QWheelEvent *event)
         QPoint numSteps = numDegrees / 15;
         if (numSteps.ry() > 0)
         {
-            tmpViewPortRect.m_ll = ChipDB::Coord64{tmpViewPortRect.m_ll.m_x * 1.1, tmpViewPortRect.m_ll.m_y * 1.1};
-            tmpViewPortRect.m_ur = ChipDB::Coord64{tmpViewPortRect.m_ur.m_x * 1.1, tmpViewPortRect.m_ur.m_y * 1.1};
+            tmpViewPortRect.m_ll = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ll.m_x * 1.1), 
+                static_cast<int64_t>(tmpViewPortRect.m_ll.m_y * 1.1)};
+            tmpViewPortRect.m_ur = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ur.m_x * 1.1), 
+                static_cast<int64_t>(tmpViewPortRect.m_ur.m_y * 1.1)};
             tmpViewPortRect += mousePosInViewport;
             m_viewPort.setViewportRect(tmpViewPortRect);           
             update();
         }
         else
         {
-            tmpViewPortRect.m_ll = ChipDB::Coord64{tmpViewPortRect.m_ll.m_x / 1.1, tmpViewPortRect.m_ll.m_y / 1.1};
-            tmpViewPortRect.m_ur = ChipDB::Coord64{tmpViewPortRect.m_ur.m_x / 1.1, tmpViewPortRect.m_ur.m_y / 1.1};
+            tmpViewPortRect.m_ll = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ll.m_x / 1.1), 
+                static_cast<int64_t>(tmpViewPortRect.m_ll.m_y / 1.1)};
+            tmpViewPortRect.m_ur = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ur.m_x / 1.1), 
+                static_cast<int64_t>(tmpViewPortRect.m_ur.m_y / 1.1)};
             tmpViewPortRect += mousePosInViewport;
             m_viewPort.setViewportRect(tmpViewPortRect);
             update();

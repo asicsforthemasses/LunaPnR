@@ -17,6 +17,7 @@ namespace ChipDB
     class Design;
 };
 
+/** analytical placer namespace */
 namespace LunaCore::QPlacer
 {
 
@@ -107,6 +108,7 @@ struct YAxisAccessor
 };
 
 
+/** analytical placer based on quadratic cost function */
 class Placer
 {
 public:
@@ -158,6 +160,7 @@ protected:
                     }
                     else
                     {
+                        // fixed nodes can increase the net weight!
                         Amat.coeffRef(starNodeId, starNodeId)+= effectiveWeight * netNode.m_weight;
                         Bvec[starNodeId] += effectiveWeight * netNode.m_weight * AxisAccessor::get(netNode.m_pos);
                     }
@@ -188,6 +191,7 @@ protected:
                 }
                 else
                 {
+                    // fixed nodes can increase the net weight!
                     Amat.coeffRef(node1Idx, node1Idx)  += effectiveWeight * node2.m_weight;
                     Bvec[node1Idx] += effectiveWeight * node2.m_weight * AxisAccessor::get(node2.m_pos);
                 }

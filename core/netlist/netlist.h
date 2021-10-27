@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
 
 #include "common/visitor.h"
 #include "common/namedstorage.h"
@@ -16,6 +17,11 @@ class Netlist
 public:
     
     void clear();
+
+    /** write a placement file (for debugging)
+     *  for each instance: x y xsize ysize
+    */
+    void writePlacementFile(std::ostream &os) const;
 
     IMPLEMENT_ACCEPT;
 

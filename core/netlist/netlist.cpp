@@ -174,3 +174,21 @@ ssize_t ModuleInstance::pinIndex(const std::string &pinName) const
     return m_module->lookupPinIndex(pinName);
 }
 #endif
+
+
+void Netlist::writePlacementFile(std::ostream &os) const
+{
+    if (!os.good())
+    {
+        return;
+    }
+
+    for(auto* ins : m_instances)
+    {
+        if ((ins->m_placementInfo == PlacementInfo::PLACED) || (ins->m_placementInfo == PlacementInfo::PLACEDANDFIXED))
+        {
+            auto insSize = ins->instanceSize();
+            os << ins->m_pos.m_x << " " << ins->m_pos.m_y << " " << insSize.m_x << " " << insSize.m_y << "\n";
+        }
+    }
+}

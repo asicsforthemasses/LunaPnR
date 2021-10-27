@@ -40,6 +40,7 @@ add_library(lunacore
     netlist/netlist.cpp
     cellplacer/qplacer.cpp
     cellplacer/cellplacer.cpp
+    cellplacer/placementbitmap.cpp
     celllib/cell.cpp
     celllib/pin.cpp
     celllib/module.cpp
