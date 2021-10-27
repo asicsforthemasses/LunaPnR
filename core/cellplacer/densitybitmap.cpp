@@ -25,7 +25,19 @@ void DensityBitmap::writeToPGM(std::ostream &os)
         for(int64_t x=0; x<m_width; x++)
         {
             auto pixel = *pixelPtr;
-            auto pixelValue = static_cast<uint8_t>(std::min(pixel, static_cast<PixelType>(255)));
+            uint8_t pixelValue = 0;
+            if (pixel > 0)
+            {
+                // 100%   utilization -> 100
+                // 10%    utilization -> 0
+                // 1000%  utilization -> 200
+                float dB = 100.0f*std::log10(pixel) + 100.0f;
+
+                dB = std::min(dB,255.0f);
+                dB = std::max(dB,0.0f);
+
+                pixelValue = static_cast<uint8_t>(dB);
+            }
 
             static_assert(sizeof(pixelValue)==1, "pixels must be 8 bits wide!");
 
@@ -153,14 +165,22 @@ std::shared_ptr<DensityBitmap> LunaCore::createDensityBitmap(const ChipDB::Netli
 
                     auto insCellArea = (ystop-ystart)*(newx - x);
 
-                    bitmap->at(gridxIndex, gridyIndex) += static_cast<double>(insCellArea) / static_cast<double>(insCellArea) / static_cast<double>(bitmapCellHeight*bitmapCellWidth);
+                    bitmap->at(gridxIndex, gridyIndex) += static_cast<double>(insCellArea) / static_cast<double>(bitmapCellHeight*bitmapCellWidth);
 
                     gridyIndex++;
                 }
 
                 activeIter++;
             }
-        }        
+        }   
+
+        if (newx == nextGridx)
+        {
+            nextGridx += bitmapCellWidth;
+            gridxIndex++;
+        }
+
+        x = newx;             
     }
 
     return bitmap;

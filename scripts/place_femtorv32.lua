@@ -50,3 +50,5 @@ placePinAtBottom("mem_rbusy")
 
 -- place the instances in the top level module
 place_module("FemtoRV32", "core")
+
+write_density_bitmap("FemtoRV32", "core", "bitmap.pgm")
