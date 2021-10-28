@@ -196,7 +196,7 @@ void LunaCore::QPlacer::calcVelocityBitmap(const DensityBitmap *bm, VelocityBitm
             const float down   = bm->at(x,y-1);
             const float center = bm->at(x,y);
 
-            if (center > 0.1)
+            if (center > 0.01)
             {
                 float horizontalVelo = (left-right) / (2.0*center);
                 float verticalVelo   = (down-up) / (2.0*center);
@@ -259,10 +259,10 @@ void LunaCore::QPlacer::updateMovableInstances(ChipDB::Netlist *netlist, const C
         auto v = vcell + xfrac*(vright-vcell) + yfrac*(vup-vcell)
             + xfrac*yfrac*(vcell+vupright-vup-vright);
 
-        const float deltaT = 0.1;
+        const float deltaT = 0.05;
 
-        ins->m_pos.m_x += v.m_dx*deltaT * bitmapCellWidth;
-        ins->m_pos.m_y += v.m_dy*deltaT * bitmapCellHeight;
+        ins->m_pos.m_x += v.m_dx*deltaT * static_cast<float>(bitmapCellWidth);
+        ins->m_pos.m_y += v.m_dy*deltaT * static_cast<float>(bitmapCellHeight);
     }
 }
 
@@ -272,7 +272,7 @@ float LunaCore::QPlacer::updateDensityBitmap(DensityBitmap *bm)
 
     auto bitmap = *bm;  // make a deep copy
 
-    const float deltaT = 0.1;
+    const float deltaT = 0.05;
 
     float maxDensity = 0;
     for(int64_t y=0; y<bitmap.height(); y++)
@@ -289,12 +289,9 @@ float LunaCore::QPlacer::updateDensityBitmap(DensityBitmap *bm)
 
             const float vDelta = up + down - 2.0f*center;
 
-            float newDensity = (deltaT/2.0)*(hDelta + vDelta);            
+            float newDensity = (deltaT)*(hDelta + vDelta);
             
-            //if (!((center < 1.0f) && (newDensity < 0.0f)))
-            //{
-                bm->at(x,y) += newDensity;
-            //}
+            bm->at(x,y) += newDensity;
 
             maxDensity = std::max(maxDensity, bm->at(x,y));
         }
@@ -311,4 +308,48 @@ LunaCore::QPlacer::Velocity LunaCore::QPlacer::operator*(const float &lhs, const
 bool LunaCore::QPlacer::operator==(const Velocity &lhs, const Velocity &rhs)
 {
     return ((lhs.m_dx == rhs.m_dx) && (lhs.m_dy == rhs.m_dy));
+}
+
+void LunaCore::QPlacer::setMinimalDensities(DensityBitmap *bm)
+{
+    size_t overArea  = 0;
+    size_t underArea = 0;
+
+    const float maxDensity = 1.0f;
+
+    for(uint32_t y=0; y<bm->height(); y++)
+    {
+        for(uint32_t x=0; x<bm->width(); x++)
+        {
+            if (bm->at(x,y) < maxDensity)
+            {
+                underArea++;
+            }
+            else
+            {
+                overArea++;
+            }
+        }
+    }
+
+    if (underArea == 0)
+    {
+        // no cells to ajust.
+        return;
+    }
+
+    const float ratio = static_cast<double>(overArea) / static_cast<double>(underArea);
+
+    for(uint32_t y=0; y<bm->height(); y++)
+    {
+        for(uint32_t x=0; x<bm->width(); x++)
+        {
+            const auto density = bm->at(x,y);
+            if (density < maxDensity)
+            {
+                float minDensity = maxDensity - (maxDensity - density)*ratio;
+                bm->at(x,y) = minDensity;
+            }
+        }
+    }
 }

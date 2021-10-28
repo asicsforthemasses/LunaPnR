@@ -230,6 +230,8 @@ void calcVelocityBitmap(const DensityBitmap *bm, VelocityBitmap *vm);
 void updateMovableInstances(ChipDB::Netlist *netlist, const ChipDB::Region *region, 
     VelocityBitmap *vm, int64_t bitmapCellWidth, int64_t bitmapCellHeight);
 
+void setMinimalDensities(DensityBitmap *bm);
+
 float updateDensityBitmap(DensityBitmap *bm);
 
 void writeToPGM(std::ostream &os, const DensityBitmap *bitmap);
