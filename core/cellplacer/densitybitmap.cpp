@@ -48,14 +48,12 @@ DensityBitmap* LunaCore::QPlacer::createDensityBitmap(const ChipDB::Netlist *net
     auto regionSize   = region->m_rect.getSize();
     auto regionOffset = region->m_rect.getLL();
 
-    auto xcells = static_cast<ssize_t>(1+std::floor(regionSize.m_x / static_cast<double>(bitmapCellWidth)));
-    auto ycells = static_cast<ssize_t>(1+std::floor(regionSize.m_y / static_cast<double>(bitmapCellHeight)));
+    // -1 is needed to make sure there isn't an off-by-one error when
+    // regionSize is exactly divisible by bitmapCellXXX
+    auto xcells = static_cast<ssize_t>(1+std::floor((regionSize.m_x-1) / static_cast<double>(bitmapCellWidth)));
+    auto ycells = static_cast<ssize_t>(1+std::floor((regionSize.m_y-1) / static_cast<double>(bitmapCellHeight)));
 
     std::unique_ptr<DensityBitmap> bitmap(new DensityBitmap(xcells, ycells));
-
-    //TODO: add one fake instance just beyond the right outer edge
-    //      to make sure the sweep gets to the right end of the grid.
-    //      even when there are no instances there.
 
     // sweep from left to right
     // queue: instances that will become active.
@@ -77,6 +75,12 @@ DensityBitmap* LunaCore::QPlacer::createDensityBitmap(const ChipDB::Netlist *net
         }
     );
 
+    // add one fake end cell to the queue
+    // to make sure the entire area is processed
+    auto terminationInstance = new TerminationInstance();
+    terminationInstance->m_pos = {regionSize.m_x+1, regionSize.m_y/2};
+    queue.push_back(terminationInstance);
+
     std::deque<ChipDB::InstanceBase*> active;
 
     int64_t x = 0;  // sweep position    
@@ -92,19 +96,6 @@ DensityBitmap* LunaCore::QPlacer::createDensityBitmap(const ChipDB::Netlist *net
             // new grid edge comes before the remaining
             // instances
             newx = nextGridx;
-        }
-        else
-        {
-            // transfer the next cell to the active queue
-            // as it we move to the next sweep position
-            active.push_back(queue.front());
-            queue.pop_front();
-
-            while(!queue.empty() && ((queue.front()->m_pos.m_x - regionOffset.m_x) <= newx))
-            {
-                active.push_back(queue.front());
-                queue.pop_front();
-            }
         }
 
         auto activeIter = active.begin();
@@ -165,6 +156,13 @@ DensityBitmap* LunaCore::QPlacer::createDensityBitmap(const ChipDB::Netlist *net
                 activeIter++;
             }
         }   
+
+        // add newly active cells to the active list
+        while(!queue.empty() && ((queue.front()->m_pos.m_x - regionOffset.m_x) <= newx))
+        {
+            active.push_back(queue.front());
+            queue.pop_front();
+        }
 
         if (newx == nextGridx)
         {
@@ -310,3 +308,7 @@ LunaCore::QPlacer::Velocity LunaCore::QPlacer::operator*(const float &lhs, const
     return Velocity{lhs*rhs.m_dx, lhs*rhs.m_dy};
 }
 
+bool LunaCore::QPlacer::operator==(const Velocity &lhs, const Velocity &rhs)
+{
+    return ((lhs.m_dx == rhs.m_dx) && (lhs.m_dy == rhs.m_dy));
+}

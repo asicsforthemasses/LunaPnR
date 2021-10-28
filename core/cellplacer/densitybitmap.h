@@ -12,6 +12,95 @@
 namespace LunaCore::QPlacer
 {
 
+class TerminationInstance : public ChipDB::InstanceBase
+{
+public:
+    /** get area in um² */
+    double getArea() const noexcept override
+    {
+        return 0;
+    }
+
+    /** return the underlying cell/module name */
+    std::string getArchetypeName() const override
+    {
+        return "TerminationInstance";
+    }
+    
+    /** get pin information from the underlying cell or module 
+     *  returns nullptr if pin not found.
+    */
+    const ChipDB::PinInfo* getPinInfo(ssize_t pinIndex) const override
+    {
+        return nullptr;
+    }
+
+    /** get pin information from the underlying cell or module 
+     *  returns nullptr if pin not found.
+    */
+    const ChipDB::PinInfo* getPinInfo(const std::string &pinName) const override
+    {
+        return nullptr;
+    }
+
+    /** get pin index by name. returns -1 when not found. 
+    */
+    const ssize_t getPinIndex(const std::string &pinName) const override
+    {
+        return -1;
+    }
+
+    /** get the number of pins on this instance */
+    virtual const size_t getNumberOfPins() const override
+    {
+        return 0;
+    }
+
+    /** connect pin with specified index to the given net. 
+     *  returns true if succesful.
+    */
+    bool connect(ssize_t pinIndex, ChipDB::Net *net) override
+    {
+        return false;
+    }
+
+    /** connect pin with specified name to the given net. 
+     *  returns true if succesful.
+    */    
+    bool connect(const std::string &pinName, ChipDB::Net *net) override
+    {
+        return false;
+    }
+
+    /** returns the net connected to a pin with a given index.
+     *  if the pin does not exist, it return nullptr.
+    */
+    ChipDB::Net* getConnectedNet(ssize_t pinIndex) override
+    {
+        return nullptr;
+    }
+
+    /** returns the net connected to a pin with a given index.
+     *  if the pin does not exist, it return nullptr.
+    */
+    const ChipDB::Net* getConnectedNet(ssize_t pinIndex) const override
+    {
+        return nullptr;
+    }
+
+    /** return the size of the instance in nm */
+    const ChipDB::Coord64 instanceSize() const
+    {
+        return {0,0};
+    }
+
+    /** return the center position of the instance */
+    ChipDB::Coord64 getCenter() const override
+    {
+        return m_pos;
+    }
+};
+
 /** Instance/cell density bitmap */
 template<class PixelType>
 class Bitmap
@@ -123,6 +212,7 @@ struct Velocity
 };
 
 Velocity operator*(const float &lhs, const Velocity &rhs);
+bool operator==(const Velocity &lhs, const Velocity &rhs);
 
 using DensityBitmap  = Bitmap<float>;
 using VelocityBitmap = Bitmap<Velocity>;
