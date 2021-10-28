@@ -3,28 +3,21 @@
 #include <cmath>
 #include <algorithm>
 #include <deque>
+#include <cassert>
 #include "densitybitmap.h"
 
-using namespace LunaCore;
+using namespace LunaCore::QPlacer;
 
-constexpr bool isBigEndian() noexcept
+void LunaCore::QPlacer::writeToPGM(std::ostream &os, const DensityBitmap *bitmap)
 {
-    //FIXME: how do we do this at compile time,
-    // C++20 has std::endian
-    return false;
-}
+    os << "P5 " << bitmap->width() << " " << bitmap->height() << " 255" << "\n";
 
-
-void DensityBitmap::writeToPGM(std::ostream &os)
-{
-    os << "P5 " << m_width << " " << m_height << " 255" << "\n";
-
-    auto const* pixelPtr = &m_bitmap[0];
-    for(int64_t y=0; y<m_height; y++)
+    for(int64_t y=0; y<bitmap->width(); y++)
     {
-        for(int64_t x=0; x<m_width; x++)
+        for(int64_t x=0; x<bitmap->height(); x++)
         {
-            auto pixel = *pixelPtr;
+            auto pixel = bitmap->at(x,y);
+
             uint8_t pixelValue = 0;
             if (pixel > 0)
             {
@@ -42,12 +35,11 @@ void DensityBitmap::writeToPGM(std::ostream &os)
             static_assert(sizeof(pixelValue)==1, "pixels must be 8 bits wide!");
 
             os.write((char*)&pixelValue, sizeof(pixelValue));
-            pixelPtr++;
         }
     }
 }
 
-std::shared_ptr<DensityBitmap> LunaCore::createDensityBitmap(const ChipDB::Netlist *netlist, const ChipDB::Region *region,
+DensityBitmap* LunaCore::QPlacer::createDensityBitmap(const ChipDB::Netlist *netlist, const ChipDB::Region *region,
     int64_t bitmapCellWidth /* nm */, int64_t bitmapCellHeight /* nm */)
 {
     // The region is covered by the bitmap and divides into bitmap cells
@@ -59,7 +51,7 @@ std::shared_ptr<DensityBitmap> LunaCore::createDensityBitmap(const ChipDB::Netli
     auto xcells = static_cast<ssize_t>(1+std::floor(regionSize.m_x / static_cast<double>(bitmapCellWidth)));
     auto ycells = static_cast<ssize_t>(1+std::floor(regionSize.m_y / static_cast<double>(bitmapCellHeight)));
 
-    std::shared_ptr<DensityBitmap> bitmap(new DensityBitmap(xcells, ycells));
+    std::unique_ptr<DensityBitmap> bitmap(new DensityBitmap(xcells, ycells));
 
     //TODO: add one fake instance just beyond the right outer edge
     //      to make sure the sweep gets to the right end of the grid.
@@ -183,5 +175,138 @@ std::shared_ptr<DensityBitmap> LunaCore::createDensityBitmap(const ChipDB::Netli
         x = newx;             
     }
 
-    return bitmap;
+    return bitmap.release();
 }
+
+void LunaCore::QPlacer::calcVelocityBitmap(const DensityBitmap *bm, VelocityBitmap *vm)
+{
+    assert(vm != nullptr);
+    assert(bm != nullptr);
+
+    assert(vm->size() == bm->size());
+
+    const auto w = vm->width();
+    const auto h = vm->height();
+
+    for(int64_t y=0; y<h; y++)
+    {
+        for(int64_t x=0; x<w; x++)
+        {
+            const float left   = bm->at(x-1,y);
+            const float right  = bm->at(x+1,y);
+            const float up     = bm->at(x,y+1);
+            const float down   = bm->at(x,y-1);
+            const float center = bm->at(x,y);
+
+            if (center > 0.1)
+            {
+                float horizontalVelo = (left-right) / (2.0*center);
+                float verticalVelo   = (down-up) / (2.0*center);
+
+                if ((x == 0) || (y ==0) || (x == (w-1)) || (y == (h-1)))
+                {
+                    vm->at(x,y) = {0,0};
+                }
+                else
+                {
+                    vm->at(x,y) = {horizontalVelo, verticalVelo};
+                }
+            }
+            else
+            {
+                vm->at(x,y) = {0,0};
+            }
+        }
+    }    
+}
+
+void LunaCore::QPlacer::updateMovableInstances(ChipDB::Netlist *netlist, const ChipDB::Region *region, 
+    VelocityBitmap *vm,
+    int64_t bitmapCellWidth, 
+    int64_t bitmapCellHeight)
+{
+    assert(netlist != nullptr);
+    assert(region != nullptr);
+    assert(vm != nullptr);
+
+    auto regionOffset = region->m_rect.getLL();
+
+    for(const auto ins : netlist->m_instances)
+    {
+        if (ins == nullptr)
+        {
+            continue;
+        }
+
+        if (ins->m_placementInfo != ChipDB::PlacementInfo::PLACED)
+        {
+            continue;
+        }
+
+        // determine the closest bin center
+        const float insGridx = -0.5f + (ins->m_pos.m_x - regionOffset.m_x)/static_cast<double>(bitmapCellWidth);
+        const float insGridy = -0.5f + (ins->m_pos.m_y - regionOffset.m_y)/static_cast<double>(bitmapCellHeight);
+        auto x = static_cast<ssize_t>(std::floor(insGridx));
+        auto y = static_cast<ssize_t>(std::floor(insGridy));
+
+        const float xfrac = insGridx - x;
+        const float yfrac = insGridy - y;
+
+        auto vcell    = vm->at(x,y);
+        auto vright   = vm->at(x+1,y);
+        auto vup      = vm->at(x,y+1);
+        auto vupright = vm->at(x+1,y+1);
+
+        // linear interpolation of velocity bitmap
+        auto v = vcell + xfrac*(vright-vcell) + yfrac*(vup-vcell)
+            + xfrac*yfrac*(vcell+vupright-vup-vright);
+
+        const float deltaT = 0.1;
+
+        ins->m_pos.m_x += v.m_dx*deltaT * bitmapCellWidth;
+        ins->m_pos.m_y += v.m_dy*deltaT * bitmapCellHeight;
+    }
+}
+
+float LunaCore::QPlacer::updateDensityBitmap(DensityBitmap *bm)
+{
+    assert(bm != nullptr);
+
+    auto bitmap = *bm;  // make a deep copy
+
+    const float deltaT = 0.1;
+
+    float maxDensity = 0;
+    for(int64_t y=0; y<bitmap.height(); y++)
+    {
+        for(int64_t x=0; x<bitmap.width(); x++)
+        {
+            const float left   = bitmap.at(x-1,y);
+            const float right  = bitmap.at(x+1,y);
+            const float up     = bitmap.at(x,y+1);
+            const float down   = bitmap.at(x,y-1);
+            const float center = bitmap.at(x,y);
+
+            const float hDelta = left + right - 2.0f*center;
+
+            const float vDelta = up + down - 2.0f*center;
+
+            float newDensity = (deltaT/2.0)*(hDelta + vDelta);            
+            
+            //if (!((center < 1.0f) && (newDensity < 0.0f)))
+            //{
+                bm->at(x,y) += newDensity;
+            //}
+
+            maxDensity = std::max(maxDensity, bm->at(x,y));
+        }
+    }
+
+    return maxDensity;
+}
+
+LunaCore::QPlacer::Velocity LunaCore::QPlacer::operator*(const float &lhs, const LunaCore::QPlacer::Velocity &rhs)
+{
+    return Velocity{lhs*rhs.m_dx, lhs*rhs.m_dy};
+}
+

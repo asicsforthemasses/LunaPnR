@@ -12,7 +12,7 @@ BOOST_AUTO_TEST_CASE(check_placmentbitmap)
 {
     std::cout << "--== CHECK PLACEMENT BITMAP ==--\n";
 
-    LunaCore::DensityBitmap bm(255,255);
+    LunaCore::QPlacer::DensityBitmap bm(255,255);
 
     std::default_random_engine generator;
     std::normal_distribution<double> distribution(128.0,20.0);
@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(check_placmentbitmap)
 
     if (ofile.good())
     {
-        bm.writeToPGM(ofile);
+        LunaCore::QPlacer::writeToPGM(ofile, &bm);
     }
 }
 

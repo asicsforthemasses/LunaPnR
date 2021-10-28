@@ -664,7 +664,7 @@ static int write_density_bitmap(lua_State *L)
         return 0;
     }
 
-    auto bitmap = LunaCore::createDensityBitmap(mod->m_netlist.get(), region,
+    auto bitmap = LunaCore::QPlacer::createDensityBitmap(mod->m_netlist.get(), region,
         10000,10000);
 
     if (!bitmap)
@@ -680,8 +680,7 @@ static int write_density_bitmap(lua_State *L)
         return 0;        
     }
 
-    bitmap->writeToPGM(ofile);
-
+    LunaCore::QPlacer::writeToPGM(ofile, bitmap);
     return 0;
 }
 

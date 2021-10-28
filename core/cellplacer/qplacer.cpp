@@ -5,6 +5,7 @@
 //#include "netlist/netlist.h"
 //#include "celllib/module.h"
 #include "design/design.h"
+#include "densitybitmap.h"
 
 using namespace LunaCore::QPlacer;
 
@@ -219,14 +220,40 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
         idx++;
     }
 
-    // FIXME: legalisation and detail placement
+    doLog(LOG_VERBOSE,"Quadratic placement done.\n");
+    doLog(LOG_VERBOSE,"Starting diffusion..\n");
 
-    // for now, assume there are no obstacles
 
-    // Do:
-    // 1) sort cells in x direction
-    // 2) assign cells to row
-    // 3) do greedy layout
+    float maxDensity      = 2.0f;
+    auto bitmapCellWidth  = 30000;
+    auto bitmapCellHeight = 30000;
 
+    std::unique_ptr<DensityBitmap> densityBitmap(createDensityBitmap(mod->m_netlist.get(), region, 
+        bitmapCellWidth, bitmapCellHeight));
+
+    std::unique_ptr<VelocityBitmap> velocityBitmap(new VelocityBitmap(densityBitmap->width(), densityBitmap->height()));
+
+    size_t iterationCount = 0;
+    const size_t maxIter = 10;
+    while(maxDensity > 1.0f)
+    {
+        calcVelocityBitmap(densityBitmap.get(), velocityBitmap.get());
+        updateMovableInstances(mod->m_netlist.get(), region, velocityBitmap.get(), 
+            bitmapCellWidth, bitmapCellHeight);
+
+        maxDensity = updateDensityBitmap(densityBitmap.get());
+
+        iterationCount++;
+        if (iterationCount >= maxIter)
+        {
+            break;
+        }
+    }
+
+    calcVelocityBitmap(densityBitmap.get(), velocityBitmap.get());
+    updateMovableInstances(mod->m_netlist.get(), region, velocityBitmap.get(), 
+        bitmapCellWidth, bitmapCellHeight);
+
+    doLog(LOG_VERBOSE,"Diffusion done (iterations = %ld).\n", iterationCount);
     return true;
 }
