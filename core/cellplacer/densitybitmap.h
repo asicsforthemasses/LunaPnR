@@ -223,17 +223,24 @@ using VelocityBitmap = Bitmap<Velocity>;
 //       which instances are present.
 
 DensityBitmap* createDensityBitmap(const ChipDB::Netlist *netlist, const ChipDB::Region *region,
-    int64_t bitmapCellWidth /* nm */, int64_t bitmapCellHeight /* nm */);
+    const int64_t bitmapCellWidth /* nm */, 
+    const int64_t bitmapCellHeight /* nm */);
 
 void calcVelocityBitmap(const DensityBitmap *bm, VelocityBitmap *vm);
 
 void updateMovableInstances(ChipDB::Netlist *netlist, const ChipDB::Region *region, 
-    VelocityBitmap *vm, int64_t bitmapCellWidth, int64_t bitmapCellHeight);
+    VelocityBitmap *vm, 
+    const int64_t bitmapCellWidth, 
+    const int64_t bitmapCellHeight);
 
 void setMinimalDensities(DensityBitmap *bm);
 
 float updateDensityBitmap(DensityBitmap *bm);
 
 void writeToPGM(std::ostream &os, const DensityBitmap *bitmap);
+
+Velocity interpolateVelocity(const VelocityBitmap *vbitmap, 
+    const int64_t bitmapCellWidth, const int64_t bitmapCellHeight,
+    const ChipDB::Coord64 &instanceCenter);
 
 };

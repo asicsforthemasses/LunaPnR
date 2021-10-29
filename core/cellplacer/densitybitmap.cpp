@@ -40,7 +40,8 @@ void LunaCore::QPlacer::writeToPGM(std::ostream &os, const DensityBitmap *bitmap
 }
 
 DensityBitmap* LunaCore::QPlacer::createDensityBitmap(const ChipDB::Netlist *netlist, const ChipDB::Region *region,
-    int64_t bitmapCellWidth /* nm */, int64_t bitmapCellHeight /* nm */)
+    const int64_t bitmapCellWidth /* nm */, 
+    const int64_t bitmapCellHeight /* nm */)
 {
     // The region is covered by the bitmap and divides into bitmap cells
     // Determine the bitmap size:
@@ -218,10 +219,35 @@ void LunaCore::QPlacer::calcVelocityBitmap(const DensityBitmap *bm, VelocityBitm
     }    
 }
 
+Velocity LunaCore::QPlacer::interpolateVelocity(const VelocityBitmap *vbitmap, 
+    const int64_t bitmapCellWidth, 
+    const int64_t bitmapCellHeight,
+    const ChipDB::Coord64 &instanceCenter)
+{
+    const float insGridx = -0.5f + instanceCenter.m_x/static_cast<double>(bitmapCellWidth);
+    const float insGridy = -0.5f + instanceCenter.m_y/static_cast<double>(bitmapCellHeight);
+    const auto x = static_cast<ssize_t>(std::floor(insGridx));
+    const auto y = static_cast<ssize_t>(std::floor(insGridy));
+
+    const float xfrac = insGridx - x;
+    const float yfrac = insGridy - y;
+
+    auto vcell    = vbitmap->at(x,y);
+    auto vright   = vbitmap->at(x+1,y);
+    auto vup      = vbitmap->at(x,y+1);
+    auto vupright = vbitmap->at(x+1,y+1);
+
+    // linear interpolation of velocity bitmap
+    auto v = vcell + xfrac*(vright-vcell) + yfrac*(vup-vcell)
+        + xfrac*yfrac*(vcell+vupright-vup-vright);
+
+    return v;
+}
+
 void LunaCore::QPlacer::updateMovableInstances(ChipDB::Netlist *netlist, const ChipDB::Region *region, 
     VelocityBitmap *vm,
-    int64_t bitmapCellWidth, 
-    int64_t bitmapCellHeight)
+    const int64_t bitmapCellWidth, 
+    const int64_t bitmapCellHeight)
 {
     assert(netlist != nullptr);
     assert(region != nullptr);
@@ -241,23 +267,16 @@ void LunaCore::QPlacer::updateMovableInstances(ChipDB::Netlist *netlist, const C
             continue;
         }
 
-        // determine the closest bin center
-        const float insGridx = -0.5f + (ins->m_pos.m_x - regionOffset.m_x)/static_cast<double>(bitmapCellWidth);
-        const float insGridy = -0.5f + (ins->m_pos.m_y - regionOffset.m_y)/static_cast<double>(bitmapCellHeight);
-        auto x = static_cast<ssize_t>(std::floor(insGridx));
-        auto y = static_cast<ssize_t>(std::floor(insGridy));
+        // The velocity of a cell is given for it's center.
+        //
+        // and the position of the instances are referenced to
+        // the lower-left corner
+        //
 
-        const float xfrac = insGridx - x;
-        const float yfrac = insGridy - y;
+        const auto insHalf = ins->instanceSize();
+        auto insCenterPos = ins->m_pos + ChipDB::Coord64{insHalf.m_x/2, insHalf.m_y/2} - regionOffset;
 
-        auto vcell    = vm->at(x,y);
-        auto vright   = vm->at(x+1,y);
-        auto vup      = vm->at(x,y+1);
-        auto vupright = vm->at(x+1,y+1);
-
-        // linear interpolation of velocity bitmap
-        auto v = vcell + xfrac*(vright-vcell) + yfrac*(vup-vcell)
-            + xfrac*yfrac*(vcell+vupright-vup-vright);
+        auto v = interpolateVelocity(vm, bitmapCellWidth, bitmapCellHeight, insCenterPos);
 
         const float deltaT = 0.05;
 

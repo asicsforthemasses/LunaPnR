@@ -106,7 +106,12 @@ BOOST_AUTO_TEST_CASE(check_diffusion)
 
     ChipDB::Netlist netlist;
     ChipDB::Region  region;
-    region.m_rect.setUR({5000,5000});
+
+    const int64_t xsize = 5000;
+    const int64_t ysize = 5000;
+    const int64_t bitmapCellSize = 1000;
+
+    region.m_rect.setUR({xsize,ysize});
 
     // place multiple cells in the center cell
     // but slightly offset so we can check
@@ -125,7 +130,7 @@ BOOST_AUTO_TEST_CASE(check_diffusion)
         {
             auto instance = new ChipDB::Instance(cell);
             instance->m_name = "instance";
-            instance->m_pos  = ChipDB::Coord64{2500 + ox*200 - cell->m_size.m_x/2, 2500 + oy*200 - cell->m_size.m_y/2};
+            instance->m_pos  = ChipDB::Coord64{xsize/2 + ox*200 - cell->m_size.m_x/2, ysize/2 + oy*200 - cell->m_size.m_y/2};
 
             std::stringstream ss;
             ss << "ins_x" << ox << "_y" << oy;
@@ -136,12 +141,12 @@ BOOST_AUTO_TEST_CASE(check_diffusion)
         }
     }
 
-    auto bm = LunaCore::QPlacer::createDensityBitmap(&netlist, &region, 1000, 1000);
+    std::unique_ptr<LunaCore::QPlacer::DensityBitmap> bm(LunaCore::QPlacer::createDensityBitmap(&netlist, &region, bitmapCellSize, bitmapCellSize));
     BOOST_CHECK(bm != nullptr);
     BOOST_CHECK(bm->width() == 5);
     BOOST_CHECK(bm->height() == 5);
     
-    LunaCore::QPlacer::setMinimalDensities(bm);
+    LunaCore::QPlacer::setMinimalDensities(bm.get());
 
     // check that the average density is 1
     double totalDensity = 0;
@@ -153,22 +158,24 @@ BOOST_AUTO_TEST_CASE(check_diffusion)
         }
     }
 
-    BOOST_TEST(bm->at(2,2) == 9*0.25f, tt::tolerance(0.01));
-    BOOST_TEST(bm->at(2,1) == 0.9583f, tt::tolerance(0.01));
-    BOOST_TEST(bm->at(2,3) == 0.9583f, tt::tolerance(0.01));
+    BOOST_TEST(bm->at(2,2) == 9*0.25);
+    BOOST_TEST(bm->at(2,1) == 0.958333, tt::tolerance(0.1));
+    BOOST_TEST(bm->at(2,3) == 0.958333, tt::tolerance(0.1));
 
     doLog(LOG_VERBOSE, "  bm(2,2) = %f\n", bm->at(2,2));
     doLog(LOG_VERBOSE, "  bm(2,1) = %f\n", bm->at(2,1));
     doLog(LOG_VERBOSE, "  bm(2,3) = %f\n", bm->at(2,3));
 
-    BOOST_CHECK(totalDensity > 8.0f);
-    BOOST_CHECK(totalDensity < 9.0f);
+    BOOST_CHECK(totalDensity > 25.0f);
+    BOOST_CHECK(totalDensity < 26.0f);
 
     LunaCore::QPlacer::VelocityBitmap vm(bm->width(), bm->height());
-    LunaCore::QPlacer::calcVelocityBitmap(bm, &vm);
+    LunaCore::QPlacer::calcVelocityBitmap(bm.get(), &vm);
 
-    BOOST_TEST((vm.at(2,1).m_dx == 0), tt::tolerance(0.01));
-    BOOST_TEST((vm.at(2,1).m_dy == 0), tt::tolerance(0.01));
+    // check velocity below the center
+    // it should have a vector pointing downwards
+    BOOST_TEST((vm.at(2,1).m_dx == 0));
+    BOOST_TEST((vm.at(2,1).m_dy < 0));
 
     doLog(LOG_VERBOSE, "  vm(2,1) = %f,%f\n", vm.at(2,1).m_dx, vm.at(2,1).m_dy);
     doLog(LOG_VERBOSE, "  vm(2,2) = %f,%f\n", vm.at(2,2).m_dx, vm.at(2,2).m_dy);
@@ -176,6 +183,26 @@ BOOST_AUTO_TEST_CASE(check_diffusion)
 
     doLog(LOG_VERBOSE, "  vm(1,2) = %f,%f\n", vm.at(1,2).m_dx, vm.at(1,2).m_dy);
     doLog(LOG_VERBOSE, "  vm(3,2) = %f,%f\n", vm.at(3,2).m_dx, vm.at(3,2).m_dy);
+
+    // check the velocity interpolation
+    // due to point symmetry, the velocity in the middle
+    // should be zero
+    auto middleVelocity = LunaCore::QPlacer::interpolateVelocity(&vm, bitmapCellSize, bitmapCellSize, ChipDB::Coord64{xsize/2, ysize/2});
+
+    BOOST_CHECK(middleVelocity.m_dx == 0);
+    BOOST_CHECK(middleVelocity.m_dy == 0);
+
+    // check on the boundary of middle cell and one to the left
+    // should be half the velocity between left and middle cell
+    auto leftVelocity = LunaCore::QPlacer::interpolateVelocity(&vm, bitmapCellSize, bitmapCellSize, ChipDB::Coord64{xsize/2 - bitmapCellSize/2, ysize/2});
+
+    BOOST_CHECK(leftVelocity.m_dx == (vm.at(1,2).m_dx / 2.0));
+    BOOST_CHECK(leftVelocity.m_dy == (vm.at(1,2).m_dy / 2.0));
+
+    auto downVelocity = LunaCore::QPlacer::interpolateVelocity(&vm, bitmapCellSize, bitmapCellSize, ChipDB::Coord64{xsize/2, ysize/2 - bitmapCellSize/2});
+
+    BOOST_CHECK(downVelocity.m_dx == (vm.at(2,1).m_dx / 2.0));
+    BOOST_CHECK(downVelocity.m_dy == (vm.at(2,1).m_dy / 2.0));
 
     setLogLevel(ll);
 }

@@ -236,17 +236,14 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
     std::unique_ptr<VelocityBitmap> velocityBitmap(new VelocityBitmap(densityBitmap->width(), densityBitmap->height()));
 
     size_t iterationCount = 0;
-    const size_t maxIter = 500;
+    const size_t maxIter = 30;
     while(maxDensity > 1.0f)
     {
-        densityBitmap.reset(createDensityBitmap(mod->m_netlist.get(), region, 
-            bitmapCellWidth, bitmapCellHeight));        
-
         calcVelocityBitmap(densityBitmap.get(), velocityBitmap.get());
         updateMovableInstances(mod->m_netlist.get(), region, velocityBitmap.get(), 
             bitmapCellWidth, bitmapCellHeight);
 
-        //maxDensity = updateDensityBitmap(densityBitmap.get());
+        maxDensity = updateDensityBitmap(densityBitmap.get());
 
         iterationCount++;
         if (iterationCount >= maxIter)
@@ -255,10 +252,11 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
         }
     }
 
+#if 0
     calcVelocityBitmap(densityBitmap.get(), velocityBitmap.get());
     updateMovableInstances(mod->m_netlist.get(), region, velocityBitmap.get(), 
         bitmapCellWidth, bitmapCellHeight);
-
+#endif
     doLog(LOG_VERBOSE,"Diffusion done (iterations = %ld).\n", iterationCount);
     return true;
 }
