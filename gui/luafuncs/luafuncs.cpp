@@ -617,7 +617,7 @@ static int write_placement(lua_State *L)
         return 0;
     }
 
-    mod->m_netlist->writePlacementFile(ofile);
+    LunaCore::NetlistTools::writePlacementFile(ofile, mod->m_netlist.get());
 
     return 0;
 };

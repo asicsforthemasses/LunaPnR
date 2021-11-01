@@ -157,10 +157,10 @@ BOOST_AUTO_TEST_CASE(place_multiplier)
             doLog(LOG_VERBOSE,"  Node %d placed at %.2f,%.2f\n",idx, xpos[idx], ypos[idx]);
         }
     }
-    setLogLevel(ll);
+    
 #endif
 
-
+    setLogLevel(ll);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

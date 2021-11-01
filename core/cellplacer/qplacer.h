@@ -157,6 +157,10 @@ protected:
                         Amat.coeffRef(starNodeId, starNodeId)+= effectiveWeight;
                         Amat.coeffRef(netNodeId, starNodeId) -= effectiveWeight;
                         Amat.coeffRef(starNodeId, netNodeId) -= effectiveWeight;
+
+                        // Note: if we want to account for pin offset within an instance cell
+                        //       Bvec should also be changed. See: https://d-nb.info/990084132/34 page 38.
+                        //  
                     }
                     else
                     {

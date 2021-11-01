@@ -131,6 +131,7 @@ BOOST_AUTO_TEST_CASE(check_diffusion)
             auto instance = new ChipDB::Instance(cell);
             instance->m_name = "instance";
             instance->m_pos  = ChipDB::Coord64{xsize/2 + ox*200 - cell->m_size.m_x/2, ysize/2 + oy*200 - cell->m_size.m_y/2};
+            instance->m_placementInfo = ChipDB::PlacementInfo::PLACED;
 
             std::stringstream ss;
             ss << "ins_x" << ox << "_y" << oy;
@@ -146,7 +147,7 @@ BOOST_AUTO_TEST_CASE(check_diffusion)
     BOOST_CHECK(bm->width() == 5);
     BOOST_CHECK(bm->height() == 5);
     
-    LunaCore::QPlacer::setMinimalDensities(bm.get());
+    LunaCore::QPlacer::setMinimalDensities(bm.get(), 1.0f);
 
     // check that the average density is 1
     double totalDensity = 0;
@@ -203,6 +204,29 @@ BOOST_AUTO_TEST_CASE(check_diffusion)
 
     BOOST_CHECK(downVelocity.m_dx == (vm.at(2,1).m_dx / 2.0));
     BOOST_CHECK(downVelocity.m_dy == (vm.at(2,1).m_dy / 2.0));
+
+    // dump the old positions
+    doLog(LOG_VERBOSE, "  Old instance positions: \n");
+    size_t idx = 0;
+    for(auto ins : netlist.m_instances)
+    {
+        const auto insCenter = ins->getCenter();
+        doLog(LOG_VERBOSE, "    ins %d -> (%d,%d)\n", idx, insCenter.m_x, insCenter.m_y);
+        idx++;
+    }
+
+    // move the cells
+    LunaCore::QPlacer::updateMovableInstances(&netlist, &region, &vm, bitmapCellSize, bitmapCellSize);
+
+    // dump the new positions
+    doLog(LOG_VERBOSE, "  New instance positions: \n");
+    idx = 0;
+    for(auto ins : netlist.m_instances)
+    {
+        const auto insCenter = ins->getCenter();
+        doLog(LOG_VERBOSE, "    ins %d -> (%d,%d)\n", idx, insCenter.m_x, insCenter.m_y);
+        idx++;
+    }
 
     setLogLevel(ll);
 }

@@ -89,13 +89,6 @@ BOOST_AUTO_TEST_CASE(can_parse_netlist)
     BOOST_CHECK(parser.execute(tokens));
 
     BOOST_CHECK(parser.m_insCount == 24);
-
-    //std::cout << parser.m_modCount << "\n";
-    //std::cout << parser.m_insCount << "\n";
-    //std::cout << parser.m_inputCount << "\n";
-    //std::cout << parser.m_outputCount << "\n";
-    //std::cout << parser.m_wireCount << "\n";
-
     BOOST_CHECK(parser.m_inputCount == 5);
     BOOST_CHECK(parser.m_outputCount == 3);
     BOOST_CHECK(parser.m_wireCount == 21);

@@ -134,7 +134,10 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
         return false;
     }
 
+    double area = 0;
+
     // check if pins have been fixed
+    // and total the area
     for(auto ins : mod->m_netlist->m_instances)
     {
         if (ins->m_insType == ChipDB::InstanceType::PIN)
@@ -147,7 +150,23 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
                 return false;
             }
         }
+        area += ins->instanceSize().m_x * ins->instanceSize().m_y;
     }
+
+    const auto regionArea = region->m_rect.width() * region->m_rect.height();
+
+    if (regionArea < area)
+    {
+        doLog(LOG_WARN, "Region area is smaller than the total instance area\n");
+    }
+    
+    if (regionArea <= 0)
+    {
+        doLog(LOG_ERROR, "Cannot place a module in a region that has no area\n");
+        return false;
+    }
+
+    doLog(LOG_INFO, "Utilization = %3.1f percent\n", 100.0* area / static_cast<double>(regionArea));
 
     // generate QPlacer netlist
     std::vector<LunaCore::QPlacer::PlacerNode> nodes;
@@ -223,22 +242,28 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
     doLog(LOG_VERBOSE,"Quadratic placement done.\n");
     doLog(LOG_VERBOSE,"Starting diffusion..\n");
 
-
     float maxDensity      = 2.0f;
-    auto bitmapCellWidth  = 30000;
-    auto bitmapCellHeight = 30000;
+    const auto bitmapCellWidth  = 50000;
+    const auto bitmapCellHeight = 50000;
+    const float targetDensity   = 0.95;
 
     std::unique_ptr<DensityBitmap> densityBitmap(createDensityBitmap(mod->m_netlist.get(), region, 
         bitmapCellWidth, bitmapCellHeight));
 
-    setMinimalDensities(densityBitmap.get());
+    //setMinimalDensities(densityBitmap.get(), targetDensity);
 
     std::unique_ptr<VelocityBitmap> velocityBitmap(new VelocityBitmap(densityBitmap->width(), densityBitmap->height()));
 
     size_t iterationCount = 0;
-    const size_t maxIter = 30;
-    while(maxDensity > 1.0f)
+    const size_t maxIter = 5000;
+    while(maxDensity > targetDensity)
     {
+
+        densityBitmap.reset(createDensityBitmap(mod->m_netlist.get(), region, 
+            bitmapCellWidth, bitmapCellHeight));
+
+        setMinimalDensities(densityBitmap.get(), targetDensity);
+
         calcVelocityBitmap(densityBitmap.get(), velocityBitmap.get());
         updateMovableInstances(mod->m_netlist.get(), region, velocityBitmap.get(), 
             bitmapCellWidth, bitmapCellHeight);
@@ -250,6 +275,8 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
         {
             break;
         }
+        
+        doLog(LOG_VERBOSE,"  Iter: %d\t density:%f\n", iterationCount, maxDensity);
     }
 
 #if 0

@@ -18,11 +18,6 @@ public:
     
     void clear();
 
-    /** write a placement file (for debugging)
-     *  for each instance: x y xsize ysize
-    */
-    void writePlacementFile(std::ostream &os) const;
-
     IMPLEMENT_ACCEPT;
 
     NamedStorage<InstanceBase*> m_instances;

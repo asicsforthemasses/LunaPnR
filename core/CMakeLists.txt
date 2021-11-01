@@ -38,6 +38,7 @@ add_library(lunacore
     netlist/net.cpp
     netlist/instance.cpp
     netlist/netlist.cpp
+    netlist/netlisttools.cpp
     cellplacer/qplacer.cpp
     cellplacer/cellplacer.cpp
     cellplacer/densitybitmap.cpp

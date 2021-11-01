@@ -11,6 +11,7 @@
 #include "../netlist/instance.h"
 #include "../netlist/net.h"
 #include "../netlist/netlist.h"
+#include "../netlist/netlisttools.h"
 #include "../floorplan/row.h"
 #include "../floorplan/region.h"
 #include "../floorplan/floorplan.h"

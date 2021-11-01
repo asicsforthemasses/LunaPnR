@@ -8,6 +8,8 @@
 
 using namespace LunaCore::QPlacer;
 
+static const float deltaT = 0.2;
+
 void LunaCore::QPlacer::writeToPGM(std::ostream &os, const DensityBitmap *bitmap)
 {
     os << "P5 " << bitmap->width() << " " << bitmap->height() << " 255" << "\n";
@@ -105,7 +107,7 @@ DensityBitmap* LunaCore::QPlacer::createDensityBitmap(const ChipDB::Netlist *net
             auto& activeIns = *activeIter;
 
             auto insSize   = activeIns->instanceSize();
-            auto rightEdge = activeIns->m_pos.m_x+insSize.m_x - regionOffset.m_x;
+            auto rightEdge = activeIns->m_pos.m_x + insSize.m_x - regionOffset.m_x;
 
             if (rightEdge < newx)
             {
@@ -273,12 +275,9 @@ void LunaCore::QPlacer::updateMovableInstances(ChipDB::Netlist *netlist, const C
         // the lower-left corner
         //
 
-        const auto insHalf = ins->instanceSize();
-        auto insCenterPos = ins->m_pos + ChipDB::Coord64{insHalf.m_x/2, insHalf.m_y/2} - regionOffset;
+        auto insCenterPos = ins->getCenter() - regionOffset;
 
         auto v = interpolateVelocity(vm, bitmapCellWidth, bitmapCellHeight, insCenterPos);
-
-        const float deltaT = 0.05;
 
         ins->m_pos.m_x += v.m_dx*deltaT * static_cast<float>(bitmapCellWidth);
         ins->m_pos.m_y += v.m_dy*deltaT * static_cast<float>(bitmapCellHeight);
@@ -290,8 +289,6 @@ float LunaCore::QPlacer::updateDensityBitmap(DensityBitmap *bm)
     assert(bm != nullptr);
 
     auto bitmap = *bm;  // make a deep copy
-
-    const float deltaT = 0.05;
 
     float maxDensity = 0;
     for(int64_t y=0; y<bitmap.height(); y++)
@@ -329,12 +326,10 @@ bool LunaCore::QPlacer::operator==(const Velocity &lhs, const Velocity &rhs)
     return ((lhs.m_dx == rhs.m_dx) && (lhs.m_dy == rhs.m_dy));
 }
 
-void LunaCore::QPlacer::setMinimalDensities(DensityBitmap *bm)
+void LunaCore::QPlacer::setMinimalDensities(DensityBitmap *bm, const float maxDensity)
 {
     size_t overArea  = 0;
     size_t underArea = 0;
-
-    const float maxDensity = 1.0f;
 
     for(uint32_t y=0; y<bm->height(); y++)
     {

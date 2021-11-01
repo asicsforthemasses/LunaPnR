@@ -233,7 +233,7 @@ void updateMovableInstances(ChipDB::Netlist *netlist, const ChipDB::Region *regi
     const int64_t bitmapCellWidth, 
     const int64_t bitmapCellHeight);
 
-void setMinimalDensities(DensityBitmap *bm);
+void setMinimalDensities(DensityBitmap *bm, const float maxDensity);
 
 float updateDensityBitmap(DensityBitmap *bm);
 
