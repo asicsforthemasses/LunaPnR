@@ -80,7 +80,7 @@ namespace LunaCore::Partitioner
             m_next(-1), m_prev(-1), m_instance(nullptr),
             m_self(-1), m_visited(false), m_flags(0) {}
 
-        DedupVector<NetId>  m_nets;             ///< nets connected to this nodes
+        DedupVector<NetId>  m_nets;             ///< nets connected to this node
         PartitionId         m_partitionId;      ///< current location of the node: partition 0 or 1
         PartitionId         m_bestPartitionId;  ///< best location of the node: partition 0 or 1
         int64_t             m_weight;           ///< weight of the node (probably cell width instead of area)

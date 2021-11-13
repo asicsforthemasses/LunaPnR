@@ -32,6 +32,7 @@ namespace ChipDB
         std::string m_name;
     };
 
+    using CoordType = int64_t;
 
     /** 64-bit coordinate expressed in nanometers 
      *  use this for absolute position information
@@ -39,11 +40,11 @@ namespace ChipDB
     struct Coord64
     {
         constexpr Coord64() : m_x(0), m_y(0) {}
-        constexpr Coord64(const int64_t &x, const int64_t &y) : m_x(x), m_y(y) {}
+        constexpr Coord64(const CoordType &x, const CoordType &y) : m_x(x), m_y(y) {}
         constexpr Coord64(const Coord64 &c) : m_x(c.m_x), m_y(c.m_y) {}
 
-        int64_t m_x;   ///< x coordinate in nanometers
-        int64_t m_y;   ///< y coordinate in nanometers
+        CoordType m_x;   ///< x coordinate in nanometers
+        CoordType m_y;   ///< y coordinate in nanometers
 
         constexpr Coord64& operator+=(const Coord64& rhs) noexcept
         { 

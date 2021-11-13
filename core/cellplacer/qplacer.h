@@ -1,6 +1,5 @@
 #pragma once
 
-#include "common/dbtypes.h"
 #include <vector>
 #include <string>
 #include <iostream>
@@ -8,6 +7,9 @@
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <Eigen/IterativeLinearSolvers>
+
+#include "common/dbtypes.h"
+#include "qplacertypes.h"
 
 // predeclarations
 namespace ChipDB
@@ -21,75 +23,8 @@ namespace ChipDB
 namespace LunaCore::QPlacer
 {
 
-using PlacerNodeId = ssize_t;
-using PlacerNetId  = ssize_t;
-
-enum class PlacerNodeType
-{
-    Undefined,
-    MovableNode,
-    FixedNode,
-    StarNode
-};
-
-enum class PlacerNetType
-{
-    Undefined,
-    StarNet,
-    TwoNet,
-    Ignore
-};
-
 std::string toString(const PlacerNodeType &t);
 std::string toString(const PlacerNetType &t);
-
-struct PlacerNode
-{
-    PlacerNode() : m_type(PlacerNodeType::Undefined), m_weight(1.0f) {}
-
-    ChipDB::Coord64 m_pos;      ///< center position of node
-    PlacerNodeType  m_type;     ///< node type
-    float           m_weight;   ///< default = 1.0, and 10.0 for fixed pins
-
-    constexpr bool isFixed() const noexcept
-    {
-        return m_type == PlacerNodeType::FixedNode;
-    }
-
-    void dump(std::ostream &os) const
-    {
-        for(auto const& netId : m_connections)
-        {
-            os << " " << netId;
-        }
-        os << "\n";
-    }
-
-    std::vector<PlacerNetId> m_connections;    
-};
-
-struct PlacerNet
-{
-    PlacerNet() : m_type(PlacerNetType::Undefined), m_weight(1.0f) {}
-
-    bool isValid() const noexcept
-    {
-        return m_nodes.size() >= 2;
-    }
-
-    void dump(std::ostream &os) const
-    {
-        for(auto const& nodeId : m_nodes)
-        {
-            os << " " << nodeId;
-        }
-        os << "\n";
-    }
-
-    std::vector<PlacerNodeId>   m_nodes;
-    PlacerNetType               m_type;
-    float m_weight;
-};
 
 struct XAxisAccessor
 {
@@ -114,27 +49,27 @@ class Placer
 public:
     Placer() {};
 
-    void solve(std::vector<PlacerNode> &nodes, std::vector<PlacerNet> &nets,
+    /** solve the quadratice placement, update xpos and ypos. */
+    void solve(const PlacerNetlist &netlist,
         Eigen::VectorXd &xpos, Eigen::VectorXd &ypos);
 
 protected:
-
-    void addStarNodes(std::vector<PlacerNode> &nodes, std::vector<PlacerNet> &nets);
+    void addStarNodes(PlacerNetlist &netlist);
     void checkAndSetUnmovableNet(PlacerNet &net, const std::vector<PlacerNode> &nodes);
 
     template<class AxisAccessor>
-    void buildEquations(const std::vector<PlacerNode> &nodes, const std::vector<PlacerNet> &nets,
+    void buildEquations(const PlacerNetlist &netlist,
         Eigen::SparseMatrix<double> &Amat, Eigen::VectorXd &Bvec)
     {   
-        Amat.resize(nodes.size(), nodes.size());
+        Amat.resize(netlist.numberOfNodes(), netlist.numberOfNodes());
 
-        Amat.reserve(2*nodes.size());   // rough estimate of size
-        Bvec = Eigen::VectorXd::Zero(nodes.size());
+        Amat.reserve(2*netlist.numberOfNodes());    // rough estimate of size
+        Bvec = Eigen::VectorXd::Zero(netlist.numberOfNodes());
 
         // the last node on every valid net should be a star node
         // connect every node on the net to the star node
         // and make a matrix entry at (i,j) and (j,i)
-        for(auto const& net : nets)
+        for(auto const& net : netlist.m_nets)
         {
             if (net.m_type == PlacerNetType::StarNet)
             {
@@ -145,12 +80,12 @@ protected:
                 // recommends 1/(k-1) for star nets
                 //
 
-                size_t netSize = net.m_nodes.size();    // -1 because we discard the star node
+                size_t netSize = net.m_nodes.size();
                 auto effectiveWeight = net.m_weight / static_cast<double>(netSize-1);
 
                 for(auto const netNodeId : net.m_nodes)
                 {
-                    auto const& netNode = nodes.at(netNodeId);
+                    auto const& netNode = netlist.getNode(netNodeId);
                     if (!netNode.isFixed())
                     {
                         Amat.coeffRef(netNodeId, netNodeId)  += effectiveWeight;
@@ -175,15 +110,15 @@ protected:
                 auto node1Idx = net.m_nodes.at(0);
                 auto node2Idx = net.m_nodes.at(1);
 
-                if (nodes.at(node1Idx).isFixed())
+                if (netlist.getNode(node1Idx).isFixed())
                 {
                     std::swap(node1Idx, node2Idx);
                 }
 
-                auto const& node1 = nodes.at(node1Idx); // movable node
+                auto const& node1 = netlist.getNode(node1Idx); // movable node
                 assert(!node1.isFixed());
 
-                auto const& node2 = nodes.at(node2Idx); // maybe movable node
+                auto const& node2 = netlist.getNode(node2Idx); // maybe movable node
                 
                 const double effectiveWeight = 1.0;
                 if (!node2.isFixed())
@@ -211,5 +146,6 @@ protected:
 
 
 bool placeModuleInRegion(const ChipDB::Design *design, ChipDB::Module *mod, const ChipDB::Region *region);
+
 
 };  // namespace

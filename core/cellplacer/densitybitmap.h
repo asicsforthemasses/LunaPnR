@@ -89,7 +89,7 @@ public:
     }
 
     /** return the size of the instance in nm */
-    const ChipDB::Coord64 instanceSize() const
+    const ChipDB::Coord64 instanceSize() const override
     {
         return {0,0};
     }

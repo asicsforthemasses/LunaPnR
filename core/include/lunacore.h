@@ -18,6 +18,7 @@
 #include "../cellplacer/cellplacer.h"
 #include "../cellplacer/qplacer.h"
 #include "../cellplacer/densitybitmap.h"
+#include "../cellplacer/netlistsplitter.h"
 #include "../partitioner/fmpart.h"
 #include "../import/liberty/libparser.h"
 #include "../import/liberty/libreaderimpl.h"

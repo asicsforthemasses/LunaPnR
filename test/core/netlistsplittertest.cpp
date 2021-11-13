@@ -3,24 +3,38 @@
 #include <string>
 #include <array>
 #include <vector>
-#include <unordered_map>
 #include <sstream>
 #include <fstream>
 #include <stdexcept>
 #include <algorithm>
 #include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(AnalyticPlacerTest)
+BOOST_AUTO_TEST_SUITE(NetlistSplitterTest)
 
-BOOST_AUTO_TEST_CASE(check_analytic_placer)
+struct VerticalSelector : LunaCore::QPlacer::Selector
 {
-    std::cout << "--== CHECK ANALYTIC PLACER ==--\n";
+    virtual bool operator()(LunaCore::QPlacer::PlacerNodeId id,
+        const LunaCore::QPlacer::PlacerNode &node)
+    {
+        return (node.m_pos.m_y < m_verticalCutline);
+    }
+
+    ChipDB::CoordType m_verticalCutline;
+};
+
+BOOST_AUTO_TEST_CASE(check_netlist_splitter)
+{
+    std::cout << "--== CHECK NETLIST SPLITTER ==--\n";
 
     auto ll = getLogLevel();
     setLogLevel(LOG_VERBOSE);
 
-    LunaCore::QPlacer::Placer placer;
+    // use the analytical placer to 
+    // place a string of cells
+    // and split the netlist
+    // based on their vertical position
 
+    LunaCore::QPlacer::Placer placer;
     LunaCore::QPlacer::PlacerNetlist netlist;
 
     auto &nodes = netlist.m_nodes;
@@ -81,87 +95,43 @@ BOOST_AUTO_TEST_CASE(check_analytic_placer)
     // check locations of movable nodes
     for(size_t idx = 0; idx < checkPos.size(); idx++)
     {
-        doLog(LOG_VERBOSE,"  Node %d placed at %.2f,%.2f\n",idx, xpos[idx], ypos[idx]);
-
         if (!nodes.at(idx).isFixed())
         {
             float error = std::abs(xpos[idx] - checkPos.at(idx).m_x) + 
                 std::abs(ypos[idx] - checkPos.at(idx).m_y);
 
             BOOST_CHECK(error < 1.0f);
+
+            netlist.m_nodes.at(idx).m_pos = ChipDB::Coord64{
+                static_cast<ChipDB::CoordType>(xpos[idx]), 
+                static_cast<ChipDB::CoordType>(ypos[idx])};  
         }
+
+        auto const& node = netlist.m_nodes.at(idx);
+
+        doLog(LOG_VERBOSE,"  Node %d placed at %lu,%lu\n",idx, node.m_pos.m_x, node.m_pos.m_y);
     }
 
-    setLogLevel(ll);
-}
+    // split the netlist based on the vertical position
+    VerticalSelector selector;
+    selector.m_verticalCutline = 250;
+    auto splitNetlist = LunaCore::QPlacer::createNetlistFromSelection(
+        netlist, selector
+    );
 
-BOOST_AUTO_TEST_CASE(place_multiplier)
-{
-    std::cout << "--== ANALYTIC PLACER: place multiplier ==--\n";
+    doLog(LOG_VERBOSE, "Netlist after selection:\n");
+    splitNetlist.dump(std::cout);
 
-    std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
-    BOOST_CHECK(leffile.good());
+    BOOST_CHECK(splitNetlist.numberOfNets() == 2);
+    BOOST_CHECK(splitNetlist.numberOfNodes() == 3);
 
-    ChipDB::Design design;
-    BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
+    selector.m_verticalCutline = 150;
+    splitNetlist = LunaCore::QPlacer::createNetlistFromSelection(
+        netlist, selector
+    );
 
-    std::ifstream verilogfile("test/files/verilog/multiplier.v");
-    BOOST_CHECK(verilogfile.good());
-
-    ChipDB::Verilog::Reader::load(&design, verilogfile);
-
-    auto mod = design.m_moduleLib.lookup("multiplier");
-
-    BOOST_CHECK(mod != nullptr);
-    BOOST_CHECK(mod->m_netlist);
-
-    // allocate pin instances
-    int64_t left_y  = 0;
-    int64_t right_y = 0;
-    for(auto ins : mod->m_netlist->m_instances)
-    {
-        if (ins->m_insType == ChipDB::InstanceType::PIN)
-        {
-            auto pinInfo = ins->getPinInfo(0);
-            if (pinInfo->isInput())
-            {
-                ins->m_pos = {0, left_y};
-                ins->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
-                left_y += 5000;
-            }
-            else
-            {
-                ins->m_pos = {65000, right_y};
-                ins->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
-                right_y += 5000;
-            }
-        }
-    }
-
-    // create a floorplan with region
-    auto region = new ChipDB::Region();
-    region->m_site = "corehd";
-    region->m_rect.setSize( {65000+20000,65000+20000} );
-    region->m_halo = ChipDB::Margins64{10000,10000,10000,10000};
-
-    design.m_floorplan.m_regions.add("core", region);
-
-    auto ll = getLogLevel();
-    setLogLevel(LOG_VERBOSE);
-
-    BOOST_CHECK(LunaCore::QPlacer::placeModuleInRegion(&design, mod, region));
-    
-#if 0    
-    // check locations of movable nodes
-    for(size_t idx = 0; idx < mod.; idx++)
-    {
-        if (!nodes.at(idx).isFixed())
-        {
-            doLog(LOG_VERBOSE,"  Node %d placed at %.2f,%.2f\n",idx, xpos[idx], ypos[idx]);
-        }
-    }
-    
-#endif
+    BOOST_CHECK(splitNetlist.numberOfNets() == 1);
+    BOOST_CHECK(splitNetlist.numberOfNodes() == 2);
 
     setLogLevel(ll);
 }

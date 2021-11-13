@@ -2,8 +2,6 @@
 #include "qplacer.h"
 
 #include "common/logging.h"
-//#include "netlist/netlist.h"
-//#include "celllib/module.h"
 #include "design/design.h"
 #include "densitybitmap.h"
 
@@ -12,25 +10,28 @@ using namespace LunaCore::QPlacer;
 void Placer::checkAndSetUnmovableNet(PlacerNet &net, const std::vector<PlacerNode> &nodes)
 {
     // check that at least one node is movable
-    ssize_t movable = 0;
+    ssize_t movableNodes = 0;
     for(auto const netNodeId : net.m_nodes)
     {
         if (!nodes.at(netNodeId).isFixed())
         {
-            movable++;
+            movableNodes++;
             break;
         }
     }
 
-    if (movable == 0)
+    if (movableNodes == 0)
     {
         // ignore the net when no nodes are movable
         net.m_type = LunaCore::QPlacer::PlacerNetType::Ignore;
     }
 }
 
-void Placer::addStarNodes(std::vector<PlacerNode> &nodes, std::vector<PlacerNet> &nets)
+void Placer::addStarNodes(PlacerNetlist &netlist)
 {
+    auto &nets  = netlist.m_nets;
+    auto &nodes = netlist.m_nodes;
+
     // add a star node to every net with more than 2 nodes
     ssize_t netId = 0;
     for(auto& net : nets)
@@ -63,16 +64,20 @@ void Placer::addStarNodes(std::vector<PlacerNode> &nodes, std::vector<PlacerNet>
     }
 }
 
-void Placer::solve(std::vector<PlacerNode> &nodes, std::vector<PlacerNet> &nets,
+void Placer::solve(const PlacerNetlist &netlist,
     Eigen::VectorXd &xpos, Eigen::VectorXd &ypos)
 {
-    addStarNodes(nodes, nets);
+    PlacerNetlist localNetlist = netlist;
 
-    buildEquations<XAxisAccessor>(nodes, nets, m_Amat_x, m_Bvec_x);
-    buildEquations<YAxisAccessor>(nodes, nets, m_Amat_y, m_Bvec_y);
+    // solve the quadratic placement problem
+    addStarNodes(localNetlist);
 
-    xpos.resize(nodes.size());
-    ypos.resize(nodes.size());
+    buildEquations<XAxisAccessor>(localNetlist, m_Amat_x, m_Bvec_x);
+    buildEquations<YAxisAccessor>(localNetlist, m_Amat_y, m_Bvec_y);
+
+    const auto numberOfNodes = localNetlist.m_nodes.size();
+    xpos.resize(numberOfNodes);
+    ypos.resize(numberOfNodes);
 
     Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Upper | Eigen::Lower> solver;
     xpos = solver.compute(m_Amat_x).solve(m_Bvec_x);
@@ -150,6 +155,7 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
                 return false;
             }
         }
+
         area += ins->instanceSize().m_x * ins->instanceSize().m_y;
     }
 
@@ -169,8 +175,7 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
     doLog(LOG_INFO, "Utilization = %3.1f percent\n", 100.0* area / static_cast<double>(regionArea));
 
     // generate QPlacer netlist
-    std::vector<LunaCore::QPlacer::PlacerNode> nodes;
-    std::vector<LunaCore::QPlacer::PlacerNet>  nets;
+    PlacerNetlist placerNetlist;
     
     std::unordered_map<ChipDB::InstanceBase*, LunaCore::QPlacer::PlacerNodeId> ins2nodeId;
     std::unordered_map<ChipDB::Net*, LunaCore::QPlacer::PlacerNetId> net2netId;
@@ -178,10 +183,11 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
     // create placer nodes
     for(auto ins : mod->m_netlist->m_instances)
     {
-        nodes.emplace_back();
-        auto& placerNode = nodes.back();
+        auto nodeId = placerNetlist.createNode();
+        auto& placerNode = placerNetlist.getNode(nodeId);
         placerNode.m_type = LunaCore::QPlacer::PlacerNodeType::MovableNode;
         placerNode.m_pos  = ChipDB::Coord64{0,0};
+        placerNode.m_size = ins->instanceSize();
 
         if (ins->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED)
         {
@@ -190,15 +196,14 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
             placerNode.m_weight = 10.0; // increase the weight of fixed nodes to pull apart the movable instances
         }
 
-        ins2nodeId[ins] = nodes.size()-1;
+        ins2nodeId[ins] = placerNetlist.numberOfNodes()-1;
     }
 
     // create placer nets
     for(auto net : mod->m_netlist->m_nets)
     {
-        nets.emplace_back();
-        auto& placerNet = nets.back();
-        auto placerNetId = nets.size()-1;
+        auto placerNetId = placerNetlist.createNet();
+        auto& placerNet = placerNetlist.getNet(placerNetId);
 
         for(auto& conn : net->m_connections)
         {
@@ -213,16 +218,19 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
 
             auto placerNodeId = iter->second;
             placerNet.m_nodes.push_back(placerNodeId);
-            nodes.at(placerNodeId).m_connections.push_back(placerNetId);
+            placerNetlist.getNode(placerNodeId).m_connections.push_back(placerNetId);
         }
     }
 
+    // do quadratic placement
     Eigen::VectorXd xpos;
     Eigen::VectorXd ypos;
     LunaCore::QPlacer::Placer placer;
-    placer.solve(nodes, nets, xpos, ypos);
+    placer.solve(placerNetlist, xpos, ypos);
 
+    // write back new instance positions
     ssize_t idx = 0;
+    double  totalArea = 0;
     for(auto ins : mod->m_netlist->m_instances)
     {
         if (ins->m_placementInfo != ChipDB::PlacementInfo::PLACEDANDFIXED)
@@ -236,10 +244,15 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
                 static_cast<int64_t>(ypos[idx] - ins->instanceSize().m_y/2)};
             ins->m_pos = llpos;
         }
+
+        totalArea += ins->getArea();
+
         idx++;
     }
 
     doLog(LOG_VERBOSE,"Quadratic placement done.\n");
+
+#if 0    
     doLog(LOG_VERBOSE,"Starting diffusion..\n");
 
     float maxDensity      = 2.0f;
@@ -285,5 +298,22 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
         bitmapCellWidth, bitmapCellHeight);
 #endif
     doLog(LOG_VERBOSE,"Diffusion done (iterations = %ld).\n", iterationCount);
+
+#endif    
     return true;
 }
+
+#if 0
+double Placer::calcTotalMass(const std::vector<PlacerNode> &nodes) const
+{
+    double totalMass = 0.0;
+    std::vector<size_t> perm(nodes.size());
+    for(size_t idx=0; idx<nodes.size(); idx++)
+    {
+        perm[idx] = idx;
+        totalMass += nodes[idx].m_size.m_x * nodes[idx].m_size.m_y;
+    }
+
+    return totalMass;
+}
+#endif
