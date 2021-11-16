@@ -1,5 +1,6 @@
 #pragma once
 
+#include <vector>
 #include "qplacertypes.h"
 
 namespace LunaCore::QPlacer
@@ -14,9 +15,26 @@ struct Selector
  *  nodes using a Selector object
 */
 
-PlacerNetlist createNetlistFromSelection(
-    const PlacerNetlist &netlist,
-    Selector &selector
-    );
+class NetlistSplitter
+{
+public:
+    PlacerNetlist createNetlistFromSelection(
+        const PlacerNetlist &netlist,
+        Selector &selector
+        );
+
+protected:
+    /** copy a node to the new netlist and return its new node Id */
+    PlacerNodeId copyNodeToNewNetlistAndClearConnections(const PlacerNode &node);
+    PlacerNetId  copyNetToNewNetlistAndClearNodes(const PlacerNet &net);
+    
+    void addNodeToNet(PlacerNodeId nodeId, PlacerNetId netId);
+    void addNetToNode(PlacerNetId netId, PlacerNodeId nodeId);
+
+    void removePreviouslyAddedNode(PlacerNetId netId);
+
+    PlacerNetlist m_newNetlist;
+    std::vector<PlacerNodeId> m_xlat;
+};
 
 };

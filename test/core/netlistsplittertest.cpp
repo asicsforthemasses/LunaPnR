@@ -115,7 +115,10 @@ BOOST_AUTO_TEST_CASE(check_netlist_splitter)
     // split the netlist based on the vertical position
     VerticalSelector selector;
     selector.m_verticalCutline = 250;
-    auto splitNetlist = LunaCore::QPlacer::createNetlistFromSelection(
+
+    LunaCore::QPlacer::NetlistSplitter splitter;
+
+    auto splitNetlist = splitter.createNetlistFromSelection(
         netlist, selector
     );
 
@@ -126,7 +129,7 @@ BOOST_AUTO_TEST_CASE(check_netlist_splitter)
     BOOST_CHECK(splitNetlist.numberOfNodes() == 3);
 
     selector.m_verticalCutline = 150;
-    splitNetlist = LunaCore::QPlacer::createNetlistFromSelection(
+    splitNetlist = splitter.createNetlistFromSelection(
         netlist, selector
     );
 

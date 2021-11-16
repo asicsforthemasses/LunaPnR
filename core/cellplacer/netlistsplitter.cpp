@@ -4,13 +4,43 @@
 
 using namespace LunaCore::QPlacer;
 
-PlacerNetlist LunaCore::QPlacer::createNetlistFromSelection(
+PlacerNodeId NetlistSplitter::copyNodeToNewNetlistAndClearConnections(const PlacerNode &node)
+{
+    auto newNodeId = m_newNetlist.createNode();
+    m_newNetlist.m_nodes.at(newNodeId) = node;
+    m_newNetlist.m_nodes.at(newNodeId).m_connections.clear();    
+
+    return newNodeId;
+}
+
+PlacerNetId NetlistSplitter::copyNetToNewNetlistAndClearNodes(const PlacerNet &net)
+{
+    auto newNetId = m_newNetlist.createNet();
+    m_newNetlist.m_nets.at(newNetId) = net;
+    m_newNetlist.m_nets.at(newNetId).m_nodes.clear();
+    return newNetId;
+}    
+
+void NetlistSplitter::addNodeToNet(PlacerNodeId nodeId, PlacerNetId netId)
+{
+    m_newNetlist.m_nets.at(netId).m_nodes.push_back(nodeId);
+}
+
+void NetlistSplitter::addNetToNode(PlacerNetId netId, PlacerNodeId nodeId)
+{
+    m_newNetlist.m_nodes.at(nodeId).m_connections.push_back(netId);
+}
+
+PlacerNetlist NetlistSplitter::createNetlistFromSelection(
     const PlacerNetlist &netlist,
     Selector &selector
     )
-{
-    LunaCore::QPlacer::PlacerNetlist newNetlist;
-    std::vector<LunaCore::QPlacer::PlacerNodeId> xlat(netlist.m_nodes.size(), -1);
+{    
+    m_newNetlist.m_nodes.clear();
+    m_newNetlist.m_nets.clear();
+
+    m_xlat.clear();
+    m_xlat.resize(netlist.m_nodes.size(), -1);
 
     // select the nodes from the netlist
     // and copy to the new netlist
@@ -19,12 +49,16 @@ PlacerNetlist LunaCore::QPlacer::createNetlistFromSelection(
     {
         if(selector(nodeId, node))
         {
-            auto newNodeId = newNetlist.createNode();
-            xlat.at(nodeId) = newNodeId;
-            newNetlist.m_nodes.at(newNodeId) = node;
-            newNetlist.m_nodes.at(newNodeId).m_connections.clear();
+            auto newNodeId = copyNodeToNewNetlistAndClearConnections(node);
+            m_xlat.at(nodeId) = newNodeId;
         }
-
+        else
+        {
+            // node is not part of the selection
+            // for certain algorithms, we need to do terminal
+            // propagation and put a node somewhere on the
+            // boundary or in the left/right half of the new region
+        }
         nodeId++;
     }
 
@@ -37,7 +71,7 @@ PlacerNetlist LunaCore::QPlacer::createNetlistFromSelection(
         PlacerNetId newNetId = -1;
         for(auto const& nodeInNetId : net.m_nodes)
         {
-            auto newNodeId = xlat.at(nodeInNetId);
+            auto newNodeId = m_xlat.at(nodeInNetId);
             if (newNodeId != -1)
             {
                 // node is used in sub netlist
@@ -45,17 +79,14 @@ PlacerNetlist LunaCore::QPlacer::createNetlistFromSelection(
                 // if it doesn't exist.
                 if (newNetId == -1)
                 {                    
-                    newNetId = newNetlist.createNet();
-                    newNetlist.m_nets.at(newNetId) = net;
-                    newNetlist.m_nets.at(newNetId).m_nodes.clear();
+                    newNetId = copyNetToNewNetlistAndClearNodes(net);
                 }
 
                 // tell the node about the net
-                auto& newNode = newNetlist.m_nodes.at(newNodeId);
-                newNode.m_connections.push_back(newNetId);
+                addNetToNode(newNetId, newNodeId);
 
                 // tell the net about the node
-                newNetlist.m_nets.at(newNetId).m_nodes.push_back(newNodeId);
+                addNodeToNet(newNodeId, newNetId);
             }
             else
             {
@@ -66,7 +97,7 @@ PlacerNetlist LunaCore::QPlacer::createNetlistFromSelection(
         // check if the new net is degenerate; contains only one node
         if (newNetId != -1)
         {
-            auto netSize = newNetlist.m_nets.at(newNetId).m_nodes.size();            
+            auto netSize = m_newNetlist.m_nets.at(newNetId).m_nodes.size();
         
             if (netSize == 1)
             {
@@ -74,17 +105,10 @@ PlacerNetlist LunaCore::QPlacer::createNetlistFromSelection(
                 ss << "Net " << newNetId << " is degenerate\n";
                 doLog(LOG_VERBOSE, ss);
 
-                // tell the connected node, if there is any, to disconnect 
-                auto newNodeId = newNetlist.m_nets.back().m_nodes.front();
-                auto &newNode = newNetlist.m_nodes.at(newNodeId);
-
-                assert(newNode.m_connections.size() > 0);
-                assert(newNode.m_connections.back() == newNetId);
-
-                newNode.m_connections.pop_back();
+                removePreviouslyAddedNode(newNetId);
 
                 // remove degenerate net
-                newNetlist.m_nets.pop_back();
+                m_newNetlist.m_nets.pop_back();
             }
             else if (netSize == 0)
             {
@@ -93,12 +117,24 @@ PlacerNetlist LunaCore::QPlacer::createNetlistFromSelection(
                 doLog(LOG_VERBOSE, ss);
 
                 // remove degenerate net
-                newNetlist.m_nets.pop_back();
+                m_newNetlist.m_nets.pop_back();
             }
         }
 
         netId++;
     }
 
-    return newNetlist;    
+    return m_newNetlist;
+}
+
+void NetlistSplitter::removePreviouslyAddedNode(PlacerNetId netId)
+{
+    // tell the connected node, if there is any, to disconnect 
+    auto newNodeId = m_newNetlist.m_nets.back().m_nodes.front();
+    auto &newNode = m_newNetlist.m_nodes.at(newNodeId);
+
+    assert(newNode.m_connections.size() > 0);
+    assert(newNode.m_connections.back() == netId);
+
+    newNode.m_connections.pop_back();
 }
