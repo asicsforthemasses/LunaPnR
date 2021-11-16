@@ -276,6 +276,10 @@ BOOST_AUTO_TEST_CASE(check_netlist_splitter_with_external_nodes)
         netId++;
     }
 
+    BOOST_CHECK(externalNodeHandler.m_externalNodesOnNetCount.at(0) == 0);
+    BOOST_CHECK(externalNodeHandler.m_externalNodesOnNetCount.at(1) == 0);
+    BOOST_CHECK(externalNodeHandler.m_externalNodesOnNetCount.at(2) == 1);
+
     setLogLevel(ll);
 }
 
