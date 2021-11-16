@@ -11,6 +11,17 @@ struct Selector
     virtual bool operator()(PlacerNodeId id, const PlacerNode &node) = 0;
 };
 
+struct ExternalNodeOnNetHandler
+{
+    virtual void operator()(const PlacerNodeId extNodeId, const PlacerNode &extdNode,
+        const PlacerNet &oldNet,
+        const PlacerNetId newNet,
+        PlacerNetlist& newNetlist)
+    {
+        // default: do nothing.
+    }
+};
+
 /** create a new placer netlist from a netlist by selecting
  *  nodes using a Selector object
 */
@@ -18,6 +29,12 @@ struct Selector
 class NetlistSplitter
 {
 public:
+    PlacerNetlist createNetlistFromSelection(
+        const PlacerNetlist &netlist,
+        Selector &selector,
+        ExternalNodeOnNetHandler &externalNodeHandler
+        );
+
     PlacerNetlist createNetlistFromSelection(
         const PlacerNetlist &netlist,
         Selector &selector
@@ -32,6 +49,8 @@ protected:
     void addNetToNode(PlacerNetId netId, PlacerNodeId nodeId);
 
     void removePreviouslyAddedNode(PlacerNetId netId);
+
+    void removeIfDegenerateNet(PlacerNetId netId);
 
     PlacerNetlist m_newNetlist;
     std::vector<PlacerNodeId> m_xlat;

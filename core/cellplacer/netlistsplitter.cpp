@@ -35,6 +35,16 @@ PlacerNetlist NetlistSplitter::createNetlistFromSelection(
     const PlacerNetlist &netlist,
     Selector &selector
     )
+{
+    ExternalNodeOnNetHandler nullHandler;
+    return createNetlistFromSelection(netlist, selector, nullHandler);
+}
+
+PlacerNetlist NetlistSplitter::createNetlistFromSelection(
+    const PlacerNetlist &netlist,
+    Selector &selector,
+    ExternalNodeOnNetHandler &externalNodeHandler
+    )
 {    
     m_newNetlist.m_nodes.clear();
     m_newNetlist.m_nets.clear();
@@ -52,24 +62,21 @@ PlacerNetlist NetlistSplitter::createNetlistFromSelection(
             auto newNodeId = copyNodeToNewNetlistAndClearConnections(node);
             m_xlat.at(nodeId) = newNodeId;
         }
-        else
-        {
-            // node is not part of the selection
-            // for certain algorithms, we need to do terminal
-            // propagation and put a node somewhere on the
-            // boundary or in the left/right half of the new region
-        }
         nodeId++;
     }
 
     // go through all the nets in the netlist
-    // and check if a new node is 
+    // and check if a new node is part of the selection
+    // if so, add it to a new net
+    //
+    // if the net turns out to be degenerate (1 or fewer nodes)
+    // the net is removed
 
     PlacerNetId netId = 0;
-    for(auto const& net : netlist.m_nets)
+    for(auto const& oldNet : netlist.m_nets)
     {
         PlacerNetId newNetId = -1;
-        for(auto const& nodeInNetId : net.m_nodes)
+        for(auto const& nodeInNetId : oldNet.m_nodes)
         {
             auto newNodeId = m_xlat.at(nodeInNetId);
             if (newNodeId != -1)
@@ -79,7 +86,7 @@ PlacerNetlist NetlistSplitter::createNetlistFromSelection(
                 // if it doesn't exist.
                 if (newNetId == -1)
                 {                    
-                    newNetId = copyNetToNewNetlistAndClearNodes(net);
+                    newNetId = copyNetToNewNetlistAndClearNodes(oldNet);
                 }
 
                 // tell the node about the net
@@ -91,34 +98,22 @@ PlacerNetlist NetlistSplitter::createNetlistFromSelection(
             else
             {
                 // node on net is not part of the selection
+                // we have the opportunity to add special anchor nodes
+                // here to keep a cluster of cells roughy in 
+                // the desired half 
+                
+                externalNodeHandler(nodeInNetId, 
+                    netlist.m_nodes.at(nodeInNetId), 
+                    oldNet,
+                    newNetId,
+                    m_newNetlist);
             }
         }
 
         // check if the new net is degenerate; contains only one node
         if (newNetId != -1)
         {
-            auto netSize = m_newNetlist.m_nets.at(newNetId).m_nodes.size();
-        
-            if (netSize == 1)
-            {
-                std::stringstream ss;
-                ss << "Net " << newNetId << " is degenerate\n";
-                doLog(LOG_VERBOSE, ss);
-
-                removePreviouslyAddedNode(newNetId);
-
-                // remove degenerate net
-                m_newNetlist.m_nets.pop_back();
-            }
-            else if (netSize == 0)
-            {
-                std::stringstream ss;
-                ss << "Net " << newNetId << " is degenerate\n";
-                doLog(LOG_VERBOSE, ss);
-
-                // remove degenerate net
-                m_newNetlist.m_nets.pop_back();
-            }
+            removeIfDegenerateNet(newNetId);
         }
 
         netId++;
@@ -137,4 +132,30 @@ void NetlistSplitter::removePreviouslyAddedNode(PlacerNetId netId)
     assert(newNode.m_connections.back() == netId);
 
     newNode.m_connections.pop_back();
+}
+
+void NetlistSplitter::removeIfDegenerateNet(PlacerNetId netId)
+{
+    auto netSize = m_newNetlist.m_nets.at(netId).m_nodes.size();
+        
+    if (netSize == 1)
+    {
+        std::stringstream ss;
+        ss << "Net " << netId << " is degenerate\n";
+        doLog(LOG_VERBOSE, ss);
+
+        removePreviouslyAddedNode(netId);
+
+        // remove degenerate net
+        m_newNetlist.m_nets.pop_back();
+    }
+    else if (netSize == 0)
+    {
+        std::stringstream ss;
+        ss << "Net " << netId << " is degenerate\n";
+        doLog(LOG_VERBOSE, ss);
+
+        // remove degenerate net
+        m_newNetlist.m_nets.pop_back();
+    }
 }
