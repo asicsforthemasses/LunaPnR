@@ -8,6 +8,7 @@
 #include <Eigen/Sparse>
 #include <Eigen/IterativeLinearSolvers>
 
+#include "common/logging.h"
 #include "common/dbtypes.h"
 #include "qplacertypes.h"
 
@@ -28,18 +29,23 @@ std::string toString(const PlacerNetType &t);
 
 struct XAxisAccessor
 {
-    static constexpr int64_t get(const ChipDB::Coord64 &pos) noexcept
+    static constexpr ChipDB::CoordType get(const ChipDB::Coord64 &pos) noexcept
     {
         return pos.m_x;
     }
+
+    static constexpr const char* m_name= "X";
+
 };
 
 struct YAxisAccessor
 {
-    static constexpr int64_t get(const ChipDB::Coord64 &pos) noexcept
+    static constexpr ChipDB::CoordType get(const ChipDB::Coord64 &pos) noexcept
     {
         return pos.m_y;
     }
+
+    static constexpr const char* m_name = "Y";
 };
 
 
@@ -146,6 +152,54 @@ protected:
 
 
 bool placeModuleInRegion(const ChipDB::Design *design, ChipDB::Module *mod, const ChipDB::Region *region);
+void doRecursivePartitioning(const PlacerNetlist &netlist, const ChipDB::Rect64 &partitionRect);
 
+template<class AxisAccessor>
+std::vector<PlacerNodeId> selectNodesByCenterOfMassPosition(const PlacerNetlist &netlist)
+{
+    std::vector<PlacerNodeId> sortedNodesIdx(netlist.m_nodes.size());
+    std::generate(sortedNodesIdx.begin(), sortedNodesIdx.end(), [n = 0]() mutable { return n++; });
+
+    auto &nodes = netlist.m_nodes;
+
+    std::sort(sortedNodesIdx.begin(), sortedNodesIdx.end(), [nodes, sortedNodesIdx](const ssize_t &idx1, const ssize_t &idx2)
+        {
+            return AxisAccessor::get(nodes.at(idx1).m_pos) < AxisAccessor::get(nodes.at(idx2).m_pos);
+        }
+    );
+
+    // calculate total mass
+    double totalMass = 0.0;
+    for(auto const& node : nodes)
+    {
+        if (node.m_type != LunaCore::QPlacer::PlacerNodeType::FixedNode)
+        {
+            totalMass += static_cast<double>(node.m_size.m_x * node.m_size.m_y);
+        }
+    }
+
+    // walk through sorted nodes until
+    // the running mass has exceeded half the total mass
+    double runningMass = 0;
+    ssize_t idx = 0;
+    while(runningMass < (totalMass/2))
+    {
+        auto const& sortedNode = nodes.at(sortedNodesIdx.at(idx));
+        if (sortedNode.m_type != LunaCore::QPlacer::PlacerNodeType::FixedNode)
+        {
+            runningMass += static_cast<double>(sortedNode.m_size.m_x * sortedNode.m_size.m_y);
+        }
+        idx++;
+    }
+
+    doLog(LOG_VERBOSE,"  Center of mass found at position %s=%lu\n", AxisAccessor::m_name, AxisAccessor::get(nodes.at(sortedNodesIdx.at(idx)).m_pos));
+
+    // remove the node indexes not part of the selection
+    sortedNodesIdx.erase(sortedNodesIdx.begin()+idx,sortedNodesIdx.end());
+
+    doLog(LOG_VERBOSE,"  Number of nodes returned: %lu of %lu\n", sortedNodesIdx.size(), netlist.m_nodes.size());
+
+    return sortedNodesIdx;
+}
 
 };  // namespace

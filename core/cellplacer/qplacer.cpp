@@ -1,5 +1,6 @@
 #include <cassert>
 #include "qplacer.h"
+#include "netlistsplitter.h"
 
 #include "common/logging.h"
 #include "design/design.h"
@@ -228,6 +229,21 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
     LunaCore::QPlacer::Placer placer;
     placer.solve(placerNetlist, xpos, ypos);
 
+    // update the instance positions in the placer netlist
+    PlacerNodeId pNodeIdx = 0;
+    for(auto &node : placerNetlist.m_nodes)
+    {
+        if (node.m_type != PlacerNodeType::FixedNode)
+        {
+            node.m_pos = {static_cast<ChipDB::CoordType>(xpos[pNodeIdx]), 
+                static_cast<ChipDB::CoordType>(ypos[pNodeIdx])};
+        }
+        pNodeIdx++;
+    }
+
+    // partition according to the qaudratic placement
+    doRecursivePartitioning(placerNetlist, region->m_rect);
+
     // write back new instance positions
     ssize_t idx = 0;
     double  totalArea = 0;
@@ -317,3 +333,85 @@ double Placer::calcTotalMass(const std::vector<PlacerNode> &nodes) const
     return totalMass;
 }
 #endif
+
+struct ExternalNodeHandler : LunaCore::QPlacer::ExternalNodeOnNetHandler
+{
+    ExternalNodeHandler(
+        ChipDB::Rect64 subPartition1Rect,
+        ChipDB::Rect64 subPartition2Rect) {}
+
+    void operator()(const PlacerNodeId extNodeId, const PlacerNode &extNode,
+        const PlacerNet &oldNet,
+        const PlacerNetId newNetId,
+        PlacerNetlist& newNetlist) override
+    {
+        // make sure m_externalNodesOnNet has enough room
+        if (newNetlist.m_nets.size() >= m_externalNodesOnNet.size())
+        {
+            m_externalNodesOnNet.resize(newNetlist.m_nets.size(), ExtCountType{0,0});
+        }
+
+        if (m_subPartition1Rect.right() == m_subPartition2Rect.left())
+        {
+            // subpartitions are abutted horizontally
+            // p1 is the left partition and p2 is the right partition
+
+            if (extNode.m_pos.m_x < m_subPartition1Rect.right())
+            {
+                // external node is to the left of the right partition p2
+                // so the external node is related to p1
+                m_externalNodesOnNet.at(newNetId).p1ExtNodecount++;
+            }
+            else
+            {
+                // external node is to the right of the left partition p1
+                // so the external node is related to p2
+                m_externalNodesOnNet.at(newNetId).p2ExtNodecount++;
+            }
+        }
+        else if (m_subPartition1Rect.bottom() == m_subPartition2Rect.top())
+        {
+            // subpartitions are abutted vertically
+            // p1 is the top partition and p2 is the bottom partition
+
+            if (extNode.m_pos.m_y >= m_subPartition2Rect.top())
+            {
+                // external node is above the top of partition p2
+                // so the external node is related to p1
+                m_externalNodesOnNet.at(newNetId).p1ExtNodecount++;
+            }
+            else
+            {
+                // external node is above the below of partition p2
+                // so the external node is related to p2
+                m_externalNodesOnNet.at(newNetId).p2ExtNodecount++;
+            }            
+        }
+    }
+
+    struct ExtCountType
+    {
+        ssize_t p1ExtNodecount;
+        ssize_t p2ExtNodecount;
+    };
+
+    std::vector<ExtCountType> m_externalNodesOnNet;
+
+    ChipDB::Rect64 m_subPartition1Rect;
+    ChipDB::Rect64 m_subPartition2Rect;
+};
+
+void LunaCore::QPlacer::doRecursivePartitioning(const PlacerNetlist &netlist, const ChipDB::Rect64 &partitionRect)
+{
+    // create two new partitions, based on the partition rectangle aspect ratio
+    if (partitionRect.width() > partitionRect.height())
+    {
+        // split in horizontal direction
+        auto selectedNodesIdx = selectNodesByCenterOfMassPosition<XAxisAccessor>(netlist);
+    }
+    else
+    {
+        // split in vertical direction
+        auto selectedNodesIdx = selectNodesByCenterOfMassPosition<YAxisAccessor>(netlist);
+    }
+}
