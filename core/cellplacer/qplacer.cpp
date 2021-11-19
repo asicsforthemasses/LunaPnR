@@ -73,8 +73,8 @@ void Placer::solve(const PlacerNetlist &netlist,
     // solve the quadratic placement problem
     addStarNodes(localNetlist);
 
-    buildEquations<XAxisAccessor>(localNetlist, m_Amat_x, m_Bvec_x);
-    buildEquations<YAxisAccessor>(localNetlist, m_Amat_y, m_Bvec_y);
+    buildEquations<ChipDB::XAxisAccessor>(localNetlist, m_Amat_x, m_Bvec_x);
+    buildEquations<ChipDB::YAxisAccessor>(localNetlist, m_Amat_y, m_Bvec_y);
 
     const auto numberOfNodes = localNetlist.m_nodes.size();
     xpos.resize(numberOfNodes);
@@ -401,17 +401,49 @@ struct ExternalNodeHandler : LunaCore::QPlacer::ExternalNodeOnNetHandler
     ChipDB::Rect64 m_subPartition2Rect;
 };
 
+struct PartitionSelector : public LunaCore::QPlacer::Selector
+{
+    PartitionSelector(std::vector<bool> &selectedNodes, bool which) 
+        : m_selectedNodes(selectedNodes), m_which(which) {}
+
+    bool operator()(PlacerNodeId id, const PlacerNode &node) override
+    {
+        return m_selectedNodes.at(id) == m_which;
+    }
+
+    bool m_which;
+    std::vector<bool> &m_selectedNodes;
+};
+
 void LunaCore::QPlacer::doRecursivePartitioning(const PlacerNetlist &netlist, const ChipDB::Rect64 &partitionRect)
 {
     // create two new partitions, based on the partition rectangle aspect ratio
     if (partitionRect.width() > partitionRect.height())
     {
         // split in horizontal direction
-        auto selectedNodesIdx = selectNodesByCenterOfMassPosition<XAxisAccessor>(netlist);
+        auto selectedNodes = selectNodesByCenterOfMassPosition<ChipDB::XAxisAccessor>(netlist);
+
+        NetlistSplitter splitter;
+        PartitionSelector selectorP1(selectedNodes, false);
+        PartitionSelector selectorP2(selectedNodes, true);
+        auto p1Netlist = splitter.createNetlistFromSelection(netlist, selectorP1);
+        auto p2Netlist = splitter.createNetlistFromSelection(netlist, selectorP2);
     }
     else
     {
         // split in vertical direction
-        auto selectedNodesIdx = selectNodesByCenterOfMassPosition<YAxisAccessor>(netlist);
+        auto selectedNodes = selectNodesByCenterOfMassPosition<ChipDB::YAxisAccessor>(netlist);
+
+        NetlistSplitter splitter;
+        PartitionSelector selectorP1(selectedNodes, false);
+        PartitionSelector selectorP2(selectedNodes, true);
+        auto p1Netlist = splitter.createNetlistFromSelection(netlist, selectorP1);
+        auto p2Netlist = splitter.createNetlistFromSelection(netlist, selectorP2);
+
+        std::cout << "NetlistP1:\n";
+        p1Netlist.dump(std::cout);
+
+        std::cout << "NetlistP2:\n";
+        p2Netlist.dump(std::cout);
     }
 }

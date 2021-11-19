@@ -44,6 +44,8 @@ add_library(lunacore
     cellplacer/cellplacer.cpp
     cellplacer/densitybitmap.cpp
     cellplacer/netlistsplitter.cpp
+    cellplacer/qlaplacer_private.cpp
+    cellplacer/qlaplacer.cpp
     celllib/cell.cpp
     celllib/pin.cpp
     celllib/module.cpp

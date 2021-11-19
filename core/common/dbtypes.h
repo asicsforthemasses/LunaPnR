@@ -453,9 +453,31 @@ namespace ChipDB
     /** create a new string with upper case characters */
     std::string toUpper(const std::string &txt);
 
+
+    struct XAxisAccessor
+    {
+        static constexpr ChipDB::CoordType get(const ChipDB::Coord64 &pos) noexcept
+        {
+            return pos.m_x;
+        }
+
+        static constexpr const char* m_name= "X";
+
+    };
+
+    struct YAxisAccessor
+    {
+        static constexpr ChipDB::CoordType get(const ChipDB::Coord64 &pos) noexcept
+        {
+            return pos.m_y;
+        }
+
+        static constexpr const char* m_name = "Y";
+    };
 };
 
 ChipDB::SymmetryFlags& operator+=(ChipDB::SymmetryFlags &lhs, const uint8_t &rhs);
+
 
 std::ostream& operator<<(std::ostream& os, const ChipDB::Coord64& r);
 std::ostream& operator<<(std::ostream& os, const ChipDB::Rect64& r);

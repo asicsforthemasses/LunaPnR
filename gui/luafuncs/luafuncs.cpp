@@ -478,7 +478,11 @@ static int place_module(lua_State *L)
         return 0;
     }
 
-    if (!LunaCore::QPlacer::placeModuleInRegion(&db->design(), mod, region))
+    auto ll = getLogLevel();
+    setLogLevel(LOG_VERBOSE);
+
+    //if (!LunaCore::QPlacer::placeModuleInRegion(&db->design(), mod, region))
+    if (!LunaCore::QLAPlacer::place(region->getPlacementRect(), mod))
     {
         reportError(L, "Placement failed!");
     }
@@ -490,6 +494,8 @@ static int place_module(lua_State *L)
             wrapper->print("Placement succeeded!\n");
         }     
     }
+
+    setLogLevel(ll);
 
     db->floorplan().m_regions.contentsChanged();
 

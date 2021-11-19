@@ -27,28 +27,6 @@ namespace LunaCore::QPlacer
 std::string toString(const PlacerNodeType &t);
 std::string toString(const PlacerNetType &t);
 
-struct XAxisAccessor
-{
-    static constexpr ChipDB::CoordType get(const ChipDB::Coord64 &pos) noexcept
-    {
-        return pos.m_x;
-    }
-
-    static constexpr const char* m_name= "X";
-
-};
-
-struct YAxisAccessor
-{
-    static constexpr ChipDB::CoordType get(const ChipDB::Coord64 &pos) noexcept
-    {
-        return pos.m_y;
-    }
-
-    static constexpr const char* m_name = "Y";
-};
-
-
 /** analytical placer based on quadratic cost function */
 class Placer
 {
@@ -155,7 +133,7 @@ bool placeModuleInRegion(const ChipDB::Design *design, ChipDB::Module *mod, cons
 void doRecursivePartitioning(const PlacerNetlist &netlist, const ChipDB::Rect64 &partitionRect);
 
 template<class AxisAccessor>
-std::vector<PlacerNodeId> selectNodesByCenterOfMassPosition(const PlacerNetlist &netlist)
+std::vector<bool> selectNodesByCenterOfMassPosition(const PlacerNetlist &netlist)
 {
     std::vector<PlacerNodeId> sortedNodesIdx(netlist.m_nodes.size());
     std::generate(sortedNodesIdx.begin(), sortedNodesIdx.end(), [n = 0]() mutable { return n++; });
@@ -193,13 +171,17 @@ std::vector<PlacerNodeId> selectNodesByCenterOfMassPosition(const PlacerNetlist 
     }
 
     doLog(LOG_VERBOSE,"  Center of mass found at position %s=%lu\n", AxisAccessor::m_name, AxisAccessor::get(nodes.at(sortedNodesIdx.at(idx)).m_pos));
+    doLog(LOG_VERBOSE,"  Number of nodes returned: %lu of %lu\n", idx, netlist.m_nodes.size());
 
-    // remove the node indexes not part of the selection
-    sortedNodesIdx.erase(sortedNodesIdx.begin()+idx,sortedNodesIdx.end());
+    // create the selection vector
+    std::vector<bool> selectedNodes(netlist.m_nodes.size(), false);
 
-    doLog(LOG_VERBOSE,"  Number of nodes returned: %lu of %lu\n", sortedNodesIdx.size(), netlist.m_nodes.size());
+    for(PlacerNodeId selIdx=0; selIdx<idx; selIdx++)
+    {
+        selectedNodes.at(sortedNodesIdx.at(selIdx)) = true;
+    }
 
-    return sortedNodesIdx;
+    return selectedNodes;
 }
 
 };  // namespace

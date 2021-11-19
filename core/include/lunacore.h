@@ -17,6 +17,7 @@
 #include "../floorplan/floorplan.h"
 #include "../cellplacer/cellplacer.h"
 #include "../cellplacer/qplacer.h"
+#include "../cellplacer/qlaplacer.h"
 #include "../cellplacer/densitybitmap.h"
 #include "../cellplacer/netlistsplitter.h"
 #include "../partitioner/fmpart.h"
@@ -31,3 +32,4 @@
 #include "../import/verilog/verilogreader.h"
 #include "../export/dot/dotwriter.h"
 #include "../export/verilog/verilogwriter.h"
+
