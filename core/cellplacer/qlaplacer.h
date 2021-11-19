@@ -6,12 +6,23 @@
 
 #pragma once
 
+#include <Eigen/Core>
+#include <Eigen/Dense>
+#include <Eigen/Sparse>
+#include <Eigen/IterativeLinearSolvers>
+
 #include "common/dbtypes.h"
 #include "netlist/netlist.h"
 #include "qplacertypes.h"
 
 namespace LunaCore::QLAPlacer::Private
 {
+    struct SolverData
+    {
+        Eigen::SparseMatrix<double> m_Amat;
+        Eigen::VectorXd m_Bvec;
+    };
+
     LunaCore::QPlacer::PlacerNetlist createPlacerNetlist(const ChipDB::Netlist &nl);
     bool doInitialPlacement(const ChipDB::Rect64 &regionRect, LunaCore::QPlacer::PlacerNetlist &netlist);
     bool doQuadraticB2B(LunaCore::QPlacer::PlacerNetlist &netlist);

@@ -47,10 +47,14 @@ bool LunaCore::QLAPlacer::place(const ChipDB::Rect64 &regionRect, const ChipDB::
     auto &modNetlist = *mod->m_netlist.get();
     auto netlist = Private::createPlacerNetlist(modNetlist);
     
-    Private::doInitialPlacement(regionRect, netlist);
+    Private::doInitialPlacement(regionRect, netlist);    
     Private::updatePositions(netlist, modNetlist);
-    Private::doQuadraticB2B(netlist);
-    
+    for(uint32_t i=0; i<7; i++)
+    {
+        Private::doQuadraticB2B(netlist);
+    }
+    Private::updatePositions(netlist, modNetlist);
+
     doLog(LOG_INFO, "Placement done.\n");
 
     return true;
