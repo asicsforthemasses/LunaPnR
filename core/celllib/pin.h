@@ -110,16 +110,15 @@ class PinInfoList
 {
 public:
 
-    PinInfo& createPin(const std::string &name);
+    PinInfo* createPin(const std::string &name);
 
     void clear()
     {
+        for(size_t idx=0; idx<m_pins.size(); idx++)
+        {
+            delete m_pins[idx];
+        }
         m_pins.clear();   
-    }
-
-    void resize(size_t num)
-    {
-        m_pins.resize(num);
     }
 
     size_t size() const
@@ -161,7 +160,7 @@ public:
     PinInfo* operator[](const ssize_t index)
     {
         if ((index < m_pins.size()) && (index >= 0))
-            return &m_pins[index];
+            return m_pins[index];
         
         return nullptr;
     }
@@ -170,7 +169,7 @@ public:
     const PinInfo* operator[](const ssize_t index) const
     {
         if ((index < m_pins.size()) && (index >= 0))
-            return &m_pins[index];
+            return m_pins[index];
         
         return nullptr;
     }
@@ -182,9 +181,11 @@ public:
     ssize_t lookupIndex(const std::string &name) const;
 
 protected:   
-    std::vector<PinInfo>::iterator find(const std::string &name);
-    std::vector<PinInfo>::const_iterator find(const std::string &name) const;
-    std::vector<PinInfo> m_pins;
+    using ContainerType = std::vector<PinInfo*>;
+
+    ContainerType::iterator find(const std::string &name);
+    ContainerType::const_iterator find(const std::string &name) const;
+    ContainerType m_pins;
 };
 
 };

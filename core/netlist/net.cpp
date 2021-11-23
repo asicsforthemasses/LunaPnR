@@ -20,4 +20,3 @@ void Net::addConnection(InstanceBase *instance, size_t pinIndex)
         m_connections.push_back(conn);
     }
 }
-

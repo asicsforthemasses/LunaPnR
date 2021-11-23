@@ -82,7 +82,7 @@ void ReaderImpl::onPin(const std::string &pinName)
     }
 
     // find already existing pin or create one.
-    m_curPinInfo = &m_curCell->createPin(pinName);
+    m_curPinInfo = m_curCell->createPin(pinName);
     m_context = CONTEXT_PIN;
 }
 

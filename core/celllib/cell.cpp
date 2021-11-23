@@ -6,7 +6,7 @@ using namespace ChipDB;
 //   Cell
 // **********************************************************************
 
-PinInfo& Cell::createPin(const std::string &name)
+PinInfo* Cell::createPin(const std::string &name)
 {
     return m_pins.createPin(name);
 }

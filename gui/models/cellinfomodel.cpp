@@ -82,33 +82,33 @@ void CellInfoModel::setCell(const ChipDB::Cell *cell)
 
     // expose all the pins
     bool colorSelect = false;
-    for(auto const& pin : cell->m_pins)
+    for(auto pin : cell->m_pins)
     {
         m_altColors.resetState();
 
-        auto pinNode = new CellInfoNode("Pin", QString::fromStdString(pin.m_name), m_pinColor);
+        auto pinNode = new CellInfoNode("Pin", QString::fromStdString(pin->m_name), m_pinColor);
         pinNode->setIcon(QPixmap("://pinicon.png"));
         m_rootNode->addChild(pinNode);
 
         // add input/output for each pin
         int colSelect = 0;
         
-        auto pinTypeStr = QString::fromStdString(toString(pin.m_iotype));
-        if (pin.m_clock)
+        auto pinTypeStr = QString::fromStdString(toString(pin->m_iotype));
+        if (pin->m_clock)
         {
             pinTypeStr += " CLOCK";
         }
 
         pinNode->addChild(new CellInfoNode("Type", pinTypeStr, m_altColors.getColorAndUpdate()));
 
-        if (!pin.m_function.empty())
+        if (!pin->m_function.empty())
         {
-            pinNode->addChild(new CellInfoNode("Function", QString::fromStdString(pin.m_function), m_altColors.getColorAndUpdate()));
+            pinNode->addChild(new CellInfoNode("Function", QString::fromStdString(pin->m_function), m_altColors.getColorAndUpdate()));
         }
 
-        if (pin.m_cap > 0.0)
+        if (pin->m_cap > 0.0)
         {
-            pinNode->addChild(new CellInfoNode("Capacitance (pF)", pin.m_cap * 1.e12f, m_altColors.getColorAndUpdate()));
+            pinNode->addChild(new CellInfoNode("Capacitance (pF)", pin->m_cap * 1.e12f, m_altColors.getColorAndUpdate()));
         }
     }
 

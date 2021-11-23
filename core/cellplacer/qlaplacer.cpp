@@ -1,5 +1,6 @@
 #include <unordered_map>
 #include "common/logging.h"
+#include "cellplacer.h"
 #include "qlaplacer.h"
 
 using namespace LunaCore::QLAPlacer;
@@ -52,8 +53,11 @@ bool LunaCore::QLAPlacer::place(const ChipDB::Rect64 &regionRect, const ChipDB::
     for(uint32_t i=0; i<7; i++)
     {
         Private::doQuadraticB2B(netlist);
+        Private::updatePositions(netlist, modNetlist);
+        
+        //doLog(LOG_INFO,"Iteration %d HPWL %ld\n", i, hpwl);
     }
-    Private::updatePositions(netlist, modNetlist);
+    
 
     doLog(LOG_INFO, "Placement done.\n");
 

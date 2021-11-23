@@ -32,7 +32,7 @@ public:
     std::string     m_site;
 
     /** create a pin, or return an already existing pin with the name */
-    PinInfo&    createPin(const std::string &name);
+    PinInfo*    createPin(const std::string &name);
 
     /** returns nullptr for non-existing pins */
     PinInfo*        lookupPin(const std::string &name);

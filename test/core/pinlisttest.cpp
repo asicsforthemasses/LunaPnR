@@ -23,7 +23,7 @@ BOOST_AUTO_TEST_CASE(check_pininfolist)
 
     // create pin 'henk'
     auto p1 = list.createPin("henk");
-    BOOST_CHECK(p1.m_name == "henk");
+    BOOST_CHECK(p1->m_name == "henk");
 
     // check index of henk is 0
     BOOST_CHECK(list.lookupIndex("henk") == 0);
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(check_pininfolist)
     BOOST_CHECK(henkPtr != nullptr);
 
     // check createPin on henk returns the original henk
-    BOOST_CHECK(&list.createPin("henk") == henkPtr);
+    BOOST_CHECK(list.createPin("henk") == henkPtr);
 
     // check that the size of the pinlist is 1
     BOOST_CHECK(list.size() == 1);

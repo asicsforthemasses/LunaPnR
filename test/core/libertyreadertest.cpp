@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty)
     std::cout << "  NAND2X1 pins:\n";
     for(auto pin : cell->m_pins)
     {
-        std::cout << "    " << pin.m_name << "  max cap " << pin.m_maxCap << "  function: " << pin.m_function << "\n";
+        std::cout << "    " << pin->m_name << "  max cap " << pin->m_maxCap << "  function: " << pin->m_function << "\n";
     }    
 }
 

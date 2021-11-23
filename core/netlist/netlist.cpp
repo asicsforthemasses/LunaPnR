@@ -12,6 +12,54 @@ void Netlist::clear()
     m_nets.clear();
 }
 
+Net* Netlist::createNet(const std::string &netName)
+{
+    // check if the net exists
+    auto *net = m_nets.lookup(netName);
+    if (net != nullptr)
+    {
+        return net;
+    }
+
+    net = new ChipDB::Net();
+    net->m_name = netName;
+    if (!m_nets.add(netName, net))
+    {
+        delete net;
+        return nullptr;
+    }
+    return net;
+}
+
+bool Netlist::connect(const std::string &insName, const std::string &pinName, const std::string &netName)
+{
+    auto *net = m_nets.lookup(netName);
+    if (net == nullptr)
+    {
+        return false;
+    }
+
+    auto *ins = m_instances.lookup(insName);
+    if (ins == nullptr)
+    {
+        return false;
+    }
+
+    auto pinIndex = ins->getPinIndex(pinName);
+    if (pinIndex < 0)
+    {
+        return false;
+    }
+
+    net->addConnection(ins, pinIndex);
+    if (!ins->connect(pinIndex, net))
+    {
+        return false;
+    }
+
+    return true;
+}
+
 #if 0
 // ************************************************************************
 //   CellInstance

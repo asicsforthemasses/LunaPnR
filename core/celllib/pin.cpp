@@ -27,12 +27,12 @@ std::string ChipDB::toString(const IOType &iotype)
 };
 
 
-PinInfo& PinInfoList::createPin(const std::string &name)
-{
+PinInfo* PinInfoList::createPin(const std::string &name)
+{    
     auto iter = find(name);
     if (iter == m_pins.end())
     {
-        m_pins.emplace_back(PinInfo(name));
+        m_pins.push_back(new PinInfo(name));
         return m_pins.back();
     }
     else
@@ -50,7 +50,7 @@ PinInfo* PinInfoList::lookup(const std::string &name)
     }
     else
     {
-        return &(*iter);
+        return *iter;
     }
 }
 
@@ -63,16 +63,16 @@ const PinInfo* PinInfoList::lookup(const std::string &name) const
     }
     else
     {
-        return &(*iter);
+        return *iter;
     }
 }
 
 ssize_t PinInfoList::lookupIndex(const std::string &name) const
 {
     size_t idx = 0;
-    for(auto const& p : m_pins)
+    for(auto *p : m_pins)
     {
-        if (p.m_name == name)
+        if (p->m_name == name)
         {
             return idx;
         }
@@ -81,24 +81,24 @@ ssize_t PinInfoList::lookupIndex(const std::string &name) const
     return -1;
 }
 
-std::vector<PinInfo>::iterator PinInfoList::find(const std::string &name)
+PinInfoList::ContainerType::iterator PinInfoList::find(const std::string &name)
 {
     auto iter = std::find_if(m_pins.begin(), m_pins.end(), 
-        [name](auto const& p)
+        [name](auto * p)
         {
-            return p.m_name == name;
+            return p->m_name == name;
         }
     );
 
     return iter;
 }
 
-std::vector<PinInfo>::const_iterator PinInfoList::find(const std::string &name) const
+PinInfoList::ContainerType::const_iterator PinInfoList::find(const std::string &name) const
 {
     auto iter = std::find_if(m_pins.begin(), m_pins.end(), 
-        [name](auto const& p)
+        [name](auto * p)
         {
-            return p.m_name == name;
+            return p->m_name == name;
         }
     );
 

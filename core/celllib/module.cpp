@@ -6,11 +6,21 @@ using namespace ChipDB;
 //   Module
 // **********************************************************************
 
-bool Module::addInstance(const std::string &insName, InstanceBase* insPtr)
+bool Module::addInstance(InstanceBase* insPtr)
 {
+    if (insPtr == nullptr)
+    {
+        return false;
+    }
+
+    if (insPtr->m_name.empty())
+    {
+        return false;
+    }
+
     if (m_netlist)
     {
-        m_netlist->m_instances.add(insName, insPtr);
+        m_netlist->m_instances.add(insPtr->m_name, insPtr);
         return true;
     }
 

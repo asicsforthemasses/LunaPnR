@@ -27,9 +27,9 @@ BOOST_AUTO_TEST_CASE(can_write_netlist_to_dot)
     auto cell = design.m_cellLib.lookup("FAX1");
     BOOST_CHECK(cell != nullptr);
 
-    for(auto const& pinInfo : cell->m_pins)
+    for(auto pinInfo : cell->m_pins)
     {
-        std::cout << "  " << pinInfo.m_name << " " << toString(pinInfo.m_iotype) << "\n";
+        std::cout << "  " << pinInfo->m_name << " " << toString(pinInfo->m_iotype) << "\n";
     }
 
     std::ifstream verilogfile("test/files/verilog/adder8.v");

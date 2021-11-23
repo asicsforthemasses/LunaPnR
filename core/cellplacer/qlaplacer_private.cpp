@@ -95,7 +95,7 @@ LunaCore::QPlacer::PlacerNetlist LunaCore::QLAPlacer::Private::createPlacerNetli
             placerNode.m_weight = 10.0; // increase the weight of fixed nodes to pull apart the movable instances
         }
 
-        ins2nodeId[ins] = netlist.numberOfNodes()-1;
+        ins2nodeId[ins] = nodeId;
     }
 
     // create placer nets
@@ -157,12 +157,12 @@ void updateWeights(
         if (node1.isFixed())
         {
             solverData.m_Amat.coeffRef(node2Id, node2Id)  += weight;
-            solverData.m_Bvec[node2Id] += weight * AxisAccessor::get(node1.m_pos);
+            solverData.m_Bvec[node2Id] += weight * node1.m_weight * AxisAccessor::get(node1.m_pos);
         }
         else
         {
             solverData.m_Amat.coeffRef(node1Id, node1Id)  += weight;
-            solverData.m_Bvec[node1Id] += weight * AxisAccessor::get(node2.m_pos);
+            solverData.m_Bvec[node1Id] += weight * node2.m_weight * AxisAccessor::get(node2.m_pos);
         }
     }
     else
@@ -217,7 +217,7 @@ ExtremaResults findExtremeNodes(const LunaCore::QPlacer::PlacerNetlist &netlist,
     {
         // min and max nodes are the same 
         // so we randomly choose another
-        results.m_maxNodeIdx = rand() & net.m_nodes.size();
+        results.m_maxNodeIdx = rand() % net.m_nodes.size();
     }
 
     assert(results.m_minNodeIdx != results.m_maxNodeIdx);
@@ -325,11 +325,15 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
         netIdx++;
     }
 
+    doLog(LOG_INFO, "Number of degenerate nets: %ld\n", degenerateNets);
+
     doLog(LOG_INFO, "Running solver\n");
 
     Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Upper | Eigen::Lower> solver;
     auto xpos = solver.compute(XSolverData.m_Amat).solve(XSolverData.m_Bvec);
     auto ypos = solver.compute(YSolverData.m_Amat).solve(YSolverData.m_Bvec);
+
+    //doLog(LOG_VERBOSE, "  Iterations: %ld %ld\n", solver1.iterations(), solver2.iterations());
 
     ssize_t fixedNodes = 0;
     ssize_t idx = 0;

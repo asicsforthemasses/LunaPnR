@@ -133,7 +133,7 @@ void ReaderImpl::onInstance(const std::string &modName, const std::string &insNa
         auto insPtr = new Instance(cellPtr);
         insPtr->m_name = insName;
 
-        if (!m_currentModule->addInstance(insName, insPtr))
+        if (!m_currentModule->addInstance(insPtr))
         {            
             std::stringstream ss;
             ss << "Failed to create instance " << insName << "\n";
@@ -151,7 +151,7 @@ void ReaderImpl::onInstance(const std::string &modName, const std::string &insNa
         auto insPtr = new Instance(modulePtr);
         insPtr->m_name = modName;
         
-        if (!m_currentModule->addInstance(insName, insPtr))
+        if (!m_currentModule->addInstance(insPtr))
         {
             std::stringstream ss;
             ss << "Failed to create module instance " << insName << "\n";
@@ -206,14 +206,14 @@ void ReaderImpl::onInput(const std::string &netname)
     netPtr->setPortNet(true);
 
     // add a top-level pin
-    auto& pin = m_currentModule->createPin(netname);
-    pin.m_iotype = ChipDB::IOType::INPUT;
+    auto pin = m_currentModule->createPin(netname);
+    pin->m_iotype = ChipDB::IOType::INPUT;
 
     auto pinInstance = new PinInstance(netname);
     pinInstance->setPinIOType(ChipDB::IOType::OUTPUT);    // input ports have output pins!
     pinInstance->connect(0, netPtr);
     netPtr->addConnection(pinInstance, 0);
-    m_currentModule->addInstance(netname, pinInstance);    
+    m_currentModule->addInstance(pinInstance);
 }
 
 void ReaderImpl::onInput(const std::string &netname, uint32_t start, uint32_t stop)
@@ -237,15 +237,15 @@ void ReaderImpl::onInput(const std::string &netname, uint32_t start, uint32_t st
         netPtr->setPortNet(true);
 
         // add a top-level pin
-        auto& pin = m_currentModule->createPin(ss.str());
-        pin.m_iotype = ChipDB::IOType::INPUT;
+        auto pin = m_currentModule->createPin(ss.str());
+        pin->m_iotype = ChipDB::IOType::INPUT;
 
         // add a PinInstance for each pin to the netlist
         auto pinInstance = new PinInstance(netname);
         pinInstance->setPinIOType(ChipDB::IOType::OUTPUT);    // input ports have output pins!
         pinInstance->connect(0, netPtr);
         netPtr->addConnection(pinInstance, 0);
-        m_currentModule->addInstance(netname, pinInstance);
+        m_currentModule->addInstance(pinInstance);
     }
 
     doLog(LOG_VERBOSE,"Expanded input net %s\n", netname.c_str());
@@ -261,15 +261,15 @@ void ReaderImpl::onOutput(const std::string &netname)
     netPtr->setPortNet(true);
 
     // add a top-level pin
-    auto& pin = m_currentModule->createPin(netname);
-    pin.m_iotype = ChipDB::IOType::OUTPUT;
+    auto pin = m_currentModule->createPin(netname);
+    pin->m_iotype = ChipDB::IOType::OUTPUT;
 
     // add a PinInstance for each pin to the netlist
     auto pinInstance = new PinInstance(netname);
     pinInstance->setPinIOType(ChipDB::IOType::INPUT);    // output ports have input pins!
     pinInstance->connect(0, netPtr);
     netPtr->addConnection(pinInstance, 0);    
-    m_currentModule->addInstance(netname, pinInstance);
+    m_currentModule->addInstance(pinInstance);
 }
 
 void ReaderImpl::onOutput(const std::string &netname, uint32_t start, uint32_t stop)
@@ -292,15 +292,15 @@ void ReaderImpl::onOutput(const std::string &netname, uint32_t start, uint32_t s
         netPtr->setPortNet(true);
 
         // add a top-level pin
-        auto& pin = m_currentModule->createPin(ss.str());
-        pin.m_iotype = ChipDB::IOType::OUTPUT;
+        auto pin = m_currentModule->createPin(ss.str());
+        pin->m_iotype = ChipDB::IOType::OUTPUT;
 
         // add a PinInstance for each pin to the netlist
-        auto pinInstance = new PinInstance(netname);
+        auto pinInstance = new PinInstance(ss.str());
         pinInstance->setPinIOType(ChipDB::IOType::INPUT);    // output ports have input pins!
         pinInstance->connect(0, netPtr);
         netPtr->addConnection(pinInstance, 0);
-        m_currentModule->addInstance(ss.str(), pinInstance);
+        m_currentModule->addInstance(pinInstance);
     }
 
     doLog(LOG_VERBOSE,"Expanded output net %s\n", netname.c_str());
@@ -374,7 +374,7 @@ void ReaderImpl::onAssign(const std::string &left, const std::string &right)
     auto insPtr = new Instance(cellPtr);
     insPtr->m_name = ss.str();
 
-    if (!m_currentModule->addInstance(ss.str(), insPtr))
+    if (!m_currentModule->addInstance(insPtr))
     {            
         std::stringstream ss;
         ss << "Verilog reader: failed to create instance " << ss.str() << "\n";

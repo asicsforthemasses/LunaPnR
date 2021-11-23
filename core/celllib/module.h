@@ -15,7 +15,7 @@ public:
         return true;
     }
 
-    bool addInstance(const std::string &insName, InstanceBase* insPtr);
+    bool addInstance(InstanceBase* insPtr);
     Net* createNet(const std::string &netName);
 
     /** pointer to netlist, or null if the module is a black box */

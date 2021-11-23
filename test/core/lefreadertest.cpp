@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(can_read_lef)
     std::cout << "  NAND2X1 pins:\n";
     for(auto pin : cell->m_pins)
     {
-        std::cout << "    " << pin.m_name << "\n";
+        std::cout << "    " << pin->m_name << "\n";
     }
 
     auto pin = cell->lookupPin("A");

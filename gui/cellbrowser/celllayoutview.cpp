@@ -234,9 +234,9 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
 
     // draw pins
     size_t pinIndex = 0;
-    for(auto const& pin : m_cell.m_pins)
+    for(auto pin : m_cell.m_pins)
     {
-        auto const& layout = pin.m_pinLayout;
+        auto const& layout = pin->m_pinLayout;
 
         for(auto const& layer : layout)
         {
@@ -275,17 +275,17 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
     }
 
     // draw all the text for the pins
-    for(auto const& pin : m_cell.m_pins)
+    for(auto pin : m_cell.m_pins)
     {
         // don't display power and ground pins
         // FIXME: make this configurable
-        if ((pin.m_iotype == ChipDB::IOType::GROUND) || 
-            (pin.m_iotype == ChipDB::IOType::POWER))
+        if ((pin->m_iotype == ChipDB::IOType::GROUND) || 
+            (pin->m_iotype == ChipDB::IOType::POWER))
         {
             continue;
         }
 
-        for(auto const& layer : pin.m_pinLayout)
+        for(auto const& layer : pin->m_pinLayout)
         {
             auto layerObjects = layer.second;
             for(auto const &obj : layerObjects)
@@ -296,7 +296,7 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
                     auto txtRect = std::get<ChipDB::Rectangle>(obj);
                     QRectF screenRect(toScreen(txtRect.m_rect.getLL()), toScreen(txtRect.m_rect.getUR()));
                     painter.setPen(Qt::white);
-                    drawCenteredText(painter, screenRect.center() , pin.m_name, font(), Qt::NoBrush);
+                    drawCenteredText(painter, screenRect.center() , pin->m_name, font(), Qt::NoBrush);
                 }
             }
         }

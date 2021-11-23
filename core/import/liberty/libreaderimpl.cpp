@@ -86,12 +86,12 @@ void ReaderImpl::onGroup(const std::string &group, const std::string &name)
         // find pin on cell
         if (m_curCell != nullptr)
         {
-            auto& pinInfo = m_curCell->createPin(name);
+            auto pinInfo = m_curCell->createPin(name);
 
-            pinInfo.m_maxCap = 0;
-            pinInfo.m_maxFanOut = 0;
+            pinInfo->m_maxCap = 0;
+            pinInfo->m_maxFanOut = 0;
 
-            m_curPin = &pinInfo;
+            m_curPin = pinInfo;
         }
         else
         {

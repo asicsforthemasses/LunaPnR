@@ -69,15 +69,15 @@ BOOST_AUTO_TEST_CASE(can_read_netlist)
 
     BOOST_CHECK(mod->m_pins.size() == 8);
     std::cout << "  module pins:\n";
-    for(auto const &pin : mod->m_pins)
+    for(auto pin : mod->m_pins)
     {
-        std::cout << "    " << pin.m_name << "\n";
+        std::cout << "    " << pin->m_name << "\n";
     }
 
     // check that module pins have a __pin instance in the netlist
-    for(auto const& modPin : mod->m_pins)
+    for(auto modPin : mod->m_pins)
     {
-        BOOST_CHECK(mod->m_netlist->m_instances.lookup(modPin.m_name) != nullptr);
+        BOOST_CHECK(mod->m_netlist->m_instances.lookup(modPin->m_name) != nullptr);
     }    
 }
 
@@ -114,12 +114,12 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
         BOOST_CHECK(mod->m_pins.size() != 0);       
 
         // check that module pins have a __pin instance in the netlist
-        for(auto const& modPin : mod->m_pins)
+        for(auto modPin : mod->m_pins)
         {
-            BOOST_CHECK(mod->m_netlist->m_instances.lookup(modPin.m_name) != nullptr);
-            if (mod->m_netlist->m_instances.lookup(modPin.m_name) == nullptr)
+            BOOST_CHECK(mod->m_netlist->m_instances.lookup(modPin->m_name) != nullptr);
+            if (mod->m_netlist->m_instances.lookup(modPin->m_name) == nullptr)
             {
-                std::cout << "  missing pin instance for pin '" << modPin.m_name << "'\n";
+                std::cout << "  missing pin instance for pin '" << modPin->m_name << "'\n";
             }
         }
 
@@ -167,9 +167,9 @@ BOOST_AUTO_TEST_CASE(can_read_nerv32)
         BOOST_CHECK(mod->m_pins.size() != 0);                
 
         // check that module pins have a __pin instance in the netlist
-        for(auto const& modPin : mod->m_pins)
+        for(auto modPin : mod->m_pins)
         {
-            BOOST_CHECK(mod->m_netlist->m_instances.lookup(modPin.m_name) != nullptr);
+            BOOST_CHECK(mod->m_netlist->m_instances.lookup(modPin->m_name) != nullptr);
         }
 
         // determine cell area
@@ -218,9 +218,9 @@ BOOST_AUTO_TEST_CASE(can_read_picorv32)
         BOOST_CHECK(mod->m_pins.size() != 0);       
 
         // check that module pins have a __pin instance in the netlist
-        for(auto const& modPin : mod->m_pins)
+        for(auto modPin : mod->m_pins)
         {
-            BOOST_CHECK(mod->m_netlist->m_instances.lookup(modPin.m_name) != nullptr);
+            BOOST_CHECK(mod->m_netlist->m_instances.lookup(modPin->m_name) != nullptr);
         }
 
         // determine cell area

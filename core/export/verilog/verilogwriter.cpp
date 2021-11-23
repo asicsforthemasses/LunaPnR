@@ -94,13 +94,13 @@ bool Writer::writeModuleDefinition(std::ostream &os, const ChipDB::Module *mod)
     os << "module " << mod->m_name << "(\n\t";
 
     bool firstPort = true;
-    for(auto const& pin : mod->m_pins)
+    for(auto * pin : mod->m_pins)
     {
         if (!firstPort)
         {
             os << ",\n\t";
         }
-        os << escapeVerilogName(pin.m_name);
+        os << escapeVerilogName(pin->m_name);
         firstPort = false;
     }
 
