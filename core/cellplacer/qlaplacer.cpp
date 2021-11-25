@@ -50,12 +50,12 @@ bool LunaCore::QLAPlacer::place(const ChipDB::Rect64 &regionRect, const ChipDB::
     
     Private::doInitialPlacement(regionRect, netlist);    
     Private::updatePositions(netlist, modNetlist);
-    for(uint32_t i=0; i<7; i++)
+    for(uint32_t i=0; i<20; i++)
     {
         Private::doQuadraticB2B(netlist);
         Private::updatePositions(netlist, modNetlist);
         
-        //doLog(LOG_INFO,"Iteration %d HPWL %ld\n", i, hpwl);
+        doLog(LOG_INFO,"Iteration %d HPWL %ld\n", i, Private::calcHPWL(netlist));
     }
     
 

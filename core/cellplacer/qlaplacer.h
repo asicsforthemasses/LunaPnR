@@ -27,6 +27,8 @@ namespace LunaCore::QLAPlacer::Private
     bool doInitialPlacement(const ChipDB::Rect64 &regionRect, LunaCore::QPlacer::PlacerNetlist &netlist);
     bool doQuadraticB2B(LunaCore::QPlacer::PlacerNetlist &netlist);
     bool updatePositions(const LunaCore::QPlacer::PlacerNetlist &netlist, ChipDB::Netlist &nl);
+
+    double calcHPWL(const LunaCore::QPlacer::PlacerNetlist &netlist);
 };
 
 namespace LunaCore::QLAPlacer
