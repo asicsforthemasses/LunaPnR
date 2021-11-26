@@ -30,6 +30,7 @@
 #include "../import/verilog/verilogparser.h"
 #include "../import/verilog/veriloglexer.h"
 #include "../import/verilog/verilogreader.h"
+#include "../export/svg/svgwriter.h"
 #include "../export/dot/dotwriter.h"
 #include "../export/verilog/verilogwriter.h"
 
