@@ -156,6 +156,17 @@ BOOST_AUTO_TEST_CASE(check_qla_netlist_generation)
     setLogLevel(ll);
 }
 
+struct NetlistCallback
+{
+    void operator()(const LunaCore::QPlacer::PlacerNetlist &netlist)
+    {
+        std::ofstream ofile("test/files/results/qplaplacer_placement.svg");
+        LunaCore::QLAPlacer::Private::writeNetlistToSVG(ofile, m_regionRect, netlist);
+    }
+
+    ChipDB::Rect64 m_regionRect;
+};
+
 BOOST_AUTO_TEST_CASE(check_qla_netlist_placement)
 {
     std::cout << "--== CHECK QLAPLACER PLACEMENT ==--\n";
@@ -186,14 +197,12 @@ BOOST_AUTO_TEST_CASE(check_qla_netlist_placement)
     dstPin->m_pos = ChipDB::Coord64{1000,0};
     dstPin->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
 
-    // create the qlanetlist
-    auto qlanetlist = LunaCore::QLAPlacer::Private::createPlacerNetlist(*mod->m_netlist.get());
-
-    BOOST_CHECK(qlanetlist.m_nets.size() == mod->m_netlist->m_nets.size());
-    BOOST_CHECK(qlanetlist.m_nodes.size() == mod->m_netlist->m_instances.size());
-
     ChipDB::Rect64 regionRect = ChipDB::Rect64{{0,0}, {2000,1000}};
-    auto status = LunaCore::QLAPlacer::place(regionRect, mod);
+
+    NetlistCallback callback;
+    callback.m_regionRect = regionRect;
+
+    auto status = LunaCore::QLAPlacer::place(regionRect, mod, callback);
     BOOST_CHECK(status);
 
     // dump qlanetlist
@@ -208,6 +217,7 @@ BOOST_AUTO_TEST_CASE(check_qla_netlist_placement)
 
         BOOST_CHECK(placed);
     }
+
 
     setLogLevel(ll);
 }

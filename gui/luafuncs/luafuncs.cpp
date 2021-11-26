@@ -481,8 +481,7 @@ static int place_module(lua_State *L)
     auto ll = getLogLevel();
     setLogLevel(LOG_VERBOSE);
 
-    //if (!LunaCore::QPlacer::placeModuleInRegion(&db->design(), mod, region))
-    if (!LunaCore::QLAPlacer::place(region->getPlacementRect(), mod))
+    if (!LunaCore::QLAPlacer::place(region->getPlacementRect(), mod, nullptr))
     {
         reportError(L, "Placement failed!");
     }

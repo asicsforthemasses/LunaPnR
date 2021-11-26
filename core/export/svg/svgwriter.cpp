@@ -3,7 +3,7 @@
 
 LunaCore::SVG::Writer::Writer(std::ostream &os, int64_t width, int64_t height) : m_os(os), m_width(width), m_height(height)
 {
-    m_os << "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 ";
+    m_os << R"(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 )";
     m_os << m_width << " " << m_height << "\">\n"; 
     m_closed = false;
 
@@ -141,6 +141,6 @@ void LunaCore::SVG::Writer::drawCenteredText(const ChipDB::Coord64 &pos, const s
     m_os << "style=\"stroke:#" << m_strokeColour << "; fill:#" << m_strokeColour << "\" ";
     m_os << "font-size=\"" << m_fontSize << "\" ";
     m_os << "font-family=\"" << m_fontFamily << "\" ";
-    m_os << "dominant-baseline=\"middle\" text-anchor=\"middle\" ";
+    m_os << R"(dominant-baseline="middle" text-anchor="middle" )";
     m_os << ">" << text << "</text>\n";    
 }

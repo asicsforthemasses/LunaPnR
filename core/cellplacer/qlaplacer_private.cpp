@@ -6,6 +6,7 @@
 
 #include "common/logging.h"
 #include "qlaplacer.h"
+#include "export/svg/svgwriter.h"
 
 using namespace LunaCore::QLAPlacer::Private;
 
@@ -487,4 +488,58 @@ double LunaCore::QLAPlacer::Private::calcHPWL(const LunaCore::QPlacer::PlacerNet
     }
 
     return hpwl;
+}
+
+void LunaCore::QLAPlacer::Private::writeNetlistToSVG(std::ostream &os, 
+    const ChipDB::Rect64 &regionRect,
+    const LunaCore::QPlacer::PlacerNetlist &netlist)
+{
+    LunaCore::SVG::Writer svg(os, 2000,2000);
+
+    svg.setFillColour(0xFF);
+    svg.setStrokeWidth(0);
+    svg.drawRectangle({0,0},{2001,2001});
+    svg.setFontSize(16);
+
+    svg.setViewport(regionRect.expanded(ChipDB::Margins64{100,100,100,100}));
+    
+    //draw nodes
+    
+    svg.setStrokeWidth(5);
+    size_t nodeIdx = 0;
+    for(auto const &node : netlist.m_nodes)
+    {
+        std::stringstream ss;
+        ss << nodeIdx;
+        if (node.isFixed())
+        {
+            svg.setStrokeColour(0xFF000080);    // red transparent
+        }
+        else
+        {
+            svg.setStrokeColour(0x00FF0080);    // green transparent
+        }
+        svg.drawCircle(node.m_pos, 20);
+        svg.setStrokeColour(0xFFFFFFFF);    // white
+        svg.drawCenteredText(node.m_pos, ss.str());
+        nodeIdx++;
+    }
+
+    // draw nets
+    svg.setStrokeColour(0xFFFFFF80);    // white transparent
+    svg.setStrokeWidth(3);
+    for(auto const &net : netlist.m_nets)
+    {
+        if (net.m_nodes.size() < 2)
+        {
+            continue;
+        }
+
+        auto firstNode = netlist.m_nodes.at(net.m_nodes.front());
+        for(size_t idx=1; idx<net.m_nodes.size(); idx++)
+        {
+            auto const& secondNode = netlist.m_nodes.at(net.m_nodes.at(idx));
+            svg.drawLine(firstNode.m_pos, secondNode.m_pos);
+        }
+    }
 }

@@ -6,7 +6,10 @@
 using namespace LunaCore::QLAPlacer;
 
 
-bool LunaCore::QLAPlacer::place(const ChipDB::Rect64 &regionRect, const ChipDB::Module *mod)
+bool LunaCore::QLAPlacer::place(
+    const ChipDB::Rect64 &regionRect, 
+    const ChipDB::Module *mod,
+    std::function<void(const LunaCore::QPlacer::PlacerNetlist &)> callback)
 {
     double area = 0.0f;
 
@@ -55,10 +58,14 @@ bool LunaCore::QLAPlacer::place(const ChipDB::Rect64 &regionRect, const ChipDB::
         Private::doQuadraticB2B(netlist);
         Private::updatePositions(netlist, modNetlist);
         
+        if (callback)
+        {
+            callback(netlist);
+        }
+
         doLog(LOG_INFO,"Iteration %d HPWL %f\n", i, Private::calcHPWL(netlist));
     }
     
-
     doLog(LOG_INFO, "Placement done.\n");
 
     return true;

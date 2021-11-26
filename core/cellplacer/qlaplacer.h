@@ -11,6 +11,8 @@
 #include <Eigen/Sparse>
 #include <Eigen/IterativeLinearSolvers>
 
+#include <functional>
+
 #include "common/dbtypes.h"
 #include "netlist/netlist.h"
 #include "qplacertypes.h"
@@ -29,12 +31,19 @@ namespace LunaCore::QLAPlacer::Private
     bool updatePositions(const LunaCore::QPlacer::PlacerNetlist &netlist, ChipDB::Netlist &nl);
 
     double calcHPWL(const LunaCore::QPlacer::PlacerNetlist &netlist);
+
+    void writeNetlistToSVG(std::ostream &os, const ChipDB::Rect64 &regionRect, const LunaCore::QPlacer::PlacerNetlist &netlist);
 };
 
 namespace LunaCore::QLAPlacer
 {
 
-    bool place(const ChipDB::Rect64 &regionRect, const ChipDB::Module *mod);
+    /** place the module in the region rectangle.
+     *  the callback is called each iteration when the positions have been updated
+    */
+    bool place(const ChipDB::Rect64 &regionRect, 
+        const ChipDB::Module *mod,
+        std::function<void(const LunaCore::QPlacer::PlacerNetlist &)> callback);
 
 };
 
