@@ -14,7 +14,7 @@ MMConsoleEdit::MMConsoleEdit(QWidget *parent) : QPlainTextEdit("", parent)
     m_historyWriteIdx = 0;
     m_history.resize(32);
 
-    //QFont newFont("Consolas", 8, QFont::Bold, true);
+    //FIXME: get font from setup
     QFont newFont("Consolas", 10);
     setFont(newFont);
 }
@@ -84,9 +84,9 @@ MMConsole::MMConsole(QWidget *parent) : QWidget(parent)
     m_txt    = new MMConsoleEdit(this);
     m_txt->setMaximumBlockCount(100);
 
-    connect(m_txt,SIGNAL(newCommand(const char*)), this, SLOT(onCommand(const char *)));
+    connect(m_txt, &MMConsoleEdit::newCommand, this, &MMConsole::onCommand);
 
-    #if 0
+    #if 1
     QPalette p = palette();
     p.setColor(QPalette::Base, Qt::black);
     p.setColor(QPalette::Text, Qt::green);
