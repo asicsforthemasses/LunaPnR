@@ -15,22 +15,27 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     setLogLevel(LOG_INFO);
-
-    // dump resources
-    #if 0
-    std::cout << "Resources:\n";
-    QDirIterator it(":", QDirIterator::Subdirectories);
-    while (it.hasNext()) 
-    {
-        auto s = it.next();
-        std::cout << s.toStdString() << "\n";
-    }    
-    #endif
     
     QCommandLineParser parser;
+        
     QCommandLineOption localeOption("locale", "Set locale name", "locale_value", "");
     parser.addOption(localeOption);
+
+    QCommandLineOption showResourcesOption("show_resources", "Show qrc resources");
+    parser.addOption(showResourcesOption);
+
     parser.process(app);
+
+    if (parser.isSet(showResourcesOption))
+    {
+        std::cout << "Resources:\n";
+        QDirIterator it(":", QDirIterator::Subdirectories);
+        while (it.hasNext()) 
+        {
+            auto s = it.next();
+            std::cout << s.toStdString() << "\n";
+        }    
+    }
 
     auto locale = QLocale();
     auto localeNameStr = locale.name().toStdString();
