@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     setLogLevel(LOG_INFO);
 
     // dump resources
-    #if 1
+    #if 0
     std::cout << "Resources:\n";
     QDirIterator it(":", QDirIterator::Subdirectories);
     while (it.hasNext()) 
