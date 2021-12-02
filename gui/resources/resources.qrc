@@ -5,5 +5,6 @@
 </qresource>
 <qresource prefix="/translations">
     <file alias="lunapnr.en_US.qm">../../build/gui/lunapnr.en_US.qm</file>
+    <file alias="lunapnr.nl_NL.qm">../../build/gui/lunapnr.nl_NL.qm</file>
 </qresource>
 </RCC>

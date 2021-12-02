@@ -1,4 +1,5 @@
 #include <random>
+#include <deque>
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
@@ -542,4 +543,111 @@ void LunaCore::QLAPlacer::Private::writeNetlistToSVG(std::ostream &os,
             svg.drawLine(firstNode.m_pos, secondNode.m_pos);
         }
     }
+}
+
+
+void LunaCore::QLAPlacer::Private::lookaheadLegaliser(const ChipDB::Rect64 &regionRect, LunaCore::QPlacer::PlacerNetlist &netlist)
+{
+    // FIXME: these constants should come from the cell library.
+
+    const ChipDB::CoordType blockMinHeight = 20000; 
+    const ChipDB::CoordType blockMinWidth  = 4*blockMinHeight;
+
+    std::deque<Block> blockQueue;
+    blockQueue.push_back(Block{.m_extents = regionRect, .m_level = 0});
+
+    while(!blockQueue.empty())
+    {
+        auto block = blockQueue.front();
+        blockQueue.pop_front();
+
+        if ((block.m_extents.width() <= blockMinWidth) || (block.m_extents.height() <= blockMinHeight))
+        {
+            // if we cannot sub-divide any more, skip the block
+            continue;
+        }
+
+        // collect all the cells in the block
+
+        std::vector<LunaCore::QPlacer::PlacerNodeId> movableNodesInBlock;
+
+        QPlacer::PlacerNodeId idx = 0;
+        for(auto const &node : netlist.m_nodes)
+        {
+            if ((!node.isFixed()) && block.m_extents.contains(node.m_pos))
+            {
+                movableNodesInBlock.push_back(idx);
+            }
+            idx++;
+        }
+
+        // calculate total area
+        double totalCellArea = 0;
+        for(auto const &nodeId : movableNodesInBlock)
+        {
+            totalCellArea += static_cast<double>(netlist.m_nodes.at(nodeId).m_size.m_x) 
+                * static_cast<double>(netlist.m_nodes.at(nodeId).m_size.m_y);
+        }
+
+        if (block.m_level % 2 == 0)
+        {
+            // horizontal split
+            // sort movable nodes in x direction
+            std::sort(movableNodesInBlock.begin(), movableNodesInBlock.end(), [&](const QPlacer::PlacerNodeId &n1, const QPlacer::PlacerNodeId &n2)
+                {
+                    return netlist.m_nodes.at(n1).m_pos.m_x < netlist.m_nodes.at(n2).m_pos.m_x;
+                }
+            );
+
+            // divide the block into two part with equal white space
+            // FIXME: for now we assume no blockages
+            Block SubBlockleft  = {.m_extents = block.m_extents, .m_level = block.m_level + 1};
+            Block SubBlockright = {.m_extents = block.m_extents, .m_level = block.m_level + 1};
+
+            double leftBlockArea = static_cast<double>(SubBlockleft.m_extents.width()) 
+                * static_cast<double>(SubBlockleft.m_extents.height());
+
+            auto cutPos = block.m_extents.left() + block.m_extents.width()/2;
+
+            SubBlockleft.m_extents.setUR({cutPos, block.m_extents.top()});
+            SubBlockright.m_extents.setLL({cutPos, block.m_extents.bottom()});
+
+            doNonlinearScaling(SubBlockleft, netlist);
+            doNonlinearScaling(SubBlockright, netlist);
+
+            blockQueue.push_back(SubBlockleft);
+            blockQueue.push_back(SubBlockright);
+        }
+        else
+        {
+            // vertical split
+            // sort movable nodes in y direction
+            std::sort(movableNodesInBlock.begin(), movableNodesInBlock.end(), [&](const QPlacer::PlacerNodeId &n1, const QPlacer::PlacerNodeId &n2)
+                {
+                    return netlist.m_nodes.at(n1).m_pos.m_y < netlist.m_nodes.at(n2).m_pos.m_y;
+                }
+            );          
+
+            // divide the block into two part with equal white space
+            // FIXME: for now we assume no blockages
+            Block SubBlocktop     = {.m_extents = block.m_extents, .m_level = block.m_level + 1};
+            Block SubBlockbottom  = {.m_extents = block.m_extents, .m_level = block.m_level + 1};
+
+            auto cutPos = block.m_extents.bottom() + block.m_extents.height()/2;
+
+            SubBlocktop.m_extents.setLL({block.m_extents.left(), cutPos});
+            SubBlockbottom.m_extents.setUR({block.m_extents.right(), cutPos});
+
+            doNonlinearScaling(SubBlocktop, netlist);
+            doNonlinearScaling(SubBlockbottom, netlist);
+
+            blockQueue.push_back(SubBlocktop);
+            blockQueue.push_back(SubBlockbottom);
+        }
+    }
+}
+
+void LunaCore::QLAPlacer::Private::doNonlinearScaling(const Block &block, LunaCore::QPlacer::PlacerNetlist &netlist)
+{
+
 }

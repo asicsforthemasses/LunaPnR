@@ -41,17 +41,20 @@ set (LUNA_SRC_FILES
 #set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/translations/lunapnr.en_US.ts
 #    PROPERTIES OUTPUT_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/resources/translations")
 
-#qt5_create_translation(QM_FILES ${LUNA_SRC_FILES}
-#    ${CMAKE_CURRENT_SOURCE_DIR}/translations/lunapnr.en_US.ts
-#)
+qt5_create_translation(QM_FILES ${LUNA_SRC_FILES}
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/lunapnr.en_US.ts
+    ${CMAKE_CURRENT_SOURCE_DIR}/translations/lunapnr.nl_NL.ts
+)
 
-#message(${QM_FILES})
+#configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resources/resources.qrc ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+
+message(${QM_FILES})
 
 add_executable(lunapnr
     ${LUNA_SRC_FILES}
-    #resources/resources.qrc
+    resources/resources.qrc
     #${CMAKE_CURRENT_BINARY_DIR}/english.qm
-    #${QM_FILES}
+    ${QM_FILES}
     )
 
 target_link_libraries(lunapnr lunacore Qt5::Widgets liblua)

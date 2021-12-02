@@ -339,6 +339,20 @@ namespace ChipDB
             m_ll.m_y -= margins.m_bottom;
             m_ur.m_y += margins.m_top;
         }
+
+        [[nodiscard]] bool contains(const ChipDB::Coord64 &p) const noexcept
+        {
+            bool inx = ((p.m_x >= m_ll.m_x) && (p.m_x <= m_ur.m_x));
+            if (!inx)
+                return false;
+
+            bool iny = ((p.m_y >= m_ll.m_y) && (p.m_y <= m_ur.m_y));
+            if (!iny)
+                return false;
+
+            return true;
+        }
+        
     };
 
 #if 0

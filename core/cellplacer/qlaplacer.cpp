@@ -57,6 +57,7 @@ bool LunaCore::QLAPlacer::place(
     {
         Private::doQuadraticB2B(netlist);
         Private::updatePositions(netlist, modNetlist);
+        Private::lookaheadLegaliser(regionRect, netlist);
         
         if (callback)
         {
