@@ -5,6 +5,8 @@
 #include <QDesktopWidget>
 #include <QDirIterator>
 #include <QDebug>
+#include <QCommandLineParser>
+
 #include "mainwindow.h"
 #include "common/logging.h"
 
@@ -25,9 +27,21 @@ int main(int argc, char *argv[]) {
     }    
     #endif
     
+    QCommandLineParser parser;
+    QCommandLineOption localeOption("locale", "Set locale name", "locale_value", "");
+    parser.addOption(localeOption);
+    parser.process(app);
+
     auto locale = QLocale();
     auto localeNameStr = locale.name().toStdString();
-
+    
+    QString localeOptionString = parser.value(localeOption);
+    if (!localeOptionString.isEmpty())
+    {
+        localeNameStr = localeOptionString.toStdString();
+        doLog(LOG_INFO,"Using locale %s\n", localeNameStr.c_str());
+    }
+    
     QTranslator lunapnrTranslator;
     auto langResourcePath = QString::asprintf(":/translations/lunapnr.%s.qm", localeNameStr.c_str());
     if (!lunapnrTranslator.load(langResourcePath))
