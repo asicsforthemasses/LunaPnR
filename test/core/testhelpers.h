@@ -6,7 +6,7 @@
 namespace Helpers
 {
 
-constexpr bool compare(const float &v1, const float &v2)
+bool compare(const float &v1, const float &v2)
 {
     return std::fabs(v1-v2) <= std::numeric_limits<float>::epsilon();
 }

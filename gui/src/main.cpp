@@ -5,7 +5,9 @@
 #include <QDesktopWidget>
 #include <QDirIterator>
 #include <QDebug>
+
 #include <QCommandLineParser>
+#include <clocale>
 
 #include "mainwindow.h"
 #include "common/logging.h"

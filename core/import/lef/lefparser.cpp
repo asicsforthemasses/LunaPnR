@@ -17,6 +17,7 @@
 
 #include <stdexcept>
 #include <sstream>
+#include <array>
 
 #include "lefparser.h"
 #include "common/logging.h"
@@ -2509,7 +2510,7 @@ bool Parser::expectSemicolonAndEOL()
         std::stringstream ss;
         ss << "Expected a semicolon but got " << m_tokstr << " (tok=" << m_curtok << ")";
         error(ss.str());        
-        BREAK_HERE;
+        //BREAK_HERE;
         return false;
     }
 

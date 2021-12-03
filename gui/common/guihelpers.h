@@ -2,6 +2,7 @@
 
 #include "common/dbtypes.h"
 #include<string>
+#include<optional>
 #include<QPainter>
 #include<QColor>
 #include<QPixmap>

@@ -478,6 +478,7 @@ static int place_module(lua_State *L)
         return 0;
     }
 
+
     auto ll = getLogLevel();
     setLogLevel(LOG_VERBOSE);
 

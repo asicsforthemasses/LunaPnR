@@ -2,12 +2,17 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include <QWidget>
 #include <QTextEdit>
 #include <QPlainTextEdit>
 #include <QByteArray>
 #include <QKeyEvent>
 #include <QHBoxLayout>
+
+#include "../common/msvcfix.h"
 
 namespace GUI
 {

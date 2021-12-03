@@ -257,7 +257,7 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/main.cpp" line="92"/>
+        <location filename="../src/main.cpp" line="94"/>
         <source>LunaPnR - a moonshot ASIC place&amp;route tool</source>
         <translation></translation>
     </message>

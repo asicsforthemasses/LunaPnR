@@ -2,6 +2,7 @@
 
 #include <QDialog>
 #include "../common/hatchlibrary.h"
+#include "../common/msvcfix.h"
 
 namespace GUI
 {

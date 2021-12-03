@@ -1,7 +1,5 @@
 project(lunacore)
 
-set(CMAKE_CXX_STANDARD 17)
-
 option(UseCPPCHECK "UseCPPCHECK")
 option(UseCLANGTIDY "UseCLANGTIDY")
 

@@ -1,5 +1,5 @@
 
-find_package(Qt5 REQUIRED QUIET COMPONENTS Core Widgets LinguistTools)
+find_package(Qt5 5.12 REQUIRED QUIET COMPONENTS Core Widgets LinguistTools)
 
 # The qm files are generated in the build tree, but the qrc file is inside the
 # source directory and the path to resources are relative to the location of
@@ -7,7 +7,6 @@ find_package(Qt5 REQUIRED QUIET COMPONENTS Core Widgets LinguistTools)
 # directory such that it can find the qm translations files. The qrc file is
 # copied if it doesn't exist in the destination or if it is modified.
 #configure_file(translations.qrc ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-
 
 set (LUNA_SRC_FILES
     models/modelnodebase.cpp

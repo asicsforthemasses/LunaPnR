@@ -16,7 +16,7 @@ void Net::addConnection(InstanceBase *instance, size_t pinIndex)
     if (iter == m_connections.end())
     {
         // connection does not yet exist -> add it
-        NetConnect conn = {.m_instance = instance, .m_pinIndex = pinIndex};
+        NetConnect conn = {instance, pinIndex};
         m_connections.push_back(conn);
     }
 }
