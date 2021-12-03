@@ -67,12 +67,13 @@ void LuaWrapper::print()
         {
             std::stringstream ss;
             ss << str << "\n";
-            m_console->putData(ss.str());
+
+            m_console->print(ss, (idx < count) ? GUI::MMConsole::PrintType::Partial : GUI::MMConsole::PrintType::Complete);
         }
         else
         {
             std::cout << "LUA: " << str << "\n";
-        }
+        }        
     }    
 }
 
@@ -80,7 +81,7 @@ void LuaWrapper::print(const std::string &txt)
 {
     if (m_console != nullptr)
     {
-        m_console->putData(txt);
+        m_console->print(txt, GUI::MMConsole::PrintType::Complete);
     }
 }
 
@@ -88,7 +89,7 @@ void LuaWrapper::print(const std::stringstream &ss)
 {
     if (m_console != nullptr)
     {
-        m_console->putData(ss.str());
+        m_console->print(ss, GUI::MMConsole::PrintType::Complete);
     }
 }
 
@@ -101,7 +102,7 @@ bool LuaWrapper::run(const char *txt)
         {
             std::stringstream ss;
             ss << "ERROR: " << lua_tostring(m_L, -1) << "\n";
-            m_console->putData(ss.str());
+            m_console->print(ss, GUI::MMConsole::PrintType::Error);
         }
         else
         {

@@ -37,7 +37,7 @@ public slots:
     void onImportLayers();
     void onExportLayers();
     void onRunScript();
-    void onConsoleCommand(const char *cmd);
+    void onConsoleCommand(const QString &cmd);
     
 protected:
     void createMenus();

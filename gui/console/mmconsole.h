@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <sstream>
 
 #include <QWidget>
 #include <QTextEdit>
@@ -17,55 +18,43 @@
 namespace GUI
 {
 
-class MMConsoleEdit : public QPlainTextEdit
+class MMConsole : public QTextEdit
 {
     Q_OBJECT
-public:
-    MMConsoleEdit(QWidget *parent = nullptr);
-
-    virtual void keyPressEvent(QKeyEvent *e) override;
-
-signals:
-    void newCommand(const char *txt);
-
-protected:
-    ssize_t m_historyWriteIdx;
-    ssize_t m_historyReadIdx;
-    std::vector<std::string> m_history;    
-};
-
-class MMConsole : public QWidget
-{
-    Q_OBJECT
-    
 public:
     MMConsole(QWidget *parent = nullptr);
 
-    virtual QSize sizeHint() const override;
+    void setPrompt(const QString &prompt);
+    void clear();
 
-    void putData(const std::string &txt);
-    void putData(const char *txt);
-    void putData(const QByteArray &data);
+    enum class PrintType
+    {
+        Error,
+        Partial,
+        Complete
+    };
 
-    virtual void mousePressEvent(QMouseEvent *e) override;
-    virtual void resizeEvent(QResizeEvent *e) override;
+    void print(const QString &txt, PrintType pt);
+    void print(const std::string &txt, PrintType pt);
+    void print(const std::stringstream &ss, PrintType pt);
+    void print(const char *txt, PrintType pt);
 
 signals:
-    void newCommand(const char *cmd);
-
-protected slots:
-    void onCommand(const char *cmd);
-    
+    void executeCommand(const QString &command);
 
 protected:
-    //bool eventFilter(QObject *o, QEvent *e);
-    //bool filterKeyEvent(QKeyEvent *evt);
+    virtual void keyPressEvent(QKeyEvent *e) override;
 
-    int getFontWidth(const QFont *font = nullptr) const;
-    int getFontHeight(const QFont *font = nullptr) const;
+    void    displayPrompt();
+    QString getCurrentCommand();
+    void    replaceCurrentCommand(const QString &cmd);
 
-    QHBoxLayout     *m_layout;
-    MMConsoleEdit   *m_txt;
+    ssize_t m_historyWriteIdx;
+    ssize_t m_historyReadIdx;
+    std::vector<std::string> m_history;
+
+    QString m_prompt;
+    int     m_promptBlock;
 };
 
 };

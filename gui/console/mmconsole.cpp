@@ -8,7 +8,7 @@
 
 using namespace GUI;
 
-MMConsoleEdit::MMConsoleEdit(QWidget *parent) : QPlainTextEdit("", parent) 
+MMConsole::MMConsole(QWidget *parent) : QTextEdit("", parent)
 {
     m_historyReadIdx = 0;
     m_historyWriteIdx = 0;
@@ -17,9 +17,17 @@ MMConsoleEdit::MMConsoleEdit(QWidget *parent) : QPlainTextEdit("", parent)
     //FIXME: get font from setup
     QFont newFont("Consolas", 10);
     setFont(newFont);
+
+    m_promptBlock = -1;
+    m_prompt = "> ";
 }
 
-void MMConsoleEdit::keyPressEvent(QKeyEvent *e)
+void MMConsole::clear()
+{
+    QTextEdit::clear();
+}
+
+void MMConsole::keyPressEvent(QKeyEvent *e)
 {
     switch(e->key())
     {
@@ -31,12 +39,7 @@ void MMConsoleEdit::keyPressEvent(QKeyEvent *e)
             m_historyReadIdx = m_history.size() - 1;
 
         {
-            QTextCursor cursor(document());
-            cursor.movePosition(QTextCursor::End);
-            cursor.movePosition(QTextCursor::StartOfLine);
-            cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
-            cursor.removeSelectedText();            
-            cursor.insertText(QString(m_history[m_historyReadIdx].c_str()));
+            replaceCurrentCommand(QString(m_history[m_historyReadIdx].c_str()));
         }        
         return;
     case Qt::Key_Down:
@@ -44,41 +47,113 @@ void MMConsoleEdit::keyPressEvent(QKeyEvent *e)
         if (m_historyReadIdx >= m_history.size())
             m_historyReadIdx = 0;    
         {
-            QTextCursor cursor(document());
-            cursor.movePosition(QTextCursor::End);
-            cursor.movePosition(QTextCursor::StartOfLine);
-            cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
-            cursor.removeSelectedText();
-            cursor.insertText(QString(m_history[m_historyReadIdx].c_str()));
+            replaceCurrentCommand(QString(m_history[m_historyReadIdx].c_str()));
         }        
         return;
     case Qt::Key_Return:
     case Qt::Key_Enter:
         {            
-            QTextCursor cursor(document());
-            cursor.movePosition(QTextCursor::End);
-
-            // emit the last line
-            std::string txt(document()->lastBlock().text().toStdString());
-            QPlainTextEdit::keyPressEvent(e);
+            auto cmd = getCurrentCommand();
+            //QTextEdit::keyPressEvent(e);
 
             // add to the command history
             if (m_historyWriteIdx >= m_history.size())
                 m_historyWriteIdx = 0;
 
-            m_history[m_historyWriteIdx] = txt;
+            m_history[m_historyWriteIdx] = cmd.toStdString();
             ++m_historyWriteIdx;
-            m_historyReadIdx = m_historyWriteIdx;            
-            emit newCommand(txt.c_str());
+            m_historyReadIdx = m_historyWriteIdx;
+            emit executeCommand(cmd);
         }
         break;
     default:
-        QPlainTextEdit::keyPressEvent(e);
+        QTextEdit::keyPressEvent(e);
         break;
     }
 }
 
+QString MMConsole::getCurrentCommand()
+{
+    QTextCursor cur = textCursor();
+    cur.movePosition(QTextCursor::StartOfBlock);
+    cur.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, m_prompt.length());
+    cur.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    QString cmd = cur.selectedText();
+    cur.clearSelection();
+    return cmd;
+}
 
+void MMConsole::replaceCurrentCommand(const QString &cmd)
+{
+    QTextCursor cur = textCursor();
+    cur.movePosition(QTextCursor::StartOfLine);
+    cur.movePosition(QTextCursor::Right, QTextCursor::MoveAnchor, m_prompt.length());
+    cur.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
+    cur.insertText(cmd);
+}
+
+void MMConsole::print(const QString &txt, PrintType pt)
+{
+    if (pt == PrintType::Error)
+    {
+        setTextColor(Qt::red);
+    }
+    else
+    {
+        setTextColor(Qt::black);
+    }
+
+    append(txt);
+
+    if ((pt == PrintType::Complete) || (pt == PrintType::Error))
+    {
+        if (!txt.endsWith("\n"))
+        {
+            append("\n");
+        }
+
+        displayPrompt();
+    }
+
+    moveCursor(QTextCursor::End);
+}
+
+void MMConsole::setPrompt(const QString &prompt)
+{
+    m_prompt = prompt;
+}
+
+void MMConsole::displayPrompt()
+{
+    setUndoRedoEnabled(false);
+
+    setTextColor(Qt::black);
+    QTextCursor cur = textCursor();
+    cur.insertText(m_prompt);
+    cur.movePosition(QTextCursor::EndOfLine);
+    setTextCursor(cur);
+
+    m_promptBlock = cur.blockNumber();
+
+    setUndoRedoEnabled(true);
+}
+
+void MMConsole::print(const std::string &txt, PrintType pt)
+{
+    print(QString::fromStdString(txt), pt);
+}
+
+void MMConsole::print(const std::stringstream &ss, PrintType pt)
+{
+    print(QString::fromStdString(ss.str()), pt);
+}
+
+void MMConsole::print(const char *txt, PrintType pt)
+{
+    print(QString::fromUtf8(txt), pt);
+}
+
+#if 0
 MMConsole::MMConsole(QWidget *parent) : QWidget(parent)
 {
     m_txt    = new MMConsoleEdit(this);
@@ -171,3 +246,4 @@ void MMConsole::mousePressEvent(QMouseEvent *e)
     Q_UNUSED(e)
     setFocus();
 }
+#endif

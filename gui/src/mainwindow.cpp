@@ -46,7 +46,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     // create console
     m_console = new GUI::MMConsole(this);
 
-    connect(m_console, &GUI::MMConsole::newCommand, this, &MainWindow::onConsoleCommand);
+    connect(m_console, &GUI::MMConsole::executeCommand, this, &MainWindow::onConsoleCommand);
 
     m_splitter = new QSplitter(Qt::Vertical, this);
     m_splitter->addWidget(m_mainTabWidget);
@@ -379,11 +379,11 @@ void MainWindow::onLoadVerilog()
     }   
 }
 
-void MainWindow::onConsoleCommand(const char *cmd)
+void MainWindow::onConsoleCommand(const QString &cmd)
 {
     if (m_lua)
     {
-        m_lua->run(cmd);
+        m_lua->run(cmd.toUtf8().data());
     }
     else
     {
