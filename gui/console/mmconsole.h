@@ -26,6 +26,7 @@ public:
 
     void setPrompt(const QString &prompt);
     void clear();
+    void reset();
 
     enum class PrintType
     {
@@ -38,6 +39,8 @@ public:
     void print(const std::string &txt, PrintType pt);
     void print(const std::stringstream &ss, PrintType pt);
     void print(const char *txt, PrintType pt);
+
+    void setColours(QColor bkCol, QColor promptCol, QColor errorCol);
 
 signals:
     void executeCommand(const QString &command);
@@ -55,6 +58,10 @@ protected:
 
     QString m_prompt;
     int     m_promptBlock;
+
+    QColor  m_bkCol;
+    QColor  m_promptCol;
+    QColor  m_errorCol;
 };
 
 };

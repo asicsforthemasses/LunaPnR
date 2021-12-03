@@ -10,21 +10,58 @@ using namespace GUI;
 
 MMConsole::MMConsole(QWidget *parent) : QTextEdit("", parent)
 {
-    m_historyReadIdx = 0;
-    m_historyWriteIdx = 0;
-    m_history.resize(32);
+    setAcceptRichText(false);
+    setUndoRedoEnabled(false);
+
+    reset();
 
     //FIXME: get font from setup
-    QFont newFont("Consolas", 10);
-    setFont(newFont);
+    QStringList substitutes;
+    substitutes << "Droid Sans Mono" << "monospace";
+    
+    QFont::insertSubstitutions("Consolas", substitutes);
+    
+    QFont newFont("Consolas", 11);
+    newFont.setStyleStrategy(QFont::PreferQuality);
 
-    m_promptBlock = -1;
+#if 0
+    std::stringstream ss;
+    ss << newFont.family().toStdString() << " ";
+
+    std::cout << ss.str() << "\n";
+#endif
+
+    setFont(newFont);
+    setColours(QColor("#1d1f21"), QColor("#c5c8c6"), QColor("#a54242"));
+
     m_prompt = "> ";
+}
+
+void MMConsole::setColours(QColor bkCol, QColor promptCol, QColor errorCol)
+{
+    QPalette pal = palette();
+    pal.setColor(QPalette::Background, bkCol);
+    pal.setColor(QPalette::Base, bkCol);
+    setPalette(pal);
+    setAutoFillBackground(true);
+
+    m_bkCol = bkCol;
+    m_promptCol = promptCol;
+    m_errorCol = errorCol;
 }
 
 void MMConsole::clear()
 {
     QTextEdit::clear();
+    m_promptBlock = -1;
+}
+
+void MMConsole::reset()
+{
+    m_historyReadIdx  = 0;
+    m_historyWriteIdx = 0;
+    m_history.clear();
+    m_history.resize(32);
 }
 
 void MMConsole::keyPressEvent(QKeyEvent *e)
@@ -54,7 +91,6 @@ void MMConsole::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Enter:
         {            
             auto cmd = getCurrentCommand();
-            //QTextEdit::keyPressEvent(e);
 
             // add to the command history
             if (m_historyWriteIdx >= m_history.size())
@@ -64,6 +100,21 @@ void MMConsole::keyPressEvent(QKeyEvent *e)
             ++m_historyWriteIdx;
             m_historyReadIdx = m_historyWriteIdx;
             emit executeCommand(cmd);
+        }
+        break;
+    case Qt::Key_Backspace:
+        {
+            QTextCursor cur = textCursor();
+            auto column = cur.columnNumber();
+            auto block  = cur.blockNumber();
+            if ((block == m_promptBlock) && (column <= m_prompt.length()))
+            {
+                return;
+            }
+            else
+            {
+                QTextEdit::keyPressEvent(e);
+            }
         }
         break;
     default:
@@ -96,11 +147,11 @@ void MMConsole::print(const QString &txt, PrintType pt)
 {
     if (pt == PrintType::Error)
     {
-        setTextColor(Qt::red);
+        setTextColor(m_errorCol);
     }
     else
     {
-        setTextColor(Qt::black);
+        setTextColor(m_promptCol);
     }
 
     append(txt);
@@ -127,7 +178,7 @@ void MMConsole::displayPrompt()
 {
     setUndoRedoEnabled(false);
 
-    setTextColor(Qt::black);
+    setTextColor(m_promptCol);
     QTextCursor cur = textCursor();
     cur.insertText(m_prompt);
     cur.movePosition(QTextCursor::EndOfLine);
@@ -153,97 +204,3 @@ void MMConsole::print(const char *txt, PrintType pt)
     print(QString::fromUtf8(txt), pt);
 }
 
-#if 0
-MMConsole::MMConsole(QWidget *parent) : QWidget(parent)
-{
-    m_txt    = new MMConsoleEdit(this);
-    m_txt->setMaximumBlockCount(100);
-
-    connect(m_txt, &MMConsoleEdit::newCommand, this, &MMConsole::onCommand);
-
-    #if 1
-    QPalette p = palette();
-    p.setColor(QPalette::Base, Qt::black);
-    p.setColor(QPalette::Text, Qt::green);
-    m_txt->setPalette(p);
-    #endif
-
-    m_layout = new QHBoxLayout(this);
-    m_layout->addWidget(m_txt,1);
-}
-
-QSize MMConsole::sizeHint() const
-{
-    const size_t xCharCount = 80;
-    const size_t yCharCount = 25;
-
-    auto w = xCharCount * getFontWidth();
-    auto h = yCharCount * getFontHeight();
-
-    auto margin = m_txt->frameWidth();
-    margin += m_txt->document()->documentMargin() * 2;
-
-    return QSize(w+margin,h+margin);
-}
-
-int MMConsole::getFontWidth(const QFont *font) const
-{
-    if (font == nullptr)
-        font = &m_txt->font();
-
-    auto metrics = QFontMetrics(*font);
-    auto spaceAdvance = metrics.horizontalAdvance(' ');
-    if (spaceAdvance != 0)
-    {
-        return spaceAdvance;
-    }
-    else
-    {
-        return metrics.width(' ');
-    }
-}
-
-int MMConsole::getFontHeight(const QFont *font) const
-{
-    if (font == nullptr)
-        font = &m_txt->font();
-
-    auto metrics = QFontMetrics(*font);
-    return metrics.height();
-}
-
-void MMConsole::putData(const std::string &txt)
-{
-    m_txt->insertPlainText(txt.c_str());
-    m_txt->ensureCursorVisible();
-}
-
-void MMConsole::putData(const char *txt)
-{
-    m_txt->insertPlainText(txt);
-    m_txt->ensureCursorVisible();
-}
-
-void MMConsole::putData(const QByteArray &data)
-{
-    m_txt->insertPlainText(data);
-    m_txt->ensureCursorVisible();
-}
-
-void MMConsole::onCommand(const char *cmd)
-{
-    emit newCommand(cmd);
-}
-
-void MMConsole::resizeEvent(QResizeEvent *e)
-{
-    Q_UNUSED(e)
-    m_txt->ensureCursorVisible();
-}
-
-void MMConsole::mousePressEvent(QMouseEvent *e)
-{
-    Q_UNUSED(e)
-    setFocus();
-}
-#endif
