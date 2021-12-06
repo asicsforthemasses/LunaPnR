@@ -216,8 +216,14 @@ QStringList MMConsole::suggestCommand(QString partialCommand)
 
 void MMConsole::appendWithoutNewline(const QString &txt)
 {
+    // moving the cursor to ::END make the document
+    // forget the textColor, so we re-apply it.
+    auto col = textColor();
     moveCursor(QTextCursor::End);
+    setTextColor(col);
+
     insertPlainText(txt);
+
     moveCursor(QTextCursor::End);
 }
 
@@ -236,7 +242,6 @@ void MMConsole::print(const QString &txt, PrintType pt)
 
     if ((pt == PrintType::Complete) || (pt == PrintType::Error))
     {
-        std::cout << "'" << txt.toStdString() << "'\n";
         if (!txt.endsWith("\n"))
         {
             append("");

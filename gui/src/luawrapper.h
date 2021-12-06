@@ -30,6 +30,9 @@ public:
     void print(const std::string &txt);
     void print(const std::stringstream &ss);
 
+    /** replacement print function for LUA, but with error colours */
+    void error_print();
+
 protected:
     MMConsole *m_console;
     Database &m_db;    

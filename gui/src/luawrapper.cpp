@@ -57,6 +57,26 @@ LuaWrapper::~LuaWrapper()
     lua_close(m_L);
 }
 
+void LuaWrapper::error_print()
+{
+    int count = lua_gettop(m_L);
+    for(int idx=1; idx<=count; idx++)
+    {
+        const char *str = lua_tostring(m_L, idx);
+        if (m_console != nullptr)
+        {
+            std::stringstream ss;
+            ss << str;
+
+            m_console->print(ss, GUI::MMConsole::PrintType::Error);
+        }
+        else
+        {
+            std::cout << "LUA: " << str << "\n";
+        }        
+    }        
+}
+
 void LuaWrapper::print()
 {
     int count = lua_gettop(m_L);

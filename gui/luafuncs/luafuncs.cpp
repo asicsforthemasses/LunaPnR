@@ -45,7 +45,7 @@ static void reportError(lua_State *L, const char *fmt, ...)
     lua_concat(L, 2);
 
     auto wrapper = getLuaWrapper(L);
-    wrapper->print();
+    wrapper->error_print();
 }
 
 // load_verilog(filename)
