@@ -72,6 +72,9 @@ static int load_verilog(lua_State *L)
         reportError(L, "Error parsing verilog file '%s'", filename);
     }
 
+    auto wrapper = getLuaWrapper(L);
+    wrapper->print("Verilog loaded");
+
     return 0;
 }
 
@@ -100,6 +103,9 @@ static int load_lef(lua_State *L)
         return 0;
     }
 
+    auto wrapper = getLuaWrapper(L);
+    wrapper->print("LEF loaded");
+
     return 0;
 }
 
@@ -127,6 +133,9 @@ static int load_lib(lua_State *L)
         reportError(L, "Error parsing Liberty file '%s'", filename);
         return 0;
     }
+
+    auto wrapper = getLuaWrapper(L);
+    wrapper->print("LIB loaded");
 
     return 0;
 }
@@ -159,6 +168,9 @@ static int load_layers(lua_State *L)
         return 0;
     }   
 
+    auto wrapper = getLuaWrapper(L);
+    wrapper->print("Layers loaded");
+
     return 0;
 }
 
@@ -168,6 +180,8 @@ static int clear(lua_State *L)
     auto db = getDB(L);
 
     db->clear();
+    auto wrapper = getLuaWrapper(L);
+    wrapper->print("Database cleared");
 
     return 0;
 }
@@ -204,6 +218,9 @@ static int add_hatch(lua_State *L)
     {
         db->m_hatchLib.m_hatches.push_back(*hatchPixmap);
     }
+
+    auto wrapper = getLuaWrapper(L);
+    wrapper->print("Hatch added");
 
     return 0;
 }
@@ -328,6 +345,9 @@ static int create_rows(lua_State *L)
 
     db->floorplan().m_regions.contentsChanged();
 
+    auto wrapper = getLuaWrapper(L);
+    wrapper->print("Rows created");
+
     return 0;
 }
 
@@ -354,6 +374,12 @@ static int remove_rows(lua_State *L)
     db->floorplan().m_regions.contentsChanged();
 
     region->m_rows.clear();
+
+    auto wrapper = getLuaWrapper(L);
+    wrapper->print("Rows removed");
+
+    db->floorplan().m_regions.contentsChanged();
+
     return 0;
 }
 
@@ -375,6 +401,9 @@ static int remove_region(lua_State *L)
         reportError(L, "Could not regomve region with name %s!", name);
         return 0;
     }
+
+    auto wrapper = getLuaWrapper(L);
+    wrapper->print("Region removed");
 
     db->floorplan().m_regions.contentsChanged();
     return 0;    
@@ -438,6 +467,11 @@ static int set_region_halo(lua_State *L)
 
     // increase the region size by the new halo
     region->m_rect.expand(region->m_halo);
+
+    db->floorplan().m_regions.contentsChanged();
+
+    auto wrapper = getLuaWrapper(L);
+    wrapper->print("Region halo updated");
 
     db->floorplan().m_regions.contentsChanged();
 

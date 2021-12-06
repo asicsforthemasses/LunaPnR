@@ -383,7 +383,9 @@ void MainWindow::onConsoleCommand(const QString &cmd)
 {
     if (m_lua)
     {
+        m_console->disablePrompt();
         m_lua->run(cmd.toUtf8().data());
+        m_console->enablePrompt();
     }
     else
     {
@@ -411,6 +413,8 @@ void MainWindow::onRunScript()
 
         std::stringstream ss;
         ss << luafile.rdbuf();
+        m_console->disablePrompt();
         m_lua->run(ss.str());
+        m_console->enablePrompt();
     }
 }

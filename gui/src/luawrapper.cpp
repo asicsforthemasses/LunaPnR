@@ -66,7 +66,7 @@ void LuaWrapper::print()
         if (m_console != nullptr)
         {
             std::stringstream ss;
-            ss << str << "\n";
+            ss << str;
 
             m_console->print(ss, (idx < count) ? GUI::MMConsole::PrintType::Partial : GUI::MMConsole::PrintType::Complete);
         }

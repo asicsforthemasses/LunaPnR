@@ -154,7 +154,7 @@
         <location filename="../src/mainwindow.cpp" line="343"/>
         <location filename="../src/mainwindow.cpp" line="369"/>
         <location filename="../src/mainwindow.cpp" line="375"/>
-        <location filename="../src/mainwindow.cpp" line="408"/>
+        <location filename="../src/mainwindow.cpp" line="410"/>
         <source>Error</source>
         <translation></translation>
     </message>
@@ -239,17 +239,17 @@
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="399"/>
+        <location filename="../src/mainwindow.cpp" line="401"/>
         <source>Run LUA Script</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="400"/>
+        <location filename="../src/mainwindow.cpp" line="402"/>
         <source>LUA script (*.lua)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="408"/>
+        <location filename="../src/mainwindow.cpp" line="410"/>
         <source>The LUA script file could not be opened for reading</source>
         <translation></translation>
     </message>
