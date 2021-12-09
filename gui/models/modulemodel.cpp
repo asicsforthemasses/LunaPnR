@@ -27,7 +27,7 @@ void ModuleTableModel::setModuleLib(ChipDB::ModuleLib *moduleLib)
     }
 }
 
-void ModuleTableModel::notify(ssize_t index, NotificationType t)
+void ModuleTableModel::notify(int32_t userID, ssize_t index, NotificationType t)
 {
     beginResetModel();
     endResetModel();
@@ -219,7 +219,7 @@ QVariant ModuleListModel::data(const QModelIndex &index, int role) const
     return v;    
 }
 
-void ModuleListModel::notify(ssize_t index, NotificationType t)
+void ModuleListModel::notify(int32_t userID, ssize_t index, NotificationType t)
 {
     beginResetModel();
     endResetModel();

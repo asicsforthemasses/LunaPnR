@@ -26,7 +26,7 @@ public:
     /** query the view/list header information */
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
-    void notify(ssize_t index, NotificationType t) override;
+    void notify(int32_t userID, ssize_t index, NotificationType t) override;
 
 protected:
     void updatePixmapCache();

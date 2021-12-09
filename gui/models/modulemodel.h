@@ -33,7 +33,7 @@ public:
     const ChipDB::Module* getModule(int row) const;
 
     /** called by ChipdB::ModuleLib */
-    void notify(ssize_t index, NotificationType t) override;
+    void notify(int32_t userID, ssize_t index, NotificationType t) override;
 
 protected:
     QColor m_lightColor;
@@ -63,7 +63,7 @@ public:
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
     /** called by ChipdB::ModuleLib */
-    void notify(ssize_t index, NotificationType t) override;
+    void notify(int32_t userID, ssize_t index, NotificationType t) override;
 
 protected:
     QColor m_lightColor;

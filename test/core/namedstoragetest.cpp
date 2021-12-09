@@ -56,7 +56,7 @@ struct MyListener : public ChipDB::INamedStorageListener
     {
     }
 
-    void notify(ssize_t index, NotificationType t)
+    void notify(int32_t userID, ssize_t index, NotificationType t) override
     {
         m_mostRecentIndex = index;
         m_mostRecentNotificationType = t;

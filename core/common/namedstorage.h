@@ -24,7 +24,11 @@ struct INamedStorageListener
         REMOVE
     };
 
-    virtual void notify(ssize_t index = -1, NotificationType t = NotificationType::UNSPECIFIED) = 0;
+    /** userID: the user ID when at addListener was called to register this listener.
+     *  index : the index of the item that was modified, -1 for entire collection.
+     *  t     : type of modification that occurred.
+    */
+    virtual void notify(int32_t userID= -1, ssize_t index = -1, NotificationType t = NotificationType::UNSPECIFIED) = 0;
 };
 
 /** container to store object pointers and provides fast named lookup. 
@@ -197,18 +201,34 @@ public:
         return m_objects.end();
     }
 
-    void addListener(INamedStorageListener *listener)
+    void addListener(INamedStorageListener *listener, int32_t userID = -1)
     {
-        auto iter = std::find(m_listeners.begin(), m_listeners.end(), listener);
+        // check if the listener already exists.
+        auto iter = std::find_if(m_listeners.begin(), m_listeners.end(), 
+            [listener](auto const &listenerData)
+            {
+                return listenerData.m_listener == listener;
+            }
+        );
+
+        // if not, add it!
         if (iter == m_listeners.end())
-        {
-            m_listeners.push_back(listener);
+        {            
+            m_listeners.emplace_back();
+            m_listeners.back().m_listener = listener;
+            m_listeners.back().m_userID = userID;
         }
     }
 
     void removeListener(INamedStorageListener *listener)
     {
-        auto iter = std::find(m_listeners.begin(), m_listeners.end(), listener);
+        auto iter = std::find_if(m_listeners.begin(), m_listeners.end(), 
+            [listener](auto const &listenerData)
+            {
+                return listenerData.m_listener == listener;
+            }
+        );
+
         if (iter != m_listeners.end())
         {
             m_listeners.erase(iter);
@@ -226,16 +246,22 @@ protected:
     void notifyAll(ssize_t index = -1, INamedStorageListener::NotificationType t = 
         INamedStorageListener::NotificationType::UNSPECIFIED) const
     {
-        for(auto const listener : m_listeners)
+        for(auto &listenerData : m_listeners)
         {
-            if (listener != nullptr)
+            if (listenerData.m_listener != nullptr)
             {
-                listener->notify(index, t);
+                listenerData.m_listener->notify(listenerData.m_userID, index, t);
             }
         }
     }
 
-    std::vector<INamedStorageListener*> m_listeners;
+    struct ListenerData
+    {
+        INamedStorageListener *m_listener;
+        int32_t                m_userID;
+    };
+
+    std::vector<ListenerData> m_listeners;
     std::vector<T> m_objects;
     std::unordered_map<std::string, size_t> m_nameToIndex;
 };

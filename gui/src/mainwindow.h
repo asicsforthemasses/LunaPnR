@@ -30,11 +30,12 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     virtual ~MainWindow();
 
+    static const int32_t FloorplanNotificationID = 1;
+    static const int32_t TechlibNotificationID = 2;
+    static const int32_t CellLibNotificationID = 3;
+
     // called by database updates
-    void notify(ssize_t index = -1, NotificationType t = NotificationType::UNSPECIFIED) override
-    {
-        m_floorplanDirty = true;
-    }
+    void notify(int32_t userID, ssize_t index = -1, NotificationType t = NotificationType::UNSPECIFIED) override;
 
 public slots:
     void onQuit();
@@ -74,6 +75,9 @@ protected:
     GUI::Database m_db;
 
     bool m_floorplanDirty;
+    bool m_techLibDirty;
+    bool m_cellLibDirty;
+    
     QTimer m_guiUpdateTimer;
 
     std::unique_ptr<GUI::LuaWrapper> m_lua;

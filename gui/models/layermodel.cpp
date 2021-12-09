@@ -113,7 +113,7 @@ void LayerListModel::updatePixmapCache()
     }
 }
 
-void LayerListModel::notify(ssize_t index, NotificationType t)
+void LayerListModel::notify(int32_t userID, ssize_t index, NotificationType t)
 {
     beginResetModel();
     endResetModel();

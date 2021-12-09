@@ -15,8 +15,12 @@
 
 #include "mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_floorplanDirty(true)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+    m_floorplanDirty = true;
+    m_techLibDirty   = true;
+    m_cellLibDirty   = true;
+
     setLogLevel(LOG_VERBOSE);
 
     //m_menuBar = new QMenuBar();
@@ -184,6 +188,22 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_floorplanDirty(
 
 MainWindow::~MainWindow()
 {
+}
+
+void MainWindow::notify(int32_t userID, ssize_t index, NotificationType t)
+{
+    switch(userID)
+    {
+    case FloorplanNotificationID:
+        m_floorplanDirty = true;
+        break;
+    case TechlibNotificationID:
+        m_techLibDirty = true;
+        break;
+    case CellLibNotificationID:
+        m_cellLibDirty = true;
+        break;
+    }
 }
 
 void MainWindow::createMenus()
@@ -431,4 +451,14 @@ void MainWindow::onGUIUpdateTimer()
         m_floorplanView->update();
         m_floorplanDirty = false;
     }
+    if (m_techBrowser->isVisible() && m_techLibDirty)
+    {
+        m_techBrowser->update();
+        m_techLibDirty = false;
+    }
+    if (m_cellBrowser->isVisible() && m_cellLibDirty)
+    {
+        m_cellBrowser->update();
+        m_cellLibDirty = false;
+    }        
 }

@@ -248,7 +248,7 @@ const ChipDB::Cell* CellLibTableModel::getCell(int row) const
     }
 }
 
-void CellLibTableModel::notify(ssize_t index, ChipDB::INamedStorageListener::NotificationType t)
+void CellLibTableModel::notify(int32_t userID, ssize_t index, ChipDB::INamedStorageListener::NotificationType t)
 {
     beginResetModel();
     endResetModel();    

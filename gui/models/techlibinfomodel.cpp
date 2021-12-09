@@ -107,7 +107,7 @@ void LayerTableModel::setTechLib(ChipDB::TechLib *techLib)
     endResetModel();
 }
 
-void LayerTableModel::notify(ssize_t index, ChipDB::INamedStorageListener::NotificationType t)
+void LayerTableModel::notify(int32_t userID, ssize_t index, ChipDB::INamedStorageListener::NotificationType t)
 {
     beginResetModel();
     endResetModel();

@@ -34,7 +34,7 @@ public:
 
     const ChipDB::LayerInfo* getLayer(int row) const;
 
-    void notify(ssize_t index, ChipDB::INamedStorageListener::NotificationType t) override;
+    void notify(int32_t userID, ssize_t index, ChipDB::INamedStorageListener::NotificationType t) override;
 
 protected:
     QColor m_darkColor;
