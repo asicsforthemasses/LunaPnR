@@ -14,7 +14,7 @@
 #include "../common/layerrenderinfo.h"
 #include "../models/celllibmodel.h"
 #include "../models/cellinfomodel.h"
-#include "../models/layermodel.h"
+#include "../models/layerappearancetablemodel.h"
 #include "../propertyview/propertyview.h"
 #include "celllayoutview.h"
 

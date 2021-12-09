@@ -4,7 +4,7 @@
 #include <QColor>
 #include <QIcon>
 #include <QPainter>
-#include "layermodel.h"
+#include "layerappearancetablemodel.h"
 
 using namespace GUI;
 
