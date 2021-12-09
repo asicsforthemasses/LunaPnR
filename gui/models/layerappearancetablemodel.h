@@ -45,6 +45,7 @@ protected:
     };
 
     std::vector<PixmapCacheEntry> m_pixmapCache;
+    std::vector<PixmapCacheEntry> m_pixmapObsCache;
 };
 
 };

@@ -382,7 +382,11 @@ void MainWindow::onRunScript()
 
         std::stringstream ss;
         ss << luafile.rdbuf();
+
         m_console->disablePrompt();
+        std::stringstream message;
+        message << "\nRunning script " << fileName.toStdString() << "\n";
+        m_console->print(message, GUI::MMConsole::PrintType::Complete);        
         m_lua->run(ss.str());
         m_console->enablePrompt();
     }

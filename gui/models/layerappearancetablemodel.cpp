@@ -61,9 +61,20 @@ QVariant LayerAppearanceTableModel::data(const QModelIndex &index, int role) con
         {
             auto layerPtr = m_layers->at(idx);
             if (layerPtr != nullptr)
-                return QString::fromStdString(layerPtr->getName());
+            {
+                if (index.column() == 0)
+                {
+                    return QString::fromStdString(layerPtr->getName());
+                }
+                else
+                {
+                    return QString::fromStdString("obstruct");
+                }
+            }
             else
+            {
                 return QString("(null)");
+            }
         }
         break;
     case Qt::BackgroundColorRole:
@@ -81,8 +92,7 @@ QVariant LayerAppearanceTableModel::data(const QModelIndex &index, int role) con
             }
             else
             {
-                //FIXME: return obstruction bitmap
-                return m_pixmapCache.at(idx).m_pixmap;
+                return m_pixmapObsCache.at(idx).m_pixmap;
             }
         }
         break;
@@ -109,19 +119,23 @@ void LayerAppearanceTableModel::updatePixmapCache()
     }
 
     m_pixmapCache.resize(m_layers->size());
+    m_pixmapObsCache.resize(m_layers->size());
 
     // update icon cache
     ssize_t idx = 0;
     while(idx < m_layers->size())
     {
         QPixmap pixmap;
+        QPixmap obsPixmap;
         auto layer = m_layers->at(idx);
         if (layer != nullptr)
         {
             pixmap = layer->routing().createToolbarPixmap(QSize(24,24), Qt::black);
+            obsPixmap = layer->obstruction().createToolbarPixmap(QSize(24,24), Qt::black);
         }
 
         m_pixmapCache.at(idx).m_pixmap = pixmap;
+        m_pixmapObsCache.at(idx).m_pixmap = obsPixmap;
         idx++;
     }
 }

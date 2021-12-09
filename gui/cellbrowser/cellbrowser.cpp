@@ -3,6 +3,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QItemDelegate>
+#include <QSortFilterProxyModel>
 
 using namespace GUI;
 
@@ -94,9 +95,13 @@ CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
     m_cellTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers); // make read-only
     //m_cellTreeView->setHeaderHidden(true);
 
+    // layer appearance
     m_layerTableModel.reset(new LayerAppearanceTableModel());
     m_layerView = new QTableView();
-    m_layerView->setModel(m_layerTableModel.get());
+    QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
+    proxyModel->setSourceModel(m_layerTableModel.get());
+    proxyModel->sort(0, Qt::AscendingOrder);
+    m_layerView->setModel(proxyModel);
 
     m_cellInfoModel.reset(new CellInfoModel());
     m_cellTreeView->setModel(m_cellInfoModel.get());
@@ -148,6 +153,10 @@ void CellBrowser::setDatabase(Database *db)
         m_cellTreeView->header()->setSectionResizeMode(
             c, QHeaderView::Stretch);
     }    
+
+    m_layerView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    m_cellTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    
 }
 
 void CellBrowser::refreshDatabase()
