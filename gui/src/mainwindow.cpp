@@ -173,7 +173,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 #endif
 
-    m_db.floorplan().m_regions.addListener(this);
+    m_db.floorplan().m_regions.addListener(this, FloorplanNotificationID);
 
     m_floorplanView->setDatabase(&m_db);
     m_floorplanView->update();
@@ -209,6 +209,7 @@ void MainWindow::notify(int32_t userID, ssize_t index, NotificationType t)
 void MainWindow::createMenus()
 {
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(m_clearAct);
     fileMenu->addAction(m_runScriptAct);
     fileMenu->addSeparator();
     fileMenu->addAction(m_quitAct);
@@ -228,6 +229,9 @@ void MainWindow::createMenus()
 
 void MainWindow::createActions()
 {
+    m_clearAct = new QAction(tr("Clear database"), this);
+    connect(m_clearAct, &QAction::triggered, this, &MainWindow::onClearDatabase);
+
     m_runScriptAct = new QAction(tr("Run script..."), this);
     connect(m_runScriptAct, &QAction::triggered, this, &MainWindow::onRunScript);
 
@@ -461,4 +465,10 @@ void MainWindow::onGUIUpdateTimer()
         m_cellBrowser->update();
         m_cellLibDirty = false;
     }        
+}
+
+void MainWindow::onClearDatabase()
+{
+    m_db.clear();
+    m_console->print("Database cleared", GUI::MMConsole::PrintType::Complete);
 }

@@ -46,6 +46,7 @@ public slots:
     void onImportLayers();
     void onExportLayers();
     void onRunScript();
+    void onClearDatabase();
     void onConsoleCommand(const QString &cmd);
     void onGUIUpdateTimer();
     
@@ -53,6 +54,7 @@ protected:
     void createMenus();
     void createActions();
 
+    QAction *m_clearAct;
     QAction *m_quitAct;    
     QAction *m_aboutAct;
     QAction *m_loadVerilog;
@@ -77,7 +79,7 @@ protected:
     bool m_floorplanDirty;
     bool m_techLibDirty;
     bool m_cellLibDirty;
-    
+
     QTimer m_guiUpdateTimer;
 
     std::unique_ptr<GUI::LuaWrapper> m_lua;
