@@ -15,7 +15,7 @@
 
 #include "mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
+MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), m_floorplanDirty(true)
 {
     setLogLevel(LOG_VERBOSE);
 
@@ -169,8 +169,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 #endif
 
+    m_db.floorplan().m_regions.addListener(this);
+
     m_floorplanView->setDatabase(&m_db);
     m_floorplanView->update();
+
+    connect(&m_guiUpdateTimer, &QTimer::timeout, this, &MainWindow::onGUIUpdateTimer);
+    m_guiUpdateTimer.start(1000);
 
     m_lua.reset(new GUI::LuaWrapper(m_console, m_db));
     
@@ -416,5 +421,14 @@ void MainWindow::onRunScript()
         m_console->disablePrompt();
         m_lua->run(ss.str());
         m_console->enablePrompt();
+    }
+}
+
+void MainWindow::onGUIUpdateTimer()
+{
+    if (m_floorplanView->isVisible() && m_floorplanDirty)
+    {
+        m_floorplanView->update();
+        m_floorplanDirty = false;
     }
 }

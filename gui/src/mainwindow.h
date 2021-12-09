@@ -9,6 +9,7 @@
 #include <QMenuBar>
 #include <QTableWidget>
 #include <QSplitter>
+#include <QTimer>
 
 #include "../console/mmconsole.h"
 #include "../techbrowser/techbrowser.h"
@@ -20,13 +21,20 @@
 #include "luawrapper.h"
 #include "../common/database.h"
 
-class MainWindow : public QMainWindow
+
+class MainWindow : public QMainWindow, public ChipDB::INamedStorageListener
 {
     Q_OBJECT
 
 public:
     explicit MainWindow(QWidget *parent = 0);
     virtual ~MainWindow();
+
+    // called by database updates
+    void notify(ssize_t index = -1, NotificationType t = NotificationType::UNSPECIFIED) override
+    {
+        m_floorplanDirty = true;
+    }
 
 public slots:
     void onQuit();
@@ -38,6 +46,7 @@ public slots:
     void onExportLayers();
     void onRunScript();
     void onConsoleCommand(const QString &cmd);
+    void onGUIUpdateTimer();
     
 protected:
     void createMenus();
@@ -63,6 +72,9 @@ protected:
     GUI::FloorplanView  *m_floorplanView;
 
     GUI::Database m_db;
+
+    bool m_floorplanDirty;
+    QTimer m_guiUpdateTimer;
 
     std::unique_ptr<GUI::LuaWrapper> m_lua;
 };
