@@ -1,8 +1,76 @@
 #include "cellbrowser.h"
 #include <QHeaderView>
 #include <QLabel>
+#include <QComboBox>
+#include <QItemDelegate>
 
 using namespace GUI;
+
+SubclassDelegate::SubclassDelegate(QObject *parent) : QItemDelegate(parent)
+{
+
+}
+
+QWidget* SubclassDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    if (index.column() == 2) 
+    {
+         auto classIndex = index.siblingAtColumn(1);
+        if (index.model()->data(classIndex, Qt::EditRole) == "CORE")
+        {
+            auto box = new QComboBox(parent);
+            box->addItem("NONE", static_cast<int>(ChipDB::CellSubclass::NONE));
+            box->addItem("SPACER", static_cast<int>(ChipDB::CellSubclass::SPACER));
+            box->addItem("FEEDTHRU", static_cast<int>(ChipDB::CellSubclass::FEEDTHRU));
+            box->addItem("TIEHIGH", static_cast<int>(ChipDB::CellSubclass::TIEHIGH));
+            box->addItem("TIELOW", static_cast<int>(ChipDB::CellSubclass::TIELOW));
+            box->addItem("WELLTAP", static_cast<int>(ChipDB::CellSubclass::WELLTAP));
+            box->addItem("ANTENNACELL", static_cast<int>(ChipDB::CellSubclass::ANTENNACELL));
+            return box;
+        }
+        else
+        {
+            return nullptr;
+        }
+    } 
+    else 
+    {
+        return QItemDelegate::createEditor(parent, option, index);
+    }    
+}
+
+void SubclassDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+{
+    auto currentSubclassID = index.model()->data(index, Qt::UserRole).toInt();
+
+    auto comboBox = static_cast<QComboBox*>(editor);
+    if (comboBox != nullptr)
+    {
+        auto const itemCount = comboBox->count();
+        for(int index=0; index<itemCount; index++)
+        {
+            bool ok;
+            int subclassID = comboBox->itemData(index, Qt::UserRole).toInt(&ok);
+            if (subclassID == currentSubclassID)
+            {
+                comboBox->setCurrentIndex(index);
+                return;
+            }
+        }
+        comboBox->setCurrentIndex(0);
+    }
+}
+
+void SubclassDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
+    const QModelIndex &index) const
+{
+    auto comboBox = static_cast<QComboBox*>(editor);
+    if (comboBox != nullptr)
+    {
+        auto subclassID = comboBox->currentData(Qt::UserRole);
+        model->setData(index, subclassID, Qt::UserRole);
+    }
+}
 
 CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
 {
@@ -14,6 +82,9 @@ CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
     m_cellTableView->setSelectionMode(QAbstractItemView::SingleSelection);
     m_cellTableView->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
     m_cellTableView->horizontalHeader()->setStretchLastSection(true);
+
+    m_cellTableView->setItemDelegateForColumn(2, &m_subclassDelegate);
+
     m_cellLayoutView = new CellLayoutView(parent);
 
     m_cellModel.reset(new CellLibTableModel(nullptr));

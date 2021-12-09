@@ -79,8 +79,6 @@ ChipDB::Coord64 CellLayoutView::toChipDelta(const QPointF &delta) const noexcept
     const auto dx = static_cast<int64_t>(delta.x() * sx);
     const auto dy = static_cast<int64_t>(delta.y() * sy);
 
-    std::cout << ChipDB::Coord64{dx,dy} << "\n";
-
     return ChipDB::Coord64{dx,dy};
 }
 

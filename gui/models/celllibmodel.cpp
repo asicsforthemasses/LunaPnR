@@ -21,30 +21,7 @@ void CellLibListModel::setCellLib(const ChipDB::CellLib *cellLib)
     beginResetModel();
     m_cellLib = cellLib;
     endResetModel();
-    //synchronizeCellIds(cellLib);  
 }
-
-#if 0
-void CellLibListModel::synchronizeCellIds(const ChipDB::CellLib *cellLib)
-{
-    if (cellLib == nullptr)
-        return;
-
-    beginResetModel();
-    m_cellLib = cellLib;
-    m_cellsIndex.resize(m_cellLib->size());
-    
-    auto cellIter = m_cellLib->cells().begin();
-    size_t idx = 0;
-    while(cellIter != m_cellLib->cells().end())
-    {
-        m_cellsIndex[idx] = cellIter.index();
-        idx++;
-        ++cellIter;
-    }
-    endResetModel();
-}
-#endif
 
 int CellLibListModel::rowCount(const QModelIndex &parent) const
 {
@@ -160,6 +137,31 @@ int CellLibTableModel::columnCount(const QModelIndex &parent) const
     return 3;
 }
 
+bool CellLibTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (index.column() != c_subclassColumn)
+    {
+        return false;
+    }
+    
+    if (m_cellLib == nullptr)
+    {
+        return false;
+    }
+
+    if (index.row() >= m_cellLib->size())
+    {
+        return false;
+    }
+
+    if (role == Qt::UserRole)
+    {
+        m_cellLib->m_cells.at(index.row())->m_subclass = static_cast<ChipDB::CellSubclass>(value.toInt());
+    }
+
+    return true;
+}
+
 QVariant CellLibTableModel::data(const QModelIndex &index, int role) const
 {
     QVariant v;
@@ -182,10 +184,8 @@ QVariant CellLibTableModel::data(const QModelIndex &index, int role) const
                 case 0: // cell name
                     return QString::fromStdString(cell->m_name);
                 case 1: // cell class
-                    //return QString("");
                     return QString::fromStdString(ChipDB::toString(cell->m_class));
                 default:
-                    //return QString("");
                     return QString::fromStdString(ChipDB::toString(cell->m_subclass));
                 }
             }
@@ -194,6 +194,27 @@ QVariant CellLibTableModel::data(const QModelIndex &index, int role) const
                 return QString("(null)");
         }
         break;
+    case Qt::UserRole:
+        if (idx < rowCount())
+        {
+            auto cell = m_cellLib->m_cells.at(idx);
+            if (cell != nullptr)
+            {
+                switch(index.column())
+                {
+                case 0: // cell name
+                    return 0;
+                case 1: // cell class
+                    return static_cast<int>(cell->m_class);
+                default:
+                    return static_cast<int>(cell->m_subclass);
+                }
+            }
+                
+            else
+                return QString("(null)");
+        }
+        break;        
     case Qt::BackgroundColorRole:
         if (index.row() % 2)
             return m_darkColor;
@@ -230,7 +251,15 @@ QVariant CellLibTableModel::headerData(int section, Qt::Orientation orientation,
 
 Qt::ItemFlags CellLibTableModel::flags(const QModelIndex &index) const
 {
-    return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    // only cell class is editable
+    if (index.column() != c_subclassColumn)
+    {
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+    }
+    else
+    {
+        return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsEditable;
+    }
 }
 
 const ChipDB::Cell* CellLibTableModel::getCell(int row) const

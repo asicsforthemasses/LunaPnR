@@ -57,25 +57,31 @@ public:
     void setCellLib(ChipDB::CellLib *m_cellLib);
 
     /** return the number of rows in the table */
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /** return the number of columns in the table */
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /** returns various information about enabled/disabled items etc */
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
     /** query the data a 'index' position */
-    virtual QVariant data(const QModelIndex &index, int role) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+
+    /** set the data of a specific item */
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 
     /** query the view/list header information */
-    virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
     const ChipDB::Cell* getCell(int row) const;
 
     void notify(int32_t userID, ssize_t index, ChipDB::INamedStorageListener::NotificationType t) override;
 
 protected:
+
+    static constexpr const int32_t c_subclassColumn = 2;
+
     QColor m_lightColor;
     QColor m_darkColor;
     ChipDB::CellLib *m_cellLib;

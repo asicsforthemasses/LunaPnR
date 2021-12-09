@@ -9,6 +9,7 @@
 #include <QGroupBox>
 #include <QFrame>
 #include <QHBoxLayout>
+#include <QItemDelegate>
 
 #include "../common/layerrenderinfo.h"
 #include "../models/celllibmodel.h"
@@ -19,6 +20,18 @@
 
 namespace GUI
 {
+
+class SubclassDelegate : public QItemDelegate
+{
+public:
+    SubclassDelegate(QObject *parent = 0);
+    
+    QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    
+    void setEditorData(QWidget *editor, const QModelIndex &index) const override;
+    
+    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
+};
 
 class CellBrowser : public QWidget
 {
@@ -49,6 +62,8 @@ protected:
     QTreeView       *m_cellTreeView;
     QListView       *m_layerView;
     
+    SubclassDelegate m_subclassDelegate;
+
     Database        *m_db;
 };
 
