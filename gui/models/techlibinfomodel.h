@@ -68,13 +68,15 @@ public:
 };
 
 
-class LayerInfoModel : public ModelBase
+class LayerInfoModel : public ModelBase, public ChipDB::INamedStorageListener
 {
 public:
     LayerInfoModel();
     virtual ~LayerInfoModel();
 
     void setLayer(const ChipDB::LayerInfo *layer);
+
+    void notify(int32_t userID, ssize_t index, ChipDB::INamedStorageListener::NotificationType t) override;
 
 protected:
     AlternatingColors m_altColors;

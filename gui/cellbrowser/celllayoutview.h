@@ -54,7 +54,7 @@ protected:
     int32_t        m_zoomLevel;
 
     ChipDB::Cell   m_cell;  ///< (partial) local copy of cell
-    const Database      *m_db;
+    const Database *m_db;
 };
 
 };  // namespace

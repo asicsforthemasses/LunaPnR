@@ -69,6 +69,13 @@ void LayerInfoModel::setLayer(const ChipDB::LayerInfo *layer)
     endResetModel();
 }
 
+void LayerInfoModel::notify(int32_t userID, ssize_t index, ChipDB::INamedStorageListener::NotificationType t)
+{
+    if (t == ChipDB::INamedStorageListener::NotificationType::REMOVE)
+    {
+        setLayer(nullptr);
+    }
+}
 
 // ********************************************************************************
 //    LayerTableModel
@@ -216,3 +223,4 @@ const ChipDB::LayerInfo* LayerTableModel::getLayer(int row) const
         return nullptr;
     }
 }
+

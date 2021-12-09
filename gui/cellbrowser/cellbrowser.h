@@ -52,7 +52,7 @@ public slots:
 protected:
     std::unique_ptr<CellLibTableModel>  m_cellModel;
     std::unique_ptr<CellInfoModel>      m_cellInfoModel;
-    std::unique_ptr<LayerListModel>     m_layerListModel;
+    std::unique_ptr<LayerAppearanceTableModel> m_layerTableModel;
 
     QHBoxLayout     *m_layout;
     QVBoxLayout     *m_layout2;
@@ -60,7 +60,7 @@ protected:
     CellLayoutView  *m_cellLayoutView;
 
     QTreeView       *m_cellTreeView;
-    QListView       *m_layerView;
+    QTableView      *m_layerView;
     
     SubclassDelegate m_subclassDelegate;
 

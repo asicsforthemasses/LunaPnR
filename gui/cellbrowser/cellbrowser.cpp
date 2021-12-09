@@ -8,14 +8,13 @@ using namespace GUI;
 
 SubclassDelegate::SubclassDelegate(QObject *parent) : QItemDelegate(parent)
 {
-
 }
 
 QWidget* SubclassDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     if (index.column() == 2) 
     {
-         auto classIndex = index.siblingAtColumn(1);
+        auto classIndex = index.siblingAtColumn(1);
         if (index.model()->data(classIndex, Qt::EditRole) == "CORE")
         {
             auto box = new QComboBox(parent);
@@ -49,9 +48,9 @@ void SubclassDelegate::setEditorData(QWidget *editor, const QModelIndex &index) 
         auto const itemCount = comboBox->count();
         for(int index=0; index<itemCount; index++)
         {
-            bool ok;
+            bool ok = false;
             int subclassID = comboBox->itemData(index, Qt::UserRole).toInt(&ok);
-            if (subclassID == currentSubclassID)
+            if ((subclassID == currentSubclassID) && ok)
             {
                 comboBox->setCurrentIndex(index);
                 return;
@@ -95,9 +94,9 @@ CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
     m_cellTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers); // make read-only
     //m_cellTreeView->setHeaderHidden(true);
 
-    m_layerListModel.reset(new LayerListModel());
-    m_layerView = new QListView();
-    m_layerView->setModel(m_layerListModel.get());
+    m_layerTableModel.reset(new LayerAppearanceTableModel());
+    m_layerView = new QTableView();
+    m_layerView->setModel(m_layerTableModel.get());
 
     m_cellInfoModel.reset(new CellInfoModel());
     m_cellTreeView->setModel(m_cellInfoModel.get());
@@ -136,7 +135,7 @@ void CellBrowser::setDatabase(Database *db)
     
     m_cellLayoutView->setDatabase(db);
     m_cellModel->setCellLib(&db->cellLib());
-    m_layerListModel->setLayers(&db->m_layerRenderInfoDB);
+    m_layerTableModel->setLayers(&db->m_layerRenderInfoDB);
 
     auto cellPtr = db->cellLib().m_cells.at(0);
     
@@ -153,7 +152,7 @@ void CellBrowser::setDatabase(Database *db)
 
 void CellBrowser::refreshDatabase()
 {
-    setDatabase(m_db);    
+    setDatabase(m_db);
 }
 
 void CellBrowser::onCellSelectionChanged(const QItemSelection &cur, const QItemSelection &prev)

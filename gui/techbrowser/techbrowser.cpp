@@ -7,7 +7,7 @@
 
 using namespace GUI;
 
-TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent)
+TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent), m_db(nullptr)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
@@ -101,6 +101,11 @@ QSize TechBrowser::sizeHint() const
 
 void TechBrowser::setDatabase(Database *db)
 {
+    if (m_db != nullptr)
+    {
+        m_db->techLib().m_layers.removeListener(m_layerInfoModel.get());
+    }
+
     m_db = db;
 
     if (m_db == nullptr)
@@ -109,6 +114,8 @@ void TechBrowser::setDatabase(Database *db)
         m_layerTableModel->setTechLib(nullptr);
         return;
     }
+
+    m_db->techLib().m_layers.addListener(m_layerInfoModel.get());
 
     auto layer = m_db->techLib().m_layers.at(0);
     m_layerInfoModel->setLayer(layer);

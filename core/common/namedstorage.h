@@ -65,7 +65,7 @@ public:
 
         m_objects.clear();
         m_nameToIndex.clear();
-        notifyAll();
+        notifyAll(-1, INamedStorageListener::NotificationType::REMOVE);
     }
 
     size_t size() const

@@ -8,14 +8,14 @@
 
 using namespace GUI;
 
-LayerListModel::LayerListModel(LayerRenderInfoDB *layers) : m_layers(nullptr)
+LayerAppearanceTableModel::LayerAppearanceTableModel(LayerRenderInfoDB *layers) : m_layers(nullptr)
 {
     m_lightColor = QColor("#F0F0F0");
     m_darkColor  = QColor("#D0D0D0");
     setLayers(layers);
 }
 
-void LayerListModel::setLayers(LayerRenderInfoDB *layers)
+void LayerAppearanceTableModel::setLayers(LayerRenderInfoDB *layers)
 {
     if (m_layers != nullptr)
     {
@@ -32,7 +32,7 @@ void LayerListModel::setLayers(LayerRenderInfoDB *layers)
     }    
 }
 
-int LayerListModel::rowCount(const QModelIndex &parent) const
+int LayerAppearanceTableModel::rowCount(const QModelIndex &parent) const
 {
     if (m_layers == nullptr)
         return 0;
@@ -40,7 +40,12 @@ int LayerListModel::rowCount(const QModelIndex &parent) const
     return m_layers->size();
 }
 
-QVariant LayerListModel::data(const QModelIndex &index, int role) const
+int LayerAppearanceTableModel::columnCount(const QModelIndex &parent) const
+{
+    return 2;
+}
+
+QVariant LayerAppearanceTableModel::data(const QModelIndex &index, int role) const
 {
     QVariant v;
 
@@ -70,7 +75,15 @@ QVariant LayerListModel::data(const QModelIndex &index, int role) const
     case Qt::DecorationRole:
         if (idx < m_pixmapCache.size())
         {              
-            return m_pixmapCache.at(idx).m_pixmap;
+            if (index.column() == 0)
+            {
+                return m_pixmapCache.at(idx).m_pixmap;
+            }
+            else
+            {
+                //FIXME: return obstruction bitmap
+                return m_pixmapCache.at(idx).m_pixmap;
+            }
         }
         break;
     }
@@ -78,17 +91,17 @@ QVariant LayerListModel::data(const QModelIndex &index, int role) const
     return v;
 }
 
-QVariant LayerListModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant LayerAppearanceTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     return "";
 }
 
-Qt::ItemFlags LayerListModel::flags(const QModelIndex &index) const
+Qt::ItemFlags LayerAppearanceTableModel::flags(const QModelIndex &index) const
 {
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-void LayerListModel::updatePixmapCache()
+void LayerAppearanceTableModel::updatePixmapCache()
 {
     if (m_layers == nullptr)
     {
@@ -113,7 +126,7 @@ void LayerListModel::updatePixmapCache()
     }
 }
 
-void LayerListModel::notify(int32_t userID, ssize_t index, NotificationType t)
+void LayerAppearanceTableModel::notify(int32_t userID, ssize_t index, NotificationType t)
 {
     beginResetModel();
     endResetModel();
