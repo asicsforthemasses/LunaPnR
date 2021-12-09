@@ -56,205 +56,210 @@
 <context>
     <name>MainWindow</name>
     <message>
-        <location filename="../src/mainwindow.cpp" line="37"/>
+        <location filename="../src/mainwindow.cpp" line="38"/>
         <source>Design Browser</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="41"/>
+        <location filename="../src/mainwindow.cpp" line="42"/>
         <source>Cell Browser</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="45"/>
+        <location filename="../src/mainwindow.cpp" line="46"/>
         <source>Tech Browser</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="48"/>
+        <location filename="../src/mainwindow.cpp" line="49"/>
         <source>Floorplan</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="211"/>
+        <location filename="../src/mainwindow.cpp" line="110"/>
         <source>&amp;File</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="217"/>
+        <location filename="../src/mainwindow.cpp" line="117"/>
         <source>&amp;Design</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="220"/>
+        <location filename="../src/mainwindow.cpp" line="120"/>
         <source>&amp;Technology</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="226"/>
+        <location filename="../src/mainwindow.cpp" line="126"/>
         <source>&amp;Help</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="232"/>
+        <location filename="../src/mainwindow.cpp" line="135"/>
         <source>Clear database</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="235"/>
+        <location filename="../src/mainwindow.cpp" line="132"/>
         <source>Run script...</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="238"/>
+        <location filename="../src/mainwindow.cpp" line="138"/>
+        <source>Set console font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mainwindow.cpp" line="141"/>
         <source>&amp;Quit</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="241"/>
+        <location filename="../src/mainwindow.cpp" line="144"/>
         <source>&amp;About</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="244"/>
+        <location filename="../src/mainwindow.cpp" line="147"/>
         <source>&amp;Load Verilog</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="247"/>
+        <location filename="../src/mainwindow.cpp" line="150"/>
         <source>Import LEF</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="250"/>
+        <location filename="../src/mainwindow.cpp" line="153"/>
         <source>Import LIB</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="253"/>
+        <location filename="../src/mainwindow.cpp" line="156"/>
         <source>Import Layers</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="256"/>
+        <location filename="../src/mainwindow.cpp" line="159"/>
         <source>Export layers</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="275"/>
+        <location filename="../src/mainwindow.cpp" line="215"/>
         <source>Import LEF file</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="276"/>
+        <location filename="../src/mainwindow.cpp" line="216"/>
         <source>LEF file (*.lef *.tlef)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="284"/>
-        <location filename="../src/mainwindow.cpp" line="291"/>
-        <location filename="../src/mainwindow.cpp" line="314"/>
-        <location filename="../src/mainwindow.cpp" line="321"/>
-        <location filename="../src/mainwindow.cpp" line="347"/>
-        <location filename="../src/mainwindow.cpp" line="372"/>
-        <location filename="../src/mainwindow.cpp" line="398"/>
-        <location filename="../src/mainwindow.cpp" line="404"/>
-        <location filename="../src/mainwindow.cpp" line="439"/>
+        <location filename="../src/mainwindow.cpp" line="224"/>
+        <location filename="../src/mainwindow.cpp" line="231"/>
+        <location filename="../src/mainwindow.cpp" line="254"/>
+        <location filename="../src/mainwindow.cpp" line="261"/>
+        <location filename="../src/mainwindow.cpp" line="287"/>
+        <location filename="../src/mainwindow.cpp" line="312"/>
+        <location filename="../src/mainwindow.cpp" line="338"/>
+        <location filename="../src/mainwindow.cpp" line="344"/>
+        <location filename="../src/mainwindow.cpp" line="379"/>
         <source>Error</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="284"/>
+        <location filename="../src/mainwindow.cpp" line="224"/>
         <source>The LEF file could not be opened for reading</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="291"/>
+        <location filename="../src/mainwindow.cpp" line="231"/>
         <source>The LEF file contains errors</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="305"/>
+        <location filename="../src/mainwindow.cpp" line="245"/>
         <source>Import Liberty timing file</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="306"/>
+        <location filename="../src/mainwindow.cpp" line="246"/>
         <source>LIB file (*.lib)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="314"/>
+        <location filename="../src/mainwindow.cpp" line="254"/>
         <source>The Liberty file could not be opened for reading</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="321"/>
+        <location filename="../src/mainwindow.cpp" line="261"/>
         <source>The LIB file contains errors</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="335"/>
+        <location filename="../src/mainwindow.cpp" line="275"/>
         <source>Import layer setup</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="336"/>
+        <location filename="../src/mainwindow.cpp" line="276"/>
         <source>JSON file (*.json)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="347"/>
+        <location filename="../src/mainwindow.cpp" line="287"/>
         <source>The Layer setup file contains errors</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="362"/>
+        <location filename="../src/mainwindow.cpp" line="302"/>
         <source>Save Layer setup File</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="364"/>
+        <location filename="../src/mainwindow.cpp" line="304"/>
         <source>Layer file (*.json)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="372"/>
+        <location filename="../src/mainwindow.cpp" line="312"/>
         <source>Cannot save Layer setup file</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="388"/>
+        <location filename="../src/mainwindow.cpp" line="328"/>
         <source>load Verilog netlist</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="389"/>
+        <location filename="../src/mainwindow.cpp" line="329"/>
         <source>Verilog file (*.v)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="398"/>
+        <location filename="../src/mainwindow.cpp" line="338"/>
         <source>Could not parse Verilog file</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="404"/>
+        <location filename="../src/mainwindow.cpp" line="344"/>
         <source>Could not open Verilog file</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="430"/>
+        <location filename="../src/mainwindow.cpp" line="370"/>
         <source>Run LUA Script</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="431"/>
+        <location filename="../src/mainwindow.cpp" line="371"/>
         <source>LUA script (*.lua)</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="../src/mainwindow.cpp" line="439"/>
+        <location filename="../src/mainwindow.cpp" line="379"/>
         <source>The LUA script file could not be opened for reading</source>
         <translation></translation>
     </message>
@@ -262,7 +267,7 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../src/main.cpp" line="94"/>
+        <location filename="../src/main.cpp" line="107"/>
         <source>LunaPnR - a moonshot ASIC place&amp;route tool</source>
         <translation></translation>
     </message>

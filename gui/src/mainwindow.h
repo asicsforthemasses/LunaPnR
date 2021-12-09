@@ -10,6 +10,7 @@
 #include <QTableWidget>
 #include <QSplitter>
 #include <QTimer>
+#include <QSettings>
 
 #include "../console/mmconsole.h"
 #include "../techbrowser/techbrowser.h"
@@ -48,11 +49,14 @@ public slots:
     void onRunScript();
     void onClearDatabase();
     void onConsoleCommand(const QString &cmd);
+    void onConsoleFontDialog();
     void onGUIUpdateTimer();
     
 protected:
     void createMenus();
     void createActions();
+    void saveSettings();
+    void loadSettings();
 
     QAction *m_clearAct;
     QAction *m_quitAct;    
@@ -63,6 +67,7 @@ protected:
     QAction *m_importLayers;
     QAction *m_exportLayers;
     QAction *m_runScriptAct;
+    QAction *m_consoleFontAct;
 
     //QMenuBar    *m_menuBar;
     QSplitter   *m_splitter;

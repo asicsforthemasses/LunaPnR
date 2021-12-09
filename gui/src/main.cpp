@@ -16,6 +16,9 @@ int main(int argc, char *argv[]) {
     
     QApplication app(argc, argv);
 
+    QCoreApplication::setOrganizationName("LunaPnR_Org");
+    QCoreApplication::setApplicationName("LunaPnR");
+
     setLogLevel(LOG_INFO);
     
     QCommandLineParser parser;
@@ -77,8 +80,9 @@ int main(int argc, char *argv[]) {
 
     QLocale::setDefault(QLocale::C);
 
-    // create main window and place it in the center
-    // of the screen
+    QSettings settings;
+    auto lastWindowSize = settings.value("application/size", QSize(0,0)).toSize();
+
     MainWindow window;
     QDesktopWidget widget;
     QRect screenGeometry = widget.screenGeometry();
@@ -86,10 +90,19 @@ int main(int argc, char *argv[]) {
     int height = screenGeometry.height();
     int width = screenGeometry.width();
 
-    window.resize(width/2, height/2);
+    if (lastWindowSize.isNull())
+    {
+        // create main window and place it in the center
+        // of the screen
+        window.resize(width/2, height/2);
+    }
+    else
+    {
+        window.resize(lastWindowSize);
+    }
 
     window.move((width - window.width()) / 2.0,
-                    (height - window.height()) / 2.0);
+                    (height - window.height()) / 2.0);        
 
     window.setWindowTitle(QObject::tr("LunaPnR - a moonshot ASIC place&route tool"));
     window.show();

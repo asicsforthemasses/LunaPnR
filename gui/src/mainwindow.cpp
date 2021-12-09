@@ -7,6 +7,7 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QFontDialog>
 
 #include <QJsonDocument>
 #include <QFile>
@@ -66,112 +67,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     setCentralWidget(container);
 
-    // Temporarily load the LEF and LIB files from the test
-    // directory. This will only work is lunapnr is started
-    // from the top level dir.
-//#define nangate
-#ifdef nangate
-
-    std::ifstream libertyfile("test/files/nangate/ocl_functional.lib");
-    if (!libertyfile.good())
-    {
-        doLog(LOG_WARN,"liberty file 'test/files/nangate/ocl_functional.lib' not found\n");
-    }
-    else
-    {
-        ChipDB::Liberty::Reader::load(&m_design, libertyfile);
-        m_cellBrowser->setCellLib(&m_design.m_cellLib); // populate!
-    }
-
-    std::ifstream leffile("test/files/nangate/ocl.lef");
-    if (!leffile.good())
-    {
-        doLog(LOG_WARN,"LEF file './test/files/nangate/ocl.lef' not found\n");
-    }
-    else
-    {
-        ChipDB::LEF::Reader::load(&m_design, leffile);
-        m_cellBrowser->setCellLib(&m_design.m_cellLib); // populate!
-    }
-
-#endif
-
-
-#if 0
-    std::ifstream libertyfile("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib");
-    if (!libertyfile.good())
-    {
-        doLog(LOG_WARN,"liberty file './test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib' not found\n");
-    }
-    else
-    {
-        ChipDB::Liberty::Reader::load(&m_db.design(), libertyfile);
-        m_cellBrowser->setDatabase(&m_db); // populate!
-    }
-
-    std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
-    if (!leffile.good())
-    {
-        doLog(LOG_WARN,"LEF file './test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef' not found\n");
-    }
-    else
-    {
-        ChipDB::LEF::Reader::load(&m_db.design(), leffile);
-        m_cellBrowser->setDatabase(&m_db); // populate!
-    }
-
-    std::ifstream verilogfile("test/files/verilog/nerv_tsmc018.v");
-    if (!verilogfile.good())
-    {
-        doLog(LOG_WARN,"Verilog file './test/files/verilog/nerv_tsmc018.v' not found\n");
-    }
-    else
-    {
-        ChipDB::Verilog::Reader::load(&m_db.design(), verilogfile);
-        auto nervModule = m_db.moduleLib().lookup("nerv");
-        if (nervModule != nullptr)
-        {
-            m_floorplanView->setFloorplan(&nervModule->m_netlist);
-        }
-        //m_cellBrowser->setCellLib(&m_design.m_cellLib); // populate!
-
-        LunaCore::SimpleCellPlacer::place(&nervModule->m_netlist, 
-            ChipDB::Rect64{{1000,1000}, {650000,650000}}, 10000);
-
-        auto hpwl = LunaCore::HPWLCalculator::calc(&nervModule->m_netlist);
-        doLog(LOG_INFO, "HPWL = %lld\n", hpwl);
-    }
-
-#endif
-
     m_techBrowser->setDatabase(&m_db);
     m_cellBrowser->setDatabase(&m_db);
-
-#if 0
-    for(auto layer : m_db.techLib().m_layers)
-    {
-        if (layer != nullptr)
-        {
-            GUI::LayerRenderInfo info(layer->m_name);                
-            m_db.m_layerRenderInfoDB.setRenderInfo(layer->m_name, info);
-        }
-    }
-        
-    {
-        std::ifstream ifile("layers.json", std::ios::in);
-        if (ifile.is_open())
-        {
-            std::stringstream buffer;
-            buffer << ifile.rdbuf();
-            m_db.m_layerRenderInfoDB.readJson(buffer.str());
-        }
-        else
-        {
-            doLog(LOG_ERROR, "Cannot open layers.json!\n");
-        }
-    }
-
-#endif
 
     m_db.floorplan().m_regions.addListener(this, FloorplanNotificationID);
 
@@ -180,6 +77,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     connect(&m_guiUpdateTimer, &QTimer::timeout, this, &MainWindow::onGUIUpdateTimer);
     m_guiUpdateTimer.start(1000);
+
+    loadSettings();
 
     m_lua.reset(new GUI::LuaWrapper(m_console, m_db));
     
@@ -208,9 +107,10 @@ void MainWindow::notify(int32_t userID, ssize_t index, NotificationType t)
 
 void MainWindow::createMenus()
 {
-    QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(m_clearAct);
+    QMenu *fileMenu = menuBar()->addMenu(tr("&File"));    
     fileMenu->addAction(m_runScriptAct);
+    fileMenu->addAction(m_clearAct);
+    fileMenu->addAction(m_consoleFontAct);
     fileMenu->addSeparator();
     fileMenu->addAction(m_quitAct);
 
@@ -229,11 +129,14 @@ void MainWindow::createMenus()
 
 void MainWindow::createActions()
 {
+    m_runScriptAct = new QAction(tr("Run script..."), this);
+    connect(m_runScriptAct, &QAction::triggered, this, &MainWindow::onRunScript);
+
     m_clearAct = new QAction(tr("Clear database"), this);
     connect(m_clearAct, &QAction::triggered, this, &MainWindow::onClearDatabase);
 
-    m_runScriptAct = new QAction(tr("Run script..."), this);
-    connect(m_runScriptAct, &QAction::triggered, this, &MainWindow::onRunScript);
+    m_consoleFontAct = new QAction(tr("Set console font"), this);
+    connect(m_consoleFontAct, &QAction::triggered, this, &MainWindow::onConsoleFontDialog);
 
     m_quitAct = new QAction(tr("&Quit"), this);
     connect(m_quitAct, &QAction::triggered, this, &MainWindow::onQuit);
@@ -257,8 +160,45 @@ void MainWindow::createActions()
     connect(m_exportLayers, &QAction::triggered, this, &MainWindow::onExportLayers);
 }
 
+void MainWindow::saveSettings()
+{
+    QSettings settings;
+
+    doLog(LOG_VERBOSE, "Saving settings to %s\n", settings.fileName().toStdString().c_str());
+
+    settings.setValue("application/size", size());
+
+    auto consoleColours = m_console->getColours();
+    settings.setValue("console/bkcolour", consoleColours.m_bkCol.name(QColor::HexRgb));
+    settings.setValue("console/promptcolour", consoleColours.m_promptCol.name(QColor::HexRgb));
+    settings.setValue("console/errorcolour", consoleColours.m_errorCol.name(QColor::HexRgb));
+
+    settings.setValue("console/font", m_console->font().family());
+    settings.setValue("console/fontsize", m_console->font().pointSize());
+}
+
+void MainWindow::loadSettings()
+{
+    QSettings settings;
+
+    doLog(LOG_VERBOSE, "Loading settings from %s\n", settings.fileName().toStdString().c_str());
+
+    m_console->setColours(
+        QColor(settings.value("console/bkcolour", "#1d1f21").toString()),
+        QColor(settings.value("console/promptcolour", "#c5c8c6").toString()),
+        QColor(settings.value("console/errorcolour", "#a54242").toString())
+    );
+
+    QFont font;
+    font.setFamily(settings.value("console/font", "Consolas").toString());
+    font.setPointSize(settings.value("console/fontsize", "11").toInt());
+    m_console->setFont(font);
+
+}
+
 void MainWindow::onQuit()
 {
+    saveSettings();
     QApplication::quit();
 }
 
@@ -471,4 +411,9 @@ void MainWindow::onClearDatabase()
 {
     m_db.clear();
     m_console->print("Database cleared", GUI::MMConsole::PrintType::Complete);
+}
+
+void MainWindow::onConsoleFontDialog()
+{
+    m_console->setFont(QFontDialog::getFont(0, m_console->font()));
 }

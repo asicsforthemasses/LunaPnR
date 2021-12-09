@@ -88,7 +88,17 @@ public:
     void print(const std::stringstream &ss, PrintType pt);
     void print(const char *txt, PrintType pt);
 
-    void setColours(QColor bkCol, QColor promptCol, QColor errorCol);
+    struct ConsoleColours
+    {
+        QColor  m_bkCol;
+        QColor  m_promptCol;
+        QColor  m_errorCol;
+    };
+
+    void setColours(const QColor &bkCol, const QColor &promptCol, const QColor &errorCol) noexcept;
+    void setColours(const ConsoleColours &colours) noexcept;
+
+    [[nodiscard]] ConsoleColours getColours() const noexcept;
 
     void disablePrompt()
     {
@@ -124,9 +134,7 @@ protected:
     int     m_promptBlock;
     bool    m_promptEnabled;
 
-    QColor  m_bkCol;
-    QColor  m_promptCol;
-    QColor  m_errorCol;
+    ConsoleColours m_colours;
 };
 
 };

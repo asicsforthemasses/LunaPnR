@@ -10,6 +10,7 @@
 #include <QTextBlock>
 #include <QDesktopWidget>
 #include <QApplication>
+#include <QSettings>
 
 using namespace GUI;
 
@@ -22,29 +23,27 @@ MMConsole::MMConsole(QWidget *parent) : QTextEdit("", parent)
 
     reset();
 
-    //FIXME: get font from setup
+#if 0
     QStringList substitutes;
     substitutes << "Droid Sans Mono" << "monospace";
-    
     QFont::insertSubstitutions("Consolas", substitutes);
-    
-    QFont newFont("Consolas", 11);
+
+    QSettings settings;
+    QFont newFont(settings.value("console/font", "Consolas").toString(),
+        settings.value("console/fontsize", 11).toInt());
+
     newFont.setStyleStrategy(QFont::PreferQuality);
 
-#if 0
-    std::stringstream ss;
-    ss << newFont.family().toStdString() << " ";
-
-    std::cout << ss.str() << "\n";
+    setFont(newFont);
 #endif
 
-    setFont(newFont);
+    // default colours
     setColours(QColor("#1d1f21"), QColor("#c5c8c6"), QColor("#a54242"));
 
     m_prompt = "> ";
 }
 
-void MMConsole::setColours(QColor bkCol, QColor promptCol, QColor errorCol)
+void MMConsole::setColours(const QColor &bkCol, const QColor &promptCol, const QColor &errorCol) noexcept
 {
     QPalette pal = palette();
     pal.setColor(QPalette::Background, bkCol);
@@ -52,9 +51,14 @@ void MMConsole::setColours(QColor bkCol, QColor promptCol, QColor errorCol)
     setPalette(pal);
     setAutoFillBackground(true);
 
-    m_bkCol = bkCol;
-    m_promptCol = promptCol;
-    m_errorCol = errorCol;
+    m_colours.m_bkCol     = bkCol;
+    m_colours.m_promptCol = promptCol;
+    m_colours.m_errorCol  = errorCol;
+}
+
+MMConsole::ConsoleColours MMConsole::getColours() const noexcept
+{
+    return m_colours;
 }
 
 void MMConsole::clear()
@@ -231,11 +235,11 @@ void MMConsole::print(const QString &txt, PrintType pt)
 {
     if (pt == PrintType::Error)
     {
-        setTextColor(m_errorCol);
+        setTextColor(m_colours.m_errorCol);
     }
     else
     {
-        setTextColor(m_promptCol);
+        setTextColor(m_colours.m_promptCol);
     }
 
     appendWithoutNewline(txt);
@@ -263,7 +267,7 @@ void MMConsole::displayPrompt()
 {
     setUndoRedoEnabled(false);
 
-    setTextColor(m_promptCol);
+    setTextColor(m_colours.m_promptCol);
     QTextCursor cur = textCursor();
     cur.insertText(m_prompt);
     cur.movePosition(QTextCursor::EndOfLine);
