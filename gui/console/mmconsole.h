@@ -138,7 +138,7 @@ protected:
     QString m_prompt;
     int     m_promptBlock;
     bool    m_promptEnabled;
-
+    
     TxtOverlay *m_overlay;
 
     ConsoleColours m_colours;

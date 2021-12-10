@@ -110,6 +110,7 @@ void MMConsole::keyPressEvent(QKeyEvent *e)
         return;
     case Qt::Key_Tab:
         handleTabKeypress();
+        updateHelpOverlay();
         return;
     case Qt::Key_Return:
     case Qt::Key_Enter:

@@ -37,11 +37,11 @@ endif(MSVC)
 
 enable_testing()
 
+add_subdirectory(tools)
 add_subdirectory(contrib/lua-5.4.3)
 add_subdirectory(core)
 add_subdirectory(gui)
 add_subdirectory(test)
-
 
 ############################################################
 ## Unix install specifics

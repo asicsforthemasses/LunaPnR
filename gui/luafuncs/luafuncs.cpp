@@ -48,7 +48,7 @@ static void reportError(lua_State *L, const char *fmt, ...)
     wrapper->error_print();
 }
 
-// load_verilog(filename)
+///> load_verilog(filename : string)
 static int load_verilog(lua_State *L)
 {
     auto db = getDB(L);
@@ -78,7 +78,7 @@ static int load_verilog(lua_State *L)
     return 0;
 }
 
-// load_lef(filename)
+///> load_lef(filename : string)
 static int load_lef(lua_State *L)
 {
     auto db = getDB(L);
@@ -109,7 +109,7 @@ static int load_lef(lua_State *L)
     return 0;
 }
 
-// load_lib(filename)
+///> load_lib(filename : string)
 static int load_lib(lua_State *L)
 {
     auto db = getDB(L);
@@ -140,7 +140,7 @@ static int load_lib(lua_State *L)
     return 0;
 }
 
-// load_layers(filename)
+///> load_layers(filename : string)
 static int load_layers(lua_State *L)
 {
     auto db = getDB(L);
@@ -174,7 +174,7 @@ static int load_layers(lua_State *L)
     return 0;
 }
 
-// clear - clear the database
+///> clear() - clear the database
 static int clear(lua_State *L)
 {
     auto db = getDB(L);
@@ -186,7 +186,7 @@ static int clear(lua_State *L)
     return 0;
 }
 
-// width, height, string
+///> add_hatch(width : integer, height : integer, pattern : string)
 static int add_hatch(lua_State *L)
 {
     auto db = getDB(L);
@@ -225,7 +225,7 @@ static int add_hatch(lua_State *L)
     return 0;
 }
 
-// create_region(regionname, x, y, width, height)
+///> create_region(regionname : string, x : integer, y : integer, width : integer, height : integer)
 static int create_region(lua_State *L)
 {
     auto db = getDB(L);
@@ -289,7 +289,7 @@ static int create_region(lua_State *L)
     return 0;
 }
 
-// create_rows(regionname, startY, rowHeight, numberOfRows)
+///> create_rows(regionname : string, startY : integer, rowHeight : integer, numberOfRows : integer)
 static int create_rows(lua_State *L)
 {
     auto db = getDB(L);
@@ -351,7 +351,7 @@ static int create_rows(lua_State *L)
     return 0;
 }
 
-// remove_rows(regionname)
+///> remove_rows(regionname : string)
 static int remove_rows(lua_State *L)
 {
     auto db = getDB(L);
@@ -383,7 +383,7 @@ static int remove_rows(lua_State *L)
     return 0;
 }
 
-// remove_region(regionname)
+///> remove_region(regionname : string)
 static int remove_region(lua_State *L)
 {
     auto db = getDB(L);
@@ -409,7 +409,7 @@ static int remove_region(lua_State *L)
     return 0;    
 }
 
-// set_region_halo(regionname, top, bottom, left, right)
+///> set_region_halo(regionname : string, top : integer, bottom : integer, left : integer, right : integer)
 static int set_region_halo(lua_State *L)
 {
     auto db = getDB(L);
@@ -478,7 +478,7 @@ static int set_region_halo(lua_State *L)
     return 0;    
 }
 
-// place_module(modulename, regionname)
+///> place_module(modulename : string, regionname : string)
 static int place_module(lua_State *L)
 {
     auto db = getDB(L);
@@ -536,7 +536,7 @@ static int place_module(lua_State *L)
     return 0;
 }
 
-// place_instance(insname, module, x, y)
+///> place_instance(insname : string, module : string, x : integer, y : integer)
 static int place_instance(lua_State *L)
 {
     auto db = getDB(L);
@@ -599,7 +599,7 @@ static int place_instance(lua_State *L)
     return 0;
 }
 
-// set_toplevel_module(module)
+///> set_toplevel_module(module : string)
 static int set_toplevel_module(lua_State *L)
 {
     auto db = getDB(L);
@@ -621,7 +621,7 @@ static int set_toplevel_module(lua_State *L)
     return 0;
 };
 
-// write_placement(module)
+///> write_placement(module : string)
 static int write_placement(lua_State *L)
 {
     auto db = getDB(L);
@@ -663,7 +663,7 @@ static int write_placement(lua_State *L)
 };
 
 
-// write_density_bitmap(modulename, regionname, bitmapname)
+///> write_density_bitmap(modulename : string, regionname : string, bitmapname : string)
 static int write_density_bitmap(lua_State *L)
 {
     auto db = getDB(L);
