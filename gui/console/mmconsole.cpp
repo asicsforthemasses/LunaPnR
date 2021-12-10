@@ -41,6 +41,10 @@ MMConsole::MMConsole(QWidget *parent) : QTextEdit("", parent)
     setColours(QColor("#1d1f21"), QColor("#c5c8c6"), QColor("#a54242"));
 
     m_prompt = "> ";
+
+    m_overlay = new TxtOverlay(this);
+    m_overlay->hide();
+    m_overlay->setText("load_verilog(filename)");
 }
 
 void MMConsole::setColours(const QColor &bkCol, const QColor &promptCol, const QColor &errorCol) noexcept
@@ -123,6 +127,7 @@ void MMConsole::keyPressEvent(QKeyEvent *e)
             m_historyReadIdx = m_historyWriteIdx;
 
             emit executeCommand(cmd);
+            m_overlay->hide();
         }
         return;
     case Qt::Key_Backspace:
@@ -137,6 +142,7 @@ void MMConsole::keyPressEvent(QKeyEvent *e)
             else
             {
                 QTextEdit::keyPressEvent(e);
+                updateHelpOverlay();                
             }
         }
         return;
@@ -152,8 +158,61 @@ void MMConsole::keyPressEvent(QKeyEvent *e)
         cur.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
         setTextCursor(cur);
     }
-    
+
     QTextEdit::keyPressEvent(e);
+
+    updateHelpOverlay();
+}
+
+void MMConsole::updateHelpOverlay()
+{
+    auto cmd = getCurrentCommand();
+    if (canShowHelp(cmd))
+    {
+        const int32_t overlayDistance = 4;  // pixels from the cursor y pos
+        auto overlayPos = cursorRect().bottomRight();
+        overlayPos += QPoint(0, overlayDistance);
+        
+        m_overlay->setText(getHelpString(cmd));
+        m_overlay->move(overlayPos);
+        
+        // make sure the overlay is always visible,
+        // even when the cursor is on the last line.
+        // then, we move the overlay 2 lines up
+        
+        auto overlayBottomPos = m_overlay->height() + m_overlay->pos().y();
+        if (overlayBottomPos >= rect().bottom())
+        {
+            QFontMetrics fm(font());
+            auto lineHeight = fm.height();
+            overlayPos.ry() -= lineHeight + m_overlay->height() + 2*overlayDistance;
+            m_overlay->move(overlayPos);
+        }
+        
+        m_overlay->show();
+    }
+    else
+    {
+        m_overlay->hide();
+    }
+}
+
+bool MMConsole::canShowHelp(const QString &cmd) const
+{
+    if (cmd.startsWith("load_verilog"))
+    {
+        return true;
+    }
+    return false;
+}
+
+QString MMConsole::getHelpString(const QString &cmd) const
+{
+    if (cmd.startsWith("load_verilog"))
+    {
+        return QString("load_verilog(filename : string)");
+    }
+    return QString("");
 }
 
 QString MMConsole::getCurrentCommand()

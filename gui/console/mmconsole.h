@@ -16,6 +16,7 @@
 #include <QHBoxLayout>
 
 #include "../common/msvcfix.h"
+#include "widgets/txtoverlay.h"
 
 namespace GUI
 {
@@ -126,6 +127,10 @@ protected:
 
     QStringList suggestCommand(QString partialCommand);
 
+    void updateHelpOverlay();
+    bool canShowHelp(const QString &cmd) const;
+    QString getHelpString(const QString &cmd) const;
+
     ssize_t m_historyWriteIdx;
     ssize_t m_historyReadIdx;
     std::vector<std::string> m_history;
@@ -133,6 +138,8 @@ protected:
     QString m_prompt;
     int     m_promptBlock;
     bool    m_promptEnabled;
+
+    TxtOverlay *m_overlay;
 
     ConsoleColours m_colours;
 };

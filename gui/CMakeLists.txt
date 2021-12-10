@@ -24,6 +24,7 @@ set (LUNA_SRC_FILES
     widgets/hatchbutton.cpp
     widgets/hatchdialog.cpp
     widgets/hatchdisplay.cpp
+    widgets/txtoverlay.cpp
     floorplanview/floorplanview.cpp
     techbrowser/techbrowser.cpp
     designbrowser/designbrowser.cpp
