@@ -8,6 +8,17 @@ find_package(Qt5 5.12 REQUIRED QUIET COMPONENTS Core Widgets LinguistTools)
 # copied if it doesn't exist in the destination or if it is modified.
 #configure_file(translations.qrc ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 
+# add a dependency to make console/commandcompletion.cpp using the
+# doctool from the tools directory
+
+add_custom_target(commandcompletion
+    ${CMAKE_BINARY_DIR}/tools/doctool ${CMAKE_CURRENT_SOURCE_DIR}/luafuncs/luafuncs.cpp ${CMAKE_CURRENT_SOURCE_DIR}/console/commandcompletion.inc
+    BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/console/commandcompletion.inc
+    VERBATIM
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/luafuncs/luafuncs.cpp
+    USES_TERMINAL
+    )
+
 set (LUNA_SRC_FILES
     models/modelnodebase.cpp
     models/modulemodel.cpp
@@ -57,8 +68,11 @@ add_executable(lunapnr
     ${QM_FILES}
     )
 
+add_dependencies(lunapnr commandcompletion)
+
 target_link_libraries(lunapnr lunacore Qt5::Widgets liblua)
 target_include_directories(lunapnr PUBLIC ../core/include ../contrib/lua-5.4.3/src .)
+
 
 set_property(TARGET lunapnr PROPERTY AUTOMOC ON)
 set_property(TARGET lunapnr PROPERTY AUTOUIC ON)

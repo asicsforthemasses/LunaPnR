@@ -6,6 +6,7 @@
 
 #include "common/guihelpers.h"
 #include "common/database.h"
+#include "lunacore.h"
 #include "src/luawrapper.h"
 
 static GUI::Database* getDB(lua_State *L)
@@ -331,15 +332,26 @@ static int create_rows(lua_State *L)
         return 0;
     }
     
-    ChipDB::Coord64 ll = region->m_rect.m_ll + ChipDB::Coord64{0,starty};
-    ChipDB::Coord64 ur = ll + ChipDB::Coord64{region->m_rect.width(), rowHeight};
+    auto placeRect = region->getPlacementRect();
+
+    ChipDB::Coord64 ll = placeRect.m_ll + ChipDB::Coord64{0,starty};
+    ChipDB::Coord64 ur = ll + ChipDB::Coord64{placeRect.width(), rowHeight};
+    size_t skippedRows = 0;
     for(int i=0; i<numRows; i++)
     {
-        region->m_rows.emplace_back();
-        auto& row = region->m_rows.back();
+        if (placeRect.contains(ll) && placeRect.contains(ur))
+        {
+            region->m_rows.emplace_back();
+            auto& row = region->m_rows.back();
 
-        row.m_region = region;
-        row.m_rect = ChipDB::Rect64(ll,ur);
+            row.m_region = region;
+            row.m_rect = ChipDB::Rect64(ll,ur);
+        }
+        else
+        {
+            skippedRows++;
+        };
+
         ll += ChipDB::Coord64{0, rowHeight};
         ur += ChipDB::Coord64{0, rowHeight};
     }
@@ -347,7 +359,13 @@ static int create_rows(lua_State *L)
     db->floorplan().m_regions.contentsChanged();
 
     auto wrapper = getLuaWrapper(L);
-    wrapper->print("Rows created");
+    std::stringstream ss;
+    ss << "Rows created";
+    if (skippedRows > 0)
+    {
+        ss << " (skipped " << skippedRows << " because they didn't fit)";
+    }
+    wrapper->print(ss);
 
     return 0;
 }
