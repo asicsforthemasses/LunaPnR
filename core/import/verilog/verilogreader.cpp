@@ -46,6 +46,11 @@ bool Reader::load(Design *design, std::istream &source)
                 return true;
             }
         }
+        else
+        {
+            doLog(LOG_ERROR,"Verilog::Reader failed to load netlist.\n");
+            return false;
+        }
     }
     catch(std::runtime_error &e)
     {

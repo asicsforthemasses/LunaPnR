@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 #include "luafuncs.h"
 
 #include "common/guihelpers.h"
@@ -61,7 +62,7 @@ static int load_verilog(lua_State *L)
     }
 
     std::ifstream verilogFile(filename);
-    if (!verilogFile.good())
+    if ((!verilogFile.is_open()) || (!verilogFile.good()))
     {
         reportError(L, "cannot open verilog file '%s'", filename);
         return 0;
@@ -621,7 +622,7 @@ static int set_toplevel_module(lua_State *L)
     return 0;
 };
 
-///> write_placement(module : string)
+///> write_placement(module : string, filename : string)
 static int write_placement(lua_State *L)
 {
     auto db = getDB(L);
@@ -724,6 +725,45 @@ static int write_density_bitmap(lua_State *L)
     return 0;
 }
 
+///> ls()
+static int cmd_ls(lua_State *L)
+{
+    auto wrapper = getLuaWrapper(L);
+
+    namespace fs = std::filesystem;
+
+    for (const auto & entry : fs::directory_iterator(fs::current_path()))
+    {
+        std::stringstream ss;
+        ss << entry.path() << "\n";
+        wrapper->print(ss);
+    }
+
+    return 0;
+}
+
+///> cd(dirname : string)
+static int cmd_cd(lua_State *L)
+{
+    namespace fs = std::filesystem;
+
+    if (!lua_isstring(L, 1))
+    {
+        reportError(L, "Param 1: Expected a string for directory name");
+        return 0;
+    }
+
+    const char *pathstr = lua_tostring(L, 1);
+    std::filesystem::current_path(pathstr);
+
+    auto wrapper = getLuaWrapper(L);
+    std::stringstream ss;
+    ss << "Changed path to " << pathstr << "\n";
+    wrapper->print(ss);
+
+    return 0;
+}
+
 void Lua::registerFunctions(lua_State *L)
 {
     lua_register(L, "clear", clear);
@@ -742,4 +782,6 @@ void Lua::registerFunctions(lua_State *L)
     lua_register(L, "set_toplevel_module", set_toplevel_module);
     lua_register(L, "write_placement", write_placement);
     lua_register(L, "write_density_bitmap", write_density_bitmap);
+    lua_register(L, "ls", cmd_ls);
+    lua_register(L, "cd", cmd_cd);
 }

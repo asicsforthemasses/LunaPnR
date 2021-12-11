@@ -2,7 +2,7 @@
 #include <iostream>
 #include <string_view>
 #include <memory>
-#include "mmconsole.h"
+#include <array>
 
 #include <QDebug>
 #include <QFont>
@@ -12,7 +12,34 @@
 #include <QApplication>
 #include <QSettings>
 
+#include "mmconsole.h"
+
 using namespace GUI;
+
+struct HelpTxt
+{
+    const char *cmdstr;
+    const char *helpstr;
+};
+
+static const std::array<HelpTxt, 16> gs_helptxt = {
+{{"load_verilog","load_verilog(filename : string)"}
+,{"load_lef","load_lef(filename : string)"}
+,{"load_lib","load_lib(filename : string)"}
+,{"load_layers","load_layers(filename : string)"}
+,{"clear","clear() - clear the database"}
+,{"add_hatch","add_hatch(width : integer, height : integer, pattern : string)"}
+,{"create_region","create_region(regionname : string, x : integer, y : integer, width : integer, height : integer)"}
+,{"create_rows","create_rows(regionname : string, startY : integer, rowHeight : integer, numberOfRows : integer)"}
+,{"remove_rows","remove_rows(regionname : string)"}
+,{"remove_region","remove_region(regionname : string)"}
+,{"set_region_halo","set_region_halo(regionname : string, top : integer, bottom : integer, left : integer, right : integer)"}
+,{"place_module","place_module(modulename : string, regionname : string)"}
+,{"place_instance","place_instance(insname : string, module : string, x : integer, y : integer)"}
+,{"set_toplevel_module","set_toplevel_module(module : string)"}
+,{"write_placement","write_placement(module : string)"}
+,{"write_density_bitmap","write_density_bitmap(modulename : string, regionname : string, bitmapname : string)"}}
+};
 
 MMConsole::MMConsole(QWidget *parent) : QTextEdit("", parent)
 {
@@ -127,6 +154,15 @@ void MMConsole::keyPressEvent(QKeyEvent *e)
             ++m_historyWriteIdx;
             m_historyReadIdx = m_historyWriteIdx;
 
+            // if the command does not have any parentheses
+            // add '()' at the end to allow parameter-less
+            // commands to be entered without additional ().
+
+            if (!cmd.contains("("))
+            {
+                cmd.append("()");
+            }
+
             emit executeCommand(cmd);
             m_overlay->hide();
         }
@@ -200,18 +236,25 @@ void MMConsole::updateHelpOverlay()
 
 bool MMConsole::canShowHelp(const QString &cmd) const
 {
-    if (cmd.startsWith("load_verilog"))
+    for(auto cmdhelp : gs_helptxt)
     {
-        return true;
+        if (cmd.startsWith(cmdhelp.cmdstr))
+        {
+            return true;
+        }
     }
+
     return false;
 }
 
 QString MMConsole::getHelpString(const QString &cmd) const
 {
-    if (cmd.startsWith("load_verilog"))
+    for(auto cmdhelp : gs_helptxt)
     {
-        return QString("load_verilog(filename : string)");
+        if (cmd.startsWith(cmdhelp.cmdstr))
+        {
+            return cmdhelp.helpstr;
+        }
     }
     return QString("");
 }

@@ -13,7 +13,7 @@ class TxtOverlay : public QWidget
 public:
     explicit TxtOverlay(QWidget *parent = nullptr) : QWidget(parent)
     {
-        m_margins = QMargins(8,8,8,8);
+        m_margins = QMargins(12,8,12,8);
         setAttribute(Qt::WA_NoSystemBackground);
         setAttribute(Qt::WA_TransparentForMouseEvents);
         setText("");
