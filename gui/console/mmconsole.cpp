@@ -169,6 +169,11 @@ void MMConsole::updateHelpOverlay()
     auto cmd = getCurrentCommand();
     if (canShowHelp(cmd))
     {
+        if (!m_overlay->isHidden())
+        {
+            return;
+        }
+        
         const int32_t overlayDistance = 4;  // pixels from the cursor y pos
         auto overlayPos = cursorRect().bottomRight();
         overlayPos += QPoint(0, overlayDistance);

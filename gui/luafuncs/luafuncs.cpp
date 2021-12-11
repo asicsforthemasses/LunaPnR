@@ -760,6 +760,16 @@ static int cmd_ls(lua_State *L)
     return 0;
 }
 
+///> cls() - clear the console
+static int cmd_cls(lua_State *L)
+{
+    auto wrapper = getLuaWrapper(L);
+
+    wrapper->clearConsole();
+
+    return 0;
+}
+
 ///> cd(dirname : string)
 static int cmd_cd(lua_State *L)
 {
@@ -802,4 +812,5 @@ void Lua::registerFunctions(lua_State *L)
     lua_register(L, "write_density_bitmap", write_density_bitmap);
     lua_register(L, "ls", cmd_ls);
     lua_register(L, "cd", cmd_cd);
+    lua_register(L, "cls", cmd_cls);
 }

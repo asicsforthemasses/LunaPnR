@@ -33,6 +33,8 @@ public:
     /** replacement print function for LUA, but with error colours */
     void error_print();
 
+    void clearConsole();
+
 protected:
     MMConsole *m_console;
     Database &m_db;    

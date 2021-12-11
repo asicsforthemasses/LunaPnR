@@ -113,6 +113,14 @@ void LuaWrapper::print(const std::stringstream &ss)
     }
 }
 
+void LuaWrapper::clearConsole()
+{
+    if (m_console != nullptr)
+    {
+        m_console->clear();
+    }    
+}
+
 bool LuaWrapper::run(const char *txt)
 {
     auto result = luaL_dostring(m_L, txt);

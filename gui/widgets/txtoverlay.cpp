@@ -17,7 +17,7 @@ void TxtOverlay::paintEvent(QPaintEvent *event)
         resize(m_txtRect.size());
     }
 
-    QColor bkcolor("#40FFFFFF");
+    QColor bkcolor("#C0333333");
     QColor txtcolor("#FFFFFFFF");
 
     painter.setBrush(bkcolor);
