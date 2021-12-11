@@ -54,7 +54,8 @@ constexpr const ChipDB::Coord64 deltaFromScreen(const QPointF &screenp1, const Q
 
 FloorplanView::FloorplanView(QWidget *parent) : QWidget(parent), m_db(nullptr), 
     m_mouseState(MouseState::None),
-    m_overlay(nullptr)
+    m_overlay(nullptr),
+    m_crosshairEnabled(true)
 {
     // make sure viewport pixels are 1:1
 
@@ -72,6 +73,8 @@ FloorplanView::FloorplanView(QWidget *parent) : QWidget(parent), m_db(nullptr),
     m_viewPort.setScreenRect(rect());
 
     m_dirty   = true;
+
+    setMouseTracking(true);
 }
 
 FloorplanView::~FloorplanView()
@@ -146,6 +149,11 @@ void FloorplanView::mouseMoveEvent(QMouseEvent *event)
         }
         break;
     case MouseState::None:
+        if (m_crosshairEnabled)
+        {
+            m_mousePos = event->pos();
+            update();
+        }
         break;
     };
 }
@@ -241,6 +249,15 @@ void FloorplanView::paintEvent(QPaintEvent *event)
         m_overlay->paint(painter);
     }
 
+    if (m_crosshairEnabled && (!m_mousePos.isNull()) && (m_mouseState == MouseState::None))
+    {
+        painter.setPen(Qt::white);
+        painter.drawLine(m_mousePos.x(), 0, m_mousePos.x(), height());
+        painter.drawLine(0, m_mousePos.y(), width(), m_mousePos.y());
+    }
+
+    drawBottomRuler(painter);
+
 #if 0
     // TODO: draw ruler
 
@@ -252,6 +269,15 @@ void FloorplanView::paintEvent(QPaintEvent *event)
         drawInstance(painter, ins);
     }
 #endif    
+}
+
+void FloorplanView::leaveEvent(QEvent *event)
+{
+    if (m_crosshairEnabled)
+    {
+        m_mousePos = QPoint{0,0};
+        update();
+    }
 }
 
 void FloorplanView::drawRegions(QPainter &p)
@@ -404,4 +430,53 @@ void FloorplanView::drawInstances(QPainter &p)
             }
         }
     }
+}
+
+void FloorplanView::drawBottomRuler(QPainter &p)
+{
+    auto viewrect = m_viewPort.getViewportRect(); // in chip coordinates
+
+    auto vwidth_nm = viewrect.width();
+
+    auto unit = static_cast<ChipDB::CoordType>(powf(10.0f, floorf(log10f(vwidth_nm))));
+    auto divisions = static_cast<int>(ceilf(vwidth_nm / unit));
+
+    if (divisions <= 2)
+    {
+        unit /= 5;
+        divisions = static_cast<int>(ceilf(vwidth_nm / unit));
+    }
+    else if (divisions <= 5)
+    {
+        unit /= 2;
+        divisions = static_cast<int>(ceilf(vwidth_nm / unit));
+    }
+
+    p.setPen(Qt::white);
+
+    QFontMetrics fm(font());
+
+    const auto textHeight  = fm.height() + 4;
+    const int  tickHeight  = 10;
+    const auto rulerHeight = textHeight + tickHeight;
+    
+    divisions++;
+    auto x = static_cast<ChipDB::CoordType>(ceilf(viewrect.left() / unit) * unit);
+    for(int tick=0; tick<divisions; tick++)
+    {
+        auto screen_tick = m_viewPort.toScreen(ChipDB::Coord64{x,0});
+        p.drawLine(screen_tick.x(), height() - rulerHeight, screen_tick.x(), height() - rulerHeight + tickHeight);
+
+        auto txt = QString::asprintf("%ld", x);
+        auto txtBoundingRect = fm.boundingRect(txt);
+
+        // adjust size of bounding box because somehow the text
+        // doesn't quite fit (linux at least.. )
+        txtBoundingRect.adjust(-5,-2,5,2);
+
+        txtBoundingRect.moveTo(screen_tick.x() - txtBoundingRect.width()/2, height() - rulerHeight + tickHeight);
+        p.drawText(txtBoundingRect, txt, Qt::AlignVCenter | Qt::AlignHCenter);
+        x += unit;
+    }
+    p.drawLine(0, height() - rulerHeight, width(), height() - rulerHeight);
 }

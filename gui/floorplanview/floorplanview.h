@@ -28,10 +28,17 @@ public:
     /** set an overlay object that will draw on to of the floorplan */
     void setOverlay(FloorplanOverlayBase *overlay = nullptr);
 
+    /** enable the mouse curor crosshair for position feedback */
+    void setCrosshair(bool enabled = true)
+    {
+        m_crosshairEnabled = enabled;
+    }
+
 protected:
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
 
     void paintEvent(QPaintEvent *event) override;
@@ -45,6 +52,8 @@ protected:
     void drawCell(QPainter &p, const ChipDB::InstanceBase *ins);
     void drawPin(QPainter &p, const ChipDB::InstanceBase *ins);
 
+    void drawBottomRuler(QPainter &p);
+
     Viewport m_viewPort;    
 
     enum class MouseState
@@ -55,11 +64,14 @@ protected:
 
     ChipDB::Rect64 m_viewPortRef;
     QPoint m_mouseDownPos;
+    QPoint m_mousePos;
 
     FloorplanOverlayBase* m_overlay;
 
     Database *m_db;
     bool  m_dirty;
+
+    bool  m_crosshairEnabled;
 };
 
 };  // namespace
