@@ -257,6 +257,7 @@ void FloorplanView::paintEvent(QPaintEvent *event)
     }
 
     drawBottomRuler(painter);
+    drawLeftRuler(painter);
 
 #if 0
     // TODO: draw ruler
@@ -452,6 +453,7 @@ void FloorplanView::drawBottomRuler(QPainter &p)
         divisions = static_cast<int>(ceilf(vwidth_nm / unit));
     }
 
+
     p.setPen(Qt::white);
 
     QFontMetrics fm(font());
@@ -459,7 +461,10 @@ void FloorplanView::drawBottomRuler(QPainter &p)
     const auto textHeight  = fm.height() + 4;
     const int  tickHeight  = 10;
     const auto rulerHeight = textHeight + tickHeight;
-    
+
+    p.setClipRect(0, height() - rulerHeight, width(), rulerHeight);
+    p.setClipping(true);
+
     divisions++;
     auto x = static_cast<ChipDB::CoordType>(ceilf(viewrect.left() / unit) * unit);
     for(int tick=0; tick<divisions; tick++)
@@ -479,4 +484,69 @@ void FloorplanView::drawBottomRuler(QPainter &p)
         x += unit;
     }
     p.drawLine(0, height() - rulerHeight, width(), height() - rulerHeight);
+
+    p.setClipping(false);
 }
+
+void FloorplanView::drawLeftRuler(QPainter &p)
+{
+    auto viewrect = m_viewPort.getViewportRect(); // in chip coordinates
+
+    auto vheight_nm = viewrect.height();
+
+    auto unit = static_cast<ChipDB::CoordType>(powf(10.0f, floorf(log10f(vheight_nm))));
+    auto divisions = static_cast<int>(ceilf(vheight_nm / unit));
+
+    if (divisions <= 2)
+    {
+        unit /= 5;
+        divisions = static_cast<int>(ceilf(vheight_nm / unit));
+    }
+    else if (divisions <= 5)
+    {
+        unit /= 2;
+        divisions = static_cast<int>(ceilf(vheight_nm / unit));
+    }
+
+    p.setPen(Qt::white);
+
+    QFontMetrics fm(font());
+
+    const auto textWidth  = fm.width("X") + 4;
+    const int  tickLength = 10;
+    const auto rulerWidth = textWidth + tickLength;
+    const int  bottomRulerHeight = fm.height() + 4 + 10;
+    p.setClipRect(0, 0, rulerWidth+1, height() - bottomRulerHeight);
+    p.setClipping(true);
+
+
+    divisions++;
+    auto y = static_cast<ChipDB::CoordType>(ceilf(viewrect.bottom() / unit) * unit);
+    for(int tick=0; tick<divisions; tick++)
+    {
+        auto screen_tick = m_viewPort.toScreen(ChipDB::Coord64{0,y});
+        p.drawLine(textWidth, screen_tick.y(), rulerWidth, screen_tick.y());
+
+        auto txt = QString::asprintf("%ld", y);
+        auto txtBoundingRect = fm.boundingRect(txt);
+
+        // adjust size of bounding box because somehow the text
+        // doesn't quite fit (linux at least.. )
+        txtBoundingRect.adjust(-5,-2,5,2);
+        
+        QTransform t;
+        //t.translate(txtBoundingRect.width()/2, screen_tick.y());
+        t.translate(0, screen_tick.y() - txtBoundingRect.width()/2);
+        t.rotate(90);
+        p.setTransform(t);
+        p.drawText(txtBoundingRect, txt, Qt::AlignVCenter | Qt::AlignHCenter);
+        p.resetTransform();
+
+        y += unit;
+    }
+
+    p.drawLine(rulerWidth, 0, rulerWidth, height());
+
+    p.setClipping(false);
+}
+

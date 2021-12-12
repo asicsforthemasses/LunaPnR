@@ -53,7 +53,8 @@ protected:
     void drawPin(QPainter &p, const ChipDB::InstanceBase *ins);
 
     void drawBottomRuler(QPainter &p);
-
+    void drawLeftRuler(QPainter &p);
+    
     Viewport m_viewPort;    
 
     enum class MouseState
