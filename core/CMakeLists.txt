@@ -44,6 +44,7 @@ add_library(lunacore
     cellplacer/netlistsplitter.cpp
     cellplacer/qlaplacer_private.cpp
     cellplacer/qlaplacer.cpp
+    cellplacer/rowlegalizer.cpp
     celllib/cell.cpp
     celllib/pin.cpp
     celllib/module.cpp

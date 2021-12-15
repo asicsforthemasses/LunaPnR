@@ -46461,28 +46461,28 @@ module FemtoRV32(clk, \mem_addr[0] , \mem_addr[1] , \mem_addr[2] , \mem_addr[3] 
     .A(\registerFile[0][0] ),
     .Y(_00896_)
   );
-  BUFX2 _13423_ (
+  TIELO _13423_ (
     .Y(\mem_addr[24] )
   );
-  BUFX2 _13424_ (
+  TIELO _13424_ (
     .Y(\mem_addr[25] )
   );
-  BUFX2 _13425_ (
+  TIELO _13425_ (
     .Y(\mem_addr[26] )
   );
-  BUFX2 _13426_ (
+  TIELO _13426_ (
     .Y(\mem_addr[27] )
   );
-  BUFX2 _13427_ (
+  TIELO _13427_ (
     .Y(\mem_addr[28] )
   );
-  BUFX2 _13428_ (
+  TIELO _13428_ (
     .Y(\mem_addr[29] )
   );
-  BUFX2 _13429_ (
+  TIELO _13429_ (
     .Y(\mem_addr[30] )
   );
-  BUFX2 _13430_ (
+  TIELO _13430_ (
     .Y(\mem_addr[31] )
   );
   (* src = "femtorv32_quark.v:371.4-371.47" *)
@@ -52727,69 +52727,6 @@ module FemtoRV32(clk, \mem_addr[0] , \mem_addr[1] , \mem_addr[2] , \mem_addr[3] 
   assign \mem_wdata[5]  = \rs2[5] ;
   assign \mem_wdata[6]  = \rs2[6] ;
   assign \mem_wdata[7]  = \rs2[7] ;
-  assign \Jimm[1]  = \instr[21] ;
-  assign \Jimm[2]  = \instr[22] ;
-  assign \Jimm[3]  = \instr[23] ;
-  assign \Jimm[4]  = \instr[24] ;
-  assign \Jimm[5]  = \instr[25] ;
-  assign \Jimm[6]  = \instr[26] ;
-  assign \Jimm[7]  = \instr[27] ;
-  assign \Jimm[8]  = \instr[28] ;
-  assign \Jimm[9]  = \instr[29] ;
-  assign \Jimm[10]  = \instr[30] ;
-  assign \Jimm[11]  = \instr[20] ;
-  assign \Jimm[12]  = \instr[12] ;
-  assign \Jimm[13]  = \instr[13] ;
-  assign \Jimm[14]  = \instr[14] ;
-  assign \Jimm[15]  = \instr[15] ;
-  assign \Jimm[16]  = \instr[16] ;
-  assign \Jimm[17]  = \instr[17] ;
-  assign \Jimm[18]  = \instr[18] ;
-  assign \Jimm[19]  = \instr[19] ;
-  assign \Jimm[20]  = \instr[31] ;
-  assign \Jimm[21]  = \instr[31] ;
-  assign \Jimm[22]  = \instr[31] ;
-  assign \Jimm[23]  = \instr[31] ;
-  assign \Jimm[24]  = \instr[31] ;
-  assign \Jimm[25]  = \instr[31] ;
-  assign \Jimm[26]  = \instr[31] ;
-  assign \Jimm[27]  = \instr[31] ;
-  assign \Jimm[28]  = \instr[31] ;
-  assign \Jimm[29]  = \instr[31] ;
-  assign \Jimm[30]  = \instr[31] ;
-  assign \Jimm[31]  = \instr[31] ;
-  assign \Simm[0]  = \instr[7] ;
-  assign \Simm[1]  = \instr[8] ;
-  assign \Simm[2]  = \instr[9] ;
-  assign \Simm[3]  = \instr[10] ;
-  assign \Simm[4]  = \instr[11] ;
-  assign \Simm[5]  = \instr[25] ;
-  assign \Simm[6]  = \instr[26] ;
-  assign \Simm[7]  = \instr[27] ;
-  assign \Simm[8]  = \instr[28] ;
-  assign \Simm[9]  = \instr[29] ;
-  assign \Simm[10]  = \instr[30] ;
-  assign \Simm[11]  = \instr[31] ;
-  assign \Simm[12]  = \instr[31] ;
-  assign \Simm[13]  = \instr[31] ;
-  assign \Simm[14]  = \instr[31] ;
-  assign \Simm[15]  = \instr[31] ;
-  assign \Simm[16]  = \instr[31] ;
-  assign \Simm[17]  = \instr[31] ;
-  assign \Simm[18]  = \instr[31] ;
-  assign \Simm[19]  = \instr[31] ;
-  assign \Simm[20]  = \instr[31] ;
-  assign \Simm[21]  = \instr[31] ;
-  assign \Simm[22]  = \instr[31] ;
-  assign \Simm[23]  = \instr[31] ;
-  assign \Simm[24]  = \instr[31] ;
-  assign \Simm[25]  = \instr[31] ;
-  assign \Simm[26]  = \instr[31] ;
-  assign \Simm[27]  = \instr[31] ;
-  assign \Simm[28]  = \instr[31] ;
-  assign \Simm[29]  = \instr[31] ;
-  assign \Simm[30]  = \instr[31] ;
-  assign \Simm[31]  = \instr[31] ;
   assign \aluIn1[0]  = \rs1[0] ;
   assign \aluIn1[1]  = \rs1[1] ;
   assign \aluIn1[2]  = \rs1[2] ;
@@ -52822,6 +52759,63 @@ module FemtoRV32(clk, \mem_addr[0] , \mem_addr[1] , \mem_addr[2] , \mem_addr[3] 
   assign \aluIn1[29]  = \rs1[29] ;
   assign \aluIn1[30]  = \rs1[30] ;
   assign \aluIn1[31]  = \rs1[31] ;
+  assign \rdId[0]  = \instr[7] ;
+  assign \rdId[1]  = \instr[8] ;
+  assign \rdId[2]  = \instr[9] ;
+  assign \rdId[3]  = \instr[10] ;
+  assign \rdId[4]  = \instr[11] ;
+  assign \Uimm[12]  = \instr[12] ;
+  assign \Uimm[13]  = \instr[13] ;
+  assign \Uimm[14]  = \instr[14] ;
+  assign \Uimm[15]  = \instr[15] ;
+  assign \Uimm[16]  = \instr[16] ;
+  assign \Uimm[17]  = \instr[17] ;
+  assign \Uimm[18]  = \instr[18] ;
+  assign \Uimm[19]  = \instr[19] ;
+  assign \Uimm[20]  = \instr[20] ;
+  assign \Uimm[21]  = \instr[21] ;
+  assign \Uimm[22]  = \instr[22] ;
+  assign \Uimm[23]  = \instr[23] ;
+  assign \Uimm[24]  = \instr[24] ;
+  assign \Uimm[25]  = \instr[25] ;
+  assign \Uimm[26]  = \instr[26] ;
+  assign \Uimm[27]  = \instr[27] ;
+  assign \Uimm[28]  = \instr[28] ;
+  assign \Uimm[29]  = \instr[29] ;
+  assign \Uimm[30]  = \instr[30] ;
+  assign \Uimm[31]  = \instr[31] ;
+  assign \Simm[0]  = \instr[7] ;
+  assign \Simm[1]  = \instr[8] ;
+  assign \Simm[2]  = \instr[9] ;
+  assign \Simm[3]  = \instr[10] ;
+  assign \Simm[4]  = \instr[11] ;
+  assign \Simm[5]  = \instr[25] ;
+  assign \Simm[6]  = \instr[26] ;
+  assign \Simm[7]  = \instr[27] ;
+  assign \Simm[8]  = \instr[28] ;
+  assign \Simm[9]  = \instr[29] ;
+  assign \Simm[10]  = \instr[30] ;
+  assign \Simm[11]  = \instr[31] ;
+  assign \Simm[12]  = \instr[31] ;
+  assign \Simm[13]  = \instr[31] ;
+  assign \Simm[14]  = \instr[31] ;
+  assign \Simm[15]  = \instr[31] ;
+  assign \Simm[16]  = \instr[31] ;
+  assign \Simm[17]  = \instr[31] ;
+  assign \Simm[18]  = \instr[31] ;
+  assign \Simm[19]  = \instr[31] ;
+  assign \Simm[20]  = \instr[31] ;
+  assign \Simm[21]  = \instr[31] ;
+  assign \Simm[22]  = \instr[31] ;
+  assign \Simm[23]  = \instr[31] ;
+  assign \Simm[24]  = \instr[31] ;
+  assign \Simm[25]  = \instr[31] ;
+  assign \Simm[26]  = \instr[31] ;
+  assign \Simm[27]  = \instr[31] ;
+  assign \Simm[28]  = \instr[31] ;
+  assign \Simm[29]  = \instr[31] ;
+  assign \Simm[30]  = \instr[31] ;
+  assign \Simm[31]  = \instr[31] ;
   assign \Bimm[1]  = \instr[8] ;
   assign \Bimm[2]  = \instr[9] ;
   assign \Bimm[3]  = \instr[10] ;
@@ -52853,31 +52847,37 @@ module FemtoRV32(clk, \mem_addr[0] , \mem_addr[1] , \mem_addr[2] , \mem_addr[3] 
   assign \Bimm[29]  = \instr[31] ;
   assign \Bimm[30]  = \instr[31] ;
   assign \Bimm[31]  = \instr[31] ;
-  assign \rdId[0]  = \instr[7] ;
-  assign \rdId[1]  = \instr[8] ;
-  assign \rdId[2]  = \instr[9] ;
-  assign \rdId[3]  = \instr[10] ;
-  assign \rdId[4]  = \instr[11] ;
-  assign \Uimm[12]  = \instr[12] ;
-  assign \Uimm[13]  = \instr[13] ;
-  assign \Uimm[14]  = \instr[14] ;
-  assign \Uimm[15]  = \instr[15] ;
-  assign \Uimm[16]  = \instr[16] ;
-  assign \Uimm[17]  = \instr[17] ;
-  assign \Uimm[18]  = \instr[18] ;
-  assign \Uimm[19]  = \instr[19] ;
-  assign \Uimm[20]  = \instr[20] ;
-  assign \Uimm[21]  = \instr[21] ;
-  assign \Uimm[22]  = \instr[22] ;
-  assign \Uimm[23]  = \instr[23] ;
-  assign \Uimm[24]  = \instr[24] ;
-  assign \Uimm[25]  = \instr[25] ;
-  assign \Uimm[26]  = \instr[26] ;
-  assign \Uimm[27]  = \instr[27] ;
-  assign \Uimm[28]  = \instr[28] ;
-  assign \Uimm[29]  = \instr[29] ;
-  assign \Uimm[30]  = \instr[30] ;
-  assign \Uimm[31]  = \instr[31] ;
+  assign \Jimm[1]  = \instr[21] ;
+  assign \Jimm[2]  = \instr[22] ;
+  assign \Jimm[3]  = \instr[23] ;
+  assign \Jimm[4]  = \instr[24] ;
+  assign \Jimm[5]  = \instr[25] ;
+  assign \Jimm[6]  = \instr[26] ;
+  assign \Jimm[7]  = \instr[27] ;
+  assign \Jimm[8]  = \instr[28] ;
+  assign \Jimm[9]  = \instr[29] ;
+  assign \Jimm[10]  = \instr[30] ;
+  assign \Jimm[11]  = \instr[20] ;
+  assign \Jimm[12]  = \instr[12] ;
+  assign \Jimm[13]  = \instr[13] ;
+  assign \Jimm[14]  = \instr[14] ;
+  assign \Jimm[15]  = \instr[15] ;
+  assign \Jimm[16]  = \instr[16] ;
+  assign \Jimm[17]  = \instr[17] ;
+  assign \Jimm[18]  = \instr[18] ;
+  assign \Jimm[19]  = \instr[19] ;
+  assign \Jimm[20]  = \instr[31] ;
+  assign \Jimm[21]  = \instr[31] ;
+  assign \Jimm[22]  = \instr[31] ;
+  assign \Jimm[23]  = \instr[31] ;
+  assign \Jimm[24]  = \instr[31] ;
+  assign \Jimm[25]  = \instr[31] ;
+  assign \Jimm[26]  = \instr[31] ;
+  assign \Jimm[27]  = \instr[31] ;
+  assign \Jimm[28]  = \instr[31] ;
+  assign \Jimm[29]  = \instr[31] ;
+  assign \Jimm[30]  = \instr[31] ;
+  assign \Jimm[31]  = \instr[31] ;
   assign \PCplus4[0]  = \PC[0] ;
   assign \PCplus4[1]  = \PC[1] ;
   assign \PCplusImm[0]  = \PC[0] ;

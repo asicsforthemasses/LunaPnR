@@ -58,9 +58,11 @@ BOOST_AUTO_TEST_CASE(check_create_cluster)
     BOOST_CHECK(rowInfo.m_clusters.size() == 3);
 
     // check the order of the clusters
+    BOOST_CHECK(rowInfo.hasOverlap(0, 10) == -1);
     BOOST_CHECK(rowInfo.hasOverlap(100, 100) == 0);
     BOOST_CHECK(rowInfo.hasOverlap(10000, 100) == 1);
     BOOST_CHECK(rowInfo.hasOverlap(20000, 100) == 2);
+    BOOST_CHECK(rowInfo.hasOverlap(30000, 100) == -1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

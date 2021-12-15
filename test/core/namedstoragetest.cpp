@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE(check_Notifier)
 
     storage.clear();
 
-    BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::UNSPECIFIED);
+    BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::REMOVE);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
