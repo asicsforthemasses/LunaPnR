@@ -1,0 +1,162 @@
+/*
+ delay model :       typ
+ check model :       typ
+ power model :       typ
+ capacitance model : typ
+ other model :       typ
+*/
+library(iit018_stdcells_extra) {
+
+  delay_model : table_lookup;
+  in_place_swap_mode : match_footprint;
+
+  /* unit attributes */
+  time_unit : "1ns";
+  voltage_unit : "1V";
+  current_unit : "1uA";
+  pulling_resistance_unit : "1kohm";
+  leakage_power_unit : "1nW";
+  capacitive_load_unit (1,pf);
+
+  slew_upper_threshold_pct_rise : 80;
+  slew_lower_threshold_pct_rise : 20;
+  slew_upper_threshold_pct_fall : 80;
+  slew_lower_threshold_pct_fall : 20;
+  input_threshold_pct_rise : 50;
+  input_threshold_pct_fall : 50;
+  output_threshold_pct_rise : 50;
+  output_threshold_pct_fall : 50;
+  nom_process : 1;
+  nom_voltage : 1.8;
+  nom_temperature : 25;
+  operating_conditions ( typical ) {
+     process : 1;
+     voltage : 1.8;
+     temperature : 25;
+  }
+  default_operating_conditions : typical;
+
+  lu_table_template(delay_template_5x1) {
+    variable_1 : input_net_transition;
+    index_1 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0");
+  }
+  lu_table_template(delay_template_5x5) {
+    variable_1 : total_output_net_capacitance;
+    variable_2 : input_net_transition;
+    index_1 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0");
+    index_2 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0");
+  }
+  lu_table_template(delay_template_5x6) {
+    variable_1 : total_output_net_capacitance;
+    variable_2 : input_net_transition;
+    index_1 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0");
+    index_2 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0, 1005.0");
+  }
+  lu_table_template(delay_template_6x6) {
+    variable_1 : total_output_net_capacitance;
+    variable_2 : input_net_transition;
+    index_1 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0, 1005.0");
+    index_2 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0, 1005.0");
+  }
+  power_lut_template(energy_template_5x5) {
+    variable_1 : total_output_net_capacitance;
+    variable_2 : input_transition_time;
+    index_1 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0");
+    index_2 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0");
+  }
+  power_lut_template(energy_template_5x6) {
+    variable_1 : total_output_net_capacitance;
+    variable_2 : input_transition_time;
+    index_1 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0");
+    index_2 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0, 1005.0");
+  }
+  power_lut_template(energy_template_6x6) {
+    variable_1 : total_output_net_capacitance;
+    variable_2 : input_transition_time;
+    index_1 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0, 1005.0");
+    index_2 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0, 1005.0");
+  }
+  lu_table_template(hold_template_3x5) {
+    variable_1 : related_pin_transition;
+    variable_2 : constrained_pin_transition;
+    index_1 ("1000.0, 1001.0, 1002.0");
+    index_2 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0");
+  }
+  lu_table_template(hold_template_3x6) {
+    variable_1 : related_pin_transition;
+    variable_2 : constrained_pin_transition;
+    index_1 ("1000.0, 1001.0, 1002.0");
+    index_2 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0, 1005.0");
+  }
+  power_lut_template(passive_energy_template_5x1) {
+    variable_1 : input_transition_time;
+    index_1 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0");
+  }
+  power_lut_template(passive_energy_template_6x1) {
+    variable_1 : input_transition_time;
+    index_1 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0, 1005.0");
+  }
+  lu_table_template(recovery_template_3x6) {
+    variable_1 : related_pin_transition;
+    variable_2 : constrained_pin_transition;
+    index_1 ("1000.0, 1001.0, 1002.0");
+    index_2 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0, 1005.0");
+  }
+  lu_table_template(recovery_template_6x6) {
+    variable_1 : related_pin_transition;
+    variable_2 : constrained_pin_transition;
+    index_1 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0, 1005.0");
+    index_2 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0, 1005.0");
+  }
+  lu_table_template(removal_template_3x6) {
+    variable_1 : related_pin_transition;
+    variable_2 : constrained_pin_transition;
+    index_1 ("1000.0, 1001.0, 1002.0");
+    index_2 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0, 1005.0");
+  }
+  lu_table_template(setup_template_3x5) {
+    variable_1 : related_pin_transition;
+    variable_2 : constrained_pin_transition;
+    index_1 ("1000.0, 1001.0, 1002.0");
+    index_2 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0");
+  }
+  lu_table_template(setup_template_3x6) {
+    variable_1 : related_pin_transition;
+    variable_2 : constrained_pin_transition;
+    index_1 ("1000.0, 1001.0, 1002.0");
+    index_2 ("1000.0, 1001.0, 1002.0, 1003.0, 1004.0, 1005.0");
+  }
+
+/* ----------------- *
+ * Design : TIEHI    *
+ * ----------------- */
+cell (TIEHI) {
+  area : 16;
+  cell_leakage_power : 0.0221741;
+  pin(Y)  {
+    direction : output;
+    capacitance : 0;
+    rise_capacitance : 0;
+    fall_capacitance : 0;
+    max_capacitance : 0.503808;
+    function : "(1)";
+  }
+}
+
+/* ----------------- *
+ * Design : TIELO  *
+ * ----------------- */
+cell (TIELO) {
+  area : 16;
+  cell_leakage_power : 0.0221741;
+  pin(Y)  {
+    direction : output;
+    capacitance : 0;
+    rise_capacitance : 0;
+    fall_capacitance : 0;
+    max_capacitance : 0.503808;
+    function : "(0)";
+  }
+}
+
+}
