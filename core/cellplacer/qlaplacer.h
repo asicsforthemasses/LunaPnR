@@ -14,6 +14,7 @@
 #include <functional>
 
 #include "common/dbtypes.h"
+#include "floorplan/region.h"
 #include "netlist/netlist.h"
 #include "qplacertypes.h"
 
@@ -60,8 +61,9 @@ namespace LunaCore::QLAPlacer
     /** place the module in the region rectangle.
      *  the callback is called each iteration when the positions have been updated
     */
-    bool place(const ChipDB::Rect64 &regionRect, 
-        const ChipDB::Module *mod,
+    bool place(
+        const ChipDB::Region  &region,
+        ChipDB::Netlist &netlist,
         std::function<void(const LunaCore::QPlacer::PlacerNetlist &)> callback);
 
 };

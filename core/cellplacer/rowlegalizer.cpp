@@ -1,177 +1,231 @@
-#include <vector>
-#include <algorithm>
-#include "common/logging.h"
 #include "rowlegalizer.h"
+#include <list> 
+#include <cmath>
 
-using namespace LunaCore;
+using namespace LunaCore::Legalizer;
 
-bool RowLegalizer::legalize(const ChipDB::Design &design, ChipDB::Module &mod, ChipDB::Region &region)
+static ChipDB::CoordType roundToNearestValidPosition(ChipDB::CoordType pos, const ChipDB::CoordType minCellWidth)
 {
-    // check that all the instances in the module have been placed
-    if (!checkAllInstancesPlaced(mod))
+    ChipDB::CoordType v = (pos + (minCellWidth/2)) / minCellWidth;
+    return v * minCellWidth;
+}
+
+void Cluster::addCell(const ChipDB::CoordType cellXPos, const Cell &cell, CellIndex cellIdx)
+{
+    m_lastCellIndex = cellIdx;
+    m_totalWeight   += cell.m_weight;
+    m_q += cell.m_weight*(static_cast<double>(cellXPos) - m_totalWidth);
+    m_totalWidth += cell.m_size.m_x;
+}
+
+void Cluster::addCluster(Cluster &cluster)
+{
+    m_lastCellIndex = cluster.m_lastCellIndex;
+    m_totalWeight += cluster.m_totalWeight;
+    m_q += cluster.m_q - cluster.m_totalWeight*m_totalWidth;
+    m_totalWidth += cluster.m_totalWidth;
+}
+
+void Collapse(const Row &row, std::list<Cluster> &clusters, std::list<Cluster>::iterator clusterIter, 
+    const ChipDB::CoordType minCellWidth)
+{
+    auto &cluster = *clusterIter;
+    auto const optPos = cluster.optimalPosition();
+    auto xc = row.m_rect.left() + 
+        roundToNearestValidPosition(optPos - row.m_rect.left(), minCellWidth);
+
+    const auto xmin = row.m_rect.left();
+    const auto xmax = xmin + row.m_rect.width();
+
+    xc = std::max(xmin, xc);
+    xc = std::min(xmax - cluster.m_totalWidth, xc);
+
+    if (clusterIter != clusters.begin())
     {
-        doLog(LOG_ERROR, "Legalization requires that all instanced have been placed\n");
-        return false;
-    }
+        auto prevClusterIter = std::prev(clusterIter);
 
-    auto &instances = mod.m_netlist->m_instances;
+        auto &cluster2 = *prevClusterIter;  // previous cluster
+        auto xc2 = row.m_rect.left() +
+            roundToNearestValidPosition(cluster2.optimalPosition() - row.m_rect.left(), minCellWidth);
 
-    // sort instances by x-coordinate
-    std::vector<ChipDB::InstanceBase*> sortedIns(instances.size());
-    for(uint32_t idx=0; idx<instances.size(); idx++)
-    {
-        sortedIns.at(idx) = instances.at(idx);
-    }
-
-    std::sort(sortedIns.begin(), sortedIns.end(), [&sortedIns](const auto ins1, const auto ins2)
+        if ((xc2 + cluster2.m_totalWidth) > xc)
         {
-            if (ins1->m_pos.m_x < ins2->m_pos.m_x)
-            {
-                return true;
-            }
-            return false;
+            // merge cluster 1 into cluster 2
+            cluster2.addCluster(cluster);
+            auto iter = clusters.erase(clusterIter);
+            Collapse(row, clusters, --iter, minCellWidth);
         }
-    );
-
-    std::vector<RowInfo> rowInfos(region.m_rows.size());
-    for(size_t rowIdx=0; rowIdx<region.m_rows.size(); rowIdx++)
-    {
-        rowInfos.at(rowIdx).m_rect = region.m_rows.at(rowIdx).m_rect;
     }
+}
 
-    for(auto ins : sortedIns)
+void LunaCore::Legalizer::placeRow(std::vector<Cell> &cells, Row &row, const ChipDB::CoordType minCellWidth)
+{
+    std::list<Cluster> clusters;
+
+    bool firstCell = true;
+    for(CellIndex cellIdx = 0; cellIdx < row.m_cellIdxs.size(); cellIdx++)
     {
-        // skip fixed cells/instances
-        if (ins->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED)
+        auto &cell = cells.at(cellIdx);
+        const auto cellXPos = row.m_rect.left() +        
+            roundToNearestValidPosition(cell.m_globalPos.m_x - row.m_rect.left(), minCellWidth);
+                
+        if (firstCell)
         {
-            continue;
-        }
+            clusters.emplace_back();
+            auto &cluster = clusters.back();
 
-        double bestCost = std::numeric_limits<double>::max();
-        ssize_t bestRow = -1;
-
-        ssize_t rowIdx = 0;
-        for(auto &rowInfo : rowInfos)
-        {
-            double cost = insertInstance(ins, rowInfo, InsertMode::Trial);
-            if (cost < bestCost)
-            {
-                bestCost = cost;
-                bestRow = rowIdx;
-            }
-            rowIdx++;
-        }
-
-        if (bestRow >=0)
-        {
-            insertInstance(ins, rowInfos.at(bestRow), InsertMode::Place);
+            cluster.init();
+            cluster.m_xleft = cellXPos;
+            cluster.m_firstCellIndex = cellIdx;
+            
+            cluster.addCell(cellXPos, cell, cellIdx);
+            firstCell = false;
         }
         else
         {
-            doLog(LOG_ERROR, "Cannot find a row to place instance %s\n", ins->m_name.c_str());
-            return false;
+            auto &cluster = clusters.back();
+            const auto clusterRightEdge = cluster.m_xleft + cluster.m_totalWidth;
+
+            if (clusterRightEdge <= cellXPos)
+            {
+                // create a new cluster
+                clusters.emplace_back();
+
+                auto &newCluster = clusters.back();
+                newCluster.init();
+                newCluster.m_xleft = cellXPos;
+                newCluster.m_firstCellIndex = cellIdx;
+
+                newCluster.addCell(cellXPos, cell, cellIdx);
+            }
+            else
+            {
+                // cell will overlap!
+                cluster.addCell(cellXPos, cell, cellIdx);
+                Collapse(row, clusters, std::prev(clusters.end()), minCellWidth);
+            }
         }
     }
 
-    return true;
-}
-
-bool RowLegalizer::checkAllInstancesPlaced(const ChipDB::Module &module)
-{
-    for(auto ins : module.m_netlist->m_instances)
+    // set the new positions for all the cells
+    for(auto const& cluster : clusters)
     {
-        if ((ins->m_placementInfo != ChipDB::PlacementInfo::PLACED) && (ins->m_placementInfo != ChipDB::PlacementInfo::PLACEDANDFIXED))
+        auto x = cluster.m_xleft;
+
+        x = std::max(x, row.m_rect.left());
+
+        for(size_t idx = cluster.m_firstCellIndex; idx <= cluster.m_lastCellIndex; idx++)
         {
-            return false;
+            auto &cell = cells.at(row.m_cellIdxs.at(idx));
+            cell.m_legalPos = ChipDB::Coord64{x, row.m_rect.bottom()};
+            x += cell.m_size.m_x;
         }
     }
-    return true;
 }
 
-double RowLegalizer::insertInstance(ChipDB::InstanceBase *ins, RowInfo &rowInfo, InsertMode mode)
+double LunaCore::Legalizer::calcRowCost(const std::vector<Cell> &cells, const Row &row)
 {
-    double cost = std::numeric_limits<double>::max();
-    auto occupiedRowArea = ins->getArea() + rowInfo.getOccupiedArea();
-    if (occupiedRowArea > rowInfo.getAvailableArea())
+    double cost = 0;
+    for(auto cellIdx : row.m_cellIdxs)
     {
-        return cost;
-    }
-    
-    auto oldRow = rowInfo;
+        auto const& cell = cells.at(cellIdx);
+        cost += cell.m_weight*std::abs(cell.m_legalPos.m_x - cell.m_globalPos.m_x);
+        cost += cell.m_weight*std::abs(cell.m_legalPos.m_y - cell.m_globalPos.m_y);
 
-    auto insPos   = ins->m_pos;
-    const auto insWidth = ins->instanceSize().m_x;
-    const auto rowY     = rowInfo.m_rect.getLL().m_y;
-    
-    if (!rowInfo.hasOverlap(insPos.m_x, insWidth))
-    {
-        rowInfo.createCluster(insPos.m_x, insWidth);
-        cost = std::abs(ins->m_pos.m_y - rowY);
-    }
-    else
-    {
-        cost = rowInfo.addAndCollapseCluster(insPos.m_x, insWidth);
-    }
+        // make cost as large as possible if one of the cells
+        // is outside the row.
 
-    if (mode == InsertMode::Trial)
-    {
-        rowInfo = oldRow;
+        const auto cellRightEdge = cell.m_legalPos.m_x + cell.m_size.m_x;
+        const auto cellLeftEdge  = cell.m_legalPos.m_x;
+
+        if (cellRightEdge > row.m_rect.right())
+        {
+            return std::numeric_limits<double>::max();
+        }
+        else if (cellLeftEdge < row.m_rect.left())
+        {
+            return std::numeric_limits<double>::max();
+        }
     }
 
     return cost;
 }
 
-
-
-// ================================================================================
-//   RowInfo
-// ================================================================================
-
-ssize_t RowLegalizer::RowInfo::hasOverlap(ChipDB::CoordType xpos, ChipDB::CoordType width) const
+void LunaCore::Legalizer::legalizeRegion(const ChipDB::Region &region, ChipDB::Netlist &netlist, ChipDB::CoordType minCellWidth)
 {
-    //note: clusters are sorted from left to right
+    // create a vector consisting of all placed but movable instances
+    std::vector<Cell> cells;
+    for(auto ins : netlist.m_instances)
+    {
+        if (ins == nullptr)
+        {
+            continue;
+        }
+
+        if (ins->m_placementInfo == ChipDB::PlacementInfo::PLACED)    
+        {
+            cells.emplace_back();
+            auto &cell = cells.back();
+
+            cell.m_size = ins->instanceSize();
+            cell.m_globalPos = ins->m_pos;
+            cell.m_weight = 1.0f;   // FIXME: what should this be??!
+            cell.m_ins = ins;
+        }
+    }
+
+    // sort cells according to x-position
+    std::sort(cells.begin(), cells.end(), [&cells](auto const & cell1, auto const & cell2)
+        {
+            if (cell1.m_globalPos.m_x < cell2.m_globalPos.m_x)
+            {
+                return true;
+            }
+
+            return false;
+        }
+    );
+
+    // create a vector consisting of rowspresent in the region
+    std::vector<Row> rows;
+    rows.resize(region.m_rows.size());
     
-    ssize_t clusterIdx = 0;
-    while(clusterIdx < m_clusters.size())
+    for(size_t rowIdx=0; rowIdx < region.m_rows.size(); rowIdx++)
     {
-        auto &cluster = m_clusters.at(clusterIdx);
-        const auto clusterEnd = cluster.m_start + cluster.m_width;
-
-        auto left  = std::max(cluster.m_start, xpos);
-        auto right = std::min(clusterEnd, xpos+width);
-
-        if (left <= right)
-        {
-            // overlap!
-            return clusterIdx;
-        }
-
-        if (cluster.m_start > xpos)
-        {
-            // there can be no more clusters
-            // overlapping the given interval
-            return -1;
-        }
-
-        clusterIdx++;
+        rows.at(rowIdx).m_rect = region.m_rows.at(rowIdx).m_rect;
     }
 
-    return -1; // no overlap
-}
-
-void RowLegalizer::RowInfo::createCluster(ChipDB::CoordType xpos, ChipDB::CoordType width)
-{
-    // find the insertion spot
-    auto iter = m_clusters.begin();    
-    while((iter != m_clusters.end()) && ((iter->m_start+iter->m_width) < xpos))
+    // try the sorted cells in each row and see which row has the lowest
+    // placement cost
+    for(CellIndex cellIdx=0; cellIdx < cells.size(); cellIdx++)
     {
-        iter++;
+        double bestCost = std::numeric_limits<double>::max();
+
+        size_t bestRowIdx  = 0;
+        size_t rowIndex = 0;
+        for(auto &row : rows)
+        {
+            row.insertCell(cellIdx);
+            placeRow(cells, row, minCellWidth);
+            auto cost = calcRowCost(cells, row);
+            if (cost < bestCost)
+            {
+                bestCost    = cost;
+                bestRowIdx  = rowIndex;
+            }
+            row.removeLastCell();
+            rowIndex++;
+        }
+
+        auto &bestRow = rows.at(bestRowIdx);
+        bestRow.insertCell(cellIdx);
+        placeRow(cells, bestRow, minCellWidth);
     }
 
-    m_clusters.insert(iter, 1, Cluster{xpos, width});    
-}
-
-double RowLegalizer::RowInfo::addAndCollapseCluster(ChipDB::CoordType xpos, ChipDB::CoordType width)
-{
-    return 0.0;
+    // write back the legal positions of the cells
+    for(auto const& cell : cells)
+    {
+        assert(cell.m_ins != nullptr);
+        cell.m_ins->m_pos = cell.m_legalPos;
+    }    
 }

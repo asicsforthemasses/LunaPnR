@@ -535,7 +535,7 @@ static int place_module(lua_State *L)
     auto ll = getLogLevel();
     setLogLevel(LOG_VERBOSE);
 
-    if (!LunaCore::QLAPlacer::place(region->getPlacementRect(), mod, nullptr))
+    if (!LunaCore::QLAPlacer::place(*region, *mod->m_netlist.get(), nullptr))
     {
         reportError(L, "Placement failed!");
     }

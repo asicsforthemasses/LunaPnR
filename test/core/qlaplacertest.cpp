@@ -38,7 +38,6 @@ bool createStringOfInstancesConnectingTwoTerminals(ChipDB::Design &design, ChipD
         return false;
     }
 
-
     ins = new ChipDB::Instance(dstTerminalCell);
     ins->m_name = "dst";
     if (!mod->addInstance(ins))
@@ -197,12 +196,13 @@ BOOST_AUTO_TEST_CASE(check_qla_netlist_placement)
     dstPin->m_pos = ChipDB::Coord64{1000,0};
     dstPin->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
 
-    ChipDB::Rect64 regionRect = ChipDB::Rect64{{0,0}, {2000,1000}};
+    ChipDB::Region region;
+    region.m_rect = ChipDB::Rect64{{0,0}, {2000,1000}};
 
     NetlistCallback callback;
-    callback.m_regionRect = regionRect;
+    callback.m_regionRect = region.m_rect;
 
-    auto status = LunaCore::QLAPlacer::place(regionRect, mod, callback);
+    auto status = LunaCore::QLAPlacer::place(region, *(mod->m_netlist.get()), callback);
     BOOST_CHECK(status);
 
     // dump qlanetlist

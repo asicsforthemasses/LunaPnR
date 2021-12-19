@@ -1,55 +1,69 @@
 #pragma once
+#include <list>
+#include <cassert>
 
 #include "design/design.h"
 
-namespace LunaCore
+namespace LunaCore::Legalizer
 {
 
-class RowLegalizer
-{
-public:
+    struct Cell
+    {
+        ChipDB::InstanceBase *m_ins;
+        ChipDB::Coord64 m_globalPos;    ///< position before legalization
+        ChipDB::Coord64 m_legalPos;     ///< position after legalization
+        ChipDB::Coord64 m_size;         ///< cell size
+        double          m_weight;       ///< mathematical weight of cell (number of connections?)
+    };
+
+    using CellIndex = ssize_t;
 
     struct Cluster
     {
-        ChipDB::CoordType m_start;  ///< start of interval in nm
-        ChipDB::CoordType m_width;  ///< width of interval in nm
+        double      m_totalWeight;
+        size_t      m_firstCellIndex;
+        size_t      m_lastCellIndex;
+        ChipDB::CoordType   m_totalWidth;
+        ChipDB::CoordType   m_xleft;
+        double      m_q;
+
+        constexpr void init()
+        {
+            m_totalWeight = 0.0;
+            m_firstCellIndex = 0;
+            m_lastCellIndex  = 0;
+            m_totalWidth = 0;
+            m_q = 0.0;
+        }
+
+        constexpr ChipDB::CoordType optimalPosition() const noexcept
+        {
+            assert(m_totalWeight > 0.0);
+            return m_q / m_totalWeight;
+        }
+
+        void addCell(const ChipDB::CoordType cellPos, const Cell &cell, CellIndex cellIdx);
+        void addCluster(Cluster &cluster);
     };
 
-    struct RowInfo
+    struct Row
     {
         ChipDB::Rect64 m_rect;
-        constexpr double getAvailableArea() const
+        std::vector<CellIndex> m_cellIdxs;
+
+        void insertCell(CellIndex idx)
         {
-            return m_rect.width() * m_rect.height();
+            m_cellIdxs.push_back(idx);
         }
 
-        constexpr double getOccupiedArea() const
+        void removeLastCell()
         {
-            return 0; // FIXME
+            m_cellIdxs.pop_back();
         }
-
-        /** if no overlap, it returns -1, else the cluster index */
-        ssize_t hasOverlap(ChipDB::CoordType xpos, ChipDB::CoordType width) const;
-
-        /** create a cluster and insert it into the sorted cluster vector 
-        */
-        void createCluster(ChipDB::CoordType xpos, ChipDB::CoordType width);
-
-        double addAndCollapseCluster(ChipDB::CoordType xpos, ChipDB::CoordType width);
-
-        std::vector<Cluster> m_clusters;
     };
 
-    bool legalize(const ChipDB::Design &design, ChipDB::Module &module, ChipDB::Region &region);
-    bool checkAllInstancesPlaced(const ChipDB::Module &module);
+    void placeRow(std::vector<Cell> &cells, Row &row, const ChipDB::CoordType cellMinWidth);
+    double calcRowCost(const std::vector<Cell> &cells, const Row &row);
 
-    enum class InsertMode
-    {
-        Trial,
-        Place
-    };
-
-    double insertInstance(ChipDB::InstanceBase *ins, RowInfo &row, InsertMode mode);
-};
-
+    void legalizeRegion(const ChipDB::Region &region, ChipDB::Netlist &netlist, ChipDB::CoordType minCellWidth);
 };

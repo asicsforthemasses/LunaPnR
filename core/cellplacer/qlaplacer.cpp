@@ -2,25 +2,27 @@
 #include "common/logging.h"
 #include "cellplacer.h"
 #include "qlaplacer.h"
+#include "rowlegalizer.h"
 
 using namespace LunaCore::QLAPlacer;
 
 
 bool LunaCore::QLAPlacer::place(
-    const ChipDB::Rect64 &regionRect, 
-    const ChipDB::Module *mod,
+    const ChipDB::Region  &region,
+    ChipDB::Netlist &netlist,
     std::function<void(const LunaCore::QPlacer::PlacerNetlist &)> callback)
 {
     double area = 0.0f;
 
-    doLog(LOG_INFO, "Placing module %s in rectangle (%d,%d)-(%d,%d).\n",
-        mod->m_name.c_str(),
+    const auto regionRect = region.m_rect;
+
+    doLog(LOG_INFO, "Placing netlist in rectangle (%d,%d)-(%d,%d).\n",
         regionRect.left(), regionRect.bottom(), 
         regionRect.right(), regionRect.top());
 
     // check if pins have been fixed
     // and total the area
-    for(auto ins : mod->m_netlist->m_instances)
+    for(auto ins : netlist.m_instances)
     {
         if (ins->m_insType == ChipDB::InstanceType::PIN)
         {
@@ -48,25 +50,27 @@ bool LunaCore::QLAPlacer::place(
 
     doLog(LOG_INFO, "Utilization = %3.1f percent\n", 100.0* area / static_cast<double>(regionArea));
 
-    auto &modNetlist = *mod->m_netlist.get();
-    auto netlist = Private::createPlacerNetlist(modNetlist);
+    auto placerNetlist = Private::createPlacerNetlist(netlist);
     
-    Private::doInitialPlacement(regionRect, netlist);    
-    Private::updatePositions(netlist, modNetlist);
-    for(uint32_t i=0; i<20; i++)
+    Private::doInitialPlacement(regionRect, placerNetlist);    
+    Private::updatePositions(placerNetlist, netlist);
+
+    for(uint32_t i=0; i<5; i++)
     {
-        Private::doQuadraticB2B(netlist);
-        Private::updatePositions(netlist, modNetlist);
-        Private::lookaheadLegaliser(regionRect, netlist);
+        Private::doQuadraticB2B(placerNetlist);
+        Private::updatePositions(placerNetlist, netlist);
+        //Private::lookaheadLegaliser(regionRect, placerNetlist);
         
         if (callback)
         {
-            callback(netlist);
+            callback(placerNetlist);
         }
 
-        doLog(LOG_INFO,"Iteration %d HPWL %f\n", i, Private::calcHPWL(netlist));
+        doLog(LOG_INFO,"Iteration %d HPWL %f\n", i, Private::calcHPWL(placerNetlist));
     }
-    
+
+    LunaCore::Legalizer::legalizeRegion(region, netlist, 800);
+
     doLog(LOG_INFO, "Placement done.\n");
 
     return true;
