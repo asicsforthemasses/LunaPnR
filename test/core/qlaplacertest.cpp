@@ -24,6 +24,9 @@ bool createStringOfInstancesConnectingTwoTerminals(ChipDB::Design &design, ChipD
     auto inPin = dstTerminalCell->m_pins.createPin("in");
     inPin->m_iotype = ChipDB::IOType::INPUT;
 
+    srcTerminalCell->m_size = ChipDB::Coord64{800,1000};
+    dstTerminalCell->m_size = ChipDB::Coord64{800,1000};
+
     auto *insCell   = design.m_cellLib.createCell("InsCell");
     auto inInsPin   = insCell->m_pins.createPin("in");
     auto outInsPin  = insCell->m_pins.createPin("out");
@@ -198,6 +201,9 @@ BOOST_AUTO_TEST_CASE(check_qla_netlist_placement)
 
     ChipDB::Region region;
     region.m_rect = ChipDB::Rect64{{0,0}, {2000,1000}};
+    region.m_rows.emplace_back();
+    region.m_rows.back().m_rect = region.m_rect;
+    region.m_rows.back().m_region = &region;
 
     NetlistCallback callback;
     callback.m_regionRect = region.m_rect;

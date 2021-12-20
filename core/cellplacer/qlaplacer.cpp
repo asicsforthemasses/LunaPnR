@@ -16,6 +16,12 @@ bool LunaCore::QLAPlacer::place(
 
     const auto regionRect = region.m_rect;
 
+    if (region.m_rows.empty())
+    {
+        doLog(LOG_ERROR,"Cannot place: region has now rows\n");
+        return false;
+    }
+
     doLog(LOG_INFO, "Placing netlist in rectangle (%d,%d)-(%d,%d).\n",
         regionRect.left(), regionRect.bottom(), 
         regionRect.right(), regionRect.top());
