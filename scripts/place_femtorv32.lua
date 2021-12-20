@@ -1,6 +1,6 @@
 
-create_region("core", 10000, 10000, 600000, 800000)
-create_rows("core", 0, 10000, 80)
+create_region("core", 10000, 10000, 800000, 500000)
+create_rows("core", 0, 10000, 60)
 print("Floorplan and rows created")
 
 load_verilog("test/files/verilog/femtorv32_quark.v")
@@ -13,7 +13,7 @@ xTopInc = 10000
 xBottomPos = 10000
 xBottomInc = 15000
 
-yTop    = 810000
+yTop    = 510000
 yBottom = 10000
 
 function placePinAtTop(pinName)

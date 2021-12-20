@@ -60,20 +60,36 @@ bool LunaCore::QLAPlacer::place(
     
     Private::doInitialPlacement(regionRect, placerNetlist);    
     Private::updatePositions(placerNetlist, netlist);
+    
+    doLog(LOG_INFO, "Initial HPWL = %lf\n", Private::calcHPWL(placerNetlist));
 
-    for(uint32_t i=0; i<5; i++)
-    {
+    double hpwlCost    = std::numeric_limits<double>::max();
+    double oldHpwlCost = std::numeric_limits<double>::max();
+    size_t iterCount = 1;
+    while(iterCount < 20)
+    {   
+        oldHpwlCost = hpwlCost;
         Private::doQuadraticB2B(placerNetlist);
-        Private::updatePositions(placerNetlist, netlist);
-        //Private::lookaheadLegaliser(regionRect, placerNetlist);
-        
+                
         if (callback)
         {
             callback(placerNetlist);
         }
 
-        doLog(LOG_INFO,"Iteration %d HPWL %f\n", i, Private::calcHPWL(placerNetlist));
-    }
+        hpwlCost = Private::calcHPWL(placerNetlist);
+        doLog(LOG_INFO,"Iteration %d HPWL %f\n", iterCount, hpwlCost);
+
+        if (hpwlCost < oldHpwlCost)
+        {
+            Private::updatePositions(placerNetlist, netlist);
+        }
+        else
+        {
+            break;
+        }
+
+        iterCount++;
+    } 
 
     LunaCore::Legalizer::legalizeRegion(region, netlist, 800);
 
