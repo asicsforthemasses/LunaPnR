@@ -96,7 +96,7 @@ bool LunaCore::QLAPlacer::Private::updatePositions(const LunaCore::QPlacer::Plac
 LunaCore::QPlacer::PlacerNetlist LunaCore::QLAPlacer::Private::createPlacerNetlist(const ChipDB::Netlist &nl)
 {
     std::unordered_map<ChipDB::InstanceBase*, LunaCore::QPlacer::PlacerNodeId> ins2nodeId;
-    std::unordered_map<ChipDB::Net*, LunaCore::QPlacer::PlacerNetId> net2netId;
+    //std::unordered_map<ChipDB::Net*, LunaCore::QPlacer::PlacerNetId> net2netId;
     LunaCore::QPlacer::PlacerNetlist netlist;
 
     // create placer nodes

@@ -243,6 +243,7 @@ void FloorplanView::paintEvent(QPaintEvent *event)
 
     drawRegions(painter);
     drawInstances(painter);
+    drawNets(painter);
 
     if (m_overlay != nullptr)
     {
@@ -395,6 +396,71 @@ void FloorplanView::drawPin(QPainter &p, const ChipDB::InstanceBase *ins)
     auto txtpoint = cellRect.center();
     txtpoint += {0, static_cast<qreal>(fm.height())};
     drawCenteredText(p, txtpoint, ins->m_name, font());
+}
+
+void FloorplanView::drawNet(QPainter &p, const ChipDB::Net *net)
+{
+    if (net == nullptr)
+    {
+        return;
+    }
+
+    if (m_db == nullptr)
+    {
+        return;
+    }
+
+    p.setPen(QColor("#FFFFFF20"));  // transparent white
+
+    // draw net from center to center of each instance
+    QPointF p1,p2;
+    bool first = true;
+    for(auto const &connection : net->m_connections)
+    {
+        auto *ins = connection.m_instance;
+        if ((ins->m_placementInfo == ChipDB::PlacementInfo::PLACED) || 
+            (ins->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED))
+        {
+            auto s = ins->instanceSize();
+
+            if (first)
+            {
+                p1 = m_viewPort.toScreen(ins->m_pos + ChipDB::Coord64{s.m_x/2, s.m_y/2});
+            }
+            else
+            {
+                p2 = m_viewPort.toScreen(ins->m_pos + ChipDB::Coord64{s.m_x/2, s.m_y/2});
+            }
+        }
+
+        if (!first)
+        {    
+            p.drawLine(p1,p2);
+        }
+        first = false;
+    }
+}
+
+void FloorplanView::drawNets(QPainter &p)
+{
+    if (m_db == nullptr)
+    {
+        return;
+    }
+
+    auto topModule = m_db->design().getTopModule();
+    if (topModule == nullptr)
+    {
+        return;
+    }
+
+    for(auto net : topModule->m_netlist->m_nets)
+    {
+        if (net != nullptr)
+        {
+            drawNet(p, net);
+        }
+    }    
 }
 
 void FloorplanView::drawInstances(QPainter &p)

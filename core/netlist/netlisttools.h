@@ -16,4 +16,6 @@ namespace LunaCore::NetlistTools
     /** returns a histogram of the net connections */
     NetlistHistogram calcNetlistHistogram(const ChipDB::Netlist *netlist);
 
+    /** remote NETCON instances from a netlist */
+    bool removeNetconInstances(ChipDB::Netlist &netlist);
 };

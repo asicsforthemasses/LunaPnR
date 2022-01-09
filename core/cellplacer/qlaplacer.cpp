@@ -27,7 +27,7 @@ bool LunaCore::QLAPlacer::place(
         regionRect.right(), regionRect.top());
 
     // check if pins have been fixed
-    // and total the area
+    // and calculate total area
     for(auto ins : netlist.m_instances)
     {
         if (ins->m_insType == ChipDB::InstanceType::PIN)
@@ -91,7 +91,7 @@ bool LunaCore::QLAPlacer::place(
         iterCount++;
     } 
 
-    LunaCore::Legalizer::legalizeRegion(region, netlist, 800);
+    //LunaCore::Legalizer::legalizeRegion(region, netlist, 800);
 
     doLog(LOG_INFO, "Placement done.\n");
 

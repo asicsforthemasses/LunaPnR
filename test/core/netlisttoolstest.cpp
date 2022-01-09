@@ -102,4 +102,25 @@ BOOST_AUTO_TEST_CASE(check_histogram_2)
     setLogLevel(ll);
 }
 
+BOOST_AUTO_TEST_CASE(remove_netcons)
+{
+    std::cout << "--== CHECK REMOVE NETCONS ==--\n";
+    std::ifstream verilogfile("test/files/verilog/netcon_test.v");
+    BOOST_CHECK(verilogfile.good());
+
+    ChipDB::Design design;
+    BOOST_CHECK(ChipDB::Verilog::Reader::load(&design, verilogfile));
+
+    // check the design    
+    auto mod = design.m_moduleLib.lookup("netcon");
+    BOOST_CHECK(mod != nullptr);
+    BOOST_CHECK(mod->m_netlist);    
+
+    auto ll = getLogLevel();
+
+    setLogLevel(LOG_VERBOSE);
+    LunaCore::NetlistTools::removeNetconInstances(*mod->m_netlist.get());
+    setLogLevel(ll);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

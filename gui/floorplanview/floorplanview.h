@@ -47,6 +47,7 @@ protected:
 
     void drawInstances(QPainter &p);
     void drawRegions(QPainter &p);
+    void drawNets(QPainter &p);
     void drawRows(QPainter &p, const ChipDB::Region *region);
 
     void drawCell(QPainter &p, const ChipDB::InstanceBase *ins);
@@ -54,6 +55,8 @@ protected:
 
     void drawBottomRuler(QPainter &p);
     void drawLeftRuler(QPainter &p);
+
+    void drawNet(QPainter &p, const ChipDB::Net *net);
     
     Viewport m_viewPort;    
 
