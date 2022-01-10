@@ -45,20 +45,19 @@ bool LunaCore::QLAPlacer::Private::doInitialPlacement(const ChipDB::Rect64 &regi
     {
         if (!node.isFixed())
         {
-            node.m_pos = ChipDB::Coord64{x_distribution(gen), y_distribution(gen)};
+            node.setLLPos(ChipDB::Coord64{x_distribution(gen), y_distribution(gen)});
 
             // make sure the node isn't slightly outside the rectangle
-            auto nodeRightPos = node.m_pos.m_x + node.m_size.m_x;
-            auto nodeTopPos   = node.m_pos.m_y + node.m_size.m_y;
-
-            if (nodeRightPos > regionRect.right())
+            if (node.right() > regionRect.right())
             {
-                node.m_pos.m_x -= nodeRightPos - regionRect.right();
+                const auto delta = node.right() - regionRect.right();
+                node.setLLX(node.left() - delta);
             }
 
-            if (nodeTopPos > regionRect.top())
+            if (node.top() > regionRect.top())
             {
-                node.m_pos.m_y -= nodeTopPos - regionRect.top();
+                const auto delta = node.top() - regionRect.top();
+                node.setLLY(node.bottom() - delta);
             }
         }
     }
@@ -82,8 +81,7 @@ bool LunaCore::QLAPlacer::Private::updatePositions(const LunaCore::QPlacer::Plac
         if ((ins != nullptr) && (ins->m_placementInfo != ChipDB::PlacementInfo::PLACEDANDFIXED) && (ins->m_placementInfo != ChipDB::PlacementInfo::IGNORE))
         {
             auto const& node = netlist.m_nodes.at(nodeIdx);
-            //ins->m_pos = node.m_pos - ChipDB::Coord64{node.m_size.m_x/2, node.m_size.m_y/2};
-            ins->m_pos = node.m_pos;
+            ins->m_pos = node.getLLPos();
             ins->m_placementInfo = ChipDB::PlacementInfo::PLACED;
             //doLog(LOG_VERBOSE,"  ins: %s -> %d,%d\n", ins->m_name.c_str(), ins->m_pos.m_x, ins->m_pos.m_y);
         }
@@ -96,7 +94,6 @@ bool LunaCore::QLAPlacer::Private::updatePositions(const LunaCore::QPlacer::Plac
 LunaCore::QPlacer::PlacerNetlist LunaCore::QLAPlacer::Private::createPlacerNetlist(const ChipDB::Netlist &nl)
 {
     std::unordered_map<ChipDB::InstanceBase*, LunaCore::QPlacer::PlacerNodeId> ins2nodeId;
-    //std::unordered_map<ChipDB::Net*, LunaCore::QPlacer::PlacerNetId> net2netId;
     LunaCore::QPlacer::PlacerNetlist netlist;
 
     // create placer nodes
@@ -105,8 +102,8 @@ LunaCore::QPlacer::PlacerNetlist LunaCore::QLAPlacer::Private::createPlacerNetli
         auto nodeId = netlist.createNode();
         auto& placerNode = netlist.getNode(nodeId);
         placerNode.m_type = LunaCore::QPlacer::PlacerNodeType::MovableNode;
-        placerNode.m_size = ins->instanceSize();
-        placerNode.m_pos  = ins->m_pos;
+        placerNode.setSize(ins->instanceSize());
+        placerNode.setLLPos(ins->m_pos);
         placerNode.m_weight = 1.0;
         
         if (ins->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED)
@@ -175,7 +172,7 @@ void updateWeights(
     auto const & node1 = netlist.m_nodes.at(node1Id);
     auto const & node2 = netlist.m_nodes.at(node2Id);
 
-    auto distance = std::abs(AxisAccessor::get(node1.m_pos) - AxisAccessor::get(node2.m_pos));
+    auto distance = std::abs(AxisAccessor::get(node1.getCenterPos()) - AxisAccessor::get(node2.getCenterPos()));
 
     // make sure distance is some sane minimum to avoid division by zero..
     distance = std::max(static_cast<ChipDB::CoordType>(1), distance);
@@ -201,22 +198,22 @@ void updateWeights(
         {
             solverData.m_Amat.coeffRef(node2Id, node2Id)  += fixedWeight;
             solverData.m_Amat.coeffRef(node1Id, node1Id)  = 1.0f; // attempt to make life of solver easier
-            solverData.m_Bvec[node2Id] = fixedWeight * AxisAccessor::get(node1.m_pos);
+            solverData.m_Bvec[node2Id] = fixedWeight * AxisAccessor::get(node1.getCenterPos());
 
             if (node2Id == 20)
             {
-                doLog(LOG_VERBOSE,"Node20: axis=%s anchor pos=%d w=%f (fixed -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node1.m_pos), fixedWeight, node1Id);
+                doLog(LOG_VERBOSE,"Node20: axis=%s anchor pos=%d w=%f (fixed -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node1.getCenterPos()), fixedWeight, node1Id);
             }
         }
         else
         {
             solverData.m_Amat.coeffRef(node1Id, node1Id)  += fixedWeight;
             solverData.m_Amat.coeffRef(node2Id, node2Id)  = 1.0f; // attempt to make life of solver easier
-            solverData.m_Bvec[node1Id] = fixedWeight * AxisAccessor::get(node2.m_pos);
+            solverData.m_Bvec[node1Id] = fixedWeight * AxisAccessor::get(node2.getCenterPos());
 
             if (node1Id == 20)
             {
-                doLog(LOG_VERBOSE,"Node20: axis=%s anchor pos=%d w=%f (fixed -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node2.m_pos), fixedWeight, node2Id);
+                doLog(LOG_VERBOSE,"Node20: axis=%s anchor pos=%d w=%f (fixed -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node2.getCenterPos()), fixedWeight, node2Id);
             }            
         }
     }
@@ -230,11 +227,11 @@ void updateWeights(
 
         if (node1Id == 20)
         {
-            doLog(LOG_VERBOSE,"Node20: axis=%s dst pos=%d w=%f (movable -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node2.m_pos), fixedWeight, node2Id);
+            doLog(LOG_VERBOSE,"Node20: axis=%s dst pos=%d w=%f (movable -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node2.getCenterPos()), fixedWeight, node2Id);
         }            
         if (node2Id == 20)
         {
-            doLog(LOG_VERBOSE,"Node20: axis=%s dst pos=%d w=%f (movable -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node1.m_pos), fixedWeight, node1Id);
+            doLog(LOG_VERBOSE,"Node20: axis=%s dst pos=%d w=%f (movable -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node1.getCenterPos()), fixedWeight, node1Id);
         }                    
     }
 
@@ -262,7 +259,7 @@ ExtremaResults findExtremeNodes(const LunaCore::QPlacer::PlacerNetlist &netlist,
     for(auto const& nodeId : net.m_nodes)
     {
         auto const& node = netlist.m_nodes.at(nodeId);
-        auto pos = AxisAccessor::get(node.m_pos);
+        auto pos = AxisAccessor::get(node.getCenterPos());
         if (pos > results.m_max)
         {
             results.m_maxNodeIdx = nodeId;
@@ -446,8 +443,8 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
     {
         if (!node.isFixed())
         {
-            node.m_pos.m_x = static_cast<ChipDB::CoordType>(xpos(idx));
-            node.m_pos.m_y = static_cast<ChipDB::CoordType>(ypos(idx));
+            const ChipDB::Coord64 pos{static_cast<ChipDB::CoordType>(xpos(idx)), static_cast<ChipDB::CoordType>(ypos(idx))};
+            node.setCenterPos(pos);
         }
         else
         {
@@ -475,7 +472,7 @@ double LunaCore::QLAPlacer::Private::calcHPWL(const LunaCore::QPlacer::PlacerNet
 
         for(auto const nodeId : net.m_nodes)
         {
-            auto nodePos = netlist.m_nodes.at(nodeId).m_pos;
+            auto nodePos = netlist.m_nodes.at(nodeId).getCenterPos();
             xmin = std::min(nodePos.m_x, xmin);
             xmax = std::max(nodePos.m_x, xmax);
             ymin = std::min(nodePos.m_y, ymin);
@@ -520,9 +517,9 @@ void LunaCore::QLAPlacer::Private::writeNetlistToSVG(std::ostream &os,
         {
             svg.setStrokeColour(0x00FF0080);    // green transparent
         }
-        svg.drawCircle(node.m_pos, 20);
+        svg.drawCircle(node.getCenterPos(), 20);
         svg.setStrokeColour(0xFFFFFFFF);    // white
-        svg.drawCenteredText(node.m_pos, ss.str());
+        svg.drawCenteredText(node.getCenterPos(), ss.str());
         nodeIdx++;
     }
 
@@ -540,7 +537,7 @@ void LunaCore::QLAPlacer::Private::writeNetlistToSVG(std::ostream &os,
         for(size_t idx=1; idx<net.m_nodes.size(); idx++)
         {
             auto const& secondNode = netlist.m_nodes.at(net.m_nodes.at(idx));
-            svg.drawLine(firstNode.m_pos, secondNode.m_pos);
+            svg.drawLine(firstNode.getCenterPos(), secondNode.getCenterPos());
         }
     }
 }
@@ -574,7 +571,7 @@ void LunaCore::QLAPlacer::Private::lookaheadLegaliser(const ChipDB::Rect64 &regi
         QPlacer::PlacerNodeId idx = 0;
         for(auto const &node : netlist.m_nodes)
         {
-            if ((!node.isFixed()) && block.m_extents.contains(node.m_pos))
+            if ((!node.isFixed()) && block.m_extents.contains(node.getCenterPos()))
             {
                 movableNodesInBlock.push_back(idx);
             }
@@ -585,8 +582,8 @@ void LunaCore::QLAPlacer::Private::lookaheadLegaliser(const ChipDB::Rect64 &regi
         double totalCellArea = 0;
         for(auto const &nodeId : movableNodesInBlock)
         {
-            totalCellArea += static_cast<double>(netlist.m_nodes.at(nodeId).m_size.m_x) 
-                * static_cast<double>(netlist.m_nodes.at(nodeId).m_size.m_y);
+            totalCellArea += static_cast<double>(netlist.m_nodes.at(nodeId).width()) 
+                * static_cast<double>(netlist.m_nodes.at(nodeId).height());
         }
 
         if (block.m_level % 2 == 0)
@@ -595,7 +592,7 @@ void LunaCore::QLAPlacer::Private::lookaheadLegaliser(const ChipDB::Rect64 &regi
             // sort movable nodes in x direction
             std::sort(movableNodesInBlock.begin(), movableNodesInBlock.end(), [&](const QPlacer::PlacerNodeId &n1, const QPlacer::PlacerNodeId &n2)
                 {
-                    return netlist.m_nodes.at(n1).m_pos.m_x < netlist.m_nodes.at(n2).m_pos.m_x;
+                    return netlist.m_nodes.at(n1).left() < netlist.m_nodes.at(n2).left();
                 }
             );
 
@@ -624,7 +621,7 @@ void LunaCore::QLAPlacer::Private::lookaheadLegaliser(const ChipDB::Rect64 &regi
             // sort movable nodes in y direction
             std::sort(movableNodesInBlock.begin(), movableNodesInBlock.end(), [&](const QPlacer::PlacerNodeId &n1, const QPlacer::PlacerNodeId &n2)
                 {
-                    return netlist.m_nodes.at(n1).m_pos.m_y < netlist.m_nodes.at(n2).m_pos.m_y;
+                    return netlist.m_nodes.at(n1).height() < netlist.m_nodes.at(n2).height();
                 }
             );          
 

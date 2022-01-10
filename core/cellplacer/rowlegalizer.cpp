@@ -10,6 +10,12 @@ static ChipDB::CoordType roundToNearestValidPosition(ChipDB::CoordType pos, cons
     return v * minCellWidth;
 }
 
+static ChipDB::CoordType roundToLowestValidPosition(ChipDB::CoordType pos, const ChipDB::CoordType minCellWidth)
+{
+    ChipDB::CoordType v = pos/ minCellWidth;
+    return v * minCellWidth;
+}
+
 void Cluster::addCell(const ChipDB::CoordType cellXPos, const Cell &cell, CellIndex cellIdx)
 {
     m_lastCellIndex = cellIdx;
@@ -64,12 +70,32 @@ void LunaCore::Legalizer::placeRow(std::vector<Cell> &cells, const Row &row, con
 
     bool firstCell = true;
     for(CellIndex cellIdx = 0; cellIdx < row.m_cellIdxs.size(); cellIdx++)
-    //for(auto cellIdx : row.m_cellIdxs)
     {
         auto &cell = cells.at(row.m_cellIdxs.at(cellIdx));
-        const auto cellXPos = row.m_rect.left() +        
+
+        // Well, here's a problem. We want to place the cell on a legal grid position
+        // in order to do that we round the x coordinate to the nearest available
+        // position. But we might round it to fall just outside the position of the 
+        // row. This is undesirable.
+        //
+        // Some cells are positioned outside the row, whether we round to the
+        // nearest valid position or not. These will generate an infinte cost.
+        // This is by design.
+        // 
+        // In an attempt to fix this situation, we try regular rounding first.
+        // If the left cell edge is outside the row, we round xpos down to the lower
+        // grid position and try again.
+
+        auto cellXPos = row.m_rect.left() +
             roundToNearestValidPosition(cell.m_globalPos.m_x - row.m_rect.left(), minCellWidth);
-                
+
+        // Is the cell outside the row? if so, round down.
+        if (cellXPos >= row.m_rect.right())
+        {
+            cellXPos = row.m_rect.left() +
+                roundToLowestValidPosition(cell.m_globalPos.m_x - row.m_rect.left(), minCellWidth);
+        }
+
         if (firstCell)
         {
             auto &cluster = clusters.emplace_back();

@@ -187,13 +187,13 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
         auto nodeId = placerNetlist.createNode();
         auto& placerNode = placerNetlist.getNode(nodeId);
         placerNode.m_type = LunaCore::QPlacer::PlacerNodeType::MovableNode;
-        placerNode.m_pos  = ChipDB::Coord64{0,0};
-        placerNode.m_size = ins->instanceSize();
+        placerNode.setLLPos(ChipDB::Coord64{0,0});
+        placerNode.setSize(ins->instanceSize());
 
         if (ins->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED)
         {
             placerNode.m_type = LunaCore::QPlacer::PlacerNodeType::FixedNode;
-            placerNode.m_pos  = ins->m_pos;
+            placerNode.setLLPos(ins->m_pos);
             placerNode.m_weight = 10.0; // increase the weight of fixed nodes to pull apart the movable instances
         }
 
@@ -235,8 +235,8 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
     {
         if (node.m_type != PlacerNodeType::FixedNode)
         {
-            node.m_pos = {static_cast<ChipDB::CoordType>(xpos[pNodeIdx]), 
-                static_cast<ChipDB::CoordType>(ypos[pNodeIdx])};
+            node.setCenterPos({static_cast<ChipDB::CoordType>(xpos[pNodeIdx]), 
+                static_cast<ChipDB::CoordType>(ypos[pNodeIdx])});
         }
         pNodeIdx++;
     }
@@ -356,7 +356,7 @@ struct ExternalNodeHandler : LunaCore::QPlacer::ExternalNodeOnNetHandler
             // subpartitions are abutted horizontally
             // p1 is the left partition and p2 is the right partition
 
-            if (extNode.m_pos.m_x < m_subPartition1Rect.right())
+            if (extNode.left() < m_subPartition1Rect.right())
             {
                 // external node is to the left of the right partition p2
                 // so the external node is related to p1
@@ -374,7 +374,7 @@ struct ExternalNodeHandler : LunaCore::QPlacer::ExternalNodeOnNetHandler
             // subpartitions are abutted vertically
             // p1 is the top partition and p2 is the bottom partition
 
-            if (extNode.m_pos.m_y >= m_subPartition2Rect.top())
+            if (extNode.bottom() >= m_subPartition2Rect.top())
             {
                 // external node is above the top of partition p2
                 // so the external node is related to p1

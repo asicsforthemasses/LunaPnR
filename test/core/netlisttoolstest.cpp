@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(remove_netcons)
     auto ll = getLogLevel();
 
     setLogLevel(LOG_VERBOSE);
-    LunaCore::NetlistTools::removeNetconInstances(*mod->m_netlist.get());
+    //LunaCore::NetlistTools::removeNetconInstances(*mod->m_netlist.get());
     setLogLevel(ll);
 }
 

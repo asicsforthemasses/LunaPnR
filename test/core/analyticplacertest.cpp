@@ -44,24 +44,24 @@ BOOST_AUTO_TEST_CASE(check_analytic_placer)
 
     nodes.emplace_back();
     nodes.at(0).m_connections.push_back(0);
-    nodes.at(0).m_pos = {0,0};
+    nodes.at(0).setLLPos({0,0});
     nodes.at(0).m_type = LunaCore::QPlacer::PlacerNodeType::FixedNode;
 
     nodes.emplace_back();
     nodes.at(1).m_connections.push_back(0);
     nodes.at(1).m_connections.push_back(1);
-    nodes.at(1).m_pos = {0,0};
+    nodes.at(1).setLLPos({0,0});
     nodes.at(1).m_type = LunaCore::QPlacer::PlacerNodeType::MovableNode;
 
     nodes.emplace_back();
     nodes.at(2).m_connections.push_back(1);
     nodes.at(2).m_connections.push_back(2);
-    nodes.at(2).m_pos = {0,0};
+    nodes.at(2).setLLPos({0,0});
     nodes.at(2).m_type = LunaCore::QPlacer::PlacerNodeType::MovableNode;
 
     nodes.emplace_back();
     nodes.at(3).m_connections.push_back(2);
-    nodes.at(3).m_pos = {100,300};
+    nodes.at(3).setLLPos({100,300});
     nodes.at(3).m_type = LunaCore::QPlacer::PlacerNodeType::FixedNode;
 
     Eigen::VectorXd xpos;

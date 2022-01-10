@@ -85,7 +85,7 @@ protected:
                     {
                         // fixed nodes can increase the net weight!
                         Amat.coeffRef(starNodeId, starNodeId)+= effectiveWeight * netNode.m_weight;
-                        Bvec[starNodeId] += effectiveWeight * netNode.m_weight * AxisAccessor::get(netNode.m_pos);
+                        Bvec[starNodeId] += effectiveWeight * netNode.m_weight * AxisAccessor::get(netNode.getCenterPos());
                     }
                 }
             }
@@ -116,7 +116,7 @@ protected:
                 {
                     // fixed nodes can increase the net weight!
                     Amat.coeffRef(node1Idx, node1Idx)  += effectiveWeight * node2.m_weight;
-                    Bvec[node1Idx] += effectiveWeight * node2.m_weight * AxisAccessor::get(node2.m_pos);
+                    Bvec[node1Idx] += effectiveWeight * node2.m_weight * AxisAccessor::get(node2.getCenterPos());
                 }
             }
         }
@@ -142,7 +142,7 @@ std::vector<bool> selectNodesByCenterOfMassPosition(const PlacerNetlist &netlist
 
     std::sort(sortedNodesIdx.begin(), sortedNodesIdx.end(), [nodes, sortedNodesIdx](const ssize_t &idx1, const ssize_t &idx2)
         {
-            return AxisAccessor::get(nodes.at(idx1).m_pos) < AxisAccessor::get(nodes.at(idx2).m_pos);
+            return AxisAccessor::get(nodes.at(idx1).getCenterPos()) < AxisAccessor::get(nodes.at(idx2).getCenterPos());
         }
     );
 
@@ -152,7 +152,7 @@ std::vector<bool> selectNodesByCenterOfMassPosition(const PlacerNetlist &netlist
     {
         if (node.m_type != LunaCore::QPlacer::PlacerNodeType::FixedNode)
         {
-            totalMass += static_cast<double>(node.m_size.m_x * node.m_size.m_y);
+            totalMass += static_cast<double>(node.width() * node.height());
         }
     }
 
@@ -165,12 +165,12 @@ std::vector<bool> selectNodesByCenterOfMassPosition(const PlacerNetlist &netlist
         auto const& sortedNode = nodes.at(sortedNodesIdx.at(idx));
         if (sortedNode.m_type != LunaCore::QPlacer::PlacerNodeType::FixedNode)
         {
-            runningMass += static_cast<double>(sortedNode.m_size.m_x * sortedNode.m_size.m_y);
+            runningMass += static_cast<double>(sortedNode.width() * sortedNode.height());
         }
         idx++;
     }
 
-    doLog(LOG_VERBOSE,"  Center of mass found at position %s=%lu\n", AxisAccessor::m_name, AxisAccessor::get(nodes.at(sortedNodesIdx.at(idx)).m_pos));
+    doLog(LOG_VERBOSE,"  Center of mass found at position %s=%lu\n", AxisAccessor::m_name, AxisAccessor::get(nodes.at(sortedNodesIdx.at(idx)).getCenterPos()));
     doLog(LOG_VERBOSE,"  Number of nodes returned: %lu of %lu\n", idx, netlist.m_nodes.size());
 
     // create the selection vector

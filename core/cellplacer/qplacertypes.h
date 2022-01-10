@@ -27,12 +27,11 @@ enum class PlacerNetType
     Ignore
 };
 
-struct PlacerNode
+class PlacerNode
 {
-    PlacerNode() : m_type(PlacerNodeType::Undefined), m_weight(1.0f) {}
+public:
 
-    ChipDB::Coord64 m_pos;      ///< center position of node in nm
-    ChipDB::Coord64 m_size;     ///< size in nm
+    PlacerNode() : m_type(PlacerNodeType::Undefined), m_weight(1.0f), m_size{0,0} {}
 
     PlacerNodeType  m_type;     ///< node type
     float           m_weight;   ///< default = 1.0, and 10.0 for fixed pins
@@ -49,10 +48,98 @@ struct PlacerNode
         {
             os << " " << netId;
         }
-        os << "  Pos: " << m_pos << "\n";
+        os << "  LLPos: " << m_pos << "\n";
     }
 
     std::vector<PlacerNetId> m_connections;    
+
+    /** get cell center position */
+    constexpr ChipDB::Coord64 getCenterPos() const noexcept
+    {
+        return ChipDB::Coord64{m_pos.m_x + m_size.m_x/2, m_pos.m_y + m_size.m_y/2};
+    }
+
+    /** set x position of lower left corner of cell */
+    constexpr void setLLX(ChipDB::CoordType x) noexcept
+    {
+        m_pos.m_x = x;
+    }
+
+    /** set y position of upper left corner of cell */
+    constexpr void setLLY(ChipDB::CoordType y) noexcept
+    {
+        m_pos.m_y = y;
+    }
+
+    /** get lower left cell position */
+    constexpr ChipDB::Coord64 getLLPos() const noexcept
+    {
+        return ChipDB::Coord64{m_pos.m_x, m_pos.m_y};
+    }
+
+    constexpr ChipDB::Coord64 getURPos() const noexcept
+    {
+        return ChipDB::Coord64{m_pos.m_x + m_size.m_x, m_pos.m_y  + m_size.m_y};
+    }
+
+    constexpr ChipDB::CoordType left() const noexcept
+    {
+        return m_pos.m_x;
+    }
+
+    constexpr ChipDB::CoordType bottom() const noexcept
+    {
+        return m_pos.m_y;
+    }
+
+    constexpr ChipDB::CoordType right() const noexcept
+    {
+        return m_pos.m_x + m_size.m_x;
+    }
+
+    constexpr ChipDB::CoordType top() const noexcept
+    {
+        return m_pos.m_y + m_size.m_y;
+    }
+
+    constexpr ChipDB::CoordType width() const noexcept
+    {
+        return m_size.m_x;
+    }
+
+    constexpr ChipDB::CoordType height() const noexcept
+    {
+        return m_size.m_y;
+    }
+
+    constexpr void setLLPos(const ChipDB::Coord64 &pos) noexcept
+    {
+        m_pos = pos;
+    }
+
+    constexpr void setCenterPos(const ChipDB::Coord64 &pos) noexcept
+    {
+        m_pos = ChipDB::Coord64{pos.m_x - m_size.m_x/2, pos.m_y - m_size.m_y/2};
+    }
+
+    constexpr void setCenterX(const ChipDB::CoordType x) noexcept
+    {
+        m_pos.m_x = x - m_size.m_x/2;
+    }
+
+    constexpr void setCenterY(const ChipDB::CoordType y) noexcept
+    {
+        m_pos.m_y = y - m_size.m_y/2;
+    }
+
+    constexpr void setSize(const ChipDB::Coord64 &size) noexcept
+    {
+        m_size = size;
+    }
+
+protected:
+    ChipDB::Coord64 m_pos;      ///< center position of node in nm
+    ChipDB::Coord64 m_size;     ///< size in nm
 };
 
 struct PlacerNet

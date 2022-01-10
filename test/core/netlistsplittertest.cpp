@@ -16,7 +16,7 @@ struct VerticalSelector : LunaCore::QPlacer::Selector
     bool operator()(LunaCore::QPlacer::PlacerNodeId id,
         const LunaCore::QPlacer::PlacerNode &node) override
     {
-        return (node.m_pos.m_y < m_verticalCutline);
+        return (node.bottom() < m_verticalCutline);
     }
 
     ChipDB::CoordType m_verticalCutline;
@@ -58,24 +58,24 @@ BOOST_AUTO_TEST_CASE(check_netlist_splitter)
 
     nodes.emplace_back();
     nodes.at(0).m_connections.push_back(0);
-    nodes.at(0).m_pos = {0,0};
+    nodes.at(0).setLLPos(ChipDB::Coord64{0,0});
     nodes.at(0).m_type = LunaCore::QPlacer::PlacerNodeType::FixedNode;
 
     nodes.emplace_back();
     nodes.at(1).m_connections.push_back(0);
     nodes.at(1).m_connections.push_back(1);
-    nodes.at(1).m_pos = {0,0};
+    nodes.at(1).setLLPos(ChipDB::Coord64{0,0});
     nodes.at(1).m_type = LunaCore::QPlacer::PlacerNodeType::MovableNode;
 
     nodes.emplace_back();
     nodes.at(2).m_connections.push_back(1);
     nodes.at(2).m_connections.push_back(2);
-    nodes.at(2).m_pos = {0,0};
+    nodes.at(2).setLLPos(ChipDB::Coord64{0,0});
     nodes.at(2).m_type = LunaCore::QPlacer::PlacerNodeType::MovableNode;
 
     nodes.emplace_back();
     nodes.at(3).m_connections.push_back(2);
-    nodes.at(3).m_pos = {100,300};
+    nodes.at(3).setCenterPos(ChipDB::Coord64{100,300});
     nodes.at(3).m_type = LunaCore::QPlacer::PlacerNodeType::FixedNode;
 
     Eigen::VectorXd xpos;
@@ -102,14 +102,14 @@ BOOST_AUTO_TEST_CASE(check_netlist_splitter)
 
             BOOST_CHECK(error < 1.0f);
 
-            netlist.m_nodes.at(idx).m_pos = ChipDB::Coord64{
+            netlist.m_nodes.at(idx).setCenterPos(ChipDB::Coord64{
                 static_cast<ChipDB::CoordType>(xpos[idx]), 
-                static_cast<ChipDB::CoordType>(ypos[idx])};  
+                static_cast<ChipDB::CoordType>(ypos[idx])});  
         }
 
         auto const& node = netlist.m_nodes.at(idx);
 
-        doLog(LOG_VERBOSE,"  Node %d placed at %lu,%lu\n",idx, node.m_pos.m_x, node.m_pos.m_y);
+        doLog(LOG_VERBOSE,"  Node %d placed at %lu,%lu\n",idx, node.left(), node.bottom());
     }
 
     // split the netlist based on the vertical position
@@ -196,24 +196,24 @@ BOOST_AUTO_TEST_CASE(check_netlist_splitter_with_external_nodes)
 
     nodes.emplace_back();
     nodes.at(0).m_connections.push_back(0);
-    nodes.at(0).m_pos = {0,0};
+    nodes.at(0).setLLPos({0,0});
     nodes.at(0).m_type = LunaCore::QPlacer::PlacerNodeType::FixedNode;
 
     nodes.emplace_back();
     nodes.at(1).m_connections.push_back(0);
     nodes.at(1).m_connections.push_back(1);
-    nodes.at(1).m_pos = {0,0};
+    nodes.at(1).setLLPos({0,0});
     nodes.at(1).m_type = LunaCore::QPlacer::PlacerNodeType::MovableNode;
 
     nodes.emplace_back();
     nodes.at(2).m_connections.push_back(1);
     nodes.at(2).m_connections.push_back(2);
-    nodes.at(2).m_pos = {0,0};
+    nodes.at(2).setLLPos({0,0});
     nodes.at(2).m_type = LunaCore::QPlacer::PlacerNodeType::MovableNode;
 
     nodes.emplace_back();
     nodes.at(3).m_connections.push_back(2);
-    nodes.at(3).m_pos = {100,300};
+    nodes.at(3).setLLPos({100,300});
     nodes.at(3).m_type = LunaCore::QPlacer::PlacerNodeType::FixedNode;
 
     Eigen::VectorXd xpos;
@@ -240,14 +240,14 @@ BOOST_AUTO_TEST_CASE(check_netlist_splitter_with_external_nodes)
 
             BOOST_CHECK(error < 1.0f);
 
-            netlist.m_nodes.at(idx).m_pos = ChipDB::Coord64{
+            netlist.m_nodes.at(idx).setCenterPos(ChipDB::Coord64{
                 static_cast<ChipDB::CoordType>(xpos[idx]), 
-                static_cast<ChipDB::CoordType>(ypos[idx])};  
+                static_cast<ChipDB::CoordType>(ypos[idx])});  
         }
 
         auto const& node = netlist.m_nodes.at(idx);
 
-        doLog(LOG_VERBOSE,"  Node %d placed at %lu,%lu\n",idx, node.m_pos.m_x, node.m_pos.m_y);
+        doLog(LOG_VERBOSE,"  Node %d placed at %lu,%lu\n",idx, node.left(), node.bottom());
     }
 
     // split the netlist based on the vertical position
