@@ -88,6 +88,16 @@ public:
 
     bool isValid() const noexcept;
 
+    constexpr auto getScreenRect() const noexcept
+    {
+        return m_screen;
+    }
+
+    constexpr auto getViewportRext() const noexcept
+    {
+        return m_viewport;
+    }
+
 protected:
     void updatePrecomputedConstants() noexcept;
 

@@ -91,7 +91,7 @@ bool LunaCore::QLAPlacer::place(
         iterCount++;
     } 
 
-    //LunaCore::Legalizer::legalizeRegion(region, netlist, 800);
+    LunaCore::Legalizer::legalizeRegion(region, netlist, 800);
 
     doLog(LOG_INFO, "Placement done.\n");
 

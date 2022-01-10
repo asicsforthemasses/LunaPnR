@@ -58,21 +58,21 @@ void Collapse(const Row &row, std::list<Cluster> &clusters, std::list<Cluster>::
     }
 }
 
-void LunaCore::Legalizer::placeRow(std::vector<Cell> &cells, Row &row, const ChipDB::CoordType minCellWidth)
+void LunaCore::Legalizer::placeRow(std::vector<Cell> &cells, const Row &row, const ChipDB::CoordType minCellWidth)
 {
     std::list<Cluster> clusters;
 
     bool firstCell = true;
     for(CellIndex cellIdx = 0; cellIdx < row.m_cellIdxs.size(); cellIdx++)
+    //for(auto cellIdx : row.m_cellIdxs)
     {
-        auto &cell = cells.at(cellIdx);
+        auto &cell = cells.at(row.m_cellIdxs.at(cellIdx));
         const auto cellXPos = row.m_rect.left() +        
             roundToNearestValidPosition(cell.m_globalPos.m_x - row.m_rect.left(), minCellWidth);
                 
         if (firstCell)
         {
-            clusters.emplace_back();
-            auto &cluster = clusters.back();
+            auto &cluster = clusters.emplace_back();
 
             cluster.init();
             cluster.m_xleft = cellXPos;
@@ -164,8 +164,7 @@ void LunaCore::Legalizer::legalizeRegion(const ChipDB::Region &region, ChipDB::N
 
         if (ins->m_placementInfo == ChipDB::PlacementInfo::PLACED)    
         {
-            cells.emplace_back();
-            auto &cell = cells.back();
+            auto &cell = cells.emplace_back();
 
             cell.m_size = ins->instanceSize();
             cell.m_globalPos = ins->m_pos;
@@ -186,7 +185,7 @@ void LunaCore::Legalizer::legalizeRegion(const ChipDB::Region &region, ChipDB::N
         }
     );
 
-    // create a vector consisting of rowspresent in the region
+    // create a vector consisting of rows present in the region
     std::vector<Row> rows;
     rows.resize(region.m_rows.size());
     
@@ -227,5 +226,5 @@ void LunaCore::Legalizer::legalizeRegion(const ChipDB::Region &region, ChipDB::N
     {
         assert(cell.m_ins != nullptr);
         cell.m_ins->m_pos = cell.m_legalPos;
-    }    
+    }
 }

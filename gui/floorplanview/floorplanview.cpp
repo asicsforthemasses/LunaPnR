@@ -333,8 +333,10 @@ void FloorplanView::drawCell(QPainter &p, const ChipDB::InstanceBase *ins)
     cellRect.setTopRight(m_viewPort.toScreen(ins->m_pos + ins->instanceSize() ));
 
     // check if the instance is in view
-    //if (!cellRect.intersects(m_viewPort))
-    //    return;
+    if (!cellRect.intersects(m_viewPort.getScreenRect()))
+    {
+        return;
+    }
 
     p.setPen(Qt::green);
     p.drawRect(cellRect);
