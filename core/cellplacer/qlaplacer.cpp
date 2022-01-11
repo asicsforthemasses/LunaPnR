@@ -60,7 +60,7 @@ bool LunaCore::QLAPlacer::place(
     
     Private::doInitialPlacement(regionRect, placerNetlist);    
     Private::updatePositions(placerNetlist, netlist);
-    
+
     doLog(LOG_INFO, "Initial HPWL = %lf\n", Private::calcHPWL(placerNetlist));
 
     double hpwlCost    = std::numeric_limits<double>::max();
@@ -92,7 +92,8 @@ bool LunaCore::QLAPlacer::place(
     } 
 
     doLog(LOG_VERBOSE, "Running final legalization.\n");
-    //LunaCore::Legalizer::legalizeRegion(region, netlist, 800);
+    LunaCore::Legalizer::legalizeRegion(region, netlist, 800);
+
 
     doLog(LOG_INFO, "Placement done.\n");
 

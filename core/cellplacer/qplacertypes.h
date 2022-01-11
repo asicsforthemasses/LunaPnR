@@ -132,6 +132,16 @@ public:
         m_pos.m_y = y - m_size.m_y/2;
     }
 
+    constexpr ChipDB::CoordType getCenterX() const noexcept
+    {
+        return m_pos.m_x + m_size.m_x/2;
+    }
+
+    constexpr ChipDB::CoordType getCenterY() const noexcept
+    {
+        return m_pos.m_y + m_size.m_y/2;
+    }
+
     constexpr void setSize(const ChipDB::Coord64 &size) noexcept
     {
         m_size = size;

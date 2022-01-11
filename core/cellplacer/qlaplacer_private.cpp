@@ -1,3 +1,5 @@
+#include <fstream>
+#include <sstream>
 #include <random>
 #include <deque>
 #include <Eigen/Core>
@@ -83,7 +85,7 @@ bool LunaCore::QLAPlacer::Private::updatePositions(const LunaCore::QPlacer::Plac
             auto const& node = netlist.m_nodes.at(nodeIdx);
             ins->m_pos = node.getLLPos();
             ins->m_placementInfo = ChipDB::PlacementInfo::PLACED;
-            //doLog(LOG_VERBOSE,"  ins: %s -> %d,%d\n", ins->m_name.c_str(), ins->m_pos.m_x, ins->m_pos.m_y);
+            doLog(LOG_VERBOSE,"  ins: %s -> %d,%d\n", ins->m_name.c_str(), ins->m_pos.m_x, ins->m_pos.m_y);
         }
         nodeIdx++;
     }   
@@ -186,8 +188,6 @@ void updateWeights(
 
     if (node1.isFixed() && node2.isFixed())
     {
-        solverData.m_Amat.coeffRef(node1Id, node1Id)  = 1.0f; // attempt to make life of solver easier
-        solverData.m_Amat.coeffRef(node2Id, node2Id)  = 1.0f; // attempt to make life of solver easier
         return;
     }
 
@@ -197,24 +197,22 @@ void updateWeights(
         if (node1.isFixed())
         {
             solverData.m_Amat.coeffRef(node2Id, node2Id)  += fixedWeight;
-            solverData.m_Amat.coeffRef(node1Id, node1Id)  = 1.0f; // attempt to make life of solver easier
-            solverData.m_Bvec[node2Id] = fixedWeight * AxisAccessor::get(node1.getCenterPos());
+            solverData.m_Bvec[node2Id] += fixedWeight * AxisAccessor::get(node1.getCenterPos());
 
-            if (node2Id == 20)
-            {
-                doLog(LOG_VERBOSE,"Node20: axis=%s anchor pos=%d w=%f (fixed -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node1.getCenterPos()), fixedWeight, node1Id);
-            }
+            //if (node2Id == 20)
+            //{
+            //    doLog(LOG_VERBOSE,"Node20: axis=%s anchor pos=%d w=%f (fixed -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node1.getCenterPos()), fixedWeight, node1Id);
+            //}
         }
         else
         {
             solverData.m_Amat.coeffRef(node1Id, node1Id)  += fixedWeight;
-            solverData.m_Amat.coeffRef(node2Id, node2Id)  = 1.0f; // attempt to make life of solver easier
-            solverData.m_Bvec[node1Id] = fixedWeight * AxisAccessor::get(node2.getCenterPos());
+            solverData.m_Bvec[node1Id] += fixedWeight * AxisAccessor::get(node2.getCenterPos());
 
-            if (node1Id == 20)
-            {
-                doLog(LOG_VERBOSE,"Node20: axis=%s anchor pos=%d w=%f (fixed -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node2.getCenterPos()), fixedWeight, node2Id);
-            }            
+            //if (node1Id == 20)
+            //{
+            //    doLog(LOG_VERBOSE,"Node20: axis=%s anchor pos=%d w=%f (fixed -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node2.getCenterPos()), fixedWeight, node2Id);
+            //}            
         }
     }
     else
@@ -225,14 +223,14 @@ void updateWeights(
         solverData.m_Amat.coeffRef(node1Id, node2Id)  -= weight;
         solverData.m_Amat.coeffRef(node2Id, node1Id)  -= weight;
 
-        if (node1Id == 20)
-        {
-            doLog(LOG_VERBOSE,"Node20: axis=%s dst pos=%d w=%f (movable -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node2.getCenterPos()), fixedWeight, node2Id);
-        }            
-        if (node2Id == 20)
-        {
-            doLog(LOG_VERBOSE,"Node20: axis=%s dst pos=%d w=%f (movable -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node1.getCenterPos()), fixedWeight, node1Id);
-        }                    
+        //if (node1Id == 20)
+        //{
+        //    doLog(LOG_VERBOSE,"Node20: axis=%s dst pos=%d w=%f (movable -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node2.getCenterPos()), fixedWeight, node2Id);
+        //}            
+        //if (node2Id == 20)
+        //{
+        //    doLog(LOG_VERBOSE,"Node20: axis=%s dst pos=%d w=%f (movable -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node1.getCenterPos()), fixedWeight, node1Id);
+        //}
     }
 
 }
@@ -357,7 +355,7 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
                 yResult.m_minNodeIdx, yResult.m_maxNodeIdx,
                 net.m_weight, net.m_nodes.size());
 
-            // connect each internal node to the min node
+            // connect each internal node to the min and max node
             for(auto const nodeIdx : net.m_nodes)
             {
                 if ((nodeIdx != xResult.m_minNodeIdx) && (nodeIdx != xResult.m_maxNodeIdx))
@@ -397,20 +395,37 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
 
     doLog(LOG_VERBOSE,"  Number of degenerate nets: %ld\n", degenerateNets);
 
-#if 0
+#if 1
     std::stringstream ss;
+    std::ofstream ofile("qplacer.txt");
+
+    size_t LnodeIdx = 0;
+    for(auto const& node : netlist.m_nodes)
+    {
+        ss << "Node " << LnodeIdx << "  pos: " << node.getCenterPos().m_x << " " << node.getCenterPos().m_y;
+        if (node.isFixed()) 
+        {
+            ss << "  FIXED";
+        }
+        ss << "\n";
+        LnodeIdx++;
+    }
+
+    ss << "\n\n";
     ss << "X Amat: \n" << XSolverData.m_Amat << "\n";
     ss << "X Bvec: \n" << XSolverData.m_Bvec << "\n";
 
     ss << "Y Amat: \n" << YSolverData.m_Amat << "\n";    
     ss << "Y Bvec: \n" << YSolverData.m_Bvec << "\n";
 
+/*
     doLog(LOG_VERBOSE,"  Solver matrices: \n");
     doLog(LOG_VERBOSE, ss);
 
     doLog(LOG_INFO, "Number of degenerate nets: %ld\n", degenerateNets);
 
     doLog(LOG_INFO, "Running solver\n");
+*/
 #endif
 
     Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Upper | Eigen::Lower> solver;
@@ -443,8 +458,11 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
     {
         if (!node.isFixed())
         {
-            const ChipDB::Coord64 pos{static_cast<ChipDB::CoordType>(xpos(idx)), static_cast<ChipDB::CoordType>(ypos(idx))};
-            node.setCenterPos(pos);
+            const ChipDB::Coord64 pos(static_cast<ChipDB::CoordType>(xpos(idx)), static_cast<ChipDB::CoordType>(ypos(idx)));
+            //std::cout << "Node " << idx << "  -> (" << xpos(idx) << "," << ypos(idx) << ")\n";
+            node.setCenterPos(pos); 
+            //std::cout << "    C  (" << node.getCenterPos().m_x << "," << node.getCenterPos().m_y << ")\n";
+            //std::cout << "    LL (" << node.getLLPos().m_x << "," << node.getLLPos().m_y << ")\n";
         }
         else
         {
@@ -452,6 +470,21 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
         }
         idx++;
     }
+
+    LnodeIdx = 0;
+    ss << "New node positions:\n";
+    for(auto const& node : netlist.m_nodes)
+    {
+        ss << "Node " << LnodeIdx << "  pos: " << node.getCenterPos().m_x << " " << node.getCenterPos().m_y;
+        if (node.isFixed()) 
+        {
+            ss << "  FIXED";
+        }
+        ss << "\n";
+        LnodeIdx++;
+    }
+
+    ofile << ss.str() << "\n\n";
 
     doLog(LOG_INFO, "Number of fixed nodes: %ld\n", fixedNodes);
 
@@ -592,7 +625,7 @@ void LunaCore::QLAPlacer::Private::lookaheadLegaliser(const ChipDB::Rect64 &regi
             // sort movable nodes in x direction
             std::sort(movableNodesInBlock.begin(), movableNodesInBlock.end(), [&](const QPlacer::PlacerNodeId &n1, const QPlacer::PlacerNodeId &n2)
                 {
-                    return netlist.m_nodes.at(n1).left() < netlist.m_nodes.at(n2).left();
+                    return netlist.m_nodes.at(n1).getCenterX() < netlist.m_nodes.at(n2).getCenterX();
                 }
             );
 
@@ -621,7 +654,7 @@ void LunaCore::QLAPlacer::Private::lookaheadLegaliser(const ChipDB::Rect64 &regi
             // sort movable nodes in y direction
             std::sort(movableNodesInBlock.begin(), movableNodesInBlock.end(), [&](const QPlacer::PlacerNodeId &n1, const QPlacer::PlacerNodeId &n2)
                 {
-                    return netlist.m_nodes.at(n1).height() < netlist.m_nodes.at(n2).height();
+                    return netlist.m_nodes.at(n1).getCenterY() < netlist.m_nodes.at(n2).getCenterY();
                 }
             );          
 

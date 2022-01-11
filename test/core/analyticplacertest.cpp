@@ -150,7 +150,7 @@ BOOST_AUTO_TEST_CASE(place_multiplier)
     setLogLevel(LOG_VERBOSE);
 
         
-#if 0    
+#if 0  
     BOOST_CHECK(LunaCore::QPlacer::placeModuleInRegion(&design, mod, region));
     // check locations of movable nodes
     for(size_t idx = 0; idx < mod.; idx++)
