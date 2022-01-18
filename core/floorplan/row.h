@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 #include "common/dbtypes.h"
 
 namespace ChipDB
@@ -22,7 +23,8 @@ struct Row
 
     RowType     m_rowType;  ///< orientation of the row
     Rect64      m_rect;     ///< location and size of the row relative to the region.
-    Region      *m_region;  ///< the region this row belongs to.
+
+    std::shared_ptr<Region> m_region;  ///< the region this row belongs to.
 };
 
 };

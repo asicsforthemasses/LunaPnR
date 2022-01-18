@@ -4,19 +4,42 @@
 
 using namespace ChipDB;
 
-void Net::addConnection(ObjectKey instanceKey, size_t pinIndex)
+bool Net::hasConnection(InstanceObjectKey insKey, PinObjectKey pinKey) const
 {
+    const NetConnect connection(insKey, pinKey);
+
     auto iter = std::find_if(m_connections.begin(), m_connections.end(),
-        [instanceKey, pinIndex](auto conn)
+        [connection](auto listConn)
         {
-            return (conn.m_instanceKey == instanceKey) && (conn.m_pinIndex == pinIndex);
+            return listConn == connection;
         }
     );
 
-    if (iter == m_connections.end())
-    {
-        // connection does not yet exist -> add it
-        NetConnect conn = {instanceKey, pinIndex};
-        m_connections.push_back(conn);
-    }
+    return (iter != m_connections.end());
 }
+
+void Net::addConnection(InstanceObjectKey insKey, PinObjectKey pinKey)
+{
+    m_connections.push_back(NetConnect(insKey, pinKey));
+}
+
+bool Net::removeConnection(InstanceObjectKey insKey, PinObjectKey pinKey)
+{
+    const NetConnect connection(insKey, pinKey);
+
+    auto iter = std::find_if(m_connections.begin(), m_connections.end(),
+        [connection](auto listConn)
+        {
+            return listConn == connection;
+        }
+    );
+
+    if (iter != m_connections.end())
+    {
+        m_connections.erase(iter);
+        return true;
+    }
+
+    return false;
+}
+

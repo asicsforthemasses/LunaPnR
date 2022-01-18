@@ -33,6 +33,7 @@ InstanceBase::Pin Instance::getPin(PinObjectKey key) const
 
     pin.m_pinInfo = m_cell->m_pins[key];
     pin.m_netKey  = m_pinToNet.at(key);
+    pin.m_pinKey  = key;
 
     return pin;
 }
@@ -49,6 +50,7 @@ InstanceBase::Pin Instance::getPin(const std::string &pinName) const
     if (pinKeyObjPair.isValid())
     {
         pin.m_pinInfo = pinKeyObjPair.ptr();
+        pin.m_pinKey  = pinKeyObjPair.key();
         pin.m_netKey  = m_pinToNet.at(pinKeyObjPair.key());
     }
 
@@ -94,6 +96,7 @@ InstanceBase::Pin PinInstance::getPin(PinObjectKey key) const
     if (key == 0)
     {
         pin.m_pinInfo = std::make_shared<PinInfo>(m_pinInfo);
+        pin.m_pinKey  = key;
         pin.m_netKey  = m_connectedNet;
     }
 

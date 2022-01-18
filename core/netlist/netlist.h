@@ -26,6 +26,7 @@ public:
     KeyObjPair<Net> createNet(const std::string &netName);
 
     bool connect(const std::string &insName, const std::string &pinName, const std::string &netName);
+    bool connect(InstanceObjectKey insKey, PinObjectKey pinKey, NetObjectKey netKey);
 };
 
 };  // namespace

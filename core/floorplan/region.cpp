@@ -13,7 +13,7 @@ static double roundUp(double v, double resolution)
     return std::ceil(v / resolution) * resolution;
 }
 
-ChipDB::Region* ChipDB::createRegion(
+std::shared_ptr<ChipDB::Region> ChipDB::createRegion(
     float   aspectRatio,    /// width / height
     int64_t minCellWidth, 
     int64_t rowHeight, 
@@ -33,7 +33,7 @@ ChipDB::Region* ChipDB::createRegion(
     double rowHeightDouble = effectiveCellArea / static_cast<double>(rowWidth);
     auto rowCount = static_cast<int64_t>(std::ceil(rowHeightDouble / effectiveRowHeight));
 
-    auto region = new Region();
+    auto region = std::make_shared<Region>();
     region->m_rows.resize(rowCount);
     region->m_rect.setSize({rowWidth, (rowCount-1)*effectiveRowHeight + rowHeight});
 

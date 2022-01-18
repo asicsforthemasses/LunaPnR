@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <optional>
+#include <memory>
 #include "common/dbtypes.h"
 #include "row.h"
 
@@ -18,7 +19,7 @@ struct Region
     Rect64 getPlacementRect() const;  ///< returns the inside rectangle of region where cells/rows can be placed
 };
 
-Region* createRegion(
+std::shared_ptr<Region> createRegion(
     float   aspectRatio,
     int64_t minCellWidth, 
     int64_t CellHeight, 

@@ -38,16 +38,34 @@ public:
 
     struct NetConnect
     {
-        ObjectKey   m_instanceKey;
-        size_t      m_pinIndex;
+        NetConnect() = default;
+        NetConnect(InstanceObjectKey insKey, PinObjectKey pinKey) 
+            : m_instanceKey(insKey), m_pinKey(pinKey) {}
+
+        InstanceObjectKey   m_instanceKey;
+        PinObjectKey        m_pinKey;
+
+        friend constexpr bool operator==(const NetConnect &lhs, const NetConnect &rhs)
+        {
+            return (lhs.m_instanceKey == rhs.m_instanceKey) && (lhs.m_pinKey == rhs.m_pinKey);
+        }
+
+        friend constexpr bool operator!=(const NetConnect &lhs, const NetConnect &rhs)
+        {
+            return (lhs.m_instanceKey != rhs.m_instanceKey) || (lhs.m_pinKey != rhs.m_pinKey);
+        }        
     };
 
-    /** connect the net to the instance pin.
-     *  it checks if the requested connection already exists
-     *  and if it does, ignores it.
-    */
-    void addConnection(ObjectKey instanceKey, size_t pinIndex);
+    /** returns true if the net already has a connection to (ins,pin) */
+    bool hasConnection(InstanceObjectKey insKey, PinObjectKey pinKey) const;
 
+    /** add a connection from net to (ins,pin). It does not check if a connection already exists */
+    void addConnection(InstanceObjectKey insKey, PinObjectKey pinKey);
+
+    /** remove a connection from net to (ins, pin). returns true if a connection was removed */
+    bool removeConnection(InstanceObjectKey insKey, PinObjectKey pinKey);
+
+protected:
     std::vector<NetConnect> m_connections;
 };
 

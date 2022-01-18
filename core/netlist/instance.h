@@ -65,6 +65,7 @@ public:
     struct Pin
     {
         NetObjectKey    m_netKey = ObjectNotFound;  ///< key of connected net
+        PinObjectKey    m_pinKey = ObjectNotFound;  ///< key of this pin
         std::shared_ptr<PinInfo> m_pinInfo;         ///< information about the pin
     };
 
