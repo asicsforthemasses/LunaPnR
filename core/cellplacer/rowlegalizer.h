@@ -6,14 +6,13 @@
 
 namespace LunaCore::Legalizer
 {
-
     struct Cell
     {
-        ChipDB::InstanceBase *m_ins;
-        ChipDB::Coord64 m_globalPos;    ///< position before legalization
-        ChipDB::Coord64 m_legalPos;     ///< position after legalization
-        ChipDB::Coord64 m_size;         ///< cell size
-        double          m_weight;       ///< mathematical weight of cell (number of connections?)
+        ChipDB::ObjectKey   m_instanceKey;  ///< key to the instance in the netlist
+        ChipDB::Coord64     m_globalPos;    ///< position before legalization
+        ChipDB::Coord64     m_legalPos;     ///< position after legalization
+        ChipDB::Coord64     m_size;         ///< cell size
+        double              m_weight;       ///< mathematical weight of cell (number of connections?)
     };
 
     using CellIndex = ssize_t;

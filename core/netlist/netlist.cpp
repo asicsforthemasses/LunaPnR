@@ -12,23 +12,24 @@ void Netlist::clear()
     m_nets.clear();
 }
 
-Net* Netlist::createNet(const std::string &netName)
+KeyObjPair<Net> Netlist::createNet(const std::string &netName)
 {
     // check if the net exists
-    auto *net = m_nets.lookup(netName);
-    if (net != nullptr)
-    {
-        return net;
-    }
+    auto netObjPair = m_nets[netName];
 
-    net = new ChipDB::Net();
-    net->m_name = netName;
-    if (!m_nets.add(netName, net))
+    if (netObjPair.isValid())
     {
-        delete net;
-        return nullptr;
+        // net exists, return this instead of createing a new one
+        return netObjPair;
     }
-    return net;
+    
+    auto result = m_nets.add(std::make_shared<Net>(netName));
+    if (result)
+    {
+        return result.value();
+    }
+    
+    return KeyObjPair<Net>();
 }
 
 bool Netlist::connect(const std::string &insName, const std::string &pinName, const std::string &netName)

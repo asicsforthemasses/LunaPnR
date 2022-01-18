@@ -17,8 +17,6 @@ public:
     /** clear netlist, celllib, modules and technology information */
     void clear();
 
-    Module* createModule(const std::string &name);
-
     Netlist                 m_netlist;
     CellLib                 m_cellLib;
     ModuleLib               m_moduleLib;
@@ -32,13 +30,13 @@ public:
 
     bool setTopModule(const std::string &moduleName);
     
-    ChipDB::Module* getTopModule()
+    std::shared_ptr<ChipDB::Module> getTopModule()
     {
         return m_topModule;
     }
 
 protected:
-    ChipDB::Module  *m_topModule;
+    std::shared_ptr<ChipDB::Module> m_topModule;
     uint32_t m_uniqueIDCounter;
 };
 

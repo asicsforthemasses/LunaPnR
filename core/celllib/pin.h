@@ -6,6 +6,7 @@
 #include <vector>
 #include <unordered_map>
 #include "common/dbtypes.h"
+#include "common/namedstorage.h"
 #include "common/geometry.h"
 #include "common/visitor.h"
 
@@ -19,6 +20,7 @@ enum class IOType : uint8_t
     OUTPUT,
     OUTPUT_TRI,
     IO,
+    ANALOG,
     POWER,
     GROUND
 };
@@ -52,6 +54,11 @@ PinInfo(const std::string &name) :
     IMPLEMENT_ACCEPT;
 
     virtual ~PinInfo() = default;
+
+    std::string name() const noexcept
+    {
+        return m_name;
+    }
 
     std::string m_name;     ///< pin name
 
@@ -110,14 +117,11 @@ class PinInfoList
 {
 public:
 
-    PinInfo* createPin(const std::string &name);
+    /** create a pin by name. if a pin by that name already exists, return that */
+    KeyObjPair<PinInfo> createPin(const std::string &name);
 
     void clear()
     {
-        for(size_t idx=0; idx<m_pins.size(); idx++)
-        {
-            delete m_pins[idx];
-        }
         m_pins.clear();   
     }
 
@@ -126,14 +130,14 @@ public:
         return m_pins.size();
     }
 
-    auto at(size_t index)
+    std::shared_ptr<PinInfo> at(ObjectKey pinKey)
     {
-        return m_pins.at(index);
+        return m_pins.at(pinKey);
     }
 
-    auto at(size_t index) const
+    const std::shared_ptr<PinInfo> at(ObjectKey pinKey) const
     {
-        return m_pins.at(index);
+        return m_pins.at(pinKey);
     }
 
     auto begin()
@@ -156,35 +160,34 @@ public:
         return m_pins.end();
     }
 
-    /** access pin directly with bounds checking */
-    PinInfo* operator[](const ssize_t index)
+    /** access pin by key. returns nullptr if not found */
+    std::shared_ptr<PinInfo> operator[](ObjectKey pinKey)
     {
-        if ((index < m_pins.size()) && (index >= 0))
-            return m_pins[index];
+        if ((pinKey < m_pins.size()) && (pinKey >= 0))
+            return m_pins[pinKey];
         
         return nullptr;
     }
 
-    /** access pin directly with bounds checking */
-    const PinInfo* operator[](const ssize_t index) const
+    /** access pin by key. returns nullptr if not found */
+    const std::shared_ptr<PinInfo> operator[](ObjectKey pinKey) const
     {
-        if ((index < m_pins.size()) && (index >= 0))
-            return m_pins[index];
+        if ((pinKey < m_pins.size()) && (pinKey >= 0))
+            return m_pins[pinKey];
         
         return nullptr;
     }
 
-    PinInfo* lookup(const std::string &name);
-    const PinInfo* lookup(const std::string &name) const;
+    /** access pin by name. returns KeyObjPair of pin */
+    KeyObjPair<PinInfo> operator[](const std::string &name);
 
-    /** find the index of a pin by name, returns -1 if not found */
-    ssize_t lookupIndex(const std::string &name) const;
+    /** access pin by name. returns KeyObjPair of pin */
+    KeyObjPair<PinInfo> operator[](const std::string &name) const;
 
 protected:   
-    using ContainerType = std::vector<PinInfo*>;
+    using ContainerType = std::vector<std::shared_ptr<PinInfo> >;
 
-    ContainerType::iterator find(const std::string &name);
-    ContainerType::const_iterator find(const std::string &name) const;
+    KeyObjPair<PinInfo> find(const std::string &name) const;
     ContainerType m_pins;
 };
 

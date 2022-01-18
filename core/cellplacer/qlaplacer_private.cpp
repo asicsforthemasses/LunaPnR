@@ -85,7 +85,7 @@ bool LunaCore::QLAPlacer::Private::updatePositions(const LunaCore::QPlacer::Plac
             auto const& node = netlist.m_nodes.at(nodeIdx);
             ins->m_pos = node.getLLPos();
             ins->m_placementInfo = ChipDB::PlacementInfo::PLACED;
-            doLog(LOG_VERBOSE,"  ins: %s -> %d,%d\n", ins->m_name.c_str(), ins->m_pos.m_x, ins->m_pos.m_y);
+            doLog(LOG_VERBOSE,"  ins: %s -> %d,%d\n", ins->name().c_str(), ins->m_pos.m_x, ins->m_pos.m_y);
         }
         nodeIdx++;
     }   
@@ -152,7 +152,7 @@ LunaCore::QPlacer::PlacerNetlist LunaCore::QLAPlacer::Private::createPlacerNetli
                 placerNet.m_weight = 1;
             }
 
-            doLog(LOG_VERBOSE, "  NodeId %d %s\n", placerNodeId, ins->m_name.c_str());
+            doLog(LOG_VERBOSE, "  NodeId %d %s\n", placerNodeId, ins->name().c_str());
         }    
 
         netIdx++;    

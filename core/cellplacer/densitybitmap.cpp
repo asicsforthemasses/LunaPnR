@@ -62,12 +62,16 @@ DensityBitmap* LunaCore::QPlacer::createDensityBitmap(const ChipDB::Netlist *net
     // queue: instances that will become active.
     // active: instances that are active.
 
-    // make local copy of instance pointers
-    std::deque<ChipDB::InstanceBase*> queue(netlist->m_instances.begin(), netlist->m_instances.end());
-
-    // remove all nullptr instances
-    auto removeIter  = std::remove_if(queue.begin(), queue.end(), [](auto ptr){ return ptr==nullptr; } );
-    queue.erase(removeIter, queue.end());
+    // make local copy of instance keys
+    std::deque<std::shared_ptr<ChipDB::InstanceBase> > queue;
+    for(auto ins : netlist->m_instances)
+    {
+        if (ins.isValid())
+        {
+            assert(ins.ptr());  // make sure there are no null pointers among the valid items
+            queue.push_back(ins.ptr());
+        }
+    }
 
     // sort the instances according to x position
     // least x first
@@ -80,11 +84,11 @@ DensityBitmap* LunaCore::QPlacer::createDensityBitmap(const ChipDB::Netlist *net
 
     // add one fake end cell to the queue
     // to make sure the entire area is processed
-    auto terminationInstance = new TerminationInstance();
+    auto terminationInstance = std::shared_ptr<TerminationInstance>();
     terminationInstance->m_pos = {regionSize.m_x+1, regionSize.m_y/2};
     queue.push_back(terminationInstance);
 
-    std::deque<ChipDB::InstanceBase*> active;
+    std::deque<std::shared_ptr<ChipDB::InstanceBase> > active;
 
     int64_t x = 0;  // sweep position    
     int64_t nextGridx = bitmapCellWidth;
@@ -257,9 +261,9 @@ void LunaCore::QPlacer::updateMovableInstances(ChipDB::Netlist *netlist, const C
 
     auto regionOffset = region->m_rect.getLL();
 
-    for(const auto ins : netlist->m_instances)
+    for(auto ins : netlist->m_instances)
     {
-        if (ins == nullptr)
+        if (!ins.isValid())
         {
             continue;
         }

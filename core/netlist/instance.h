@@ -13,22 +13,23 @@ namespace ChipDB
 
 enum class InstanceType
 {
-        ABSTRACT = 0,
-        CELL,
-        MODULE,
-        PIN
+    UNKNOWN = 0,
+    ABSTRACT,
+    CELL,
+    MODULE,
+    PIN
 };
 
 class InstanceBase
 {
 public:
-    InstanceType m_insType;
+    InstanceType m_insType = InstanceType::UNKNOWN;
 
-    InstanceBase() : m_parent(nullptr), m_insType(InstanceType::ABSTRACT), m_orientation(Orientation::R0), 
-        m_placementInfo(PlacementInfo::UNPLACED), m_id(-1), m_flags(0) {}
+    InstanceBase() : m_insType(InstanceType::UNKNOWN), m_orientation(Orientation::R0), 
+        m_placementInfo(PlacementInfo::UNPLACED), m_flags(0) {}
     
-    InstanceBase(InstanceBase *parent) : m_parent(parent), m_insType(InstanceType::ABSTRACT), m_orientation(Orientation::R0), 
-        m_placementInfo(PlacementInfo::UNPLACED), m_id(-1), m_flags(0) {}
+    InstanceBase(const std::string &name) : m_name(name), m_insType(InstanceType::UNKNOWN), m_orientation(Orientation::R0), 
+        m_placementInfo(PlacementInfo::UNPLACED), m_flags(0) {}
 
     virtual ~InstanceBase() = default;
 
@@ -46,42 +47,8 @@ public:
     /** return the underlying cell/module name */
     virtual std::string getArchetypeName() const = 0;
     
-    /** get pin information from the underlying cell or module 
-     *  returns nullptr if pin not found.
-    */
-    virtual const PinInfo* getPinInfo(ssize_t pinIndex) const = 0;
-
-    /** get pin information from the underlying cell or module 
-     *  returns nullptr if pin not found.
-    */
-    virtual const PinInfo* getPinInfo(const std::string &pinName) const = 0;
-
-    /** get pin index by name. returns -1 when not found. 
-    */
-    virtual const ssize_t getPinIndex(const std::string &pinName) const = 0;
-
-    /** get the number of pins on this instance */
-    virtual const size_t getNumberOfPins() const = 0;
-
-    /** connect pin with specified index to the given net. 
-     *  returns true if succesful.
-    */
-    virtual bool connect(ssize_t pinIndex, Net *net) = 0;
-
-    /** connect pin with specified name to the given net. 
-     *  returns true if succesful.
-    */    
-    virtual bool connect(const std::string &pinName, Net *net) = 0;
-
-    /** returns the net connected to a pin with a given index.
-     *  if the pin does not exist, it return nullptr.
-    */
-    virtual Net* getConnectedNet(ssize_t pinIndex) = 0;
-
-    /** returns the net connected to a pin with a given index.
-     *  if the pin does not exist, it return nullptr.
-    */
-    virtual const Net* getConnectedNet(ssize_t pinIndex) const = 0;
+    /** access the pin information */
+    virtual PinInfoList& pinInfo() const = 0;
 
     /** return the size of the instance in nm */
     virtual const Coord64 instanceSize() const = 0;
@@ -89,21 +56,36 @@ public:
     /** return the center position of the instance */
     virtual Coord64 getCenter() const = 0;
 
-    std::string m_name;     ///< name of the instance
-    InstanceBase *m_parent; ///< parent instance
+    /** get the name of the instance */
+    std::string name() const noexcept
+    {
+        return m_name;
+    }
+
+    struct Pin
+    {
+        NetObjectKey    m_netKey = ObjectNotFound;  ///< key of connected net
+        std::shared_ptr<PinInfo> m_pinInfo;         ///< information about the pin
+    };
+
+    virtual Pin getPin(PinObjectKey pinKey) const = 0;
+    virtual Pin getPin(const std::string &pinName) const = 0;
+    virtual bool setPinNet(PinObjectKey pinKey, NetObjectKey netKey) = 0;
+    virtual size_t getNumberOfPins() const = 0;
 
     Coord64         m_pos;              ///< lower-left position of the instance
     Orientation     m_orientation;      ///< orientation of the cell instance
     PlacementInfo   m_placementInfo;    ///< placement status
-    int32_t         m_id;               ///< unique id for each instance
     uint32_t        m_flags;            ///< non-persistent generic flags that can be used by algorithms
+
+protected:
+    std::string m_name;     ///< name of the instance
 };
 
 class Instance : public InstanceBase
 {
 public:
-    
-    Instance(const Cell *cell) : m_cell(cell)
+    Instance(const std::string &name, const std::shared_ptr<Cell> cell) : InstanceBase(name), m_cell(cell)
     {
         if (cell->isModule())
             m_insType = InstanceType::MODULE;
@@ -113,22 +95,12 @@ public:
         m_pinToNet.resize(cell->m_pins.size());
     }
 
-    Instance(const Cell *cell, InstanceBase *parent) : InstanceBase(parent), m_cell(cell)
-    {
-        if (cell->isModule())
-            m_insType = InstanceType::MODULE;
-        else
-            m_insType = InstanceType::CELL;
-
-        m_pinToNet.resize(cell->m_pins.size());
-    }    
-
     virtual ~Instance() = default;
 
     IMPLEMENT_ACCEPT_OVERRIDE;
 
     /** get access to the cell/module */
-    const Cell* cell() const
+    const std::shared_ptr<Cell> cell() const
     {
         return m_cell;
     }
@@ -156,66 +128,25 @@ public:
 
     /** return the underlying cell/module name */
     std::string getArchetypeName() const override;
-    
-    /** get pin information from the underlying cell or module 
-     *  returns nullptr if pin not found.
-    */
-    const PinInfo* getPinInfo(ssize_t pinIndex) const override;
 
-    /** get pin information from the underlying cell or module 
-     *  returns nullptr if pin not found.
-    */
-    const PinInfo* getPinInfo(const std::string &pinName) const override;
-
-    /** get pin index by name. returns -1 when not found. 
-    */
-    const ssize_t getPinIndex(const std::string &pinName) const override;
-
-    /** get the number of pins on this instance */
-    const size_t getNumberOfPins() const override;
-
-    /** connect pin with specified index to the given net. 
-     *  returns true if succesful.
-    */
-    bool connect(ssize_t pinIndex, Net *net) override;
-
-    /** connect pin with specified name to the given net. 
-     *  returns true if succesful.
-    */    
-    bool connect(const std::string &pinName, Net *net) override;
-
-    /** returns the net connected to a pin with a given index.
-     *  if the pin does not exist, it return nullptr.
-    */
-    Net* getConnectedNet(ssize_t pinIndex) override;
-
-    /** returns the net connected to a pin with a given index.
-     *  if the pin does not exist, it return nullptr.
-    */
-    const Net* getConnectedNet(ssize_t pinIndex) const override;
+    Pin getPin(PinObjectKey key) const override;
+    Pin getPin(const std::string &pinName) const override;
+    bool setPinNet(PinObjectKey pinKey, NetObjectKey netKey) override;
+    size_t getNumberOfPins() const override;
 
 protected:
-    std::vector<Net*>   m_pinToNet;  ///< connections from pin to net
-    const Cell* m_cell;
+
+    std::vector<NetObjectKey>   m_pinToNet;  ///< connections from pin to net
+    const std::shared_ptr<Cell> m_cell;
 };
 
 class PinInstance : public InstanceBase
 {
 public:
     
-    PinInstance(const std::string &name)
+    PinInstance(const std::string &name) : InstanceBase(name)
     {
-        m_name = name;
         m_insType = InstanceType::PIN;
-        m_connectedNet = nullptr;
-        m_pinInfo.m_name = name;
-    }
-
-    PinInstance(const std::string &name, InstanceBase *parent) : InstanceBase(parent)
-    {
-        m_name = name;
-        m_insType = InstanceType::PIN;
-        m_connectedNet = nullptr;
         m_pinInfo.m_name = name;
     }
 
@@ -244,51 +175,19 @@ public:
     /** return the underlying cell/module name */
     virtual std::string getArchetypeName() const override;
     
-    /** get pin information from the underlying cell or module 
-     *  returns nullptr if pin not found.
-    */
-    virtual const PinInfo* getPinInfo(ssize_t pinIndex) const override;
-
-    /** get pin information from the underlying cell or module 
-     *  returns nullptr if pin not found.
-    */
-    virtual const PinInfo* getPinInfo(const std::string &pinName) const override;
-
-    /** get pin index by name. returns -1 when not found. 
-    */
-    virtual const ssize_t getPinIndex(const std::string &pinName) const override;
-
-    /** get the number of pins on this instance */
-    virtual const size_t getNumberOfPins() const override;
-
-    /** connect pin with specified index to the given net. 
-     *  returns true if succesful.
-    */
-    virtual bool connect(ssize_t pinIndex, Net *net) override;
-
-    /** connect pin with specified name to the given net. 
-     *  returns true if succesful.
-    */    
-    virtual bool connect(const std::string &pinName, Net *net) override;
-
-    /** returns the net connected to a pin with a given index.
-     *  if the pin does not exist, it return nullptr.
-    */
-    Net* getConnectedNet(ssize_t pinIndex) override;
-
-    /** returns the net connected to a pin with a given index.
-     *  if the pin does not exist, it return nullptr.
-    */
-    const Net* getConnectedNet(ssize_t pinIndex) const override;
-
     void setPinIOType(IOType iotype)
     {
         m_pinInfo.m_iotype = iotype;
     }
 
+    Pin getPin(PinObjectKey key) const override;
+    Pin getPin(const std::string &pinName) const override;
+    bool setPinNet(PinObjectKey pinKey, NetObjectKey netKey) override;
+    size_t getNumberOfPins() const override;
+
 protected:
-    PinInfo m_pinInfo;
-    Net*    m_connectedNet;  ///< connection from pin to net
+    PinInfo         m_pinInfo;
+    NetObjectKey    m_connectedNet = ObjectNotFound;  ///< connection from pin to net
 };
 
 };

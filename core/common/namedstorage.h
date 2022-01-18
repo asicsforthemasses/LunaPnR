@@ -24,16 +24,16 @@ namespace ChipDB {
 template<class T> struct KeyObjPair
 {
     constexpr KeyObjPair() = default;
-    constexpr KeyObjPair(ObjectKey key, std::shared_ptr<T> obj) : m_key(key), m_obj(obj) {}
+    constexpr KeyObjPair(ObjectKey key, std::shared_ptr<T> objPtr) : m_key(key), m_objPtr(objPtr) {}
 
     constexpr std::shared_ptr<T> operator->() noexcept
     {
-        return m_obj;
+        return m_objPtr;
     }
 
     constexpr const std::shared_ptr<T> operator->() const noexcept
     {
-        return m_obj;
+        return m_objPtr;
     }    
 
     constexpr ObjectKey key() const noexcept
@@ -41,13 +41,18 @@ template<class T> struct KeyObjPair
         return m_key;
     }
 
+    constexpr std::shared_ptr<T> ptr() const noexcept
+    {
+        return m_objPtr;
+    }
+
     constexpr bool isValid() const noexcept
     {
-        return (m_key >= 0) && m_obj;
+        return (m_key >= 0) && m_objPtr;
     }
 
 protected:
-    std::shared_ptr<T> m_obj = nullptr;
+    std::shared_ptr<T> m_objPtr = nullptr;
     ObjectKey          m_key = ObjectNotFound;
 };
 
@@ -105,18 +110,19 @@ public:
     /** adds an named object to the container. 
      *  returns ObjectAlreadyExists if an object with the same name already exists. 
      *  returns the ObjectKey is the object was successfully added. */
-    std::optional<ObjectKey> add(std::shared_ptr<T> object)
+    std::optional<KeyObjPair<T> > add(std::shared_ptr<T> objectPtr)
     {
-        auto iter = m_nameToKey.find(object->name());
+        auto iter = m_nameToKey.find(objectPtr->name());
         if (iter == m_nameToKey.end())
         {
             // no such named object, okay to add!
             auto key = generateUniqueObjectKey();
-            m_objects[key] = object;
-            m_nameToKey[object->name()] = key;
+            m_objects[key] = objectPtr;
+            m_nameToKey[objectPtr->name()] = key;
             notifyAll(key, INamedStorageListener::NotificationType::ADD);
-            return key;
+            return KeyObjPair(key, objectPtr);
         }
+
         return std::nullopt;
     }
 

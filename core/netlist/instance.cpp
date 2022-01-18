@@ -2,6 +2,7 @@
 
 using namespace ChipDB;
 
+
 // **********************************************************************
 //  Instance implementation
 // **********************************************************************
@@ -22,105 +23,59 @@ double Instance::getArea() const noexcept
         return m_cell->m_area;
 }
 
-const PinInfo* Instance::getPinInfo(ssize_t pinIndex) const
+InstanceBase::Pin Instance::getPin(PinObjectKey key) const
 {
-    // check if the cell is present
-    if (m_cell == nullptr)
+    InstanceBase::Pin pin;
+    if (!m_cell)
     {
-        // nope, return an invalid pin
-        return nullptr;
+        return InstanceBase::Pin();
     }
 
-    return m_cell->m_pins[pinIndex];
+    pin.m_pinInfo = m_cell->m_pins[key];
+    pin.m_netKey  = m_pinToNet.at(key);
+
+    return pin;
 }
 
-const PinInfo* Instance::getPinInfo(const std::string &pinName) const
+InstanceBase::Pin Instance::getPin(const std::string &pinName) const
 {
-    // check if the cell is present
-    if (m_cell == nullptr)
+    InstanceBase::Pin pin;
+    if (!m_cell)
     {
-        // nope, return an invalid pin
-        return nullptr;
+        return InstanceBase::Pin();
     }
 
-    auto pinIndex = m_cell->m_pins.lookupIndex(pinName);
-    if (pinIndex < 0)
+    auto pinKeyObjPair = m_cell->m_pins[pinName];
+    if (pinKeyObjPair.isValid())
     {
-        // the pin does not exist!
-        return nullptr;
+        pin.m_pinInfo = pinKeyObjPair.ptr();
+        pin.m_netKey  = m_pinToNet.at(pinKeyObjPair.key());
     }
 
-    return m_cell->m_pins[pinIndex];
+    return pin;
 }
 
-const ssize_t Instance::getPinIndex(const std::string &pinName) const
+bool Instance::setPinNet(PinObjectKey pinKey, NetObjectKey netKey)
 {
-    // check if the cell is present
-    if (m_cell == nullptr)
+    if (pinKey <= m_pinToNet.size())
     {
-        // nope, return an invalid pin
-        return -1;
+        m_pinToNet.at(pinKey) = netKey;
+        return true;
     }
 
-    return m_cell->lookupPinIndex(pinName);
+    return false;
 }
 
-const size_t Instance::getNumberOfPins() const
+size_t Instance::getNumberOfPins() const
 {
     // check if the cell is present
-    if (m_cell == nullptr)
+    if (!m_cell)
     {
         // nope..
         return 0;
     }   
 
     return m_cell->m_pins.size();
-}
-
-Net* Instance::getConnectedNet(ssize_t pinIndex)
-{
-    if (pinIndex < 0)
-        return nullptr;
-
-    if (pinIndex < m_pinToNet.size())
-        return m_pinToNet[pinIndex];
-
-    return nullptr;  // pin not found - index out of bounds
-}
-
-const Net* Instance::getConnectedNet(ssize_t pinIndex) const
-{
-    if (pinIndex < 0)
-        return nullptr;
-
-    if (pinIndex < m_pinToNet.size())
-        return m_pinToNet[pinIndex];
-
-    return nullptr;  // pin not found - index out of bounds
-}
-
-
-bool Instance::connect(ssize_t pinIndex, Net *net)
-{   
-    if (pinIndex < 0)
-        return false;   // invalid pin
-
-    if (pinIndex < m_pinToNet.size())
-    {
-        m_pinToNet[pinIndex] = net;
-        return true;
-    }
-
-    return false;   // pin does not exist!
-}
-
-bool Instance::connect(const std::string &pinName, Net *net)
-{
-    auto pinIndex = m_cell->lookupPinIndex(pinName);
-    if (pinIndex < 0)
-        return false;   // pin not found
-        
-    return Instance::connect(pinIndex, net);
 }
 
 // **********************************************************************
@@ -132,65 +87,33 @@ std::string PinInstance::getArchetypeName() const
     return "__PIN";
 }
 
-const PinInfo* PinInstance::getPinInfo(ssize_t pinIndex) const
+InstanceBase::Pin PinInstance::getPin(PinObjectKey key) const
 {
-    if (pinIndex == 0)
-        return &m_pinInfo;
-    else 
-        return nullptr;
+    InstanceBase::Pin pin;
+
+    if (key == 0)
+    {
+        pin.m_pinInfo = std::make_shared<PinInfo>(m_pinInfo);
+        pin.m_netKey  = m_connectedNet;
+    }
+
+    return pin;
 }
 
-const PinInfo* PinInstance::getPinInfo(const std::string &pinName) const
+InstanceBase::Pin PinInstance::getPin(const std::string &pinName) const
 {
-    if (m_name == pinName)
-        return &m_pinInfo;
-    
-    return nullptr;
+    InstanceBase::Pin pin;
+
+    if (m_pinInfo.m_name == pinName)
+    {
+        pin.m_pinInfo = std::make_shared<PinInfo>(m_pinInfo);
+        pin.m_netKey  = m_connectedNet;
+    }
+
+    return pin;
 }
 
-const ssize_t PinInstance::getPinIndex(const std::string &pinName) const
-{
-    if (m_name == pinName)
-        return 0;
-
-    return -1;
-}
-
-const size_t PinInstance::getNumberOfPins() const
+size_t PinInstance::getNumberOfPins() const
 {
     return 1;
-}
-
-Net* PinInstance::getConnectedNet(ssize_t pinIndex)
-{
-    if (pinIndex == 0)
-        return m_connectedNet;
-
-    return nullptr;  // pin not found - index out of bounds
-}
-
-const Net* PinInstance::getConnectedNet(ssize_t pinIndex) const
-{
-    if (pinIndex == 0)
-        return m_connectedNet;
-
-    return nullptr;  // pin not found - index out of bounds
-}
-
-bool PinInstance::connect(ssize_t pinIndex, Net *net)
-{   
-    if (pinIndex != 0)
-        return false;   // invalid pin
-
-    m_connectedNet = net;
-    return true;
-}
-
-bool PinInstance::connect(const std::string &pinName, Net *net)
-{
-    if (m_name != pinName)
-        return false;   // invalid pin
-        
-    m_connectedNet = net;
-    return true;
 }

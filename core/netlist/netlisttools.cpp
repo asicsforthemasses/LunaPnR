@@ -14,9 +14,10 @@ bool LunaCore::NetlistTools::writePlacementFile(std::ostream &os, const ChipDB::
         return false;
     }
 
-    for(auto const* ins : netlist->m_instances)
+    for(auto ins : netlist->m_instances)
     {
-        if ((ins->m_placementInfo == ChipDB::PlacementInfo::PLACED) || (ins->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED))
+        if (ins.isValid() && 
+            ((ins->m_placementInfo == ChipDB::PlacementInfo::PLACED) || (ins->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED)))
         {
             auto insSize = ins->instanceSize();
             os << ins->m_pos.m_x << " " << ins->m_pos.m_y << " " << insSize.m_x << " " << insSize.m_y << "\n";
@@ -48,7 +49,7 @@ bool LunaCore::NetlistTools::removeNetconInstances(ChipDB::Netlist &netlist)
 {
     size_t netsRemoved = 0;
     size_t degenerateNets = 0;
-    for (auto &ins :  netlist.m_instances)
+    for (auto ins : netlist.m_instances)
     {
         if (ins->getArchetypeName() == "__NETCON")
         {
@@ -68,8 +69,8 @@ bool LunaCore::NetlistTools::removeNetconInstances(ChipDB::Netlist &netlist)
 
                 for(auto const &connection : netToRemove->m_connections)
                 {
-                    auto insToBeUpdated = connection.m_instance;
-                    if (insToBeUpdated != netConIns)
+                    auto insToBeUpdated = netlist.m_instances.at(connection.m_instanceKey);
+                    if (insToBeUpdated != netConIns.key())
                     {
                         insToBeUpdated->connect(connection.m_pinIndex, netToAssign);
                     }

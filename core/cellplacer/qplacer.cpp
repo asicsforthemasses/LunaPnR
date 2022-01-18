@@ -151,7 +151,7 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
             if (ins->m_placementInfo != ChipDB::PlacementInfo::PLACEDANDFIXED)
             {
                 std::stringstream ss;
-                ss << "Not all pins have been placed and fixed - for example: " << ins->m_name << "\n";
+                ss << "Not all pins have been placed and fixed - for example: " << ins->name() << "\n";
                 doLog(LOG_ERROR, ss);
                 return false;
             }

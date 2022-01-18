@@ -27,80 +27,43 @@ std::string ChipDB::toString(const IOType &iotype)
 };
 
 
-PinInfo* PinInfoList::createPin(const std::string &name)
+KeyObjPair<PinInfo> PinInfoList::createPin(const std::string &name)
 {    
-    auto iter = find(name);
-    if (iter == m_pins.end())
+    KeyObjPair<PinInfo> result = find(name);
+    if (!result.isValid())
     {
-        m_pins.push_back(new PinInfo(name));
-        return m_pins.back();
+        m_pins.push_back(std::make_shared<PinInfo>(name));
+        return KeyObjPair<PinInfo>(m_pins.size()-1, m_pins.back());
     }
-    else
-    {
-        return *iter;
-    }
+    
+    // return the existing one
+    return result;
 }
 
-PinInfo* PinInfoList::lookup(const std::string &name)
+/** access pin directly with bounds checking */
+KeyObjPair<PinInfo> PinInfoList::operator[](const std::string &name)
 {
-    auto iter = find(name);
-    if (iter == m_pins.end())
-    {
-        return nullptr;
-    }
-    else
-    {
-        return *iter;
-    }
+    return find(name);
 }
 
-const PinInfo* PinInfoList::lookup(const std::string &name) const
+/** access pin directly with bounds checking */
+KeyObjPair<PinInfo> PinInfoList::operator[](const std::string &name) const
 {
-    auto iter = find(name);
-    if (iter == m_pins.end())
-    {
-        return nullptr;
-    }
-    else
-    {
-        return *iter;
-    }
+    return find(name);
 }
 
-ssize_t PinInfoList::lookupIndex(const std::string &name) const
+KeyObjPair<PinInfo> PinInfoList::find(const std::string &name) const
 {
-    size_t idx = 0;
-    for(auto *p : m_pins)
+    ssize_t key = 0;
+    for(auto pin : m_pins)
     {
-        if (p->m_name == name)
+        if (pin->name() == name)
         {
-            return idx;
+            return KeyObjPair<PinInfo>(key, pin);
         }
-        idx++;
+
+        key++;
     }
-    return -1;
-}
 
-PinInfoList::ContainerType::iterator PinInfoList::find(const std::string &name)
-{
-    auto iter = std::find_if(m_pins.begin(), m_pins.end(), 
-        [name](auto * p)
-        {
-            return p->m_name == name;
-        }
-    );
-
-    return iter;
-}
-
-PinInfoList::ContainerType::const_iterator PinInfoList::find(const std::string &name) const
-{
-    auto iter = std::find_if(m_pins.begin(), m_pins.end(), 
-        [name](auto * p)
-        {
-            return p->m_name == name;
-        }
-    );
-
-    return iter;
+    return KeyObjPair<PinInfo>();
 }

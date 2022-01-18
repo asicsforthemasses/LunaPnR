@@ -79,19 +79,20 @@ void ReaderImpl::onGroup(const std::string &group, const std::string &name)
     else if (group == "cell")
     {
         m_groupStack.push(GT_CELL);
-        m_curCell   = m_design->m_cellLib.createCell(name);
+        auto cellKeyObjPair = m_design->m_cellLib.createCell(name);
+        m_curCell = cellKeyObjPair.ptr();
     }
     else if (group == "pin")
     {
         // find pin on cell
         if (m_curCell != nullptr)
         {
-            auto pinInfo = m_curCell->createPin(name);
+            auto pinInfoKeyObjPair  = m_curCell->createPin(name);
 
-            pinInfo->m_maxCap = 0;
-            pinInfo->m_maxFanOut = 0;
+            pinInfoKeyObjPair->m_maxCap = 0;
+            pinInfoKeyObjPair->m_maxFanOut = 0;
 
-            m_curPin = pinInfo;
+            m_curPin = pinInfoKeyObjPair.ptr();
         }
         else
         {

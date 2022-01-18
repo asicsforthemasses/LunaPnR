@@ -161,7 +161,6 @@ public:
     virtual void onEndSite(const std::string &site) override;
 
 protected:
-    constexpr bool checkPtr(void*ptr) const {return (ptr != nullptr); }
 
     enum context_t
     {
@@ -172,10 +171,10 @@ protected:
     std::string m_pinUse;
     std::string m_pinDirection;
 
-    Cell*       m_curCell;
-    PinInfo*    m_curPinInfo;
-    LayerInfo*  m_curLayerInfo;
-    SiteInfo*   m_curSiteInfo;
+    std::shared_ptr<Cell>       m_curCell;
+    std::shared_ptr<PinInfo>    m_curPinInfo;
+    std::shared_ptr<LayerInfo>  m_curLayerInfo;
+    std::shared_ptr<SiteInfo>   m_curSiteInfo;
 
     Design          *m_design;
 

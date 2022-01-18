@@ -63,6 +63,11 @@ struct LayerInfo
 
     IMPLEMENT_ACCEPT;
 
+    std::string name() const noexcept
+    {
+        return m_name;
+    }
+
     std::string m_name;
 
     Coord64 m_pitch;    ///< in nm in x and y direction.
@@ -139,8 +144,6 @@ class TechLib
 public:
     TechLib() : m_manufacturingGrid(0) {}
 
-    NamedStorage<LayerInfo>  m_layers;
-    NamedStorage<SiteInfo>   m_sites;
     int32_t                  m_manufacturingGrid; // in nm.
 
     void clear();
@@ -155,11 +158,15 @@ public:
         return m_sites.size();
     };
 
-    LayerInfo* createLayer(const std::string &name);
-    LayerInfo* lookupLayer(const std::string &name) const;
+    KeyObjPair<LayerInfo> createLayer(const std::string &name);
+    KeyObjPair<LayerInfo> lookupLayer(const std::string &name) const;
 
-    SiteInfo* createSiteInfo(const std::string &name);
-    SiteInfo* lookupSiteInfo(const std::string &name) const; 
+    KeyObjPair<SiteInfo> createSiteInfo(const std::string &name);
+    KeyObjPair<SiteInfo> lookupSiteInfo(const std::string &name) const; 
+
+protected:
+    NamedStorage<LayerInfo>  m_layers;
+    NamedStorage<SiteInfo>   m_sites;
 };
 
 };

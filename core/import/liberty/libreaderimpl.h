@@ -63,31 +63,8 @@ public:
 protected:
     Design  *m_design;
     
-    Cell    *m_curCell;
-    PinInfo *m_curPin;
-
-#if 0
-    //CellIndex   m_cellIndex;        ///< current selected cell
-    //PinIndex    m_pinIndex;         ///< current selected pin
-
-    Cell* getCurrentCell()
-    {
-        auto cell = m_design->cellLib()->cell(m_cellIndex);
-        return cell;
-    }
-
-    Pin* getCurrentPin()
-    {
-        auto cell = getCurrentCell();
-        if (cell == nullptr)
-        {
-            doLog(LOG_ERROR,"Current cell is nullptr\n");
-            return nullptr;
-        }
-
-        return &cell->pins()[m_pinIndex];
-    }
-#endif
+    std::shared_ptr<Cell>       m_curCell;
+    std::shared_ptr<PinInfo>    m_curPin;
 
     enum groupType : int32_t
     {

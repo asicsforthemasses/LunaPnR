@@ -3,14 +3,6 @@
 
 using namespace ChipDB;
 
-Module* Design::createModule(const std::string &name)
-{
-    auto newModule = m_moduleLib.createModule(name);
-    newModule->m_netlist = std::make_unique<Netlist>();
-    return newModule;
-}
-
-
 void Design::clear()
 {
     m_netlist.clear();
@@ -24,6 +16,11 @@ void Design::clear()
 
 bool Design::setTopModule(const std::string &moduleName)
 {
-    m_topModule = m_moduleLib.lookup(moduleName);
-    return (m_topModule != nullptr);
+    auto moduleKeyObjPair = m_moduleLib.lookupModule(moduleName);
+    if (moduleKeyObjPair.isValid())
+    {
+        m_topModule = moduleKeyObjPair.ptr();
+        return true;
+    }
+    return false;
 }

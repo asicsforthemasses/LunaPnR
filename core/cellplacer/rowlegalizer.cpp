@@ -183,7 +183,7 @@ void LunaCore::Legalizer::legalizeRegion(const ChipDB::Region &region, ChipDB::N
     std::vector<Cell> cells;
     for(auto ins : netlist.m_instances)
     {
-        if (ins == nullptr)
+        if (!ins.isValid())
         {
             continue;
         }
@@ -195,7 +195,7 @@ void LunaCore::Legalizer::legalizeRegion(const ChipDB::Region &region, ChipDB::N
             cell.m_size = ins->instanceSize();
             cell.m_globalPos = ins->m_pos;
             cell.m_weight = 1.0f;   // FIXME: what should this be??!
-            cell.m_ins = ins;
+            cell.m_instanceKey = ins.key();
         }
     }
 
@@ -250,7 +250,7 @@ void LunaCore::Legalizer::legalizeRegion(const ChipDB::Region &region, ChipDB::N
     // write back the legal positions of the cells
     for(auto const& cell : cells)
     {
-        assert(cell.m_ins != nullptr);
-        cell.m_ins->m_pos = cell.m_legalPos;
+        assert(cell.m_instanceKey >= 0);
+        netlist.m_instances.at(cell.m_instanceKey)->m_pos = cell.m_legalPos;
     }
 }

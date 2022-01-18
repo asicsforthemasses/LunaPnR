@@ -585,9 +585,9 @@ bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
     // start numbering the netlist nodes after the
     // special fixed nodes.
     size_t index = numSpecialNodes;
-    for(auto *ins : nl->m_instances)
+    for(auto ins : nl->m_instances)
     {
-        if (ins != nullptr)
+        if (ins.isValid())
         {
             container.m_nodes[index].m_weight = ins->instanceSize().m_x;
             ins->m_id = index;
@@ -599,15 +599,15 @@ bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
 
     // nets are numbered from 0
     index = 0;
-    for(auto *net : nl->m_nets)
+    for(auto net : nl->m_nets)
     {
         net->m_id = index;
         index++;
     }
 
-    for(auto *ins : nl->m_instances)
+    for(auto ins : nl->m_instances)
     {
-        for(ssize_t pinIndex=0; pinIndex < ins->getNumberOfPins(); ++pinIndex)
+        for(ssize_t pinIndex=0; pinIndex < ins->pins(); ++pinIndex)
         {
             auto *net = ins->getConnectedNet(pinIndex);
             if (net != nullptr)

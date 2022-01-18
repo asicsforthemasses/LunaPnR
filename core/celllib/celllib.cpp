@@ -13,29 +13,23 @@ void CellLib::clear()
     createNetConCell();
 }
 
-CreateResult<Cell> CellLib::createCell(const std::string &name)
+KeyObjPair<Cell> CellLib::createCell(const std::string &name)
 {
-    CreateResult<Cell> result;
-
-    auto newCell = std::make_shared<Cell>(name);
-    auto cellObjKey = m_cells.add(newCell);
-    if (!cellObjKey)
+    auto cellObjKeyOptional = m_cells.add(std::make_shared<Cell>(name));
+    if (!cellObjKeyOptional)
     {
-        return result;
+        return KeyObjPair<Cell>();
     }
 
-    result.m_key = cellObjKey.value();
-    result.m_obj = newCell;
-
-    return result;
+    return cellObjKeyOptional.value();
 }
 
-const std::shared_ptr<Cell> CellLib::lookupCell(const std::string &name) const
+KeyObjPair<Cell> CellLib::lookupCell(const std::string &name) const
 {
     return m_cells[name];
 }
 
-std::shared_ptr<Cell> CellLib::lookupCell(const std::string &name)
+KeyObjPair<Cell> CellLib::lookupCell(const std::string &name)
 {
     return m_cells[name];
 }
@@ -72,12 +66,12 @@ void ModuleLib::clear()
     m_modules.clear();
 }
 
-const std::shared_ptr<Module> ModuleLib::lookupModule(const std::string &name) const
+KeyObjPair<Module> ModuleLib::lookupModule(const std::string &name) const
 {
     return m_modules[name];
 }
 
-std::shared_ptr<Module> ModuleLib::lookupModule(const std::string &name)
+KeyObjPair<Module> ModuleLib::lookupModule(const std::string &name)
 {
     return m_modules[name];
 }
@@ -92,29 +86,23 @@ std::shared_ptr<Module> ModuleLib::lookupModule(ObjectKey key)
     return m_modules[key];
 }
 
-CreateResult<Module> ModuleLib::createModule(const std::string &name)
+KeyObjPair<Module> ModuleLib::createModule(const std::string &name)
 {
-    CreateResult<Module> result;
-
-    auto newModule = std::make_shared<Module>(name);
-    auto moduleObjKey = m_modules.add(newModule);
-    if (!moduleObjKey)
+    auto result = m_modules.add(std::make_shared<Module>(name));
+    if (result)
     {
-        return result;
+        return result.value();
     }
 
-    result.m_key = moduleObjKey.value();
-    result.m_obj = newModule;
-
-    return result;
+    return KeyObjPair<Module>();
 }
 
 bool ModuleLib::removeModule(ObjectKey key)
 {
-    m_modules.remove(key);
+    return m_modules.remove(key);
 }
 
 bool ModuleLib::removeModule(const std::string &name)
 {
-    m_modules.remove(name);
+    return m_modules.remove(name);
 }

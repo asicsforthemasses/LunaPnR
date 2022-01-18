@@ -10,7 +10,11 @@ typedef std::make_signed<size_t>::type ssize_t;
 
 namespace ChipDB
 {
-    using ObjectKey = int32_t;
+    using ObjectKey         = int32_t;
+    using NetObjectKey      = int32_t;
+    using PinObjectKey      = int32_t;
+    using InstanceObjectKey = int32_t;
+    using ModuleObjectKey   = int32_t;
 
     static constexpr ObjectKey ObjectNotFound = -1;
     static constexpr ObjectKey ObjectAlreadyExists = -2;

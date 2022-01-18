@@ -23,7 +23,7 @@ public:
     NamedStorage<InstanceBase> m_instances;
     NamedStorage<Net>          m_nets;
 
-    Net* createNet(const std::string &netName);
+    KeyObjPair<Net> createNet(const std::string &netName);
 
     bool connect(const std::string &insName, const std::string &pinName, const std::string &netName);
 };

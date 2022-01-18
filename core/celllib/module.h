@@ -15,8 +15,8 @@ public:
         return true;
     }
 
-    bool addInstance(InstanceBase* insPtr);
-    Net* createNet(const std::string &netName);
+    bool addInstance(std::shared_ptr<InstanceBase> insPtr);
+    KeyObjPair<Net> createNet(const std::string &netName);
 
     /** pointer to netlist, or null if the module is a black box */
     std::unique_ptr<Netlist> m_netlist;

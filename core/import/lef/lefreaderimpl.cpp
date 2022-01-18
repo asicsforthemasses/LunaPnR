@@ -30,30 +30,41 @@ ReaderImpl::ReaderImpl(Design *design)
 {
     m_context = CONTEXT_PIN;
 
+#if 0
     m_curCell       = nullptr;
     m_curPinInfo    = nullptr;
     m_curLayerInfo  = nullptr;
     m_curSiteInfo   = nullptr;
+#endif
 }
 
 void ReaderImpl::onMacro(const std::string &macroName)
 {
     // create a new cell/macro if necessary    
-    m_curCell = m_design->m_cellLib.createCell(macroName);
-    doLog(LOG_VERBOSE,"LEF MACRO: %s\n", macroName.c_str());
+    auto newCellKeyObj = m_design->m_cellLib.createCell(macroName);
+    if (!newCellKeyObj.isValid())
+    {
+        std::stringstream ss;
+        ss << "Cannot create LEF MACRO " << macroName << " - perhaps it already exists?\n";
+        doLog(LOG_ERROR, ss.str());
+    }
+    else
+    {
+        doLog(LOG_VERBOSE,"LEF MACRO: %s\n", macroName.c_str());
+    }
 }
 
 void ReaderImpl::onEndMacro(const std::string &macroName)
 {   
-    m_curPinInfo = nullptr;
-    m_curCell = nullptr;
+    m_curPinInfo.reset();
+    m_curCell.reset();
 }
 
 void ReaderImpl::onSize(int64_t sx, int64_t sy)
 {   
     const double nm2microns = 0.001;
 
-    if (!checkPtr(m_curCell))
+    if (!m_curCell)
     {
         return;
     }
@@ -66,7 +77,7 @@ void ReaderImpl::onSize(int64_t sx, int64_t sy)
 
 void ReaderImpl::onMacroSite(const std::string &site)
 {
-    if (!checkPtr(m_curCell))
+    if (!m_curCell)
     {
         return;
     }
@@ -76,24 +87,33 @@ void ReaderImpl::onMacroSite(const std::string &site)
 
 void ReaderImpl::onPin(const std::string &pinName)
 {
-    if (!checkPtr(m_curCell))
+    if (!m_curCell)
     {
         return;
     }
 
     // find already existing pin or create one.
-    m_curPinInfo = m_curCell->createPin(pinName);
+    auto newOrExistingPin = m_curCell->createPin(pinName);
+    if (newOrExistingPin.isValid())
+    {
+        m_curPinInfo = newOrExistingPin.ptr();
+    }
+    else
+    {
+        //FIXME: there really should be a warning here.
+    }
+    
     m_context = CONTEXT_PIN;
 }
 
 void ReaderImpl::onEndPin(const std::string &pinName)
 {
-    if (!checkPtr(m_curCell))
+    if (!m_curCell)
     {
         return;
     }
 
-    if (!checkPtr(m_curPinInfo))
+    if (!m_curPinInfo)
     {
         return;
     }
@@ -133,13 +153,12 @@ void ReaderImpl::onEndPin(const std::string &pinName)
 
     m_pinDirection.clear();
     m_pinUse.clear();
-
-    m_curPinInfo = nullptr;
+    m_curPinInfo.reset();
 }
 
 void ReaderImpl::onClass(const std::string &className)
 {
-    if (!checkPtr(m_curCell))
+    if (!m_curCell)
     {
         return;
     }
@@ -172,13 +191,12 @@ void ReaderImpl::onClass(const std::string &className)
         ss << "Unknown macro class '"<< className << "' found";
         error(ss.str());
     }
-
 }
 
 void ReaderImpl::onClass(const std::string &className,
         const std::string &subclass)
 {
-    if (!checkPtr(m_curCell))
+    if (!m_curCell)
     {
         return;
     }
@@ -319,7 +337,7 @@ void ReaderImpl::onClass(const std::string &className,
 
 void ReaderImpl::onSymmetry(const SymmetryFlags &symmetry)
 {
-    if (!checkPtr(m_curCell))
+    if (!m_curCell)
     {
         return;
     }
@@ -336,7 +354,7 @@ void ReaderImpl::onRect(int64_t x1, int64_t y1, int64_t x2, int64_t y2)
     {
     case CONTEXT_PIN:
         {             
-            if (!checkPtr(m_curPinInfo))
+            if (!m_curPinInfo)
             {
                 return;
             }
@@ -353,7 +371,7 @@ void ReaderImpl::onRect(int64_t x1, int64_t y1, int64_t x2, int64_t y2)
         break;
     case CONTEXT_OBS:
         {
-            if (!checkPtr(m_curCell))
+            if (!m_curCell)
             {
                 return;
             }            
@@ -365,7 +383,7 @@ void ReaderImpl::onRect(int64_t x1, int64_t y1, int64_t x2, int64_t y2)
 
 void ReaderImpl::onPolygon(const std::vector<Coord64> &points)
 {
-    if (!checkPtr(m_curCell))
+    if (!m_curCell)
     {
         return;
     }
@@ -374,14 +392,14 @@ void ReaderImpl::onPolygon(const std::vector<Coord64> &points)
     switch(m_context)
     {
     case CONTEXT_PIN:
-        if (!checkPtr(m_curPinInfo))
+        if (!m_curPinInfo)
         {
             return;
         }    
         m_curPinInfo->m_pinLayout[m_activePinLayerName].push_back(poly);
         break;
     case CONTEXT_OBS:
-        if (!checkPtr(m_curCell))
+        if (!m_curCell)
         {
             return;
         }      
@@ -409,20 +427,21 @@ void ReaderImpl::onLayer(const std::string &layerName)
 {
     doLog(LOG_VERBOSE,"LEF LAYER: %s\n", layerName.c_str());
 
-    m_curLayerInfo = m_design->m_techLib.createLayer(layerName);
+    auto layerKeyObjPair = m_design->m_techLib.createLayer(layerName);
 
+    m_curLayerInfo = layerKeyObjPair.ptr();
 }
 
 
 void ReaderImpl::onEndLayer(const std::string &layerName)
 {
-    m_curLayerInfo = nullptr;
+    m_curLayerInfo.reset();
 }
 
 /** callback for layer type */
 void ReaderImpl::onLayerType(const std::string &layerType)
 {
-    if (m_curLayerInfo == nullptr)
+    if (!m_curLayerInfo)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
@@ -465,7 +484,7 @@ void ReaderImpl::onPinDirection(const std::string &direction)
 
 void ReaderImpl::onLayerPitch(int64_t pitchx, int64_t pitchy)
 {
-    if (m_curLayerInfo == nullptr)
+    if (!m_curLayerInfo)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
@@ -476,7 +495,7 @@ void ReaderImpl::onLayerPitch(int64_t pitchx, int64_t pitchy)
 
 void ReaderImpl::onLayerSpacing(int64_t spacing)
 {
-    if (m_curLayerInfo == nullptr)
+    if (!m_curLayerInfo)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
@@ -488,7 +507,7 @@ void ReaderImpl::onLayerSpacing(int64_t spacing)
 
 void ReaderImpl::onLayerSpacingRange(int64_t value1, int64_t value2)
 {
-    if (m_curLayerInfo == nullptr)
+    if (!m_curLayerInfo)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
@@ -499,7 +518,7 @@ void ReaderImpl::onLayerSpacingRange(int64_t value1, int64_t value2)
 
 void ReaderImpl::onLayerOffset(int64_t offsetx, int64_t offsety)
 {
-    if (m_curLayerInfo == nullptr)
+    if (!m_curLayerInfo)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
@@ -510,7 +529,7 @@ void ReaderImpl::onLayerOffset(int64_t offsetx, int64_t offsety)
 
 void ReaderImpl::onLayerDirection(const std::string &direction)
 {
-    if (m_curLayerInfo == nullptr)
+    if (!m_curLayerInfo)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
@@ -535,7 +554,7 @@ void ReaderImpl::onLayerDirection(const std::string &direction)
 
 void ReaderImpl::onLayerWidth(int64_t width)
 {
-    if (m_curLayerInfo == nullptr)
+    if (!m_curLayerInfo)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
@@ -546,7 +565,7 @@ void ReaderImpl::onLayerWidth(int64_t width)
 
 void ReaderImpl::onLayerMaxWidth(int64_t maxWidth)
 {
-    if (m_curLayerInfo == nullptr)
+    if (!m_curLayerInfo)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
@@ -569,7 +588,7 @@ void ReaderImpl::onManufacturingGrid(int64_t grid)
 
 void ReaderImpl::onLayerResistancePerSq(double ohms)
 {
-    if (m_curLayerInfo == nullptr)
+    if (!m_curLayerInfo)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
@@ -580,7 +599,7 @@ void ReaderImpl::onLayerResistancePerSq(double ohms)
 
 void ReaderImpl::onLayerCapacitancePerSq(double farads)
 {
-    if (m_curLayerInfo == nullptr)
+    if (!m_curLayerInfo)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
@@ -591,19 +610,18 @@ void ReaderImpl::onLayerCapacitancePerSq(double farads)
 
 void ReaderImpl::onLayerEdgeCapacitance(double farads)
 {
-    if (m_curLayerInfo == nullptr)
+    if (!m_curLayerInfo)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
     }
 
     m_curLayerInfo->m_edgeCapacitance = farads;
-
 }
 
 void ReaderImpl::onLayerThickness(double thickness)
 {
-    if (m_curLayerInfo == nullptr)
+    if (!m_curLayerInfo)
     {
         doLog(LOG_ERROR,"Layer is nullptr\n");
         return;
@@ -625,24 +643,25 @@ void ReaderImpl::onLayerMinArea(double minArea)
 
 void ReaderImpl::onSite(const std::string &site)
 {
-    m_curSiteInfo = m_design->m_techLib.createSiteInfo(site);
+    auto siteKeyObjPair = m_design->m_techLib.createSiteInfo(site);
+    m_curSiteInfo = siteKeyObjPair.ptr();
     doLog(LOG_VERBOSE,"LEF SITE: %s\n", site.c_str());
 }
 
 void ReaderImpl::onEndSite(const std::string &site)
 {
-    if (m_curSiteInfo == nullptr)
+    if (!m_curSiteInfo)
     {
         doLog(LOG_ERROR,"Site is nullptr\n");
         return;
     }
 
-    m_curSiteInfo = nullptr;
+    m_curSiteInfo.reset();
 }
 
 void ReaderImpl::onSiteSize(int64_t x, int64_t y)
 {
-    if (m_curSiteInfo == nullptr)
+    if (!m_curSiteInfo)
     {
         doLog(LOG_ERROR,"Site is nullptr\n");
         return;
@@ -654,7 +673,7 @@ void ReaderImpl::onSiteSize(int64_t x, int64_t y)
 
 void ReaderImpl::onSiteSymmetry(const SymmetryFlags &symmetry)
 {
-    if (m_curSiteInfo == nullptr)
+    if (!m_curSiteInfo)
     {
         doLog(LOG_ERROR,"Site is nullptr\n");
         return;
@@ -666,7 +685,7 @@ void ReaderImpl::onSiteSymmetry(const SymmetryFlags &symmetry)
 
 void ReaderImpl::onSiteClass(const std::string &siteClass)
 {
-    if (m_curSiteInfo == nullptr)
+    if (!m_curSiteInfo)
     {
         doLog(LOG_ERROR,"Site is nullptr\n");
         return;

@@ -30,8 +30,8 @@ public:
 
     KeyObjPair<Cell> createCell(const std::string &name);
     
-    const std::shared_ptr<Cell> lookupCell(const std::string &name) const;
-    std::shared_ptr<Cell> lookupCell(const std::string &name);
+    KeyObjPair<Cell> lookupCell(const std::string &name) const;
+    KeyObjPair<Cell> lookupCell(const std::string &name);
 
     const std::shared_ptr<Cell> lookupCell(ObjectKey key) const;
     std::shared_ptr<Cell> lookupCell(ObjectKey key);
@@ -68,8 +68,8 @@ public:
         return m_modules.end();
     }
 
-    std::shared_ptr<Module> lookupModule(const std::string &name);
-    const std::shared_ptr<Module> lookupModule(const std::string &name) const;
+    KeyObjPair<Module> lookupModule(const std::string &name);
+    KeyObjPair<Module> lookupModule(const std::string &name) const;
     
     std::shared_ptr<Module> lookupModule(ObjectKey key);
     const std::shared_ptr<Module> lookupModule(ObjectKey key) const;

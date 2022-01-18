@@ -27,67 +27,6 @@ public:
         return "TerminationInstance";
     }
     
-    /** get pin information from the underlying cell or module 
-     *  returns nullptr if pin not found.
-    */
-    const ChipDB::PinInfo* getPinInfo(ssize_t pinIndex) const override
-    {
-        return nullptr;
-    }
-
-    /** get pin information from the underlying cell or module 
-     *  returns nullptr if pin not found.
-    */
-    const ChipDB::PinInfo* getPinInfo(const std::string &pinName) const override
-    {
-        return nullptr;
-    }
-
-    /** get pin index by name. returns -1 when not found. 
-    */
-    const ssize_t getPinIndex(const std::string &pinName) const override
-    {
-        return -1;
-    }
-
-    /** get the number of pins on this instance */
-    virtual const size_t getNumberOfPins() const override
-    {
-        return 0;
-    }
-
-    /** connect pin with specified index to the given net. 
-     *  returns true if succesful.
-    */
-    bool connect(ssize_t pinIndex, ChipDB::Net *net) override
-    {
-        return false;
-    }
-
-    /** connect pin with specified name to the given net. 
-     *  returns true if succesful.
-    */    
-    bool connect(const std::string &pinName, ChipDB::Net *net) override
-    {
-        return false;
-    }
-
-    /** returns the net connected to a pin with a given index.
-     *  if the pin does not exist, it return nullptr.
-    */
-    ChipDB::Net* getConnectedNet(ssize_t pinIndex) override
-    {
-        return nullptr;
-    }
-
-    /** returns the net connected to a pin with a given index.
-     *  if the pin does not exist, it return nullptr.
-    */
-    const ChipDB::Net* getConnectedNet(ssize_t pinIndex) const override
-    {
-        return nullptr;
-    }
-
     /** return the size of the instance in nm */
     const ChipDB::Coord64 instanceSize() const override
     {

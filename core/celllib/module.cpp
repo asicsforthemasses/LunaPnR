@@ -6,9 +6,9 @@ using namespace ChipDB;
 //   Module
 // **********************************************************************
 
-bool Module::addInstance(InstanceBase* insPtr)
+bool Module::addInstance(std::shared_ptr<InstanceBase> insPtr)
 {
-    if (insPtr == nullptr)
+    if (!insPtr)
     {
         return false;
     }
@@ -20,28 +20,34 @@ bool Module::addInstance(InstanceBase* insPtr)
 
     if (m_netlist)
     {
-        m_netlist->m_instances.add(insPtr->m_name, insPtr);
-        return true;
+        auto result = m_netlist->m_instances.add(insPtr);
+        return result.has_value();
     }
 
     return false;   // cannot add instances to a black box
 }
 
-Net* Module::createNet(const std::string &netName)
+KeyObjPair<Net> Module::createNet(const std::string &netName)
 {
     if (!m_netlist)
     {
-        return nullptr; // cannot add nets to a black box
+        return KeyObjPair<Net>();
     }
 
+    return m_netlist->createNet(netName);
+
+#if 0
     // if the net already exists, return that one.
-    auto myNet = m_netlist->m_nets.lookup(netName);
-    if (myNet != nullptr)
-        return myNet;
+    auto netKeyObj = m_netlist->m_nets[netName];
+    if (netKeyObj.isValid() != nullptr)
+    {
+        return netKeyObj.;
+    }
 
     myNet = new Net;
     myNet->m_name = netName;
     m_netlist->m_nets.add(netName, myNet);
 
     return myNet;
+#endif
 }

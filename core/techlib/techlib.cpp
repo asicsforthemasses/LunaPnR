@@ -42,42 +42,34 @@ void TechLib::clear()
     m_manufacturingGrid = 0;
 }
 
-LayerInfo* TechLib::createLayer(const std::string &name)
+KeyObjPair<LayerInfo> TechLib::createLayer(const std::string &name)
 {
-    auto layer = lookupLayer(name);
-    if (layer != nullptr)
+    auto layerKeyObj = m_layers.add(std::make_shared<LayerInfo>(name));
+    if (layerKeyObj)
     {
-        return layer;
-    }   
+        return layerKeyObj.value();
+    }
 
-    layer = new LayerInfo();
-    layer->m_name = name;
-    
-    m_layers.add(name, layer);
-    return layer;
+    return KeyObjPair<LayerInfo>();
 }
 
-LayerInfo* TechLib::lookupLayer(const std::string &name) const
+KeyObjPair<LayerInfo> TechLib::lookupLayer(const std::string &name) const
 {
-    return m_layers.lookup(name);
+    return m_layers[name];
 }
 
-SiteInfo* TechLib::createSiteInfo(const std::string &name)
+KeyObjPair<SiteInfo> TechLib::createSiteInfo(const std::string &name)
 {
-    auto siteInfo = lookupSiteInfo(name);
-    if (siteInfo != nullptr)
+    auto siteKeyObj = m_sites.add(std::make_shared<SiteInfo>(name));
+    if (siteKeyObj)
     {
-        return siteInfo;
-    }   
+        return siteKeyObj.value();
+    }
 
-    siteInfo = new SiteInfo();
-    siteInfo->m_name = name;
-
-    m_sites.add(name, siteInfo);
-    return siteInfo;
+    return KeyObjPair<SiteInfo>();
 }
 
-SiteInfo* TechLib::lookupSiteInfo(const std::string &name) const
+KeyObjPair<SiteInfo> TechLib::lookupSiteInfo(const std::string &name) const
 {
-    return m_sites.lookup(name);
+    return m_sites[name];
 }
