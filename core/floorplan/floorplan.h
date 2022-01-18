@@ -10,7 +10,7 @@ namespace ChipDB
 class Floorplan
 {
 public:
-    NamedStorage<Region*, true> m_regions;
+    NamedStorage<Region> m_regions;
 
     void clear();
 

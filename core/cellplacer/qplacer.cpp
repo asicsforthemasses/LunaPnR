@@ -178,8 +178,8 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
     // generate QPlacer netlist
     PlacerNetlist placerNetlist;
     
-    std::unordered_map<ChipDB::InstanceBase*, LunaCore::QPlacer::PlacerNodeId> ins2nodeId;
-    std::unordered_map<ChipDB::Net*, LunaCore::QPlacer::PlacerNetId> net2netId;
+    std::unordered_map<ChipDB::ObjectKey, LunaCore::QPlacer::PlacerNodeId> ins2nodeId;
+    std::unordered_map<ChipDB::ObjectKey, LunaCore::QPlacer::PlacerNetId>  net2netId;
 
     // create placer nodes
     for(auto ins : mod->m_netlist->m_instances)
@@ -197,7 +197,7 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
             placerNode.m_weight = 10.0; // increase the weight of fixed nodes to pull apart the movable instances
         }
 
-        ins2nodeId[ins] = placerNetlist.numberOfNodes()-1;
+        ins2nodeId[ins.key()] = placerNetlist.numberOfNodes()-1;
     }
 
     // create placer nets
@@ -208,8 +208,7 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
 
         for(auto& conn : net->m_connections)
         {
-            auto ins = conn.m_instance;
-            auto iter = ins2nodeId.find(ins);
+            auto iter = ins2nodeId.find(conn.m_instanceKey);
 
             if (iter == ins2nodeId.end())
             {

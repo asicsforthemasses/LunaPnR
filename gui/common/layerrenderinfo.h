@@ -134,7 +134,7 @@ protected:
 };
 
 
-class LayerRenderInfoDB : public ChipDB::NamedStorage<LayerRenderInfo*, true>
+class LayerRenderInfoDB : public ChipDB::NamedStorage<LayerRenderInfo>
 {
 public:
 

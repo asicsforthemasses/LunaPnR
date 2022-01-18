@@ -20,8 +20,8 @@ public:
 
     IMPLEMENT_ACCEPT;
 
-    NamedStorage<InstanceBase*> m_instances;
-    NamedStorage<Net*>          m_nets;
+    NamedStorage<InstanceBase> m_instances;
+    NamedStorage<Net>          m_nets;
 
     Net* createNet(const std::string &netName);
 

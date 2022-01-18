@@ -78,9 +78,9 @@ bool LunaCore::QLAPlacer::Private::updatePositions(const LunaCore::QPlacer::Plac
     //NOTE: this assumes the node order has not changed..
     doLog(LOG_VERBOSE,"Updating instance positions: \n");
     LunaCore::QPlacer::PlacerNodeId nodeIdx = 0;
-    for(auto *ins : nl.m_instances)
+    for(auto ins : nl.m_instances)
     {
-        if ((ins != nullptr) && (ins->m_placementInfo != ChipDB::PlacementInfo::PLACEDANDFIXED) && (ins->m_placementInfo != ChipDB::PlacementInfo::IGNORE))
+        if ((ins.isValid()) && (ins->m_placementInfo != ChipDB::PlacementInfo::PLACEDANDFIXED) && (ins->m_placementInfo != ChipDB::PlacementInfo::IGNORE))
         {
             auto const& node = netlist.m_nodes.at(nodeIdx);
             ins->m_pos = node.getLLPos();
@@ -95,11 +95,11 @@ bool LunaCore::QLAPlacer::Private::updatePositions(const LunaCore::QPlacer::Plac
 
 LunaCore::QPlacer::PlacerNetlist LunaCore::QLAPlacer::Private::createPlacerNetlist(const ChipDB::Netlist &nl)
 {
-    std::unordered_map<ChipDB::InstanceBase*, LunaCore::QPlacer::PlacerNodeId> ins2nodeId;
+    std::unordered_map<ChipDB::ObjectKey, LunaCore::QPlacer::PlacerNodeId> ins2nodeId;
     LunaCore::QPlacer::PlacerNetlist netlist;
 
     // create placer nodes
-    for(auto * ins : nl.m_instances)
+    for(auto ins : nl.m_instances)
     {
         auto nodeId = netlist.createNode();
         auto& placerNode = netlist.getNode(nodeId);
@@ -113,7 +113,7 @@ LunaCore::QPlacer::PlacerNetlist LunaCore::QLAPlacer::Private::createPlacerNetli
             placerNode.m_type = LunaCore::QPlacer::PlacerNodeType::FixedNode;
         }
 
-        ins2nodeId[ins] = nodeId;
+        ins2nodeId[ins.key()] = nodeId;
     }
 
     // create placer nets
@@ -128,14 +128,13 @@ LunaCore::QPlacer::PlacerNetlist LunaCore::QLAPlacer::Private::createPlacerNetli
 
         for(auto& conn : net->m_connections)
         {
-            auto ins = conn.m_instance;
-
-            if (ins == nullptr)
+            auto ins = nl.m_instances.at(conn.m_instanceKey);
+            if (!ins)
             {
                 continue;
             }
 
-            auto iter = ins2nodeId.find(ins);
+            auto iter = ins2nodeId.find(conn.m_instanceKey);
 
             if (iter == ins2nodeId.end())
             {

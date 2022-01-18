@@ -6,7 +6,11 @@
 #include <string>
 #include <atomic>
 #include <algorithm>
+#include <memory>
 #include <unordered_map>
+#include <iterator>
+
+#include "dbtypes.h"
 
 #ifdef NO_SSIZE_T
 #include <type_traits>
@@ -15,190 +19,327 @@ typedef std::make_signed<size_t>::type ssize_t;
 
 namespace ChipDB {
 
+/** return type for object creation function so we can return both
+*/
+template<class T> struct KeyObjPair
+{
+    constexpr KeyObjPair() = default;
+    constexpr KeyObjPair(ObjectKey key, std::shared_ptr<T> obj) : m_key(key), m_obj(obj) {}
+
+    constexpr std::shared_ptr<T> operator->() noexcept
+    {
+        return m_obj;
+    }
+
+    constexpr const std::shared_ptr<T> operator->() const noexcept
+    {
+        return m_obj;
+    }    
+
+    constexpr ObjectKey key() const noexcept
+    {
+        return m_key;
+    }
+
+    constexpr bool isValid() const noexcept
+    {
+        return (m_key >= 0) && m_obj;
+    }
+
+protected:
+    std::shared_ptr<T> m_obj = nullptr;
+    ObjectKey          m_key = ObjectNotFound;
+};
+
+
 struct INamedStorageListener
 {
     enum class NotificationType
     {
         UNSPECIFIED = 0,
         ADD,
-        REMOVE
+        REMOVE,
+        CLEARALL
     };
 
     /** userID: the user ID when at addListener was called to register this listener.
      *  index : the index of the item that was modified, -1 for entire collection.
      *  t     : type of modification that occurred.
     */
-    virtual void notify(int32_t userID= -1, ssize_t index = -1, NotificationType t = NotificationType::UNSPECIFIED) = 0;
+    virtual void notify(ObjectKey index = ObjectUnspecified, NotificationType t = NotificationType::UNSPECIFIED) = 0;
 };
 
 /** container to store object pointers and provides fast named lookup. 
+ * 
+ *  TODO: when updating to C++20, use concepts to contrain the type to INamedObject
+ * 
 */
-template <class T, bool owning = false>
+
+template <class T>
 class NamedStorage
 {
 public:
-    NamedStorage()
-    {
-        static_assert(std::is_pointer<T>::value, "Stored object type must be a pointer");
-    }
+
+    using ContainerType = std::unordered_map<ObjectKey, std::shared_ptr<T> >;
+
+    NamedStorage() = default;
 
     virtual ~NamedStorage()
     {
-        if constexpr (owning)
-        {
-            for(auto ptr : m_objects)
-            {
-                delete ptr;
-            }
-        }
     }
-
+    
     void clear()
     {
-        if constexpr (owning)
-        {
-            for(auto ptr : m_objects)
-            {
-                delete ptr;
-            }
-        }
-
         m_objects.clear();
-        m_nameToIndex.clear();
-        notifyAll(-1, INamedStorageListener::NotificationType::REMOVE);
+        m_nameToKey.clear();
+        m_uniqueObjectKey = 0;
+        notifyAll(-1, INamedStorageListener::NotificationType::CLEARALL);
     }
 
+    /** return the number of objects in the storage container */
     size_t size() const
     {
         return m_objects.size();
     }
 
-    bool add(const std::string &name, T object)
+    /** adds an named object to the container. 
+     *  returns ObjectAlreadyExists if an object with the same name already exists. 
+     *  returns the ObjectKey is the object was successfully added. */
+    std::optional<ObjectKey> add(std::shared_ptr<T> object)
     {
-        auto iter = m_nameToIndex.find(name);
-        if (iter == m_nameToIndex.end())
+        auto iter = m_nameToKey.find(object->name());
+        if (iter == m_nameToKey.end())
         {
             // no such named object, okay to add!
-            ssize_t index = m_objects.size();
-            m_objects.push_back(object);
-            m_nameToIndex[name] = index;
-            notifyAll(index, INamedStorageListener::NotificationType::ADD);
-            return true;
+            auto key = generateUniqueObjectKey();
+            m_objects[key] = object;
+            m_nameToKey[object->name()] = key;
+            notifyAll(key, INamedStorageListener::NotificationType::ADD);
+            return key;
         }
-        return false;   // object already exists
+        return std::nullopt;
     }
 
-#if 0
-    bool add(T object)
-    {
-        auto iter = m_nameToIndex.find(name);
-        if (iter == m_nameToIndex.end())
-        {
-            // no such named object, okay to add!
-            m_objects.push_back(object);
-            m_nameToIndex[name] = m_objects.size()-1;
-            return true;
-        }
-    }
-#endif
-
+    /** remove an object by name. returns true if successful */
     bool remove(const std::string &name)
     {
-        auto iter = m_nameToIndex.find(name);
-        if (iter == m_nameToIndex.end())
+        auto iter = m_nameToKey.find(name);
+        if (iter == m_nameToKey.end())
         {
             return false;   // no such named object
         }
         else
         {
-            size_t index = iter->second;
-            m_nameToIndex.erase(iter);
-            if (index < m_objects.size())
+            auto key = iter->second;
+            m_nameToKey.erase(iter);
+
+            auto objIter = m_objects.find(key);
+            if (objIter != m_objects.end())
             {
-                m_objects[index] = nullptr;
-                notifyAll(index, INamedStorageListener::NotificationType::REMOVE);
-            }            
+                m_objects.erase(objIter);
+                notifyAll(key, INamedStorageListener::NotificationType::REMOVE);
+            }
             return true;
         }
+        return false;
     }
 
-    T lookup(const std::string &name)
-    {
-        auto iter = m_nameToIndex.find(name);
-        if (iter == m_nameToIndex.end())
+    /** remove an object by key. returns true if successful */
+    bool remove(ObjectKey key)
+    {        
+        auto iter = m_objects.find(key);
+        if (iter == m_objects.end())
         {
-            return nullptr;
-        }
-        else
-        {            
-            return m_objects.at(iter->second);
-        }
-    }
-
-    T lookup(const std::string &name) const
-    {
-        auto iter = m_nameToIndex.find(name);
-        if (iter == m_nameToIndex.end())
-        {
-            return nullptr;
+            return false;   // no such object
         }
         else
         {
-            return m_objects.at(iter->second);
+            auto obj = iter->second;
+            auto nameToKeyIter = m_nameToKey.find(obj->name());
+
+            if (nameToKeyIter != m_nameToKey.end())
+            {
+                m_nameToKey.erase(nameToKeyIter);
+            }
+
+            m_objects.erase(iter);
+
+            notifyAll(key, INamedStorageListener::NotificationType::REMOVE);
+            return true;
         }
+        return false;
     }
 
-    T at(size_t index)
+    /** access an object by name. Will throw std::out_of_range exception when the object does not exist */
+    KeyObjPair<T> at(const std::string &name)
+    {        
+        auto objKey = m_nameToKey.at(name);
+        return KeyObjPair<T>(objKey, m_objects.at(objKey));
+    }
+
+    /** access an object by name. Will throw std::out_of_range exception when the object does not exist */
+    KeyObjPair<T> at(const std::string &name) const
     {
-        #if 0
-        if (index >= m_objects.size())
-        {
-            std::stringstream ss;
-            ss << "NamedStorage out of range: max=" << m_objects.size()-1 << " requested=" << index;
-            throw std::out_of_range(ss.str());
-        }
-        #endif
+        auto objKey = m_nameToKey.at(name);
+        return m_objects.at(objKey);
+    }
 
-        if (index >= m_objects.size())
-        {
-            return nullptr;
-        }
-
-        return m_objects.at(index);
+    /** access an object by key. Will throw std::out_of_range exception when the object does not exist */
+    constexpr std::shared_ptr<T> at(ObjectKey key)
+    {
+        return m_objects.at(key);
     }
  
-    const T at(size_t index) const
+    /** access an object by key. Will throw std::out_of_range exception when the object does not exist */
+    constexpr const std::shared_ptr<T> at(ObjectKey key) const
     {
-        #if 0
-        if (index >= m_objects.size())
+        return m_objects.at(key);
+    }
+
+    /** access an object by key. Will return a nullptr when the object does not exist */
+    constexpr std::shared_ptr<T> operator[](ObjectKey key)
+    {
+        return findObject(key);
+    }
+ 
+    /** access an object by key. Will return a nullptr when the object does not exist */
+    constexpr const std::shared_ptr<T> operator[](ObjectKey key) const
+    {
+        return findObject(key);
+    }
+
+    /** access an object by name. Will return a nullptr when the object does not exist */
+    constexpr KeyObjPair<T> operator[](const std::string &name)
+    {
+        return findObject(name);
+    }
+ 
+    /** access an object by name. Will return a nullptr when the object does not exist */
+    constexpr KeyObjPair<T> operator[](const std::string &name) const
+    {
+        return findObject(name);
+    }
+
+    class Iterator
+    {
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using difference_type   = std::ptrdiff_t;
+        using value_type        = KeyObjPair<T>;
+
+        using BaseIteratorType  = typename ContainerType::iterator;
+
+        Iterator(BaseIteratorType baseIterator) 
+            : m_baseIterator(baseIterator) {}
+
+        constexpr value_type operator*()
         {
-            std::stringstream ss;
-            ss << "NamedStorage out of range: max=" << m_objects.size()-1 << " requested=" << index;
-            throw std::out_of_range(ss.str());
+            return KeyObjPair(m_baseIterator->first, m_baseIterator->second);
         }
-        #endif
 
-        return m_objects.at(index);
+        constexpr value_type operator->()
+        {
+            return KeyObjPair(m_baseIterator->first, m_baseIterator->second);
+        }
+
+        // prefix increment
+        Iterator& operator++()
+        {
+            m_baseIterator++; 
+            return *this;
+        }
+
+        // postfix increment
+        Iterator operator++(int)
+        {
+            Iterator tmp = *this;
+            m_baseIterator++;
+            return tmp;
+        }
+
+        friend bool operator==(const Iterator &lhs, const Iterator &rhs)
+        {
+            return lhs.m_baseIterator == rhs.m_baseIterator;
+        }
+
+        friend bool operator!=(const Iterator &lhs, const Iterator &rhs)
+        {
+            return lhs.m_baseIterator != rhs.m_baseIterator;
+        }
+
+    private:
+        BaseIteratorType m_baseIterator;
+    };
+
+    class ConstIterator
+    {
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using difference_type   = std::ptrdiff_t;
+        using value_type        = KeyObjPair<T>;
+
+        using BaseIteratorType  = typename ContainerType::const_iterator;
+
+        ConstIterator(BaseIteratorType baseIterator) 
+            : m_baseIterator(baseIterator) {}
+
+        constexpr value_type operator*()
+        {
+            return KeyObjPair(m_baseIterator->first, m_baseIterator->second);
+        }
+
+        constexpr value_type operator->()
+        {
+            return KeyObjPair(m_baseIterator->first, m_baseIterator->second);
+        }
+
+        // prefix increment
+        ConstIterator& operator++()
+        {
+            m_baseIterator++; 
+            return *this;
+        }
+
+        // postfix increment
+        ConstIterator operator++(int)
+        {
+            Iterator tmp = *this;
+            m_baseIterator++;
+            return tmp;
+        }
+
+        friend bool operator==(const ConstIterator &lhs, const ConstIterator &rhs) 
+        {
+            return lhs.m_baseIterator == rhs.m_baseIterator;
+        }
+
+        friend bool operator!=(const ConstIterator &lhs, const ConstIterator &rhs)
+        {
+            return lhs.m_baseIterator != rhs.m_baseIterator;
+        }
+
+    private:
+        BaseIteratorType m_baseIterator;
+    };
+
+    Iterator begin()
+    {
+        return Iterator(m_objects.begin());
     }
 
-    auto begin()
+    ConstIterator begin() const
     {
-        return m_objects.begin();
+        return ConstIterator(m_objects.begin());
     }
 
-    auto begin() const
+    Iterator end()
     {
-        return m_objects.begin();
+        return Iterator(m_objects.end());
     }
 
-    auto end()
+    ConstIterator end() const
     {
-        return m_objects.end();
-    }
-
-    auto end() const
-    {
-        return m_objects.end();
+        return ConstIterator(m_objects.end());
     }
 
     void addListener(INamedStorageListener *listener, int32_t userID = -1)
@@ -243,14 +384,14 @@ public:
 
 protected:
     
-    void notifyAll(ssize_t index = -1, INamedStorageListener::NotificationType t = 
+    void notifyAll(ObjectKey key = ObjectUnspecified, INamedStorageListener::NotificationType t = 
         INamedStorageListener::NotificationType::UNSPECIFIED) const
     {
         for(auto &listenerData : m_listeners)
         {
             if (listenerData.m_listener != nullptr)
             {
-                listenerData.m_listener->notify(listenerData.m_userID, index, t);
+                listenerData.m_listener->notify(key, t);
             }
         }
     }
@@ -258,14 +399,76 @@ protected:
     struct ListenerData
     {
         INamedStorageListener *m_listener;
-        int32_t                m_userID;
     };
 
+    ObjectKey generateUniqueObjectKey() const
+    {
+        return m_uniqueObjectKey++;
+    }
+
+    std::shared_ptr<T> findObject(ObjectKey key)
+    {
+        auto objIter = m_objects.find(key);
+        if (objIter == m_objects.end())
+        {
+            return nullptr;
+        }
+        return objIter->second;
+    }
+
+    const std::shared_ptr<T> findObject(ObjectKey key) const
+    {
+        auto objIter = m_objects.find(key);
+        if (objIter == m_objects.end())
+        {
+            return nullptr;
+        }
+        return objIter->second;
+    }
+
+    KeyObjPair<T> findObject(const std::string &name)
+    {
+        auto objKeyIter = m_nameToKey.find(name);
+        if (objKeyIter == m_nameToKey.end())
+        {
+            return nullptr;
+        }
+
+        auto objIter = m_objects.find(objKeyIter->second);
+        if (objIter == m_objects.end())
+        {
+            return nullptr;
+        }        
+
+        return KeyObjPair<T>(objIter->first, objIter->second);
+    }
+
+    KeyObjPair<T> findObject(const std::string &name) const
+    {
+        auto objKeyIter = m_nameToKey.find(name);
+        if (objKeyIter == m_nameToKey.end())
+        {
+            return nullptr;
+        }
+
+        auto objIter = m_objects.find(objKeyIter->second);
+        if (objIter == m_objects.end())
+        {
+            return nullptr;
+        }        
+
+        return KeyObjPair<T>(objIter->first, objIter->second);
+    }
+
+    mutable ObjectKey m_uniqueObjectKey = 0;
     std::vector<ListenerData> m_listeners;
-    std::vector<T> m_objects;
-    std::unordered_map<std::string, size_t> m_nameToIndex;
+    ContainerType m_objects;
+    std::unordered_map<std::string, ObjectKey> m_nameToKey;
 };
 
 
 
+
+
 };
+

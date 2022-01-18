@@ -10,8 +10,13 @@ typedef std::make_signed<size_t>::type ssize_t;
 
 namespace ChipDB
 {
+    using ObjectKey = int32_t;
 
-    using LayerID = int32_t;
+    static constexpr ObjectKey ObjectNotFound = -1;
+    static constexpr ObjectKey ObjectAlreadyExists = -2;
+    static constexpr ObjectKey ObjectUnspecified = -3;
+
+    using LayerID   = int32_t;
 
     /** base object that provides a getName() function */
     class NamedObject

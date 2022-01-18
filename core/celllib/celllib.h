@@ -21,8 +21,6 @@ public:
 
     virtual ~CellLib() = default;
 
-    NamedStorage<Cell*, true> m_cells;
-
     void clear();
 
     size_t size() const
@@ -30,30 +28,28 @@ public:
         return m_cells.size();
     };
 
-    auto begin() const
-    {
-        return m_cells.begin();
-    }
+    KeyObjPair<Cell> createCell(const std::string &name);
+    
+    const std::shared_ptr<Cell> lookupCell(const std::string &name) const;
+    std::shared_ptr<Cell> lookupCell(const std::string &name);
 
-    auto end() const
-    {
-        return m_cells.end();
-    }
-
-    Cell* createCell(const std::string &name);
-    Cell* lookup(const std::string &name) const;
+    const std::shared_ptr<Cell> lookupCell(ObjectKey key) const;
+    std::shared_ptr<Cell> lookupCell(ObjectKey key);
+    
+    bool removeCell(ObjectKey key);
+    bool removeCell(const std::string &name);
 
 protected:
     /** create a special net connection cell so we can connect nets */
     void createNetConCell();
+
+    NamedStorage<Cell> m_cells;
 };
 
 class ModuleLib
 {
 public:
     virtual ~ModuleLib() = default;
-
-    NamedStorage<Module*, true> m_modules;
 
     void clear();
 
@@ -72,10 +68,19 @@ public:
         return m_modules.end();
     }
 
-    Module* at(size_t index);
-    const Module* at(size_t index) const;
-    Module* lookup(const std::string &name) const;
-    Module* createModule(const std::string &name);
+    std::shared_ptr<Module> lookupModule(const std::string &name);
+    const std::shared_ptr<Module> lookupModule(const std::string &name) const;
+    
+    std::shared_ptr<Module> lookupModule(ObjectKey key);
+    const std::shared_ptr<Module> lookupModule(ObjectKey key) const;
+
+    KeyObjPair<Module> createModule(const std::string &name);
+
+    bool removeModule(ObjectKey key);
+    bool removeModule(const std::string &name);
+
+protected:
+    NamedStorage<Module> m_modules;
 };
 
 };

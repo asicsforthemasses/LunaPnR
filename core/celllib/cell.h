@@ -18,6 +18,11 @@ public:
     {
     }
 
+    Cell(const std::string &name) : m_name(name), m_area(0), 
+        m_leakagePower(0), m_class(CellClass::CORE), m_subclass(CellSubclass::NONE) 
+    {
+    }
+
     std::string     m_name; ///< name of the cell
     PinInfoList     m_pins; ///< pin information
 

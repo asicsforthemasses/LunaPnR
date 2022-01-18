@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include "common/dbtypes.h"
 #include "common/visitor.h"
 
 namespace ChipDB
@@ -14,6 +15,9 @@ class Net
 public:
     Net() : m_id(-1), m_flags(0), m_isPortNet(false), m_isClockNet(false) {}
     
+    Net(const std::string &name) : m_name(name), m_id(-1), m_flags(0), 
+        m_isPortNet(false), m_isClockNet(false) {}
+
     IMPLEMENT_ACCEPT;
 
     std::string m_name;         ///< net name
@@ -34,15 +38,15 @@ public:
 
     struct NetConnect
     {
-        InstanceBase *m_instance;
-        size_t        m_pinIndex;
+        ObjectKey   m_instanceKey;
+        size_t      m_pinIndex;
     };
 
     /** connect the net to the instance pin.
      *  it checks if the requested connection already exists
      *  and if it does, ignores it.
     */
-    void addConnection(InstanceBase *instance, size_t pinIndex);
+    void addConnection(ObjectKey instanceKey, size_t pinIndex);
 
     std::vector<NetConnect> m_connections;
 };

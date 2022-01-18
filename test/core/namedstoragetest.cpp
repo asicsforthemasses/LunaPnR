@@ -12,6 +12,14 @@ BOOST_AUTO_TEST_SUITE(NamedStorage)
 class MyObject
 {
 public:
+    MyObject(const std::string &name) : m_name(name) {}
+
+    const std::string& name() const
+    {
+        return m_name;
+    }
+
+protected:
     std::string m_name;
 };
 
@@ -19,31 +27,28 @@ BOOST_AUTO_TEST_CASE(check_NamedStorage)
 {
     std::cout << "--== CHECK NAMEDSTORAGE ==--\n";
 
-    ChipDB::NamedStorage<MyObject*, true> storage;
+    ChipDB::NamedStorage<MyObject> storage;
 
     // at() does not throw!
     BOOST_CHECK_NO_THROW(storage.at(0));
     BOOST_CHECK(storage.at(0) == nullptr);
 
-    auto obj1 = new MyObject();
-    obj1->m_name = "Obj #1";
+    auto obj1 = std::make_shared<MyObject>("Obj #1");
+    auto obj2 = std::make_shared<MyObject>("Obj #2");
 
-    auto obj2 = new MyObject();
-    obj2->m_name = "Obj #2";
+    storage.add(obj1);
+    storage.add(obj2);
 
-    storage.add(obj1->m_name, obj1);
-    storage.add(obj2->m_name, obj2);
-
-    BOOST_CHECK(storage.lookup("Obj #1") == obj1);
-    BOOST_CHECK(storage.lookup("Obj #2") == obj2);
+    BOOST_CHECK(storage.at("Obj #1") == obj1);
+    BOOST_CHECK(storage.at("Obj #2") == obj2);
 
     BOOST_CHECK(storage.remove("Obj #1"));
-    BOOST_CHECK(storage.lookup("Obj #1") == nullptr);
-    BOOST_CHECK(storage.lookup("Obj #2") == obj2);    
+    BOOST_CHECK(!storage.at("Obj #1"));
+    BOOST_CHECK(storage.at("Obj #2") == obj2);
 
     BOOST_CHECK(storage.remove("Obj #2"));
-    BOOST_CHECK(storage.lookup("Obj #1") == nullptr);
-    BOOST_CHECK(storage.lookup("Obj #2") == nullptr);
+    BOOST_CHECK(!storage.at("Obj #1"));
+    BOOST_CHECK(!storage.at("Obj #2"));
 
     BOOST_CHECK(storage.remove("FakeName") == false);
 }
@@ -51,18 +56,18 @@ BOOST_AUTO_TEST_CASE(check_NamedStorage)
 struct MyListener : public ChipDB::INamedStorageListener
 {
     MyListener() : 
-        m_mostRecentIndex(-1),
+        m_mostRecentKey(ChipDB::ObjectNotFound),
         m_mostRecentNotificationType(NotificationType::UNSPECIFIED)
     {
     }
 
-    void notify(int32_t userID, ssize_t index, NotificationType t) override
+    void notify(ChipDB::ObjectKey key, NotificationType t) override
     {
-        m_mostRecentIndex = index;
+        m_mostRecentKey = key;
         m_mostRecentNotificationType = t;
     }
 
-    ssize_t m_mostRecentIndex;
+    ChipDB::ObjectKey m_mostRecentKey;
     NotificationType m_mostRecentNotificationType;
 };
 
@@ -71,30 +76,30 @@ BOOST_AUTO_TEST_CASE(check_Notifier)
     std::cout << "--== CHECK NAMEDSTORAGE NOTIFIER ==--\n";
 
     MyListener listener;
-    ChipDB::NamedStorage<MyObject*, true> storage;
+    ChipDB::NamedStorage<MyObject> storage;
     storage.addListener(&listener);
 
-    BOOST_CHECK(listener.m_mostRecentIndex == -1);
+    BOOST_CHECK(listener.m_mostRecentKey == -1);
     BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::UNSPECIFIED);
 
-    storage.add("Obj1", new MyObject());
+    auto objKey = storage.add(std::make_shared<MyObject>("Obj1"));
 
-    BOOST_CHECK(listener.m_mostRecentIndex == 0); 
+    BOOST_CHECK(listener.m_mostRecentKey == objKey.value());
     BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::ADD);
 
-    storage.add("Obj2", new MyObject());
+    auto objKey2 = storage.add(std::make_shared<MyObject>("Obj1"));
 
-    BOOST_CHECK(listener.m_mostRecentIndex == 1); 
+    BOOST_CHECK(listener.m_mostRecentKey == objKey2.value()); 
     BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::ADD);
 
     BOOST_CHECK(storage.remove("Obj1"));
 
-    BOOST_CHECK(listener.m_mostRecentIndex == 0); 
+    BOOST_CHECK(listener.m_mostRecentKey == objKey.value());
     BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::REMOVE);
 
     storage.clear();
 
-    BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::REMOVE);
+    BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::CLEARALL);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

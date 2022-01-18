@@ -13,34 +13,41 @@ void CellLib::clear()
     createNetConCell();
 }
 
-Cell* CellLib::createCell(const std::string &name)
+CreateResult<Cell> CellLib::createCell(const std::string &name)
 {
-    auto cell = lookup(name);
-    if (cell != nullptr)
+    CreateResult<Cell> result;
+
+    auto newCell = std::make_shared<Cell>(name);
+    auto cellObjKey = m_cells.add(newCell);
+    if (!cellObjKey)
     {
-        return cell;
-    }   
+        return result;
+    }
 
-    cell = new Cell();
-    cell->m_name = name;
+    result.m_key = cellObjKey.value();
+    result.m_obj = newCell;
 
-    m_cells.add(name, cell);
-    return cell;
+    return result;
 }
 
-Cell* CellLib::lookup(const std::string &name) const
+const std::shared_ptr<Cell> CellLib::lookupCell(const std::string &name) const
 {
-    auto iter = std::find_if(m_cells.begin(), m_cells.end(),
-        [name](auto ptr)
-        {
-            return ptr->m_name == name;
-        }
-    );
+    return m_cells[name];
+}
 
-    if (iter == m_cells.end())
-        return nullptr;
+std::shared_ptr<Cell> CellLib::lookupCell(const std::string &name)
+{
+    return m_cells[name];
+}
 
-    return *iter;
+const std::shared_ptr<Cell> CellLib::lookupCell(ObjectKey key) const
+{
+    return m_cells[key];
+}
+
+std::shared_ptr<Cell> CellLib::lookupCell(ObjectKey key)
+{
+    return m_cells[key];
 }
 
 void CellLib::createNetConCell()
@@ -60,44 +67,54 @@ void CellLib::createNetConCell()
 //   ModuleLib
 // **********************************************************************
 
-//ModuleLib::~ModuleLib()
-//{
-//}
-
 void ModuleLib::clear()
 {
     m_modules.clear();
 }
 
-Module* ModuleLib::lookup(const std::string &name) const
+const std::shared_ptr<Module> ModuleLib::lookupModule(const std::string &name) const
 {
-    auto iter = std::find_if(m_modules.begin(), m_modules.end(),
-        [name](auto ptr)
-        {
-            return ptr->m_name == name;
-        }
-    );
-
-    if (iter == m_modules.end())
-        return nullptr;
-
-    return *iter;    
+    return m_modules[name];
 }
 
-Module* ModuleLib::createModule(const std::string &name)
+std::shared_ptr<Module> ModuleLib::lookupModule(const std::string &name)
 {
-    auto newModule = new Module();
-    newModule->m_name = name;
-    m_modules.add(name, newModule);
-    return newModule;
+    return m_modules[name];
 }
 
-Module* ModuleLib::at(size_t index)
+const std::shared_ptr<Module> ModuleLib::lookupModule(ObjectKey key) const
 {
-    return m_modules.at(index);
+    return m_modules[key];
 }
 
-const Module* ModuleLib::at(size_t index) const
+std::shared_ptr<Module> ModuleLib::lookupModule(ObjectKey key)
 {
-    return m_modules.at(index);
+    return m_modules[key];
+}
+
+CreateResult<Module> ModuleLib::createModule(const std::string &name)
+{
+    CreateResult<Module> result;
+
+    auto newModule = std::make_shared<Module>(name);
+    auto moduleObjKey = m_modules.add(newModule);
+    if (!moduleObjKey)
+    {
+        return result;
+    }
+
+    result.m_key = moduleObjKey.value();
+    result.m_obj = newModule;
+
+    return result;
+}
+
+bool ModuleLib::removeModule(ObjectKey key)
+{
+    m_modules.remove(key);
+}
+
+bool ModuleLib::removeModule(const std::string &name)
+{
+    m_modules.remove(name);
 }
