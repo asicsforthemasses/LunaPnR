@@ -137,17 +137,17 @@ bool FMPart::init(FMContainer &container)
         // partition
         if (node.m_instance->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED)
         {
-            auto const* insPtr = node.m_instance;
+            auto const insPtr = node.m_instance;
             auto distanceToPartition0 = distanceToPartition(container.m_partitions[0], insPtr->m_pos);
             auto distanceToPartition1 = distanceToPartition(container.m_partitions[1], insPtr->m_pos);
             if (distanceToPartition0 < distanceToPartition1)
             {
-                doLog(LOG_VERBOSE, "  Add pin %s (%lld, %lld) to partition %d\n", insPtr->m_name.c_str(), insPtr->m_pos.m_x, insPtr->m_pos.m_y, 0);
+                doLog(LOG_VERBOSE, "  Add pin %s (%lld, %lld) to partition %d\n", insPtr->name().c_str(), insPtr->m_pos.m_x, insPtr->m_pos.m_y, 0);
                 node.m_partitionId = 0;
             }
             else
             {
-                doLog(LOG_VERBOSE, "  Add pin %s (%lld, %lld) to partition %d\n", insPtr->m_name.c_str(), insPtr->m_pos.m_x, insPtr->m_pos.m_y, 1);
+                doLog(LOG_VERBOSE, "  Add pin %s (%lld, %lld) to partition %d\n", insPtr->name().c_str(), insPtr->m_pos.m_x, insPtr->m_pos.m_y, 1);
                 node.m_partitionId = 1;
             }
             node.fix();
@@ -464,16 +464,16 @@ void FMPart::exportToDot(std::ostream &dotFile, FMContainer &container)
         std::stringstream nodeLabel;
         if ((node.m_instance != nullptr) && (node.m_instance->m_insType == ChipDB::InstanceType::PIN))
         {
-            const auto *pinInfo = node.m_instance->getPinInfo(0);
-            if (pinInfo == nullptr)
+            auto const& pin = node.m_instance->getPin(0);
+            if (!pin.isValid())
             {
                 doLog(LOG_ERROR, "FMPart:: cannot find pinInfo\n");
                 continue;
             }
 
-            if (pinInfo->isOutput() || pinInfo->isInput())
+            if (pin.m_pinInfo->isOutput() || pin.m_pinInfo->isInput())
             {
-                nodeLabel << node.m_instance->m_name;
+                nodeLabel << node.m_instance->name();
             }
         }
         else
@@ -585,33 +585,36 @@ bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
     // start numbering the netlist nodes after the
     // special fixed nodes.
     size_t index = numSpecialNodes;
-    for(auto ins : nl->m_instances)
+    for(auto insKeyObjPair : nl->m_instances)
     {
-        if (ins.isValid())
+        if (insKeyObjPair.isValid())
         {
-            container.m_nodes[index].m_weight = ins->instanceSize().m_x;
-            ins->m_id = index;
+            container.m_nodes[index].m_weight = insKeyObjPair->instanceSize().m_x;
+            //FIXME: ins no longer has ID
+            //ins->m_id = index;
         }
-        container.m_nodes[index].m_instance = ins;
+        container.m_nodes[index].m_instance = insKeyObjPair.ptr();
         container.m_nodes[index].m_self = index;
         index++;
     }
 
     // nets are numbered from 0
     index = 0;
-    for(auto net : nl->m_nets)
+    for(auto netKeyObjPair : nl->m_nets)
     {
-        net->m_id = index;
+        netKeyObjPair->m_id = index;
         index++;
     }
 
     for(auto ins : nl->m_instances)
     {
-        for(ssize_t pinIndex=0; pinIndex < ins->pins(); ++pinIndex)
+        for(ChipDB::PinObjectKey pinKey=0; pinKey < ins->getNumberOfPins(); ++pinKey)
         {
-            auto *net = ins->getConnectedNet(pinIndex);
-            if (net != nullptr)
+            auto const& pin = ins->getPin(pinKey);
+            if (pin.isValid() && (pin.m_netKey != ChipDB::ObjectNotFound))
             {
+                //FIXME: net and ins no longer have an ID
+                #if 0
                 const auto netIndex  = net->m_id;
                 const auto nodeIndex = ins->m_id;
 
@@ -625,6 +628,7 @@ bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
                 net.m_nodes.push_back(nodeIndex);
 
                 net.m_nodesInPartition.at(node.m_partitionId)++;
+                #endif
             }
         }
     }

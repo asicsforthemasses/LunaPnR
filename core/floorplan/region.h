@@ -12,7 +12,7 @@ namespace ChipDB
 struct Region
 {
     Region() = default;
-    Region(std::string &name) : m_name(name) {}
+    Region(const std::string &name) : m_name(name) {}
 
     std::string name() const noexcept
     {

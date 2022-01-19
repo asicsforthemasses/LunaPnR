@@ -122,8 +122,8 @@ BOOST_AUTO_TEST_CASE(place_multiplier)
     {
         if (insKeyObjPair->m_insType == ChipDB::InstanceType::PIN)
         {
-            auto pinInfo = insKeyObjPair->getPinInfo(0);
-            if (pinInfo->isInput())
+            auto const& pin = insKeyObjPair->getPin(0);
+            if (pin.m_pinInfo->isInput())
             {
                 insKeyObjPair->m_pos = {0, left_y};
                 insKeyObjPair->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
@@ -139,18 +139,17 @@ BOOST_AUTO_TEST_CASE(place_multiplier)
     }
 
     // create a floorplan with region
-    auto region = std::make_shared<ChipDB::Region>();
-    region->m_name = "core";
+    auto region = std::make_shared<ChipDB::Region>("core");
     region->m_site = "corehd";
     region->m_rect.setSize( {65000+20000,65000+20000} );
     region->m_halo = ChipDB::Margins64{10000,10000,10000,10000};
 
-    design.m_floorplan.m_regions.add("core", region);
+    design.m_floorplan.m_regions.add(region);
 
     auto ll = getLogLevel();
     setLogLevel(LOG_VERBOSE);
 
-        
+    //FIXME: 
 #if 0  
     BOOST_CHECK(LunaCore::QPlacer::placeModuleInRegion(&design, mod, region));
     // check locations of movable nodes

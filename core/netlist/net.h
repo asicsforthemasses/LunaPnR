@@ -20,7 +20,11 @@ public:
 
     IMPLEMENT_ACCEPT;
 
-    std::string m_name;         ///< net name
+    std::string name() const noexcept
+    {
+        return m_name;
+    }
+
     int32_t     m_id;           ///< unique ID
     uint32_t    m_flags;        ///< non-persistent flags that can be used by algorithms
     bool        m_isPortNet;    ///< when true, this net connects to a module port
@@ -82,6 +86,7 @@ public:
     }
 
 protected:
+    std::string m_name;         ///< net name
     std::vector<NetConnect> m_connections;
 };
 

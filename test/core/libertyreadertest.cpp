@@ -25,18 +25,18 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty)
 
     for(auto cell : design.m_cellLib)
     {
-        std::cout << "  " << cell->m_name << "\n";
+        std::cout << "  " << cell->name() << "\n";
     }
 
     // check parameters of NANDX1 cell
-    auto cell = design.m_cellLib.lookup("NAND2X1");
-    BOOST_CHECK(cell != nullptr);
-    BOOST_CHECK(cell->m_pins.size() == 3);
+    auto cellKeyObjPair = design.m_cellLib.lookupCell("NAND2X1");
+    BOOST_CHECK(cellKeyObjPair.isValid());
+    BOOST_CHECK(cellKeyObjPair->m_pins.size() == 3);
 
     std::cout << "  NAND2X1 pins:\n";
-    for(auto pin : cell->m_pins)
+    for(auto pinInfoPtr : cellKeyObjPair->m_pins)
     {
-        std::cout << "    " << pin->m_name << "  max cap " << pin->m_maxCap << "  function: " << pin->m_function << "\n";
+        std::cout << "    " << pinInfoPtr->name() << "  max cap " << pinInfoPtr->m_maxCap << "  function: " << pinInfoPtr->m_function << "\n";
     }    
 }
 

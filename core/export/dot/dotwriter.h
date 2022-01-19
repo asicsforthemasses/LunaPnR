@@ -19,10 +19,10 @@ public:
 class Writer
 {
 public:
-    static bool write(std::ostream &os, const ChipDB::Module *module,
+    static bool write(std::ostream &os, const std::shared_ptr<ChipDB::Module> module,
         AbstractNodeDecorator *decorator = nullptr);
 
-    static bool write(std::ostream &os, const ChipDB::Instance *moduleInstance,
+    static bool write(std::ostream &os, const std::shared_ptr<ChipDB::Instance> modInstance,
         AbstractNodeDecorator *decorator = nullptr);
 
 protected:

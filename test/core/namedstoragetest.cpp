@@ -39,16 +39,16 @@ BOOST_AUTO_TEST_CASE(check_NamedStorage)
     storage.add(obj1);
     storage.add(obj2);
 
-    BOOST_CHECK(storage.at("Obj #1") == obj1);
-    BOOST_CHECK(storage.at("Obj #2") == obj2);
+    BOOST_CHECK(storage.at("Obj #1").ptr() == obj1);
+    BOOST_CHECK(storage.at("Obj #2").ptr() == obj2);
 
     BOOST_CHECK(storage.remove("Obj #1"));
-    BOOST_CHECK(!storage.at("Obj #1"));
-    BOOST_CHECK(storage.at("Obj #2") == obj2);
+    BOOST_CHECK(!storage.at("Obj #1").isValid());
+    BOOST_CHECK(storage.at("Obj #2").ptr() == obj2);
 
     BOOST_CHECK(storage.remove("Obj #2"));
-    BOOST_CHECK(!storage.at("Obj #1"));
-    BOOST_CHECK(!storage.at("Obj #2"));
+    BOOST_CHECK(!storage.at("Obj #1").isValid());
+    BOOST_CHECK(!storage.at("Obj #2").isValid());
 
     BOOST_CHECK(storage.remove("FakeName") == false);
 }
@@ -84,17 +84,17 @@ BOOST_AUTO_TEST_CASE(check_Notifier)
 
     auto objKey = storage.add(std::make_shared<MyObject>("Obj1"));
 
-    BOOST_CHECK(listener.m_mostRecentKey == objKey.value());
+    BOOST_CHECK(listener.m_mostRecentKey == objKey.value().key());
     BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::ADD);
 
     auto objKey2 = storage.add(std::make_shared<MyObject>("Obj1"));
 
-    BOOST_CHECK(listener.m_mostRecentKey == objKey2.value()); 
+    BOOST_CHECK(listener.m_mostRecentKey == objKey2.value().key()); 
     BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::ADD);
 
     BOOST_CHECK(storage.remove("Obj1"));
 
-    BOOST_CHECK(listener.m_mostRecentKey == objKey.value());
+    BOOST_CHECK(listener.m_mostRecentKey == objKey.value().key());
     BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::REMOVE);
 
     storage.clear();

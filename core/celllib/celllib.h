@@ -39,6 +39,16 @@ public:
     bool removeCell(ObjectKey key);
     bool removeCell(const std::string &name);
 
+    auto begin() const noexcept
+    {
+        return m_cells.begin();
+    }
+
+    auto end() const noexcept
+    {
+        return m_cells.end();
+    }
+
 protected:
     /** create a special net connection cell so we can connect nets */
     void createNetConCell();

@@ -139,7 +139,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
     return true;
 }
 
-bool Writer::write(std::ostream &os, const ChipDB::Instance *modInstance,
+bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Instance> modInstance,
     AbstractNodeDecorator *decorator)
 {
     if (modInstance == nullptr)
@@ -154,7 +154,8 @@ bool Writer::write(std::ostream &os, const ChipDB::Instance *modInstance,
         return false;                
     }
 
-    auto module = dynamic_cast<const ChipDB::Module*>(modInstance->cell());
+    auto cell   = modInstance->cell();
+    auto module = dynamic_cast<ChipDB::Module*>(cell.get());
 
     if (module == nullptr)
     {
@@ -166,7 +167,7 @@ bool Writer::write(std::ostream &os, const ChipDB::Instance *modInstance,
     return writer->execute(os, decorator);
 }
 
-bool Writer::write(std::ostream &os, const ChipDB::Module *module,
+bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> module,
     AbstractNodeDecorator *decorator)
 {
     if (module == nullptr)

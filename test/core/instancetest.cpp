@@ -42,8 +42,7 @@ BOOST_AUTO_TEST_CASE(various_instance_tests)
         }
     }
     BOOST_CHECK(pinCount == 3);
-
-    BOOST_CHECK(ins->getNumberOfPins() == 3);
+    BOOST_CHECK(insPtr->getNumberOfPins() == 3);
 
     // check instance-is-module stuff
     auto modPtr = std::make_shared<ChipDB::Module>("MyModule");

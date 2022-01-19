@@ -48,7 +48,7 @@ public:
     virtual std::string getArchetypeName() const = 0;
     
     /** access the pin information */
-    virtual PinInfoList& pinInfo() const = 0;
+    //virtual PinInfoList& pinInfo() const = 0;
 
     /** return the size of the instance in nm */
     virtual const Coord64 instanceSize() const = 0;
