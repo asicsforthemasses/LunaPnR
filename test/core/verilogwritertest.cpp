@@ -64,15 +64,15 @@ BOOST_AUTO_TEST_CASE(can_write_adder8_to_verilog)
 
     BOOST_CHECK(ChipDB::Verilog::Reader::load(&design, verilogfile));
 
-    auto modulePtr = design.m_moduleLib.lookup("adder8");
-    BOOST_CHECK(modulePtr != nullptr);
+    auto modulePtr = design.m_moduleLib.lookupModule("adder8");
+    BOOST_CHECK(modulePtr);
 
     std::ofstream ofile("test/files/results/adder8_export.v");
     BOOST_CHECK(ofile.good());
 
     if (ofile.good())
     {
-        BOOST_CHECK(LunaCore::Verilog::Writer::write(ofile, modulePtr));
+        BOOST_CHECK(LunaCore::Verilog::Writer::write(ofile, modulePtr.ptr()));
     }
 }
 

@@ -68,14 +68,12 @@ BOOST_AUTO_TEST_CASE(check_createdensitybitmap)
     // 1000,1000
     //
 
-    auto cell = new ChipDB::Cell();
-    cell->m_name = "cell";
+    auto cell = std::make_shared<ChipDB::Cell>("cell");
     cell->m_size = ChipDB::Coord64{1000,1000};
 
-    auto instance = new ChipDB::Instance(cell);
-    instance->m_name = "instance";
+    auto instance = std::make_shared<ChipDB::Instance>("instance", cell);
     instance->m_pos  = ChipDB::Coord64{500,500};
-    netlist.m_instances.add("ins1", instance);
+    netlist.m_instances.add(instance);
 
     auto bm = LunaCore::QPlacer::createDensityBitmap(&netlist, &region, 1000, 1000);
 

@@ -160,12 +160,12 @@ public:
 
     void clear();
 
-    size_t getNumberOfLayers() const
+    size_t getNumberOfLayers() const noexcept
     {
         return m_layers.size();
     };
 
-    size_t getNumberOfSites() const
+    size_t getNumberOfSites() const noexcept
     {
         return m_sites.size();
     };
@@ -175,6 +175,16 @@ public:
 
     KeyObjPair<SiteInfo> createSiteInfo(const std::string &name);
     KeyObjPair<SiteInfo> lookupSiteInfo(const std::string &name) const; 
+
+    auto layers() const noexcept
+    {
+        return m_layers;
+    }
+
+    auto sites() const noexcept
+    {
+        return m_sites;
+    }
 
 protected:
     NamedStorage<LayerInfo>  m_layers;

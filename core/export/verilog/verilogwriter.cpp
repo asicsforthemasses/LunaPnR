@@ -3,6 +3,7 @@
 
 #include "celllib/celllib.h"
 #include "netlist/net.h"
+#include "netlist/netlist.h"
 #include "netlist/instance.h"
 #include "lunapnr_version.h"
 
@@ -23,9 +24,9 @@ static std::string escapeVerilogName(const std::string &name)
     return name;
 }
 
-bool Writer::write(std::ostream &os, const ChipDB::Module *mod)
+bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod)
 {
-    if (mod == nullptr)
+    if (!mod)
     {
         return false;
     }
@@ -89,18 +90,18 @@ bool Writer::write(std::ostream &os, const ChipDB::Module *mod)
     return true;
 }
 
-bool Writer::writeModuleDefinition(std::ostream &os, const ChipDB::Module *mod)
+bool Writer::writeModuleDefinition(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod)
 {
-    os << "module " << mod->m_name << "(\n\t";
+    os << "module " << mod->name() << "(\n\t";
 
     bool firstPort = true;
-    for(auto * pin : mod->m_pins)
+    for(auto const& pin : mod->m_pins)
     {
         if (!firstPort)
         {
             os << ",\n\t";
         }
-        os << escapeVerilogName(pin->m_name);
+        os << escapeVerilogName(pin->name());
         firstPort = false;
     }
 
@@ -114,7 +115,7 @@ namespace LunaCore::Verilog
     class ExportConstVisitor : public ChipDB::ConstVisitor
     {
     public:
-        ExportConstVisitor(std::ostream &os) : m_os(os), m_ok(true) {}
+        ExportConstVisitor(std::ostream &os, const ChipDB::Netlist &netlist) : m_netlist(netlist), m_os(os), m_ok(true) {}
 
         [[nodiscard]] bool isOk() const
         {
@@ -138,44 +139,52 @@ namespace LunaCore::Verilog
             if (instance->m_insType != ChipDB::InstanceType::CELL)
             {
                 m_ok = false;
-                doLog(LOG_ERROR, "Verilog writer: expected a Cell instance but got %s\n", instance->m_name.c_str());
+                doLog(LOG_ERROR, "Verilog writer: expected a Cell instance but got %s\n", instance->name());
                 return;
             }
 
-            if (instance->cell() == nullptr)
+            if (!instance->cell())
             {
                 // this is not a regular cell, might it be a __NETCON?
                 // which must be translated to an assign statement
-                if (instance->m_name == "__NETCON")
+                if (instance->name() == "__NETCON")
                 {
-                    auto inputNet  = instance->getConnectedNet(0);
-                    auto outputNet = instance->getConnectedNet(1);
-                    m_os << "assign " << escapeVerilogName(outputNet->m_name) << "=" << escapeVerilogName(inputNet->m_name) << ";\n";
+                    auto inputNetPtr  = m_netlist.m_nets.at(0);
+                    auto outputNetPtr = m_netlist.m_nets.at(1);
+                    if ((!inputNetPtr) || (!outputNetPtr))
+                    {
+                        //FIXME: what to do when a __NETCONN does not have both sides connected??
+                    }
+                    else
+                    {
+                        m_os << "assign " << escapeVerilogName(outputNetPtr->name()) << "=" << escapeVerilogName(inputNetPtr->name()) << ";\n";
+                    }
                 }
                 else
                 {
                     m_ok = false;
-                    doLog(LOG_ERROR, "Verilog writer: can't write instance %s without a cell name!\n", instance->m_name.c_str());
+                    doLog(LOG_ERROR, "Verilog writer: can't write instance %s without a cell name!\n", instance->name().c_str());
                     return;
                 }
                 
             }
             else
             {
-                m_os << instance->getArchetypeName() << " " << instance->m_name << " (";
+                m_os << instance->getArchetypeName() << " " << instance->name() << " (";
                 bool firstPin = true;
-                for(ssize_t pinIndex=0; pinIndex < instance->getNumberOfPins(); pinIndex++)
+                for(ChipDB::PinObjectKey pinKey=0; pinKey < instance->getNumberOfPins(); pinKey++)
                 {
-                    auto const* netPtr = instance->getConnectedNet(pinIndex);
-                    auto const* pinInfoPtr = instance->getPinInfo(pinIndex);
-                    if ((netPtr != nullptr) && (pinInfoPtr != nullptr))
+                    auto const& pin = instance->getPin(pinKey);
+
+                    if (pin.isValid() && (pin.m_netKey != ChipDB::ObjectNotFound))
                     {
+                        auto netPtr = m_netlist.m_nets.at(pin.m_netKey);
                         if (!firstPin)
                         {
                             m_os << ",";
                         }
 
-                        m_os << "\n  ." << escapeVerilogName(pinInfoPtr->m_name) << "(" << escapeVerilogName(netPtr->m_name) << ")";
+                        m_os << "\n  ." << escapeVerilogName(pin.name()) << "(" << escapeVerilogName(netPTr->name()) << ")";
                         firstPin = false;
                     }
                 }
@@ -195,9 +204,9 @@ namespace LunaCore::Verilog
             m_ok = false;
         }
 
-        void visit(const ChipDB::Module  *module) override
+        void visit(const ChipDB::Module *module) override
         {
-            doLog(LOG_ERROR,"Verilog writer: cannot write sub-module %s to netlist\n", module->m_name.c_str());
+            doLog(LOG_ERROR,"Verilog writer: cannot write sub-module %s to netlist\n", module->name().c_str());
             m_ok = false;
         }
 
@@ -208,19 +217,30 @@ namespace LunaCore::Verilog
         void visit(const ChipDB::LayerInfo *layer) override {};
 
     protected:
+        const ChipDB::Netlist &m_netlist;
         bool m_ok;
         std::ostream &m_os;
     };
 
 };
 
-bool Writer::writeModuleInstances(std::ostream &os, const ChipDB::Module *mod)
+bool Writer::writeModuleInstances(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod)
 {
-    ExportConstVisitor v(os);
-
-    for(auto const* ins : mod->m_netlist->m_instances)
+    if (!mod)
     {
-        ins->accept(&v);
+        return false;
+    }
+
+    if (!mod->m_netlist)
+    {
+        return false;
+    }
+
+    ExportConstVisitor v(os, *mod->m_netlist.get());
+
+    for(auto insKeyObjPair : mod->m_netlist->m_instances)
+    {
+        insKeyObjPair->accept(&v);
         if (!v.isOk())
         {
             return false;
