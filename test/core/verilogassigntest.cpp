@@ -28,10 +28,14 @@ BOOST_AUTO_TEST_CASE(can_read_assign_statements)
     // check the design
     std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";
     BOOST_CHECK(design.m_moduleLib.size() == 1);
-    BOOST_CHECK(design.m_moduleLib.lookup("testmodule") != nullptr);
-    auto mod = design.m_moduleLib.lookup("testmodule");
-    if (mod == nullptr)
+    BOOST_CHECK(design.m_moduleLib.lookupModule("testmodule").isValid());
+    auto mod = design.m_moduleLib.lookupModule("testmodule");
+
+    BOOST_CHECK(mod.isValid());
+    if (!mod.isValid())
+    {
         return;
+    }
 
     BOOST_CHECK(mod->m_netlist);
 
@@ -43,17 +47,17 @@ BOOST_AUTO_TEST_CASE(can_read_assign_statements)
         switch(ins->m_insType)
         {
         case ChipDB::InstanceType::MODULE:
-            std::cout << "    module " << ins->m_name << "\n";
+            std::cout << "    module " << ins->name() << "\n";
             break;
         case ChipDB::InstanceType::CELL:
             {
-                std::cout << "    cell " << ins->m_name << " " << ins->getArchetypeName() << "\tarea: " << ins->getArea() << " um²\n";
+                std::cout << "    cell " << ins->name() << " " << ins->getArchetypeName() << "\tarea: " << ins->getArea() << " um²\n";
                 BOOST_CHECK(ins->getArea() >= 0);   // NETCON cells have area 0
             }
             break;
         case ChipDB::InstanceType::PIN:
             {
-                std::cout << "    pin  " << ins->m_name << " " << ins->getArchetypeName() << "\tarea: " << ins->getArea() << " um²\n";
+                std::cout << "    pin  " << ins->name() << " " << ins->getArchetypeName() << "\tarea: " << ins->getArea() << " um²\n";
             }
             break;
         default:
@@ -63,9 +67,9 @@ BOOST_AUTO_TEST_CASE(can_read_assign_statements)
     
     std::cout << "  module has " << mod->m_netlist->m_nets.size() << " nets\n";
     BOOST_CHECK(mod->m_netlist->m_nets.size() == 8);
-    for(auto const net : mod->m_netlist->m_nets)
+    for(auto net : mod->m_netlist->m_nets)
     {
-        std::cout << "    " << net->m_name << "\n";
+        std::cout << "    " << net->name() << "\n";
     }
 
     BOOST_CHECK(mod->m_pins.size() == 8);
@@ -78,7 +82,7 @@ BOOST_AUTO_TEST_CASE(can_read_assign_statements)
     // check that module pins have a __pin instance in the netlist
     for(auto modPin : mod->m_pins)
     {
-        BOOST_CHECK(mod->m_netlist->m_instances.lookup(modPin->m_name) != nullptr);
+        BOOST_CHECK(mod->m_netlist->m_instances.at(modPin->m_name).isValid());
     }
 
     // write to DOT
@@ -86,7 +90,7 @@ BOOST_AUTO_TEST_CASE(can_read_assign_statements)
     BOOST_CHECK(dotfile.good());
     if (dotfile.good())
     {
-        BOOST_CHECK(LunaCore::Dot::Writer::write(dotfile, mod, nullptr));
+        BOOST_CHECK(LunaCore::Dot::Writer::write(dotfile, mod.ptr(), nullptr));
     }
 }
 

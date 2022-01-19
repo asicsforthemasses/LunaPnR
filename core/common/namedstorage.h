@@ -358,7 +358,7 @@ public:
         return ConstIterator(m_objects.end());
     }
 
-    void addListener(INamedStorageListener *listener, int32_t userID = -1)
+    void addListener(INamedStorageListener *listener)
     {
         // check if the listener already exists.
         auto iter = std::find_if(m_listeners.begin(), m_listeners.end(), 
@@ -373,7 +373,6 @@ public:
         {            
             m_listeners.emplace_back();
             m_listeners.back().m_listener = listener;
-            m_listeners.back().m_userID = userID;
         }
     }
 

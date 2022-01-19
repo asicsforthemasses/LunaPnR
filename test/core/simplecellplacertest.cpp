@@ -24,8 +24,8 @@ BOOST_AUTO_TEST_CASE(check_simplecellplacer)
 
     ChipDB::Verilog::Reader::load(&design, verilogfile);    
 
-    auto mod = design.m_moduleLib.lookup("nerv");
-    BOOST_CHECK(mod != nullptr);
+    auto mod = design.m_moduleLib.lookupModule("nerv");
+    BOOST_CHECK(mod.isValid());
 
     LunaCore::SimpleCellPlacer::place(mod->m_netlist.get(), ChipDB::Rect64{{0,0},{650000,650000}}, 10000);
 

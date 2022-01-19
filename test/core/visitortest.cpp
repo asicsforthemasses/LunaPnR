@@ -14,7 +14,7 @@ BOOST_AUTO_TEST_SUITE(VisitorTest)
 class NetLoadVisitor : public ChipDB::ConstVisitor
 {
 public:
-    NetLoadVisitor() : m_capacitance(0), m_inputCount(0) {};
+    NetLoadVisitor(ChipDB::Netlist &netlist) : m_netlist(netlist), m_capacitance(0), m_inputCount(0) {};
 
     virtual void visit(const ChipDB::Instance *instance) override {};
     virtual void visit(const ChipDB::PinInstance *instance) override {};
@@ -26,21 +26,30 @@ public:
 
     virtual void visit(const ChipDB::Net *net) override
     {
-        for(auto const& conn : net->m_connections)
+        for(auto const& conn : *net)
         {
-            if (conn.m_instance == nullptr)
+            if (conn.m_instanceKey == ChipDB::ObjectNotFound)
                 continue;
 
-            auto pinInfo = conn.m_instance->getPinInfo(conn.m_pinIndex);
-            m_capacitance += pinInfo->m_cap;
-            
-            if (pinInfo->isInput())
-                m_inputCount++;
+            auto ins = m_netlist.m_instances.at(conn.m_instanceKey);
+
+            if (ins)
+            {
+                auto pin = ins->getPin(conn.m_pinKey);
+                
+                m_capacitance += pin.m_pinInfo->m_cap;
+                
+                if (pin.m_pinInfo->isInput())
+                    m_inputCount++;                
+            }
         }
     };
 
     double m_capacitance;
     size_t m_inputCount;
+
+protected:
+    ChipDB::Netlist &m_netlist;
 };
 
 BOOST_AUTO_TEST_CASE(iterator_clock_net)
@@ -62,21 +71,21 @@ BOOST_AUTO_TEST_CASE(iterator_clock_net)
 
     ChipDB::Verilog::Reader::load(&design, verilogfile);
 
-    auto mod = design.m_moduleLib.lookup("nerv");
-    BOOST_CHECK(mod != nullptr);
-    if (mod == nullptr)
+    auto mod = design.m_moduleLib.lookupModule("nerv");
+    BOOST_CHECK(mod.isValid());
+    if (!mod.isValid())
         return;
         
     BOOST_CHECK(mod->m_netlist);
 
-    auto net = mod->m_netlist->m_nets.lookup("clock");
-    BOOST_CHECK(net != nullptr);
-    if (net == nullptr)
+    auto net = mod->m_netlist->m_nets.at("clock");
+    BOOST_CHECK(net.isValid());
+    if (!net.isValid())
     {
         return;
     }
 
-    NetLoadVisitor v;
+    NetLoadVisitor v(*mod->m_netlist.get());
     net->accept(&v);
     std::cout << "Clock network capacitive load = " << v.m_capacitance << " Farad\n";
     std::cout << "Clock network inputs          = " << v.m_inputCount << "\n";

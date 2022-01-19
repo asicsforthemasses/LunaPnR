@@ -13,37 +13,35 @@
 
 BOOST_AUTO_TEST_SUITE(QLAPlacerTest)
 
-bool createStringOfInstancesConnectingTwoTerminals(ChipDB::Design &design, ChipDB::Module *mod)
+bool createStringOfInstancesConnectingTwoTerminals(ChipDB::Design &design, std::shared_ptr<ChipDB::Module> mod)
 {
     // create two terminals
-    auto *srcTerminalCell = design.m_cellLib.createCell("SrcTerminal");
+    auto srcTerminalCell = design.m_cellLib.createCell("SrcTerminal");
     auto outPin = srcTerminalCell->m_pins.createPin("out");
     outPin->m_iotype = ChipDB::IOType::OUTPUT;
 
-    auto *dstTerminalCell = design.m_cellLib.createCell("DstTerminal");
+    auto dstTerminalCell = design.m_cellLib.createCell("DstTerminal");
     auto inPin = dstTerminalCell->m_pins.createPin("in");
     inPin->m_iotype = ChipDB::IOType::INPUT;
 
     srcTerminalCell->m_size = ChipDB::Coord64{800,1000};
     dstTerminalCell->m_size = ChipDB::Coord64{800,1000};
 
-    auto *insCell   = design.m_cellLib.createCell("InsCell");
+    auto insCell   = design.m_cellLib.createCell("InsCell");
     auto inInsPin   = insCell->m_pins.createPin("in");
     auto outInsPin  = insCell->m_pins.createPin("out");
     
     inInsPin->m_iotype  = ChipDB::IOType::INPUT;
     outInsPin->m_iotype = ChipDB::IOType::OUTPUT;
 
-    auto *ins = new ChipDB::Instance(srcTerminalCell);
-    ins->m_name = "src";
-    if (!mod->addInstance(ins))
+    auto ins = std::make_shared<ChipDB::Instance>("src", srcTerminalCell.ptr());
+    if (mod->addInstance(ins).isValid())
     {
         return false;
     }
 
-    ins = new ChipDB::Instance(dstTerminalCell);
-    ins->m_name = "dst";
-    if (!mod->addInstance(ins))
+    ins = std::make_shared<ChipDB::Instance>("dst", dstTerminalCell.ptr());
+    if (!mod->addInstance(ins).isValid())
     {
         return false;
     }
@@ -52,45 +50,44 @@ bool createStringOfInstancesConnectingTwoTerminals(ChipDB::Design &design, ChipD
     {
         std::stringstream ss;
         ss << "cell" << i;
-        auto *ins = new ChipDB::Instance(insCell);
-        ins->m_name = ss.str();
-        if (!mod->addInstance(ins))
+        auto ins = std::make_shared<ChipDB::Instance>(ss.str(), insCell.ptr());
+        if (!mod->addInstance(ins).isValid())
         {
             return false;
         }
 
-        auto *pin1 = ins->getPinInfo("in");
-        auto *pin2 = ins->getPinInfo("out");
+        auto pin1 = ins->getPin("in");
+        auto pin2 = ins->getPin("out");
 
-        if (pin1 == nullptr)
+        if (!pin1.isValid())
         {
             return false;
         }
 
-        if (pin2 == nullptr)
+        if (!pin2.isValid())
         {
             return false;
         }        
 
-        if (pin1->m_iotype != ChipDB::IOType::INPUT)
+        if (pin1.m_pinInfo->m_iotype != ChipDB::IOType::INPUT)
         {
             return false;
         }
 
-        if (pin2->m_iotype != ChipDB::IOType::OUTPUT)
+        if (pin2.m_pinInfo->m_iotype != ChipDB::IOType::OUTPUT)
         {
             return false;
         }        
     }
 
-    std::vector<ChipDB::Net*> nets;
+    std::vector<std::string> netNames;
 
-    nets.push_back(mod->createNet("n1"));
-    nets.push_back(mod->createNet("n2"));
-    nets.push_back(mod->createNet("n3"));
-    nets.push_back(mod->createNet("n4"));
-    nets.push_back(mod->createNet("n5"));
-    nets.push_back(mod->createNet("n6"));
+    netNames.push_back(mod->createNet("n1")->name());
+    netNames.push_back(mod->createNet("n2")->name());
+    netNames.push_back(mod->createNet("n3")->name());
+    netNames.push_back(mod->createNet("n4")->name());
+    netNames.push_back(mod->createNet("n5")->name());
+    netNames.push_back(mod->createNet("n6")->name());
 
     if (!mod->m_netlist->connect("src", "out", "n1"))
     {
@@ -102,12 +99,12 @@ bool createStringOfInstancesConnectingTwoTerminals(ChipDB::Design &design, ChipD
         std::stringstream ss;
         ss << "cell" << i;
 
-        if (!mod->m_netlist->connect(ss.str(), "in", nets[i]->m_name))
+        if (!mod->m_netlist->connect(ss.str(), "in", netNames[i]))
         {
             return false;
         }
 
-        if (!mod->m_netlist->connect(ss.str(), "out", nets[i+1]->m_name))
+        if (!mod->m_netlist->connect(ss.str(), "out", netNames[i+1]))
         {
             return false;
         }
@@ -134,18 +131,18 @@ BOOST_AUTO_TEST_CASE(check_qla_netlist_generation)
 
     ChipDB::Design design;
     auto mod = design.m_moduleLib.createModule("glamodule");
-    BOOST_CHECK(mod != nullptr);
+    BOOST_CHECK(mod.isValid());
     mod->m_netlist.reset(new ChipDB::Netlist());
     BOOST_CHECK(mod->m_netlist);    // check netlist pointer is valid
 
-    BOOST_CHECK(createStringOfInstancesConnectingTwoTerminals(design, mod));
+    BOOST_CHECK(createStringOfInstancesConnectingTwoTerminals(design, mod.ptr()));
 
     BOOST_CHECK(mod->m_netlist->m_instances.size() == 7 /* 2 terminals and 5 instances */);
     BOOST_CHECK(mod->m_netlist->m_nets.size() == 6);
 
     #if 1
     std::ofstream ofile("test/files/results/qlanetlist.dot");
-    auto status = LunaCore::Dot::Writer::write(ofile, mod);
+    auto status = LunaCore::Dot::Writer::write(ofile, mod.ptr());
     BOOST_CHECK(status);
     #endif
 
@@ -181,8 +178,8 @@ BOOST_AUTO_TEST_CASE(check_qla_netlist_placement)
 
     ChipDB::Design design;
     auto mod = design.m_moduleLib.createModule("glamodule");
-    BOOST_CHECK(mod != nullptr);
-    mod->m_netlist.reset(new ChipDB::Netlist());
+    BOOST_CHECK(mod.isValid());
+    mod->m_netlist = std::make_unique<ChipDB::Netlist>();
     BOOST_CHECK(mod->m_netlist);    // check netlist pointer is valid
 
     BOOST_CHECK(createStringOfInstancesConnectingTwoTerminals(design, mod));

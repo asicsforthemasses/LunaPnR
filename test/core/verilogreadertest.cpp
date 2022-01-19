@@ -28,9 +28,9 @@ BOOST_AUTO_TEST_CASE(can_read_netlist)
     // check the design
     std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";
     BOOST_CHECK(design.m_moduleLib.size() == 1);
-    BOOST_CHECK(design.m_moduleLib.lookup("adder2") != nullptr);
+    BOOST_CHECK(design.m_moduleLib.lookupModule("adder2").isValid());
     
-    auto mod = design.m_moduleLib.lookup("adder2");
+    auto mod = design.m_moduleLib.lookupModule("adder2");
 
     BOOST_CHECK(mod->m_netlist);
 
@@ -42,17 +42,17 @@ BOOST_AUTO_TEST_CASE(can_read_netlist)
         switch(ins->m_insType)
         {
         case ChipDB::InstanceType::MODULE:
-            std::cout << "    module " << ins->m_name << "\n";
+            std::cout << "    module " << ins->name() << "\n";
             break;
         case ChipDB::InstanceType::CELL:
             {
-                std::cout << "    cell " << ins->m_name << " " << ins->getArchetypeName() << "\tarea: " << ins->getArea() << " um²\n";
+                std::cout << "    cell " << ins->name() << " " << ins->getArchetypeName() << "\tarea: " << ins->getArea() << " um²\n";
                 BOOST_CHECK(ins->getArea() >= 0);    // NETCON cells have area 0
             }
             break;
         case ChipDB::InstanceType::PIN:
             {
-                std::cout << "    pin  " << ins->m_name << " " << ins->getArchetypeName() << "\tarea: " << ins->getArea() << " um²\n";
+                std::cout << "    pin  " << ins->name() << " " << ins->getArchetypeName() << "\tarea: " << ins->getArea() << " um²\n";
             }
             break;
         default:
@@ -64,20 +64,20 @@ BOOST_AUTO_TEST_CASE(can_read_netlist)
     BOOST_CHECK(mod->m_netlist->m_nets.size() == 29);
     for(auto const net : mod->m_netlist->m_nets)
     {
-        std::cout << "    " << net->m_name << "\n";
+        std::cout << "    " << net->name() << "\n";
     }
 
     BOOST_CHECK(mod->m_pins.size() == 8);
     std::cout << "  module pins:\n";
     for(auto pin : mod->m_pins)
     {
-        std::cout << "    " << pin->m_name << "\n";
+        std::cout << "    " << pin->name() << "\n";
     }
 
     // check that module pins have a __pin instance in the netlist
     for(auto modPin : mod->m_pins)
     {
-        BOOST_CHECK(mod->m_netlist->m_instances.lookup(modPin->m_name) != nullptr);
+        BOOST_CHECK(mod->m_netlist->m_instances.at(modPin->m_name).isValid());
     }    
 }
 
@@ -99,10 +99,10 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
     // check the design
     std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";
     BOOST_CHECK(design.m_moduleLib.size() == 1);
-    BOOST_CHECK(design.m_moduleLib.lookup("multiplier") != nullptr);
+    BOOST_CHECK(design.m_moduleLib.lookupModule("multiplier").isValid());
     
-    auto mod = design.m_moduleLib.lookup("multiplier");
-    if (mod != nullptr)
+    auto mod = design.m_moduleLib.lookupModule("multiplier");
+    if (mod.isValid())
     {
         std::cout << "  module has " << mod->m_netlist->m_instances.size() << " instances\n";
         BOOST_CHECK(mod->m_netlist->m_instances.size() != 0);
@@ -116,10 +116,11 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
         // check that module pins have a __pin instance in the netlist
         for(auto modPin : mod->m_pins)
         {
-            BOOST_CHECK(mod->m_netlist->m_instances.lookup(modPin->m_name) != nullptr);
-            if (mod->m_netlist->m_instances.lookup(modPin->m_name) == nullptr)
+            BOOST_CHECK(mod->m_netlist->m_instances.at(modPin->m_name).isValid());
+            
+            if (mod->m_netlist->m_instances.at(modPin->m_name).isValid())
             {
-                std::cout << "  missing pin instance for pin '" << modPin->m_name << "'\n";
+                std::cout << "  missing pin instance for pin '" << modPin->name() << "'\n";
             }
         }
 
@@ -152,10 +153,10 @@ BOOST_AUTO_TEST_CASE(can_read_nerv32)
     // check the design
     std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";
     BOOST_CHECK(design.m_moduleLib.size() == 1);
-    BOOST_CHECK(design.m_moduleLib.lookup("nerv") != nullptr);
+    BOOST_CHECK(design.m_moduleLib.lookupModule("nerv").isValid());
     
-    auto mod = design.m_moduleLib.lookup("nerv");
-    if (mod != nullptr)
+    auto mod = design.m_moduleLib.lookupModule("nerv");
+    if (mod.isValid())
     {
         std::cout << "  module has " << mod->m_netlist->m_instances.size() << " instances\n";
         BOOST_CHECK(mod->m_netlist->m_instances.size() != 0);
@@ -169,7 +170,7 @@ BOOST_AUTO_TEST_CASE(can_read_nerv32)
         // check that module pins have a __pin instance in the netlist
         for(auto modPin : mod->m_pins)
         {
-            BOOST_CHECK(mod->m_netlist->m_instances.lookup(modPin->m_name) != nullptr);
+            BOOST_CHECK(mod->m_netlist->m_instances.at(modPin->name()).isValid());
         }
 
         // determine cell area
@@ -201,10 +202,10 @@ BOOST_AUTO_TEST_CASE(can_read_picorv32)
     // check the design
     std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";
     BOOST_CHECK(design.m_moduleLib.size() == 1);
-    BOOST_CHECK(design.m_moduleLib.lookup("picorv32") != nullptr);
+    BOOST_CHECK(design.m_moduleLib.lookupModule("picorv32").isValid());
     
-    auto mod = design.m_moduleLib.lookup("picorv32");    
-    if (mod != nullptr)
+    auto mod = design.m_moduleLib.lookupModule("picorv32");
+    if (mod.isValid())
     {
         BOOST_CHECK(mod->m_netlist.get() != nullptr);
 
@@ -220,7 +221,7 @@ BOOST_AUTO_TEST_CASE(can_read_picorv32)
         // check that module pins have a __pin instance in the netlist
         for(auto modPin : mod->m_pins)
         {
-            BOOST_CHECK(mod->m_netlist->m_instances.lookup(modPin->m_name) != nullptr);
+            BOOST_CHECK(mod->m_netlist->m_instances.at(modPin->m_name).isValid());
         }
 
         // determine cell area

@@ -43,7 +43,7 @@ bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod)
         return false;
     }
 
-    for(auto const* netPtr : mod->m_netlist->m_nets)
+    for(auto netPtr : mod->m_netlist->m_nets)
     {
         if (!netPtr->m_isPortNet)
         {
@@ -184,7 +184,7 @@ namespace LunaCore::Verilog
                             m_os << ",";
                         }
 
-                        m_os << "\n  ." << escapeVerilogName(pin.name()) << "(" << escapeVerilogName(netPTr->name()) << ")";
+                        m_os << "\n  ." << escapeVerilogName(pin.name()) << "(" << escapeVerilogName(netPtr->name()) << ")";
                         firstPin = false;
                     }
                 }

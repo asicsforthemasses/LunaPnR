@@ -87,7 +87,7 @@ BOOST_AUTO_TEST_CASE(check_Notifier)
     BOOST_CHECK(listener.m_mostRecentKey == objKey.value().key());
     BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::ADD);
 
-    auto objKey2 = storage.add(std::make_shared<MyObject>("Obj1"));
+    auto objKey2 = storage.add(std::make_shared<MyObject>("Obj2"));
 
     BOOST_CHECK(listener.m_mostRecentKey == objKey2.value().key()); 
     BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::ADD);

@@ -25,8 +25,8 @@ BOOST_AUTO_TEST_CASE(check_histogram)
     BOOST_CHECK(ChipDB::Verilog::Reader::load(&design, verilogfile));
 
     // check the design    
-    auto mod = design.m_moduleLib.lookup("adder2");
-    BOOST_CHECK(mod != nullptr);
+    auto mod = design.m_moduleLib.lookupModule("adder2");
+    BOOST_CHECK(mod.isValid());
     BOOST_CHECK(mod->m_netlist);
 
     auto histogram = LunaCore::NetlistTools::calcNetlistHistogram(mod->m_netlist.get());
@@ -65,8 +65,8 @@ BOOST_AUTO_TEST_CASE(check_histogram_2)
     BOOST_CHECK(ChipDB::Verilog::Reader::load(&design, verilogfile));
 
     // check the design    
-    auto mod = design.m_moduleLib.lookup("FemtoRV32");
-    BOOST_CHECK(mod != nullptr);
+    auto mod = design.m_moduleLib.lookupModule("FemtoRV32");
+    BOOST_CHECK(mod.isValid());
     BOOST_CHECK(mod->m_netlist);
 
     auto histogram = LunaCore::NetlistTools::calcNetlistHistogram(mod->m_netlist.get());
@@ -85,11 +85,11 @@ BOOST_AUTO_TEST_CASE(check_histogram_2)
     BOOST_CHECK(histogram[1] == 186);   // assign nets that are just for naming aliases.
 
     size_t degenerateCount = 0;
-    for(auto net : mod->m_netlist.get()->m_nets)
+    for(auto net : mod->m_netlist->m_nets)
     {
-        if (net->m_connections.size() == 1)
+        if (net->numberOfConnections() == 1)
         {
-            doLog(LOG_INFO, "  Degenerate net: %s\n", net->m_name.c_str());
+            doLog(LOG_INFO, "  Degenerate net: %s\n", net->name().c_str());
             degenerateCount++;
         }
         if (degenerateCount == 10)
@@ -112,13 +112,15 @@ BOOST_AUTO_TEST_CASE(remove_netcons)
     BOOST_CHECK(ChipDB::Verilog::Reader::load(&design, verilogfile));
 
     // check the design    
-    auto mod = design.m_moduleLib.lookup("netcon");
-    BOOST_CHECK(mod != nullptr);
+    auto mod = design.m_moduleLib.lookupModule("netcon");
+    BOOST_CHECK(mod.isValid());
     BOOST_CHECK(mod->m_netlist);    
 
     auto ll = getLogLevel();
 
     setLogLevel(LOG_VERBOSE);
+
+    //FIXME:
     //LunaCore::NetlistTools::removeNetconInstances(*mod->m_netlist.get());
     setLogLevel(ll);
 }

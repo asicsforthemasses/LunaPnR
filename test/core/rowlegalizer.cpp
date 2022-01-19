@@ -14,41 +14,48 @@ BOOST_AUTO_TEST_SUITE(RowLegalizerTest)
 
 BOOST_AUTO_TEST_CASE(check_legal_positions)
 {
+    auto netlist = std::make_shared<ChipDB::Netlist>();
+
+    auto mycell = std::make_shared<ChipDB::Cell>("myCell");
+    mycell->m_size = ChipDB::Coord64{800, 10000};
+
+    auto ins1 = std::make_shared<ChipDB::Instance>("ins1", mycell);
+    auto ins2 = std::make_shared<ChipDB::Instance>("ins2", mycell);
+    auto ins3 = std::make_shared<ChipDB::Instance>("ins3", mycell);
+    auto ins4 = std::make_shared<ChipDB::Instance>("ins4", mycell);
+
+    netlist->m_instances.add(ins1);
+    netlist->m_instances.add(ins2);
+    netlist->m_instances.add(ins3);
+    netlist->m_instances.add(ins4);
+
     std::vector<LunaCore::Legalizer::Cell> cells;
-
-    ChipDB::Cell mycell;
-    mycell.m_size = ChipDB::Coord64{800, 10000};
-    ChipDB::Instance ins1(&mycell);
-    ChipDB::Instance ins2(&mycell);
-    ChipDB::Instance ins3(&mycell);
-    ChipDB::Instance ins4(&mycell);
-
-    // cell 1 at 10000, 8000
+    // cell 1 at 10000, 8000    
     cells.emplace_back();
-    cells.back().m_ins    = &ins1;
-    cells.back().m_globalPos = ChipDB::Coord64{10000, 8000};
-    cells.back().m_size   = mycell.m_size;
-    cells.back().m_weight = 1;
+    cells.back().m_instanceKey  = netlist->m_instances.at("ins1").key();
+    cells.back().m_globalPos    = ChipDB::Coord64{10000, 8000};
+    cells.back().m_size         = mycell->m_size;
+    cells.back().m_weight       = 1;
 
     // cell 2 abutted to cell 1 on x-axis
     cells.emplace_back();
-    cells.back().m_ins    = &ins2;
-    cells.back().m_globalPos = ChipDB::Coord64{10800, 4000};
-    cells.back().m_size   = mycell.m_size;
-    cells.back().m_weight = 1;
+    cells.back().m_instanceKey  = netlist->m_instances.at("ins2").key();
+    cells.back().m_globalPos    = ChipDB::Coord64{10800, 4000};
+    cells.back().m_size         = mycell->m_size;
+    cells.back().m_weight       = 1;
 
     // cell 3 overlaps cell 2 on x-axis
     cells.emplace_back();
-    cells.back().m_ins    = &ins3;
+    cells.back().m_instanceKey  = netlist->m_instances.at("ins3").key();
     cells.back().m_globalPos = ChipDB::Coord64{10900, 4000};
-    cells.back().m_size   = mycell.m_size;
+    cells.back().m_size         = mycell->m_size;
     cells.back().m_weight = 1;
 
     // cell 4 far away from cell 1,2 and 3
     cells.emplace_back();
-    cells.back().m_ins    = &ins4;
+    cells.back().m_instanceKey  = netlist->m_instances.at("ins4").key();
     cells.back().m_globalPos = ChipDB::Coord64{20000, 8000};
-    cells.back().m_size   = mycell.m_size;
+    cells.back().m_size         = mycell->m_size;
     cells.back().m_weight = 1;
 
     LunaCore::Legalizer::Row row;

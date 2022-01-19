@@ -23,53 +23,53 @@ BOOST_AUTO_TEST_CASE(can_read_lef)
     std::cout << "  Found " << design.m_cellLib.size() << " cells\n";
     BOOST_CHECK(design.m_cellLib.size() == 34);
 
-    for(auto cell : design.m_cellLib)
+    for(auto cellKeyObjPair : design.m_cellLib)
     {
-        std::cout << "  " << cell->m_name << "\n";
+        std::cout << "  " << cellKeyObjPair->name() << "\n";
     }    
 
     // check parameters of NANDX1 cell
-    auto cell = design.m_cellLib.lookup("NAND2X1");
-    BOOST_CHECK(cell != nullptr);
-    BOOST_CHECK(cell->m_pins.size() == 5);
+    auto cellKeyObjPtr = design.m_cellLib.lookupCell("NAND2X1");
+    BOOST_CHECK(cellKeyObjPtr.isValid());
+    BOOST_CHECK(cellKeyObjPtr->m_pins.size() == 5);
 
-    BOOST_CHECK(cell->m_size.m_x == 2400);
-    BOOST_CHECK(cell->m_size.m_y == 10000);
-    BOOST_CHECK(cell->m_offset.m_x == 0);
-    BOOST_CHECK(cell->m_offset.m_y == 0);
-    BOOST_CHECK(cell->m_site == "core");
-    BOOST_CHECK((cell->m_symmetry.m_flags & ChipDB::SymmetryFlags::SYM_X) > 0);
-    BOOST_CHECK((cell->m_symmetry.m_flags & ChipDB::SymmetryFlags::SYM_Y) > 0);
-    BOOST_CHECK((cell->m_symmetry.m_flags & ChipDB::SymmetryFlags::SYM_R90) == 0);
+    BOOST_CHECK(cellKeyObjPtr->m_size.m_x == 2400);
+    BOOST_CHECK(cellKeyObjPtr->m_size.m_y == 10000);
+    BOOST_CHECK(cellKeyObjPtr->m_offset.m_x == 0);
+    BOOST_CHECK(cellKeyObjPtr->m_offset.m_y == 0);
+    BOOST_CHECK(cellKeyObjPtr->m_site == "core");
+    BOOST_CHECK((cellKeyObjPtr->m_symmetry.m_flags & ChipDB::SymmetryFlags::SYM_X) > 0);
+    BOOST_CHECK((cellKeyObjPtr->m_symmetry.m_flags & ChipDB::SymmetryFlags::SYM_Y) > 0);
+    BOOST_CHECK((cellKeyObjPtr->m_symmetry.m_flags & ChipDB::SymmetryFlags::SYM_R90) == 0);
 
     std::cout << "  NAND2X1 pins:\n";
-    for(auto pin : cell->m_pins)
+    for(auto const pinInfo : cellKeyObjPtr->m_pins)
     {
-        std::cout << "    " << pin->m_name << "\n";
+        std::cout << "    " << pinInfo->name() << "\n";
     }
 
-    auto pin = cell->lookupPin("A");
-    BOOST_CHECK(pin != nullptr);
+    auto pin = cellKeyObjPtr->lookupPin("A");
+    BOOST_CHECK(pin.isValid());
     BOOST_CHECK(pin->m_iotype == ChipDB::IOType::INPUT);
     BOOST_CHECK(!pin->m_pinLayout.empty()); // check that the pin has geometry
 
-    pin = cell->lookupPin("B");
-    BOOST_CHECK(pin != nullptr);
+    pin = cellKeyObjPtr->lookupPin("B");
+    BOOST_CHECK(pin.isValid());
     BOOST_CHECK(pin->m_iotype == ChipDB::IOType::INPUT);
     BOOST_CHECK(!pin->m_pinLayout.empty()); // check that the pin has geometry
 
-    pin = cell->lookupPin("Y");
-    BOOST_CHECK(pin != nullptr);
+    pin = cellKeyObjPtr->lookupPin("Y");
+    BOOST_CHECK(pin.isValid());
     BOOST_CHECK(pin->m_iotype == ChipDB::IOType::OUTPUT);    
     BOOST_CHECK(!pin->m_pinLayout.empty()); // check that the pin has geometry
 
     // OAI22X1
-    cell = design.m_cellLib.lookup("OAI22X1");
-    BOOST_CHECK(cell != nullptr);
-    BOOST_CHECK(cell->m_pins.size() == 7);
+    cellKeyObjPtr = design.m_cellLib.lookupCell("OAI22X1");
+    BOOST_CHECK(cellKeyObjPtr.isValid());
+    BOOST_CHECK(cellKeyObjPtr->m_pins.size() == 7);
 
     // check that the cell has obstructions
-    BOOST_CHECK(cell->m_obstructions.size() != 0);
+    BOOST_CHECK(cellKeyObjPtr->m_obstructions.size() != 0);
 }
 
 BOOST_AUTO_TEST_CASE(can_read_lef2)
