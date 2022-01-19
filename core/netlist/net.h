@@ -65,6 +65,16 @@ public:
     /** remove a connection from net to (ins, pin). returns true if a connection was removed */
     bool removeConnection(InstanceObjectKey insKey, PinObjectKey pinKey);
 
+    auto begin() const
+    {
+        return m_connections.begin();
+    }
+
+    auto end() const
+    {
+        return m_connections.end();
+    }
+
 protected:
     std::vector<NetConnect> m_connections;
 };
