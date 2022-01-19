@@ -124,7 +124,7 @@ LunaCore::QPlacer::PlacerNetlist LunaCore::QLAPlacer::Private::createPlacerNetli
         auto& placerNet = netlist.getNet(placerNetId);
         placerNet.m_weight = 1.0;
 
-        doLog(LOG_VERBOSE, "NetId %d - Net name %s\n", netIdx, net->m_name.c_str());
+        doLog(LOG_VERBOSE, "NetId %d - Net name %s\n", netIdx, net->name().c_str());
 
         for(auto conn : *net.ptr())
         {

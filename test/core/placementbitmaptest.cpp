@@ -117,8 +117,7 @@ BOOST_AUTO_TEST_CASE(check_diffusion)
     // but slightly offset so we can check
     // the velocity
 
-    auto cell = new ChipDB::Cell();
-    cell->m_name = "cell";
+    auto cell = std::make_shared<ChipDB::Cell>("cell");
     cell->m_size = ChipDB::Coord64{500,500};
 
     auto ll = getLogLevel();
@@ -128,17 +127,16 @@ BOOST_AUTO_TEST_CASE(check_diffusion)
     {
         for(int32_t oy=-1; oy<=1; oy++)
         {
-            auto instance = new ChipDB::Instance(cell);
-            instance->m_name = "instance";
-            instance->m_pos  = ChipDB::Coord64{xsize/2 + ox*200 - cell->m_size.m_x/2, ysize/2 + oy*200 - cell->m_size.m_y/2};
-            instance->m_placementInfo = ChipDB::PlacementInfo::PLACED;
-
             std::stringstream ss;
             ss << "ins_x" << ox << "_y" << oy;
 
+            auto instance = std::make_shared<ChipDB::Instance>(ss.str(), cell);
+            instance->m_pos  = ChipDB::Coord64{xsize/2 + ox*200 - cell->m_size.m_x/2, ysize/2 + oy*200 - cell->m_size.m_y/2};
+            instance->m_placementInfo = ChipDB::PlacementInfo::PLACED;
+
             doLog(LOG_VERBOSE,"  instance %s at %d,%d\n", ss.str().c_str(), instance->m_pos.m_x, instance->m_pos.m_y);
 
-            netlist.m_instances.add(ss.str(), instance);
+            netlist.m_instances.add(instance);
         }
     }
 
@@ -208,9 +206,9 @@ BOOST_AUTO_TEST_CASE(check_diffusion)
     // dump the old positions
     doLog(LOG_VERBOSE, "  Old instance positions: \n");
     size_t idx = 0;
-    for(auto ins : netlist.m_instances)
+    for(auto insKeyObjPair : netlist.m_instances)
     {
-        const auto insCenter = ins->getCenter();
+        const auto insCenter = insKeyObjPair->getCenter();
         doLog(LOG_VERBOSE, "    ins %d -> (%d,%d)\n", idx, insCenter.m_x, insCenter.m_y);
         idx++;
     }
@@ -221,9 +219,9 @@ BOOST_AUTO_TEST_CASE(check_diffusion)
     // dump the new positions
     doLog(LOG_VERBOSE, "  New instance positions: \n");
     idx = 0;
-    for(auto ins : netlist.m_instances)
+    for(auto insKeyObjPair : netlist.m_instances)
     {
-        const auto insCenter = ins->getCenter();
+        const auto insCenter = insKeyObjPair->getCenter();
         doLog(LOG_VERBOSE, "    ins %d -> (%d,%d)\n", idx, insCenter.m_x, insCenter.m_y);
         idx++;
     }

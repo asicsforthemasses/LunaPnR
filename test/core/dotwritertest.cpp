@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(can_write_netlist_to_dot)
     std::ofstream ofile("test/files/results/adder8.dot");
     BOOST_CHECK(ofile.good());
 
-    LunaCore::Dot::Writer::write(ofile, modulePtr);
+    LunaCore::Dot::Writer::write(ofile, modulePtr.ptr());
 }
 
 BOOST_AUTO_TEST_SUITE_END()
