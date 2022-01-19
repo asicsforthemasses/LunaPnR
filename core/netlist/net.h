@@ -65,6 +65,12 @@ public:
     /** remove a connection from net to (ins, pin). returns true if a connection was removed */
     bool removeConnection(InstanceObjectKey insKey, PinObjectKey pinKey);
 
+    /** return the number of connections */
+    size_t numberOfConnections() const noexcept
+    {
+        return m_connections.size();
+    }
+
     auto begin() const
     {
         return m_connections.begin();

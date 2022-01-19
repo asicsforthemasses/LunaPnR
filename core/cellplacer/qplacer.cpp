@@ -201,12 +201,12 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
     }
 
     // create placer nets
-    for(auto net : mod->m_netlist->m_nets)
+    for(auto netPtr : mod->m_netlist->m_nets)
     {
         auto placerNetId = placerNetlist.createNet();
         auto& placerNet = placerNetlist.getNet(placerNetId);
 
-        for(auto& conn : net->m_connections)
+        for(auto& conn : *netPtr)
         {
             auto iter = ins2nodeId.find(conn.m_instanceKey);
 

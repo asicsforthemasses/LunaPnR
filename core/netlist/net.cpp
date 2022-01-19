@@ -20,7 +20,7 @@ bool Net::hasConnection(InstanceObjectKey insKey, PinObjectKey pinKey) const
 
 void Net::addConnection(InstanceObjectKey insKey, PinObjectKey pinKey)
 {
-    m_connections.push_back(NetConnect(insKey, pinKey));
+    m_connections.emplace_back(NetConnect(insKey, pinKey));
 }
 
 bool Net::removeConnection(InstanceObjectKey insKey, PinObjectKey pinKey)

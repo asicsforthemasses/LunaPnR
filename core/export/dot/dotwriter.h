@@ -30,8 +30,8 @@ protected:
 
     bool execute(std::ostream &os, AbstractNodeDecorator *decorator);
 
-    void writeInputs(std::ostream &os, const ChipDB::InstanceBase *instance);
-    void writeOutputs(std::ostream &os, const ChipDB::InstanceBase *instance);
+    void writeInputs(std::ostream &os, const std::shared_ptr<ChipDB::InstanceBase> ins);
+    void writeOutputs(std::ostream &os, const std::shared_ptr<ChipDB::InstanceBase> ins);
     std::string escapeString(const std::string &txt);
 
     const ChipDB::Module *m_module;

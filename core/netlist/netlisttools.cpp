@@ -37,9 +37,9 @@ LunaCore::NetlistTools::NetlistHistogram LunaCore::NetlistTools::calcNetlistHist
         return hist;
     }
 
-    for(const auto net : netlist->m_nets)
+    for(const auto netKeyObjPair : netlist->m_nets)
     {
-        hist[net->m_connections.size()]++;
+        hist[netKeyObjPair->numberOfConnections()]++;
     }
 
     return hist;
@@ -47,27 +47,29 @@ LunaCore::NetlistTools::NetlistHistogram LunaCore::NetlistTools::calcNetlistHist
 
 bool LunaCore::NetlistTools::removeNetconInstances(ChipDB::Netlist &netlist)
 {
+    //FIXME: this needs re-writing!
+    
+#if 0    
     size_t netsRemoved = 0;
     size_t degenerateNets = 0;
-    for (auto ins : netlist.m_instances)
+    for (auto insKeyObjPair : netlist.m_instances)
     {
-        if (ins->getArchetypeName() == "__NETCON")
+        if (insKeyObjPair->getArchetypeName() == "__NETCON")
         {
-            auto netConIns = ins;
-            auto net1 = netConIns->getConnectedNet(0);
-            auto net2 = netConIns->getConnectedNet(1);
+            auto net1Key = insKeyObjPair->getPin(0).m_netKey;
+            auto net2Key = insKeyObjPair->getPin(1).m_netKey;
 
-            if ((net1 == nullptr) || (net2 == nullptr))
+            if ((net1Key < 0) || (net2Key < 0))
             {
                 // handle degenerate net: remove NETCON            
                 degenerateNets++;
             }
             else
             {
-                auto netToRemove = net1;
-                auto netToAssign = net2;
+                auto netToRemove = net1Key;
+                auto netToAssign = net2Key;
 
-                for(auto const &connection : netToRemove->m_connections)
+                for(auto const &connection : *netlist.m_nets.at(netToRemove))
                 {
                     auto insToBeUpdated = netlist.m_instances.at(connection.m_instanceKey);
                     if (insToBeUpdated != netConIns.key())
@@ -86,5 +88,6 @@ bool LunaCore::NetlistTools::removeNetconInstances(ChipDB::Netlist &netlist)
     std::stringstream ss;
     ss << "Removed " << netsRemoved << " netcon nets (found " << degenerateNets << " degerate nets)\n";
     doLog(LOG_VERBOSE, ss);
+#endif    
     return true;
 }

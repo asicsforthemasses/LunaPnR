@@ -110,36 +110,37 @@ BOOST_AUTO_TEST_CASE(place_multiplier)
 
     ChipDB::Verilog::Reader::load(&design, verilogfile);
 
-    auto mod = design.m_moduleLib.lookup("multiplier");
+    auto modKeyObjPair = design.m_moduleLib.lookupModule("multiplier");
 
-    BOOST_CHECK(mod != nullptr);
-    BOOST_CHECK(mod->m_netlist);
+    BOOST_CHECK(modKeyObjPair.isValid());
+    BOOST_CHECK(modKeyObjPair->m_netlist);
 
     // allocate pin instances
     int64_t left_y  = 0;
     int64_t right_y = 0;
-    for(auto ins : mod->m_netlist->m_instances)
+    for(auto insKeyObjPair : modKeyObjPair->m_netlist->m_instances)
     {
-        if (ins->m_insType == ChipDB::InstanceType::PIN)
+        if (insKeyObjPair->m_insType == ChipDB::InstanceType::PIN)
         {
-            auto pinInfo = ins->getPinInfo(0);
+            auto pinInfo = insKeyObjPair->getPinInfo(0);
             if (pinInfo->isInput())
             {
-                ins->m_pos = {0, left_y};
-                ins->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
+                insKeyObjPair->m_pos = {0, left_y};
+                insKeyObjPair->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
                 left_y += 5000;
             }
             else
             {
-                ins->m_pos = {65000, right_y};
-                ins->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
+                insKeyObjPair->m_pos = {65000, right_y};
+                insKeyObjPair->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
                 right_y += 5000;
             }
         }
     }
 
     // create a floorplan with region
-    auto region = new ChipDB::Region();
+    auto region = std::make_shared<ChipDB::Region>();
+    region->m_name = "core";
     region->m_site = "corehd";
     region->m_rect.setSize( {65000+20000,65000+20000} );
     region->m_halo = ChipDB::Margins64{10000,10000,10000,10000};

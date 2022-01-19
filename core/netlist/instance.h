@@ -64,6 +64,20 @@ public:
 
     struct Pin
     {
+        constexpr bool isValid() const
+        {
+            return ((m_pinKey != ObjectNotFound) && m_pinInfo);
+        }
+
+        std::string name() const
+        {
+            if (m_pinInfo)
+            {
+                return m_pinInfo->name();
+            }
+            return "INVALID PININFO";
+        }
+
         NetObjectKey    m_netKey = ObjectNotFound;  ///< key of connected net
         PinObjectKey    m_pinKey = ObjectNotFound;  ///< key of this pin
         std::shared_ptr<PinInfo> m_pinInfo;         ///< information about the pin

@@ -10,12 +10,14 @@ namespace ChipDB
 class Module : public Cell
 {
 public:
+    Module(const std::string &name) : Cell(name) {}
+    
     virtual bool isModule() const override
     {
         return true;
     }
 
-    bool addInstance(std::shared_ptr<InstanceBase> insPtr);
+    KeyObjPair<InstanceBase> addInstance(std::shared_ptr<InstanceBase> insPtr);
     KeyObjPair<Net> createNet(const std::string &netName);
 
     /** pointer to netlist, or null if the module is a black box */

@@ -23,7 +23,11 @@ public:
     {
     }
 
-    std::string     m_name;         ///< name of the cell
+    std::string name() const noexcept
+    {
+        return m_name;
+    }
+
     PinInfoList     m_pins;         ///< pin information
 
     double          m_area;         ///< area in um^2
@@ -57,6 +61,9 @@ public:
     };
 
     std::unordered_map<std::string /* layer name */, GeometryObjects> m_obstructions;
+
+protected:
+    std::string     m_name;         ///< name of the cell
 };
 
 }; // namespace

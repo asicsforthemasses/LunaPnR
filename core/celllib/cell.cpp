@@ -21,7 +21,12 @@ KeyObjPair<PinInfo> Cell::lookupPin(const std::string &name) const
     return m_pins[name];
 }
 
-std::shared_ptr<Cell> Cell::lookupPin(ObjectKey key)
+std::shared_ptr<PinInfo> Cell::lookupPin(ObjectKey key)
+{
+    return m_pins[key];
+}
+
+std::shared_ptr<PinInfo> Cell::lookupPin(ObjectKey key) const
 {
     return m_pins[key];
 }

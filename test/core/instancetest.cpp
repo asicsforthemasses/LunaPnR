@@ -13,47 +13,44 @@ BOOST_AUTO_TEST_CASE(various_instance_tests)
 {
     std::cout << "--== INSTANCE TEST ==--\n";
 
-    ChipDB::Cell cell;
-    cell.m_name = "henk";
-    cell.createPin("A");
+    auto cell = std::make_shared<ChipDB::Cell>("henk");
+    cell->createPin("A");
 
-    ChipDB::Instance ins(&cell);
-    ins.m_name = "frans";
+    auto insPtr = std::make_shared<ChipDB::Instance>("frans", cell);
 
-    BOOST_CHECK(ins.cell() != nullptr);
-    BOOST_CHECK(ins.getArchetypeName() == "henk");
-    BOOST_CHECK(ins.getPinIndex("dummy") < 0);  // check non-existing pin returns < 0
-    BOOST_CHECK(ins.getPinIndex("A") >= 0);     // check existing pin returns >= 0
-    BOOST_CHECK(!ins.isModule());
+    BOOST_CHECK(insPtr);
+    BOOST_CHECK(insPtr->cell() != nullptr);
+    BOOST_CHECK(insPtr->getArchetypeName() == "henk");
+    BOOST_CHECK(!insPtr->getPin("dummy").isValid());   // check non-existing pin returns false
+    BOOST_CHECK(insPtr->getPin("A").isValid());        // check existing pin returns true
+    BOOST_CHECK(!insPtr->isModule());
 
-    // check unconnected pin returns nullptr as net
-    auto pinIndex = ins.getPinIndex("A");
-    BOOST_CHECK(ins.getConnectedNet(pinIndex) == nullptr);
-    
-    BOOST_CHECK(ins.getConnectedNet(100) == nullptr);   // check non-existing pin returns nullptr
-    
+    // check unconnected pin returns ObjectNotFound
+    auto const& pin = insPtr->getPin("A");
+    BOOST_CHECK(pin.m_netKey == ChipDB::ObjectNotFound);
+        
     // check pin iterator
-    cell.createPin("B");
-    cell.createPin("Z");
+    cell->createPin("B");
+    cell->createPin("Z");
 
     size_t pinCount = 0;
-    for(auto pinIndex=0; pinIndex < ins.getNumberOfPins(); pinIndex++)
+    for(auto pinKey=0; pinKey < ins->getNumberOfPins(); pinKey++)
     {
-        if (ins.getPinInfo(pinIndex) != nullptr)
+        if (insPtr->etPin(pinKey).isValid())
+        {
             pinCount++;
+        }
     }
     BOOST_CHECK(pinCount == 3);
 
-    BOOST_CHECK(ins.getNumberOfPins() == 3);
+    BOOST_CHECK(ins->getNumberOfPins() == 3);
 
     // check instance-is-module stuff
-    ChipDB::Module mod;
-    mod.m_name = "MyModule";
-    mod.createPin("Z");
+    auto modPtr = std::make_shared<ChipDB::Module>("MyModule");
+    modPtr->createPin("Z");
 
-    ChipDB::Instance ins2(&mod);
-    ins2.m_name = "diederik";
-    BOOST_CHECK(ins2.isModule());
+    auto insPtr2 = std::make_shared<ChipDB::Instance>("diederik", modPtr);
+    BOOST_CHECK(insPtr2->isModule());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

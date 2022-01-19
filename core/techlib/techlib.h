@@ -28,8 +28,10 @@ enum LayerDirection : uint8_t
 std::string toString(const LayerDirection &lt);
 
 
-struct LayerInfo
+class LayerInfo
 {
+public:
+
     LayerInfo() 
     :   m_pitch{0,0},
         m_spacing(0),
@@ -68,8 +70,6 @@ struct LayerInfo
         return m_name;
     }
 
-    std::string m_name;
-
     Coord64 m_pitch;    ///< in nm in x and y direction.
     int32_t m_spacing;  ///< in nm
     int32_t m_width;    ///< in nm
@@ -85,6 +85,9 @@ struct LayerInfo
 
     LayerType       m_type;     ///< layer type according to LEF/DEF
     LayerDirection  m_dir;      ///< preferred routing direction
+
+protected:
+    std::string m_name; ///< name of layer
 };
 
 #if 0
@@ -119,8 +122,10 @@ enum SiteClass : uint8_t
     SC_CORE
 };
 
-struct SiteInfo
+class SiteInfo
 {
+public:
+
     SiteInfo()
     : m_size{0,0},
       m_class(SC_UNDEFINED) {}
@@ -132,10 +137,17 @@ struct SiteInfo
 
     //IMPLEMENT_ACCEPT;
 
-    std::string     m_name;         ///< name of the site
+    std::string name() const noexcept
+    {
+        return m_name;
+    }
+
     Coord64         m_size;         ///< cell size of the site
     SiteClass       m_class;        ///< class type
     SymmetryFlags   m_symmetry;     ///< supported symmetries
+
+protected:
+    std::string     m_name;         ///< name of the site
 };
 
 

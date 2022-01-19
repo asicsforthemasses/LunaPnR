@@ -34,7 +34,17 @@ template<class T> struct KeyObjPair
     constexpr const std::shared_ptr<T> operator->() const noexcept
     {
         return m_objPtr;
-    }    
+    }
+
+    constexpr T& operator*() noexcept
+    {
+        return *m_objPtr;
+    }
+
+    constexpr T& operator*() const noexcept
+    {
+        return *m_objPtr;
+    }
 
     constexpr ObjectKey key() const noexcept
     {
@@ -437,13 +447,13 @@ protected:
         auto objKeyIter = m_nameToKey.find(name);
         if (objKeyIter == m_nameToKey.end())
         {
-            return nullptr;
+            return KeyObjPair<T>();
         }
 
         auto objIter = m_objects.find(objKeyIter->second);
         if (objIter == m_objects.end())
         {
-            return nullptr;
+            return KeyObjPair<T>();
         }        
 
         return KeyObjPair<T>(objIter->first, objIter->second);
@@ -454,13 +464,13 @@ protected:
         auto objKeyIter = m_nameToKey.find(name);
         if (objKeyIter == m_nameToKey.end())
         {
-            return nullptr;
+            return KeyObjPair<T>();
         }
 
         auto objIter = m_objects.find(objKeyIter->second);
         if (objIter == m_objects.end())
         {
-            return nullptr;
+            return KeyObjPair<T>();
         }        
 
         return KeyObjPair<T>(objIter->first, objIter->second);

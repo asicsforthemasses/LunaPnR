@@ -22,7 +22,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
     os << "  node [shape=record style=filled];\n";
     os << "  labelloc=\"t\";\n";
     os << "  fontsize  = 30;\n";
-    os << "  label=\"" << escapeString(m_module->m_name) << "\";\n";
+    os << "  label=\"" << escapeString(m_module->name()) << "\";\n";
 
     if (!m_module->m_netlist)
     {
@@ -31,22 +31,22 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
     }
 
     // write all instances as nodes
-    for(auto const ins : m_module->m_netlist->m_instances)
+    for(auto const insKeyObjPair : m_module->m_netlist->m_instances)
     {
-        if (ins->m_insType == ChipDB::InstanceType::PIN)
+        if (insKeyObjPair->m_insType == ChipDB::InstanceType::PIN)
         {
-            os << "  " << escapeString(ins->m_name) << R"( [shape="circle", label = ")"  << ins->m_name << "\"];\n";
+            os << "  " << escapeString(insKeyObjPair->name()) << R"( [shape="circle", label = ")"  << insKeyObjPair->name() << "\"];\n";
         }
         else
         {
-            os << "  " << escapeString(ins->m_name) << " [label = \"{{";
-            writeInputs(os, ins);
-            os << "}|" << escapeString(ins->m_name) << "\\n" << escapeString(ins->getArchetypeName()) << "|{";
-            writeOutputs(os, ins);
+            os << "  " << escapeString(insKeyObjPair->name()) << " [label = \"{{";
+            writeInputs(os, insKeyObjPair.ptr());
+            os << "}|" << escapeString(insKeyObjPair->name()) << "\\n" << escapeString(insKeyObjPair->getArchetypeName()) << "|{";
+            writeOutputs(os, insKeyObjPair.ptr());
             os << "}} \";";
             if (decorator != nullptr)
             {
-                decorator->decorate(ins, os);
+                decorator->decorate(insKeyObjPair.ptr(), os);
             }
 
             os << "];\n";            
@@ -179,54 +179,58 @@ bool Writer::write(std::ostream &os, const ChipDB::Module *module,
     return writer->execute(os, decorator);
 }
 
-void Writer::writeInputs(std::ostream &os, const ChipDB::InstanceBase *ins)
+void Writer::writeInputs(std::ostream &os, const std::shared_ptr<ChipDB::InstanceBase> ins)
 {
     if (ins == nullptr)
         return;
 
     bool first = true;
-    for(ssize_t pinIndex=0; pinIndex < ins->getNumberOfPins(); ++pinIndex)
+    for(ChipDB::PinObjectKey pinKey=0; pinKey < ins->getNumberOfPins(); ++pinKey)
     {
-        auto pinInfo = ins->getPinInfo(pinIndex);
+        auto const& pin = ins->getPin(pinKey);
 
-        if (pinInfo == nullptr)
+        if (!pin.isValid())
             continue;
 
         // skip power/ground pins
-        if (pinInfo->isPGPin())
+        if (pin.m_pinInfo->isPGPin())
             continue;
 
-        if (pinInfo->isInput())
+        if (pin.m_pinInfo->isInput())
         {
             if (!first)
                 os << "|";
 
             first = false;
-            os << "<" << escapeString(pinInfo->m_name) << "> " << escapeString(pinInfo->m_name);
+            os << "<" << escapeString(pin.name()) << "> " << escapeString(pin.name());
         }
     }
 }
 
-void Writer::writeOutputs(std::ostream &os, const ChipDB::InstanceBase *ins)
+void Writer::writeOutputs(std::ostream &os, const std::shared_ptr<ChipDB::InstanceBase> ins)
 {
-    if (ins == nullptr)
+    if (!ins)
         return;
 
     bool first = true;
-    for(ssize_t pinIndex=0; pinIndex < ins->getNumberOfPins(); ++pinIndex)
+    for(ChipDB::PinObjectKey pinKey=0; pinKey < ins->getNumberOfPins(); ++pinKey)
     {
-        auto pinInfo = ins->getPinInfo(pinIndex);
-        // skip power/ground pins
-        if (pinInfo->isPGPin())
+        auto const& pin = ins->getPin(pinKey);
+        
+        if (!pin.isValid())
             continue;
 
-        if (pinInfo->isOutput())
+        // skip power/ground pins        
+        if (pin.m_pinInfo->isPGPin())
+            continue;
+
+        if (pin.m_pinInfo->isOutput())
         {
             if (!first)
                 os << "|";
 
             first = false;
-            os << "<" << escapeString(pinInfo->m_name) << "> " << escapeString(pinInfo->m_name);
+            os << "<" << escapeString(pin.name()) << "> " << escapeString(pin.name());
         }
     }
 }

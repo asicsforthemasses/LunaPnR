@@ -10,7 +10,7 @@ using namespace ChipDB;
 std::string Instance::getArchetypeName() const
 {
     if (m_cell != nullptr)
-        return m_cell->m_name;
+        return m_cell->name();
     else
         return "UNKNOWN";
 }
@@ -59,7 +59,7 @@ InstanceBase::Pin Instance::getPin(const std::string &pinName) const
 
 bool Instance::setPinNet(PinObjectKey pinKey, NetObjectKey netKey)
 {
-    if (pinKey <= m_pinToNet.size())
+    if (pinKey < m_pinToNet.size())
     {
         m_pinToNet.at(pinKey) = netKey;
         return true;

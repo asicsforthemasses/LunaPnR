@@ -74,32 +74,21 @@ bool Reader::load(Design *design, std::istream &source)
 //   ReaderImpl
 // **********************************************************************
 
-ReaderImpl::ReaderImpl(Design *design) : 
-    m_design(design), 
-    m_currentModule{nullptr}, 
-    m_currentInstance{nullptr}
+ReaderImpl::ReaderImpl(Design &design) : m_design(design)
 {
 }
 
 void ReaderImpl::throwOnModuleIsNullptr()
 {
-    if (m_currentModule == nullptr)
+    if (!m_currentModule)
     {
         throw std::runtime_error("Reader: no module selected.");
     }
 }
 
-void ReaderImpl::throwOnDesignIsNullptr()
-{
-    if (m_design == nullptr)
-    {
-        throw std::runtime_error("Reader: m_design is nullptr.");
-    }    
-}
-
 void ReaderImpl::throwOnCurInstanceIsNullptr()
 {
-    if (m_currentInstance == nullptr)
+    if (!m_currentInstance)
     {
         throw std::runtime_error("Reader: no instance selected.");
     }    
@@ -108,10 +97,8 @@ void ReaderImpl::throwOnCurInstanceIsNullptr()
 
 void ReaderImpl::onModule(const std::string &modName,
         const std::vector<std::string> &ports)
-{
-    throwOnDesignIsNullptr();
-    
-    m_currentModule = m_design->createModule(modName);
+{    
+    m_currentModule = m_design.m_moduleLib.createModule(modName).ptr();
     throwOnModuleIsNullptr();
 
     // we need to create our ports here.
@@ -128,17 +115,15 @@ void ReaderImpl::onModule(const std::string &modName,
 
 void ReaderImpl::onInstance(const std::string &modName, const std::string &insName)
 {
-    throwOnDesignIsNullptr();
     throwOnModuleIsNullptr();
 
     // check for cell or module instance
-    auto const cellPtr = m_design->m_cellLib.lookup(modName);
-    if (cellPtr != nullptr)
+    auto const cellKeyObjPtr = m_design.m_cellLib.lookupCell(modName);
+    if (cellKeyObjPtr.isValid())
     {           
-        auto insPtr = new Instance(cellPtr);
-        insPtr->m_name = insName;
+        auto result = m_currentModule->addInstance(std::make_shared<Instance>(insName, cellKeyObjPtr.ptr()));
 
-        if (!m_currentModule->addInstance(insPtr))
+        if (!result)
         {            
             std::stringstream ss;
             ss << "Failed to create instance " << insName << "\n";
@@ -314,11 +299,10 @@ void ReaderImpl::onOutput(const std::string &netname, uint32_t start, uint32_t s
 /** callback for each instance port in the netlist */
 void ReaderImpl::onInstancePort(uint32_t pinIndex, const std::string &netName)
 {    
-    throwOnDesignIsNullptr();
     throwOnModuleIsNullptr();
 
-    auto netPtr = m_currentModule->m_netlist->m_nets.lookup(netName);
-    if (netPtr == nullptr)
+    auto netKeyObjPair = m_currentModule->m_netlist->m_nets.at(netName);
+    if (netKeyObjPair.isValid())
     {
         std::stringstream ss;
         ss << "Cannot find net " << netName << " in module " << m_currentModule->m_name << "\n";
@@ -327,7 +311,7 @@ void ReaderImpl::onInstancePort(uint32_t pinIndex, const std::string &netName)
     }
 
     m_currentInstance->connect(pinIndex, netPtr);
-    netPtr->addConnection(m_currentInstance, pinIndex);        
+    netKeyObjPair->addConnection(m_currentInstance, pinIndex);
 }
 
 /** callback for each module instance in the netlist */

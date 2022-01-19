@@ -49,24 +49,24 @@ void SimpleCellPlacer::place(ChipDB::Netlist *nl, const ChipDB::Rect64 &regionRe
 int64_t HPWLCalculator::calc(ChipDB::Netlist *nl)
 {
     int64_t hpwl = 0;
-    for(auto const net : nl->m_nets)
+    for(auto const netPtr : nl->m_nets)
     {
-        auto iter = net->m_connections.begin();
+        auto iter = netPtr->begin();
 
         // skip if there are no connection on this net.
-        if (iter == net->m_connections.end())
+        if (iter == netPtr->end())
             continue;
 
         // get first cell
-        auto center = iter->m_instance->getCenter();
+        auto center = nl->m_instances.at(iter->m_instanceKey)->getCenter();
         ChipDB::Coord64 minCoord{center.m_x, center.m_y};
         ChipDB::Coord64 maxCoord{center.m_x, center.m_y};
         ++iter;
 
         // process next cells
-        while(iter != net->m_connections.end())
+        while(iter != netPtr->end())
         {
-            center = iter->m_instance->getCenter();
+            center = nl->m_instances.at(iter->m_instanceKey)->getCenter();
             minCoord.m_x = std::min(minCoord.m_x, center.m_x);
             minCoord.m_y = std::min(minCoord.m_y, center.m_y);
             maxCoord.m_x = std::max(maxCoord.m_x, center.m_x);

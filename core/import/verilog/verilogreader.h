@@ -33,7 +33,7 @@ namespace ChipDB::Verilog
 class ReaderImpl : public Parser
 {
 public:
-    ReaderImpl(Design *design);
+    ReaderImpl(Design &design);
 
     /** callback for each module encountered in the netlist */
     virtual void onModule(const std::string &modName,
@@ -74,12 +74,11 @@ public:
 
 protected:
     void throwOnModuleIsNullptr();
-    void throwOnDesignIsNullptr();
     void throwOnCurInstanceIsNullptr();
 
-    Design      *m_design;
-    Module      *m_currentModule;
-    Instance    *m_currentInstance;
+    Design                      &m_design;
+    std::shared_ptr<Module>     m_currentModule;
+    std::shared_ptr<Instance>   m_currentInstance;
 };
 
 /// \endcond

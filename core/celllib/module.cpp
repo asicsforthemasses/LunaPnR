@@ -6,25 +6,25 @@ using namespace ChipDB;
 //   Module
 // **********************************************************************
 
-bool Module::addInstance(std::shared_ptr<InstanceBase> insPtr)
+KeyObjPair<InstanceBase> Module::addInstance(std::shared_ptr<InstanceBase> insPtr)
 {
     if (!insPtr)
     {
-        return false;
+        return KeyObjPair<InstanceBase>();
     }
 
-    if (insPtr->m_name.empty())
+    if (insPtr->name().empty())
     {
-        return false;
+        return KeyObjPair<InstanceBase>();
     }
 
     if (m_netlist)
     {
         auto result = m_netlist->m_instances.add(insPtr);
-        return result.has_value();
+        return result.value();
     }
 
-    return false;   // cannot add instances to a black box
+    return KeyObjPair<InstanceBase>();   // cannot add instances to a black box
 }
 
 KeyObjPair<Net> Module::createNet(const std::string &netName)

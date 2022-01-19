@@ -11,6 +11,15 @@ namespace ChipDB
 
 struct Region
 {
+    Region() = default;
+    Region(std::string &name) : m_name(name) {}
+
+    std::string name() const noexcept
+    {
+        return m_name;
+    }
+
+    std::string      m_name;    ///< region name
     std::string      m_site;    ///< site name
     Rect64           m_rect;    ///< size of the region (includes halo)
     Margins64        m_halo;    ///< halo _inside_ of the region rect to keep free
