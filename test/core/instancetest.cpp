@@ -34,9 +34,9 @@ BOOST_AUTO_TEST_CASE(various_instance_tests)
     cell->createPin("Z");
 
     size_t pinCount = 0;
-    for(auto pinKey=0; pinKey < ins->getNumberOfPins(); pinKey++)
+    for(auto pinKey=0; pinKey < insPtr->getNumberOfPins(); pinKey++)
     {
-        if (insPtr->etPin(pinKey).isValid())
+        if (insPtr->getPin(pinKey).isValid())
         {
             pinCount++;
         }
