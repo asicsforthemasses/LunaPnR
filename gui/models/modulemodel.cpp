@@ -222,7 +222,7 @@ QVariant ModuleListModel::data(const QModelIndex &index, int role) const
     return v;    
 }
 
-void ModuleListModel::notify(ChipDB::ObjectKey index, NotificationType t) override;
+void ModuleListModel::notify(ChipDB::ObjectKey index, NotificationType t)
 {
     beginResetModel();
     endResetModel();
