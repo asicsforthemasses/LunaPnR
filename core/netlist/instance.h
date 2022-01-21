@@ -77,10 +77,20 @@ public:
             }
             return "INVALID PININFO";
         }
-
+        
         NetObjectKey    m_netKey = ObjectNotFound;  ///< key of connected net
         PinObjectKey    m_pinKey = ObjectNotFound;  ///< key of this pin
         std::shared_ptr<PinInfo> m_pinInfo;         ///< information about the pin
+
+        constexpr PinObjectKey pinKey() const
+        {
+            return m_pinKey;
+        }
+
+        constexpr NetObjectKey netKey() const
+        {
+            return m_netKey;
+        }
     };
 
     virtual Pin getPin(PinObjectKey pinKey) const = 0;
@@ -114,7 +124,7 @@ public:
 
     IMPLEMENT_ACCEPT_OVERRIDE;
 
-    /** get access to the cell/module */
+    /** get access to the cell/module, if there is one */
     const std::shared_ptr<Cell> cell() const
     {
         return m_cell;

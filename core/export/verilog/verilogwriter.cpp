@@ -47,13 +47,13 @@ bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod)
     {
         if (!netPtr->m_isPortNet)
         {
-            os << "wire " << escapeVerilogName(netPtr->m_name) << ";\n";
+            os << "wire " << escapeVerilogName(netPtr->name()) << ";\n";
         }
         else
         {
-            auto const& pinInfo = mod->lookupPin(netPtr->m_name);
+            auto const& pinInfo = mod->lookupPin(netPtr->name());
             
-            if (pinInfo == nullptr)
+            if (!pinInfo.isValid())
             {
                 doLog(LOG_ERROR,"Port net cannot be resolved to module pin!\n");
                 return false;
@@ -74,7 +74,7 @@ bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod)
                 doLog(LOG_ERROR, "Verilog writer: unsupported pin type %s\n", toString(pinInfo->m_iotype).c_str());
                 return false;            
             }            
-            os << escapeVerilogName(netPtr->m_name) << ";\n";
+            os << escapeVerilogName(netPtr->name()) << ";\n";
         }
     }
 
@@ -139,7 +139,7 @@ namespace LunaCore::Verilog
             if (instance->m_insType != ChipDB::InstanceType::CELL)
             {
                 m_ok = false;
-                doLog(LOG_ERROR, "Verilog writer: expected a Cell instance but got %s\n", instance->name());
+                doLog(LOG_ERROR, "Verilog writer: expected a Cell instance but got %s\n", instance->name().c_str());
                 return;
             }
 

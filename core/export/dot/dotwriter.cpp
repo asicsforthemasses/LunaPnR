@@ -7,7 +7,7 @@
 
 using namespace LunaCore::Dot;
 
-Writer::Writer(const ChipDB::Module *module) 
+Writer::Writer(const std::shared_ptr<ChipDB::Module> module) 
     : m_module(module)
 {
 }
@@ -56,7 +56,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
     // stream out all the connections
     for(auto const net : m_module->m_netlist->m_nets)
     {   
-        if (net == nullptr)
+        if (!net.isValid())
             continue;
     
         // find the driver on the net
@@ -66,24 +66,25 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
 
         ssize_t driverIdx = -1;
         ssize_t idx = 0;        
-        for(auto const& conn : net->m_connections)
+        for(auto const& conn : *net)
         {    
-            auto pinInfo = conn.m_instance->getPinInfo(conn.m_pinIndex);
-            if (pinInfo != nullptr)
+            auto ins = m_module->m_netlist->m_instances.at(conn.m_instanceKey);
+            auto pin = ins->getPin(conn.m_pinKey);
+            if (pin.isValid())
             {
-                if (pinInfo->isOutput())
+                if (pin.m_pinInfo->isOutput())
                 {
                     // net driver pin
-                    driverPinName = pinInfo->m_name;
-                    driverName    = conn.m_instance->m_name;
-                    driverInsType = conn.m_instance->m_insType;
+                    driverPinName = pin.m_pinInfo->name();
+                    driverName    = ins->name();
+                    driverInsType = ins->m_insType;
                     driverIdx  = idx;
                 }
             }
             else
             {
                 doLog(LOG_ERROR,"Dot::Writer: pinInfo == nullptr on instance %s %s\n",
-                    conn.m_instance->m_name.c_str(), conn.m_instance->getArchetypeName().c_str());
+                    ins->name().c_str(), ins->getArchetypeName().c_str());
                 return false;
             }
             idx++;
@@ -91,19 +92,20 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
 
         if (driverName.empty())
         {
-            doLog(LOG_WARN,"Dot::Writer: no driver name found for net %s\n", net->m_name.c_str());
+            doLog(LOG_WARN,"Dot::Writer: no driver name found for net %s\n", net->name().c_str());
         }
 
         // write out all connections from net driver
         // to the receiving instances
 
         idx = 0;
-        for(auto const& conn : net->m_connections)
+        for(auto const& conn : *net)
         {
             if (driverIdx != idx)
             {            
-                auto dstPinInfo = conn.m_instance->getPinInfo(conn.m_pinIndex);
-                if (dstPinInfo != nullptr)
+                auto ins = m_module->m_netlist->m_instances.at(conn.m_instanceKey);
+                auto dstPin = ins->getPin(conn.m_pinKey);
+                if (dstPin.isValid())
                 {
                     if (driverInsType != ChipDB::InstanceType::PIN)
                     {
@@ -114,10 +116,10 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
                         os << "  " << escapeString(driverPinName) << "->";
                     }
 
-                    if (conn.m_instance->m_insType != ChipDB::InstanceType::PIN)
-                        os << escapeString(conn.m_instance->m_name) << ":" << escapeString(dstPinInfo->m_name) << ";\n";
+                    if (ins->m_insType != ChipDB::InstanceType::PIN)
+                        os << escapeString(ins->name()) << ":" << escapeString(dstPin.name()) << ";\n";
                     else
-                        os << escapeString(conn.m_instance->m_name) << ";\n";
+                        os << escapeString(ins->name()) << ";\n";
                 }
             }
 
@@ -153,9 +155,9 @@ bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Instance> mod
         doLog(LOG_ERROR,"Dot::Writer instance is not a module\n");
         return false;                
     }
-
+    
     auto cell   = modInstance->cell();
-    auto module = dynamic_cast<ChipDB::Module*>(cell.get());
+    auto module = std::dynamic_pointer_cast<ChipDB::Module>(cell);
 
     if (module == nullptr)
     {
@@ -163,7 +165,7 @@ bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Instance> mod
         return false;
     }
 
-    std::unique_ptr<Writer> writer(new Writer(module));
+    auto writer = std::make_unique<Writer>(module);
     return writer->execute(os, decorator);
 }
 

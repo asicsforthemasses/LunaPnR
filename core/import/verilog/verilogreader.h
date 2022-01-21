@@ -78,7 +78,7 @@ protected:
 
     Design                      &m_design;
     std::shared_ptr<Module>     m_currentModule;
-    std::shared_ptr<Instance>   m_currentInstance;
+    KeyObjPair<InstanceBase>    m_currentInsKeyObjPair;
 };
 
 /// \endcond
@@ -88,7 +88,7 @@ class Reader
 {
 public:
     /** read a Verilog netlist into a Design */
-    static bool load(Design *design, std::istream &is);
+    static bool load(Design &design, std::istream &is);
 };
 
 };

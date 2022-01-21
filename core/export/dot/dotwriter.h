@@ -12,7 +12,7 @@ namespace LunaCore::Dot
 class AbstractNodeDecorator
 {
 public:
-    virtual void decorate(const ChipDB::InstanceBase *ins, std::ostream &os) = 0;
+    virtual void decorate(const std::shared_ptr<ChipDB::InstanceBase> ins, std::ostream &os) = 0;
 };
 
 /** Writer writes module netlist in Graphviz DOT format */
@@ -26,7 +26,7 @@ public:
         AbstractNodeDecorator *decorator = nullptr);
 
 protected:
-    Writer(const ChipDB::Module *module);
+    Writer(const std::shared_ptr<ChipDB::Module> module);
 
     bool execute(std::ostream &os, AbstractNodeDecorator *decorator);
 
@@ -34,7 +34,7 @@ protected:
     void writeOutputs(std::ostream &os, const std::shared_ptr<ChipDB::InstanceBase> ins);
     std::string escapeString(const std::string &txt);
 
-    const ChipDB::Module *m_module;
+    const std::shared_ptr<ChipDB::Module> m_module;
 };
 
 };  // namespace

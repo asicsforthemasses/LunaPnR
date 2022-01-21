@@ -20,6 +20,9 @@ public:
     KeyObjPair<InstanceBase> addInstance(std::shared_ptr<InstanceBase> insPtr);
     KeyObjPair<Net> createNet(const std::string &netName);
 
+    bool connect(const std::string &insName, const std::string &pinName, const std::string &netName);
+    bool connect(InstanceObjectKey insKey, PinObjectKey pinKey, NetObjectKey netKey);    
+
     /** pointer to netlist, or null if the module is a black box */
     std::unique_ptr<Netlist> m_netlist;
 };

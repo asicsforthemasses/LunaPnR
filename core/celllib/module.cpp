@@ -51,3 +51,13 @@ KeyObjPair<Net> Module::createNet(const std::string &netName)
     return myNet;
 #endif
 }
+
+bool Module::connect(const std::string &insName, const std::string &pinName, const std::string &netName)
+{
+    return m_netlist->connect(insName, pinName, netName);
+}
+
+bool Module::connect(InstanceObjectKey insKey, PinObjectKey pinKey, NetObjectKey netKey)
+{
+    return m_netlist->connect(insKey, pinKey, netKey);
+}

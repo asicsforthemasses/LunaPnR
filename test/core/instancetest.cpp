@@ -41,6 +41,7 @@ BOOST_AUTO_TEST_CASE(various_instance_tests)
             pinCount++;
         }
     }
+    
     BOOST_CHECK(pinCount == 3);
     BOOST_CHECK(insPtr->getNumberOfPins() == 3);
 

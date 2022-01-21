@@ -182,30 +182,30 @@ BOOST_AUTO_TEST_CASE(check_qla_netlist_placement)
     mod->m_netlist = std::make_unique<ChipDB::Netlist>();
     BOOST_CHECK(mod->m_netlist);    // check netlist pointer is valid
 
-    BOOST_CHECK(createStringOfInstancesConnectingTwoTerminals(design, mod));
+    BOOST_CHECK(createStringOfInstancesConnectingTwoTerminals(design, mod.ptr()));
 
     // fix src pin at the top (1000,1000)
-    auto srcPin = mod->m_netlist->m_instances.lookup("src");
-    BOOST_CHECK(srcPin != nullptr);
+    auto srcPin = mod->m_netlist->m_instances.at("src");
+    BOOST_CHECK(srcPin.isValid());
     srcPin->m_pos = ChipDB::Coord64{1000,1000};
     srcPin->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
 
     // fix dst pin at the bottom (1000,0)
-    auto dstPin = mod->m_netlist->m_instances.lookup("dst");
-    BOOST_CHECK(dstPin != nullptr);
+    auto dstPin = mod->m_netlist->m_instances.at("dst");
+    BOOST_CHECK(dstPin.isValid());
     dstPin->m_pos = ChipDB::Coord64{1000,0};
     dstPin->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
 
-    ChipDB::Region region;
-    region.m_rect = ChipDB::Rect64{{0,0}, {2000,1000}};
-    region.m_rows.emplace_back();
-    region.m_rows.back().m_rect = region.m_rect;
-    region.m_rows.back().m_region = &region;
+    auto region = std::make_shared<ChipDB::Region>();
+    region->m_rect = ChipDB::Rect64{{0,0}, {2000,1000}};
+    region->m_rows.emplace_back();
+    region->m_rows.back().m_rect = region->m_rect;
+    region->m_rows.back().m_region = region;
 
     NetlistCallback callback;
-    callback.m_regionRect = region.m_rect;
+    callback.m_regionRect = region->m_rect;
 
-    auto status = LunaCore::QLAPlacer::place(region, *(mod->m_netlist.get()), callback);
+    auto status = LunaCore::QLAPlacer::place(*region, *(mod->m_netlist.get()), callback);
     BOOST_CHECK(status);
 
     // dump qlanetlist

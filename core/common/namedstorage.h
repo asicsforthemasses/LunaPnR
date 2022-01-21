@@ -61,6 +61,16 @@ template<class T> struct KeyObjPair
         return (m_key >= 0) && m_objPtr;
     }
 
+    friend bool operator==(const KeyObjPair<T> &lhs, const KeyObjPair<T> &rhs) noexcept
+    {
+        return (lhs.ptr == rhs.ptr) && (lhs.m_key == rhs.m_key);
+    }
+
+    friend bool operator!=(const KeyObjPair<T> &lhs, const KeyObjPair<T> &rhs) noexcept
+    {
+        return (lhs.ptr != rhs.ptr) || (lhs.m_key != rhs.m_key);
+    }
+
 protected:
     std::shared_ptr<T> m_objPtr = nullptr;
     ObjectKey          m_key = ObjectNotFound;
