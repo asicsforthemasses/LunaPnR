@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(place_multiplier)
     std::ifstream verilogfile("test/files/verilog/multiplier.v");
     BOOST_CHECK(verilogfile.good());
 
-    ChipDB::Verilog::Reader::load(&design, verilogfile);
+    ChipDB::Verilog::Reader::load(design, verilogfile);
 
     auto modKeyObjPair = design.m_moduleLib.lookupModule("multiplier");
 

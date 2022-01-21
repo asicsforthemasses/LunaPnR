@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(iterator_clock_net)
     std::ifstream verilogfile("test/files/verilog/nerv_tsmc018.v");
     BOOST_CHECK(verilogfile.good());
 
-    ChipDB::Verilog::Reader::load(&design, verilogfile);
+    ChipDB::Verilog::Reader::load(design, verilogfile);
 
     auto mod = design.m_moduleLib.lookupModule("nerv");
     BOOST_CHECK(mod.isValid());

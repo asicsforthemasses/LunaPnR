@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(can_write_netlist_to_dot)
     std::ifstream verilogfile("test/files/verilog/adder8.v");
     BOOST_CHECK(verilogfile.good());
 
-    BOOST_CHECK(ChipDB::Verilog::Reader::load(&design, verilogfile));
+    BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
     auto modulePtr = design.m_moduleLib.lookupModule("adder8");
     BOOST_CHECK(modulePtr.isValid());

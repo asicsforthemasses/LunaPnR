@@ -140,7 +140,7 @@ void LayerAppearanceTableModel::updatePixmapCache()
     }
 }
 
-void LayerAppearanceTableModel::notify(int32_t userID, ssize_t index, NotificationType t)
+void LayerAppearanceTableModel::notify(ChipDB::ObjectKey index, NotificationType t)
 {
     beginResetModel();
     endResetModel();

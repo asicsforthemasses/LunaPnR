@@ -56,6 +56,15 @@ void CellLib::createNetConCell()
     outPin->m_iotype = IOType::OUTPUT;
 }
 
+void CellLib::addListener(INamedStorageListener *listener)
+{
+    m_cells.addListener(listener);
+}
+
+void CellLib::removeListener(INamedStorageListener *listener)
+{
+    m_cells.removeListener(listener);
+}
 
 // **********************************************************************
 //   ModuleLib
@@ -105,4 +114,14 @@ bool ModuleLib::removeModule(ObjectKey key)
 bool ModuleLib::removeModule(const std::string &name)
 {
     return m_modules.remove(name);
+}
+
+void ModuleLib::addListener(INamedStorageListener *listener)
+{
+    m_modules.addListener(listener);
+}
+
+void ModuleLib::removeListener(INamedStorageListener *listener)
+{
+    m_modules.removeListener(listener);
 }

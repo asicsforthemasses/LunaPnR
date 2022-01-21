@@ -165,7 +165,7 @@ bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Instance> mod
         return false;
     }
 
-    auto writer = std::make_unique<Writer>(module);
+    std::unique_ptr<Writer> writer(new Writer(module));
     return writer->execute(os, decorator);
 }
 

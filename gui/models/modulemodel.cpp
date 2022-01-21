@@ -3,31 +3,31 @@
 
 using namespace GUI;
 
-ModuleTableModel::ModuleTableModel(ChipDB::ModuleLib *moduleLib) : m_moduleLib(nullptr)
+ModuleTableModel::ModuleTableModel(std::shared_ptr<ChipDB::ModuleLib> moduleLib) : m_moduleLib(nullptr)
 {
     m_lightColor = QColor("#F0F0F0");
     m_darkColor  = QColor("#D0D0D0");  
     setModuleLib(moduleLib);
 }
 
-void ModuleTableModel::setModuleLib(ChipDB::ModuleLib *moduleLib)
+void ModuleTableModel::setModuleLib(std::shared_ptr<ChipDB::ModuleLib> moduleLib)
 {
-    if (m_moduleLib != nullptr)
+    if (m_moduleLib)
     {
-        m_moduleLib->m_modules.removeListener(this);
+        m_moduleLib->removeListener(this);
     }
 
     beginResetModel();
     m_moduleLib = moduleLib;
     endResetModel();
 
-    if (m_moduleLib != nullptr)
+    if (m_moduleLib)
     {
-        m_moduleLib->m_modules.addListener(this);
+        m_moduleLib->addListener(this);
     }
 }
 
-void ModuleTableModel::notify(int32_t userID, ssize_t index, NotificationType t)
+void ModuleTableModel::notify(ChipDB::ObjectKey index, NotificationType t)
 {
     beginResetModel();
     endResetModel();
@@ -36,7 +36,7 @@ void ModuleTableModel::notify(int32_t userID, ssize_t index, NotificationType t)
 int ModuleTableModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    if (m_moduleLib == nullptr)
+    if (!m_moduleLib)
         return 0;
 
     return m_moduleLib->size();
@@ -53,9 +53,12 @@ QVariant ModuleTableModel::data(const QModelIndex &index, int role) const
 {
     QVariant v;
 
-    if ((m_moduleLib == nullptr) || (!index.isValid()))
+    if ((!m_moduleLib) || (!index.isValid()))
         return v;
 
+    // FIXME: we need to use keys here
+    //        because there might be gaps in the numbering
+    //        easiest way is to use the user data for each item
     size_t idx = index.row();
     switch(role)
     {
@@ -63,13 +66,13 @@ QVariant ModuleTableModel::data(const QModelIndex &index, int role) const
     case Qt::EditRole:
         if (idx < rowCount())
         {
-            auto module = m_moduleLib->m_modules.at(idx);
-            if (module != nullptr)
+            auto module = m_moduleLib->lookupModule(idx);
+            if (module)
             {
                 switch(index.column())
                 {
                 case 0: // cell name
-                    return QString::fromStdString(module->m_name);
+                    return QString::fromStdString(module->name());
                 //case 1: // cell class
                     //return QString("");
                     //return QString::fromStdString(ChipDB::toString(cell->m_class));
@@ -122,14 +125,14 @@ Qt::ItemFlags ModuleTableModel::flags(const QModelIndex &index) const
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-const ChipDB::Module* ModuleTableModel::getModule(int row) const
+const std::shared_ptr<ChipDB::Module> ModuleTableModel::getModule(int row) const
 {
-    if (m_moduleLib == nullptr)
+    if (!m_moduleLib)
         return nullptr;
 
     if (row < m_moduleLib->size())
     {
-        return m_moduleLib->m_modules.at(row);
+        return m_moduleLib->lookupModule(row);
     }
     else
     {
@@ -142,7 +145,7 @@ const ChipDB::Module* ModuleTableModel::getModule(int row) const
 //    ModuleListModel
 // ********************************************************************************
 
-ModuleListModel::ModuleListModel(ChipDB::ModuleLib *moduleLib) : m_moduleLib(nullptr)
+ModuleListModel::ModuleListModel(std::shared_ptr<ChipDB::ModuleLib> moduleLib) : m_moduleLib(nullptr)
 {
     setModuleLib(moduleLib);
 }
@@ -156,20 +159,20 @@ int ModuleListModel::rowCount(const QModelIndex &parent) const
     return m_moduleLib->size();
 }
 
-void ModuleListModel::setModuleLib(ChipDB::ModuleLib *moduleLib)
+void ModuleListModel::setModuleLib(std::shared_ptr<ChipDB::ModuleLib> moduleLib)
 {
-    if (m_moduleLib != nullptr)
+    if (!m_moduleLib)
     {
-        m_moduleLib->m_modules.removeListener(this);
+        m_moduleLib->removeListener(this);
     }
 
     beginResetModel();
     m_moduleLib = moduleLib;
     endResetModel();
 
-    if (m_moduleLib != nullptr)
+    if (!m_moduleLib)
     {
-        m_moduleLib->m_modules.addListener(this);
+        m_moduleLib->addListener(this);
     }
 }
 
@@ -198,10 +201,10 @@ QVariant ModuleListModel::data(const QModelIndex &index, int role) const
     case Qt::EditRole:
         if (idx < rowCount())
         {
-            auto module = m_moduleLib->m_modules.at(idx);
+            auto module = m_moduleLib->lookupModule(idx);
             if (module != nullptr)
             {
-                return QString::fromStdString(module->m_name);
+                return QString::fromStdString(module->name());
             }                
             else
                 return QString("(null)");
@@ -219,7 +222,7 @@ QVariant ModuleListModel::data(const QModelIndex &index, int role) const
     return v;    
 }
 
-void ModuleListModel::notify(int32_t userID, ssize_t index, NotificationType t)
+void ModuleListModel::notify(ChipDB::ObjectKey index, NotificationType t) override;
 {
     beginResetModel();
     endResetModel();

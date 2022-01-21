@@ -49,6 +49,9 @@ public:
         return m_cells.end();
     }
 
+    void addListener(INamedStorageListener *listener);
+    void removeListener(INamedStorageListener *listener);
+
 protected:
     /** create a special net connection cell so we can connect nets */
     void createNetConCell();
@@ -88,6 +91,9 @@ public:
 
     bool removeModule(ObjectKey key);
     bool removeModule(const std::string &name);
+
+    void addListener(INamedStorageListener *listener);
+    void removeListener(INamedStorageListener *listener);
 
 protected:
     NamedStorage<Module> m_modules;

@@ -63,12 +63,12 @@ template<class T> struct KeyObjPair
 
     friend bool operator==(const KeyObjPair<T> &lhs, const KeyObjPair<T> &rhs) noexcept
     {
-        return (lhs.ptr == rhs.ptr) && (lhs.m_key == rhs.m_key);
+        return (lhs.m_objPtr == rhs.m_objPtr) && (lhs.m_key == rhs.m_key);
     }
 
     friend bool operator!=(const KeyObjPair<T> &lhs, const KeyObjPair<T> &rhs) noexcept
     {
-        return (lhs.ptr != rhs.ptr) || (lhs.m_key != rhs.m_key);
+        return (lhs.m_objPtr != rhs.m_objPtr) || (lhs.m_key != rhs.m_key);
     }
 
 protected:
