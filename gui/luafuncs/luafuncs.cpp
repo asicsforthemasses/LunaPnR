@@ -69,7 +69,7 @@ static int load_verilog(lua_State *L)
         return 0;
     }
 
-    if (!ChipDB::Verilog::Reader::load(&db->design(), verilogFile))
+    if (!ChipDB::Verilog::Reader::load(db->design(), verilogFile))
     {
         reportError(L, "Error parsing verilog file '%s'", filename);
     }
@@ -99,7 +99,7 @@ static int load_lef(lua_State *L)
         return 0;
     }
 
-    if (!ChipDB::LEF::Reader::load(&db->design(), lefFile))
+    if (!ChipDB::LEF::Reader::load(db->design(), lefFile))
     {
         reportError(L, "Error parsing LEF file '%s'", filename);
         return 0;
@@ -130,7 +130,7 @@ static int load_lib(lua_State *L)
         return 0;
     }
 
-    if (!ChipDB::Liberty::Reader::load(&db->design(), libFile))
+    if (!ChipDB::Liberty::Reader::load(db->design(), libFile))
     {
         reportError(L, "Error parsing Liberty file '%s'", filename);
         return 0;
@@ -268,13 +268,12 @@ static int create_region(lua_State *L)
     auto width  = lua_tointeger(L, 4);
     auto height = lua_tointeger(L, 5);
 
-    auto region = new ChipDB::Region();
+    auto region = std::make_shared<ChipDB::Region>(name);
     region->m_rect = ChipDB::Rect64(ChipDB::Coord64{x,y}, ChipDB::Coord64{x+width,y+height});
 
-    if (!db->floorplan().m_regions.add(name, region))
+    if (!db->floorplan().m_regions.add(region))
     {
         reportError(L, "Region with name %s already exists!", name);
-        delete region;
         return 0;
     }
 
@@ -325,7 +324,7 @@ static int create_rows(lua_State *L)
     auto rowHeight = lua_tointeger(L, 3);
     auto numRows   = lua_tointeger(L, 4);
 
-    auto region = db->floorplan().m_regions.lookup(name);
+    auto region = db->floorplan().lookupRegion(name);
     if (region == nullptr)
     {
         reportError(L, "Region with name %s does not exists!", name);

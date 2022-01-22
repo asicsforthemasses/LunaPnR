@@ -36,7 +36,7 @@ public:
     static const int32_t CellLibNotificationID = 3;
 
     // called by database updates
-    void notify(int32_t userID, ssize_t index = -1, NotificationType t = NotificationType::UNSPECIFIED) override;
+    void notify(ChipDB::ObjectKey index = -1, NotificationType t = NotificationType::UNSPECIFIED) override;
 
 public slots:
     void onQuit();

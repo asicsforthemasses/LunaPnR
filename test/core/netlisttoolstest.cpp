@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_CASE(check_histogram)
     BOOST_CHECK(leffile.good());
 
     ChipDB::Design design;
-    BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
+    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
     std::ifstream verilogfile("test/files/verilog/adder2.v");
     BOOST_CHECK(verilogfile.good());
@@ -56,8 +56,8 @@ BOOST_AUTO_TEST_CASE(check_histogram_2)
     BOOST_CHECK(leffile2.good());
 
     ChipDB::Design design;
-    BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
-    BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile2));
+    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
+    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile2));
 
     std::ifstream verilogfile("test/files/verilog/femtorv32_quark.v");
     BOOST_CHECK(verilogfile.good());

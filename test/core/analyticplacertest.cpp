@@ -139,12 +139,10 @@ BOOST_AUTO_TEST_CASE(place_multiplier)
     }
 
     // create a floorplan with region
-    auto region = std::make_shared<ChipDB::Region>("core");
+    auto region = design.m_floorplan.createRegion("core");
     region->m_site = "corehd";
     region->m_rect.setSize( {65000+20000,65000+20000} );
     region->m_halo = ChipDB::Margins64{10000,10000,10000,10000};
-
-    design.m_floorplan.m_regions.add(region);
 
     auto ll = getLogLevel();
     setLogLevel(LOG_VERBOSE);

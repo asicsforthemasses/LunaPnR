@@ -17,12 +17,12 @@ BOOST_AUTO_TEST_CASE(check_simplecellplacer)
     BOOST_CHECK(leffile.good());
 
     ChipDB::Design design;
-    BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
+    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
     std::ifstream verilogfile("test/files/verilog/nerv_tsmc018.v");
     BOOST_CHECK(verilogfile.good());
 
-    ChipDB::Verilog::Reader::load(&design, verilogfile);    
+    ChipDB::Verilog::Reader::load(design, verilogfile);    
 
     auto mod = design.m_moduleLib.lookupModule("nerv");
     BOOST_CHECK(mod.isValid());

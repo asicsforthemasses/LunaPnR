@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE(can_read_lef)
     BOOST_CHECK(leffile.good());
 
     ChipDB::Design design;
-    BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
+    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
     std::cout << "  Found " << design.m_cellLib.size() << " cells\n";
     BOOST_CHECK(design.m_cellLib.size() == 34);
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(can_read_lef2)
     }
 
     ChipDB::Design design;
-    BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
+    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
     std::cout << "  Found " << design.m_cellLib.size() << " cells\n";
     BOOST_CHECK(design.m_cellLib.size() == 135);

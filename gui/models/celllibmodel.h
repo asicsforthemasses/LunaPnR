@@ -37,7 +37,7 @@ public:
     /** query the view/list header information */
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
-    const std::shared_ptr<ChipDB::Cell> getCell(int row) const;
+    std::shared_ptr<ChipDB::Cell> getCell(int row) const;
 
 protected:
     QColor m_lightColor;
@@ -74,7 +74,7 @@ public:
     /** query the view/list header information */
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
-    const std::shared_ptr<ChipDB::Cell> getCell(int row) const;
+    std::shared_ptr<ChipDB::Cell> getCell(int row) const;
 
     void notify(ChipDB::ObjectKey index, ChipDB::INamedStorageListener::NotificationType t) override;
 

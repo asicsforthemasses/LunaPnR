@@ -89,12 +89,12 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
     BOOST_CHECK(leffile.good());
 
     ChipDB::Design design;
-    BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
+    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
     std::ifstream verilogfile("test/files/verilog/multiplier.v");
     BOOST_CHECK(verilogfile.good());
 
-    BOOST_CHECK(ChipDB::Verilog::Reader::load(&design, verilogfile));
+    BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
     // check the design
     std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";
@@ -143,12 +143,12 @@ BOOST_AUTO_TEST_CASE(can_read_nerv32)
     BOOST_CHECK(leffile.good());
 
     ChipDB::Design design;
-    BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
+    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
     std::ifstream verilogfile("test/files/verilog/nerv_tsmc018.v");
     BOOST_CHECK(verilogfile.good());
 
-    BOOST_CHECK(ChipDB::Verilog::Reader::load(&design, verilogfile));
+    BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
     // check the design
     std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";
@@ -192,12 +192,12 @@ BOOST_AUTO_TEST_CASE(can_read_picorv32)
     BOOST_CHECK(leffile.good());
 
     ChipDB::Design design;
-    BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
+    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
     std::ifstream verilogfile("test/files/verilog/picorv32.v");
     BOOST_CHECK(verilogfile.good());
 
-    BOOST_CHECK(ChipDB::Verilog::Reader::load(&design, verilogfile));
+    BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
     // check the design
     std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";

@@ -70,7 +70,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_techBrowser->setDatabase(&m_db);
     m_cellBrowser->setDatabase(&m_db);
 
-    m_db.floorplan().m_regions.addListener(this, FloorplanNotificationID);
+    m_db.floorplan().addListener(this);
 
     m_floorplanView->setDatabase(&m_db);
     m_floorplanView->update();
@@ -89,8 +89,13 @@ MainWindow::~MainWindow()
 {
 }
 
-void MainWindow::notify(int32_t userID, ssize_t index, NotificationType t)
+void MainWindow::notify(ChipDB::ObjectKey index, NotificationType t)
 {
+    m_floorplanDirty = true;
+    m_techLibDirty = true;
+    m_cellLibDirty = true;
+
+#if 0    
     switch(userID)
     {
     case FloorplanNotificationID:
@@ -103,6 +108,7 @@ void MainWindow::notify(int32_t userID, ssize_t index, NotificationType t)
         m_cellLibDirty = true;
         break;
     }
+#endif
 }
 
 void MainWindow::createMenus()
@@ -225,7 +231,7 @@ void MainWindow::onImportLEF()
             return;
         }
 
-        if (!ChipDB::LEF::Reader::load(&m_db.design(), leffile))
+        if (!ChipDB::LEF::Reader::load(m_db.design(), leffile))
         {
             doLog(LOG_ERROR,"LEF file '%s' contains errors\n", fileName.toStdString().c_str());
             QMessageBox::critical(this, tr("Error"), tr("The LEF file contains errors"), QMessageBox::Close);
@@ -255,7 +261,7 @@ void MainWindow::onImportLIB()
             return;
         }
 
-        if (!ChipDB::Liberty::Reader::load(&m_db.design(), libfile))
+        if (!ChipDB::Liberty::Reader::load(m_db.design(), libfile))
         {
             doLog(LOG_ERROR,"LIB file '%s' contains errors\n", fileName.toStdString().c_str());
             QMessageBox::critical(this, tr("Error"), tr("The LIB file contains errors"), QMessageBox::Close);
@@ -333,7 +339,7 @@ void MainWindow::onLoadVerilog()
         std::ifstream verilogfile(fileName.toStdString(), std::ios::in);
         if (verilogfile.is_open())
         {
-            if (!ChipDB::Verilog::Reader::load(&m_db.design(), verilogfile))
+            if (!ChipDB::Verilog::Reader::load(m_db.design(), verilogfile))
             {
                 QMessageBox::critical(this, tr("Error"), tr("Could not parse Verilog file"), QMessageBox::Close);
                 doLog(LOG_ERROR, "Cannot read/parse verilog file!\n");

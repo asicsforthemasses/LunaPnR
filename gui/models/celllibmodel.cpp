@@ -75,7 +75,7 @@ Qt::ItemFlags CellLibListModel::flags(const QModelIndex &index) const
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-const std::shared_ptr<ChipDB::Cell> CellLibListModel::getCell(int row) const
+std::shared_ptr<ChipDB::Cell> CellLibListModel::getCell(int row) const
 {
     if (m_cellLib == nullptr)
         return nullptr;
@@ -267,7 +267,7 @@ Qt::ItemFlags CellLibTableModel::flags(const QModelIndex &index) const
     }
 }
 
-const std::shared_ptr<ChipDB::Cell> CellLibTableModel::getCell(int row) const
+std::shared_ptr<ChipDB::Cell> CellLibTableModel::getCell(int row) const
 {
     if (m_cellLib == nullptr)
         return nullptr;
