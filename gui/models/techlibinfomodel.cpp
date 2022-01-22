@@ -35,12 +35,12 @@ LayerInfoModel::~LayerInfoModel()
 {
 }
 
-void LayerInfoModel::setLayer(const ChipDB::LayerInfo *layer)
+void LayerInfoModel::setLayer(std::shared_ptr<ChipDB::LayerInfo> layer)
 {
     beginResetModel();
     m_rootNode.reset(new LayerInfoNode("Cell", "", m_altColors.getColor()));
 
-    if (layer == nullptr)
+    if (!layer)
     {
         std::cout << "Layer is null\n";
         endResetModel();
@@ -50,7 +50,7 @@ void LayerInfoModel::setLayer(const ChipDB::LayerInfo *layer)
     m_altColors.resetState();
 
     // generic layer information
-    auto layerNode = new LayerInfoNode("Layer", QString::fromStdString(layer->m_name), m_altColors.getColorAndUpdate());
+    auto layerNode = new LayerInfoNode("Layer", QString::fromStdString(layer->name()), m_altColors.getColorAndUpdate());
     m_rootNode->addChild(layerNode);
 
     //layerNode->addChild(new LayerInfoNode("ID", layer->m_id, m_altColors.getColorAndUpdate()));
@@ -69,7 +69,7 @@ void LayerInfoModel::setLayer(const ChipDB::LayerInfo *layer)
     endResetModel();
 }
 
-void LayerInfoModel::notify(int32_t userID, ssize_t index, ChipDB::INamedStorageListener::NotificationType t)
+void LayerInfoModel::notify(ChipDB::ObjectKey index, ChipDB::INamedStorageListener::NotificationType t)
 {
     if (t == ChipDB::INamedStorageListener::NotificationType::REMOVE)
     {
@@ -81,7 +81,7 @@ void LayerInfoModel::notify(int32_t userID, ssize_t index, ChipDB::INamedStorage
 //    LayerTableModel
 // ********************************************************************************
 
-LayerTableModel::LayerTableModel(ChipDB::TechLib *techLib) : m_techLib(nullptr)
+LayerTableModel::LayerTableModel(std::shared_ptr<ChipDB::TechLib> techLib) : m_techLib(nullptr)
 {
     m_lightColor = QColor("#F0F0F0");
     m_darkColor  = QColor("#D0D0D0");
@@ -91,30 +91,30 @@ LayerTableModel::LayerTableModel(ChipDB::TechLib *techLib) : m_techLib(nullptr)
 
 LayerTableModel::~LayerTableModel()
 {
-    if (m_techLib != nullptr)
+    if (m_techLib)
     {
-        m_techLib->m_layers.removeListener(this);
+        m_techLib->layers().removeListener(this);
     }
 }
 
-void LayerTableModel::setTechLib(ChipDB::TechLib *techLib)
+void LayerTableModel::setTechLib(std::shared_ptr<ChipDB::TechLib> techLib)
 {
-    if (m_techLib != nullptr)
+    if (m_techLib)
     {
-        m_techLib->m_layers.removeListener(this);
+        m_techLib->layers().removeListener(this);
     }
 
     beginResetModel();
     m_techLib = techLib;
-    if (m_techLib != nullptr)
+    if (m_techLib)
     {
-        m_techLib->m_layers.addListener(this);
+        m_techLib->layers().addListener(this);
     }
 
     endResetModel();
 }
 
-void LayerTableModel::notify(int32_t userID, ssize_t index, ChipDB::INamedStorageListener::NotificationType t)
+void LayerTableModel::notify(ChipDB::ObjectKey index, ChipDB::INamedStorageListener::NotificationType t)
 {
     beginResetModel();
     endResetModel();
@@ -123,10 +123,10 @@ void LayerTableModel::notify(int32_t userID, ssize_t index, ChipDB::INamedStorag
 int LayerTableModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    if (m_techLib == nullptr)
+    if (!m_techLib)
         return 0;
 
-    return m_techLib->m_layers.size();
+    return m_techLib->getNumberOfLayers();
 }
 
 /** return the number of columns in the table */
@@ -140,7 +140,7 @@ QVariant LayerTableModel::data(const QModelIndex &index, int role) const
 {
     QVariant v;
 
-    if ((m_techLib == nullptr) || (!index.isValid()))
+    if ((!m_techLib) || (!index.isValid()))
         return v;
 
     size_t idx = index.row();
@@ -150,13 +150,14 @@ QVariant LayerTableModel::data(const QModelIndex &index, int role) const
     case Qt::EditRole:
         if (idx < rowCount())
         {
-            auto layer = m_techLib->m_layers.at(idx);
+            //FIXME: use keys
+            auto layer = m_techLib->layers().at(idx);
             if (layer != nullptr)
             {
                 switch(index.column())
                 {
                 case 0: // cell name
-                    return QString::fromStdString(layer->m_name);
+                    return QString::fromStdString(layer->name());
                 case 1: // cell class
                     //return QString("");
                     return QString::fromStdString(ChipDB::toString(layer->m_type));
@@ -209,14 +210,14 @@ Qt::ItemFlags LayerTableModel::flags(const QModelIndex &index) const
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-const ChipDB::LayerInfo* LayerTableModel::getLayer(int row) const
+const std::shared_ptr<ChipDB::LayerInfo> LayerTableModel::getLayer(int row) const
 {
     if (m_techLib == nullptr)
         return nullptr;
 
-    if (row < m_techLib->m_layers.size())
+    if (row < m_techLib->getNumberOfLayers())
     {
-        return m_techLib->m_layers.at(row);
+        return m_techLib->layers().at(row);
     }
     else
     {

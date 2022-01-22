@@ -11,11 +11,11 @@ namespace GUI
 class LayerTableModel : public QAbstractTableModel, ChipDB::INamedStorageListener
 {
 public:
-    LayerTableModel(ChipDB::TechLib *techLib);
+    LayerTableModel(std::shared_ptr<ChipDB::TechLib> techLib);
 
     virtual ~LayerTableModel();
 
-    void setTechLib(ChipDB::TechLib *m_techLib);
+    void setTechLib(std::shared_ptr<ChipDB::TechLib> m_techLib);
 
     /** return the number of rows in the table */
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -32,14 +32,14 @@ public:
     /** query the view/list header information */
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
-    const ChipDB::LayerInfo* getLayer(int row) const;
+    const std::shared_ptr<ChipDB::LayerInfo> getLayer(int row) const;
 
-    void notify(int32_t userID, ssize_t index, ChipDB::INamedStorageListener::NotificationType t) override;
+    void notify(ChipDB::ObjectKey index, ChipDB::INamedStorageListener::NotificationType t) override;
 
 protected:
     QColor m_darkColor;
     QColor m_lightColor;
-    ChipDB::TechLib *m_techLib;
+    std::shared_ptr<ChipDB::TechLib> m_techLib;
 };
 
 
@@ -55,7 +55,7 @@ public:
     TechLibInfoModel();
     virtual ~TechLibInfoModel();
 
-    void setTechLib(const ChipDB::TechLib *techlib);
+    void setTechLib(std::shared_ptr<ChipDB::TechLib> techlib);
     
 };
 
@@ -74,9 +74,9 @@ public:
     LayerInfoModel();
     virtual ~LayerInfoModel();
 
-    void setLayer(const ChipDB::LayerInfo *layer);
+    void setLayer(std::shared_ptr<ChipDB::LayerInfo> layer);
 
-    void notify(int32_t userID, ssize_t index, ChipDB::INamedStorageListener::NotificationType t) override;
+    void notify(ChipDB::ObjectKey index, ChipDB::INamedStorageListener::NotificationType t) override;
 
 protected:
     AlternatingColors m_altColors;

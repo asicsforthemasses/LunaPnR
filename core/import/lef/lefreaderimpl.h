@@ -27,7 +27,7 @@ namespace ChipDB::LEF
 class ReaderImpl : public Parser
 {
 public:
-    ReaderImpl(Design *design);
+    ReaderImpl(Design &design);
 
     virtual void onMacro(const std::string &macroName) override;
 
@@ -176,7 +176,7 @@ protected:
     std::shared_ptr<LayerInfo>  m_curLayerInfo;
     std::shared_ptr<SiteInfo>   m_curSiteInfo;
 
-    Design          *m_design;
+    Design     &m_design;
 
     std::string m_activePinLayerName;
     std::string m_activeObsLayerName;

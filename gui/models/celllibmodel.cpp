@@ -9,14 +9,14 @@ using namespace GUI;
 //    CellLibListModel
 // ********************************************************************************
 
-CellLibListModel::CellLibListModel(const ChipDB::CellLib *cellLib)
+CellLibListModel::CellLibListModel(std::shared_ptr<ChipDB::CellLib> cellLib)
 {
     m_lightColor = QColor("#F0F0F0");
     m_darkColor  = QColor("#D0D0D0");
     setCellLib(cellLib);    
 }
 
-void CellLibListModel::setCellLib(const ChipDB::CellLib *cellLib)
+void CellLibListModel::setCellLib(std::shared_ptr<ChipDB::CellLib> cellLib)
 {
     beginResetModel();
     m_cellLib = cellLib;
@@ -25,7 +25,7 @@ void CellLibListModel::setCellLib(const ChipDB::CellLib *cellLib)
 
 int CellLibListModel::rowCount(const QModelIndex &parent) const
 {
-    if (m_cellLib == nullptr)
+    if (!m_cellLib)
         return 0;
 
     return m_cellLib->size();
@@ -35,7 +35,7 @@ QVariant CellLibListModel::data(const QModelIndex &index, int role) const
 {
     QVariant v;
 
-    if ((m_cellLib == nullptr) || (!index.isValid()))
+    if ((!m_cellLib) || (!index.isValid()))
         return v;
 
     size_t idx = index.row();
@@ -45,9 +45,10 @@ QVariant CellLibListModel::data(const QModelIndex &index, int role) const
     case Qt::EditRole:
         if (idx < rowCount())
         {
-            auto cell = m_cellLib->m_cells.at(idx);
+            //FIXME: use keys
+            auto cell = m_cellLib->lookupCell(idx);
             if (cell != nullptr)
-                return QString::fromStdString(cell->m_name);
+                return QString::fromStdString(cell->name());
             else
                 return QString("(null)");
         }
@@ -74,14 +75,15 @@ Qt::ItemFlags CellLibListModel::flags(const QModelIndex &index) const
     return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-const ChipDB::Cell* CellLibListModel::getCell(int row) const
+const std::shared_ptr<ChipDB::Cell> CellLibListModel::getCell(int row) const
 {
     if (m_cellLib == nullptr)
         return nullptr;
 
+    //FIXME: use keys
     if (row < m_cellLib->size())
     {
-        return m_cellLib->m_cells.at(row);
+        return m_cellLib->lookupCell(row);
     }
     else
     {
@@ -94,7 +96,7 @@ const ChipDB::Cell* CellLibListModel::getCell(int row) const
 //    CellLibTableModel
 // ********************************************************************************
 
-CellLibTableModel::CellLibTableModel(ChipDB::CellLib *cellLib) : m_cellLib(nullptr)
+CellLibTableModel::CellLibTableModel(std::shared_ptr<ChipDB::CellLib> cellLib) : m_cellLib(nullptr)
 {
     m_lightColor = QColor("#F0F0F0");
     m_darkColor  = QColor("#D0D0D0");  
@@ -105,18 +107,18 @@ CellLibTableModel::~CellLibTableModel()
 {
 }
 
-void CellLibTableModel::setCellLib(ChipDB::CellLib *cellLib)
+void CellLibTableModel::setCellLib(std::shared_ptr<ChipDB::CellLib> cellLib)
 {
-    if (m_cellLib != nullptr)
+    if (!m_cellLib)
     {
-        m_cellLib->m_cells.removeListener(this);
+        m_cellLib->removeListener(this);
     }
 
     beginResetModel();
     m_cellLib = cellLib;
-    if (m_cellLib != nullptr)
+    if (!m_cellLib)
     {
-        m_cellLib->m_cells.addListener(this);
+        m_cellLib->addListener(this);
     }
     endResetModel();
 }
@@ -124,7 +126,7 @@ void CellLibTableModel::setCellLib(ChipDB::CellLib *cellLib)
 int CellLibTableModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    if (m_cellLib == nullptr)
+    if (!m_cellLib)
         return 0;
 
     return m_cellLib->size();
@@ -156,7 +158,8 @@ bool CellLibTableModel::setData(const QModelIndex &index, const QVariant &value,
 
     if (role == Qt::UserRole)
     {
-        m_cellLib->m_cells.at(index.row())->m_subclass = static_cast<ChipDB::CellSubclass>(value.toInt());
+        //FIXME: use keys
+        m_cellLib->lookupCell(index.row())->m_subclass = static_cast<ChipDB::CellSubclass>(value.toInt());
     }
 
     return true;
@@ -166,7 +169,7 @@ QVariant CellLibTableModel::data(const QModelIndex &index, int role) const
 {
     QVariant v;
 
-    if ((m_cellLib == nullptr) || (!index.isValid()))
+    if ((!m_cellLib) || (!index.isValid()))
         return v;
 
     size_t idx = index.row();
@@ -176,13 +179,14 @@ QVariant CellLibTableModel::data(const QModelIndex &index, int role) const
     case Qt::EditRole:
         if (idx < rowCount())
         {
-            auto cell = m_cellLib->m_cells.at(idx);
+            // FIXME: use keys
+            auto cell = m_cellLib->lookupCell(idx);
             if (cell != nullptr)
             {
                 switch(index.column())
                 {
                 case 0: // cell name
-                    return QString::fromStdString(cell->m_name);
+                    return QString::fromStdString(cell->name());
                 case 1: // cell class
                     return QString::fromStdString(ChipDB::toString(cell->m_class));
                 default:
@@ -197,7 +201,8 @@ QVariant CellLibTableModel::data(const QModelIndex &index, int role) const
     case Qt::UserRole:
         if (idx < rowCount())
         {
-            auto cell = m_cellLib->m_cells.at(idx);
+            //FIXME: use keys
+            auto cell = m_cellLib->lookupCell(idx);
             if (cell != nullptr)
             {
                 switch(index.column())
@@ -262,14 +267,15 @@ Qt::ItemFlags CellLibTableModel::flags(const QModelIndex &index) const
     }
 }
 
-const ChipDB::Cell* CellLibTableModel::getCell(int row) const
+const std::shared_ptr<ChipDB::Cell> CellLibTableModel::getCell(int row) const
 {
     if (m_cellLib == nullptr)
         return nullptr;
 
+    //FIXME: use keys
     if (row < m_cellLib->size())
     {
-        return m_cellLib->m_cells.at(row);
+        return m_cellLib->lookupCell(row);
     }
     else
     {
@@ -277,7 +283,7 @@ const ChipDB::Cell* CellLibTableModel::getCell(int row) const
     }
 }
 
-void CellLibTableModel::notify(int32_t userID, ssize_t index, ChipDB::INamedStorageListener::NotificationType t)
+void CellLibTableModel::notify(ChipDB::ObjectKey index, ChipDB::INamedStorageListener::NotificationType t)
 {
     beginResetModel();
     endResetModel();    

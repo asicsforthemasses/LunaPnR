@@ -38,7 +38,7 @@ namespace ChipDB::Liberty
 class ReaderImpl : public Parser
 {
 public:
-    ReaderImpl(Design *design);
+    ReaderImpl(Design &design);
 
     /** Called for groups without a name/parameter */
     virtual void onGroup(const std::string &group) override;
@@ -61,7 +61,7 @@ public:
     virtual void onEndParse() override;
 
 protected:
-    Design  *m_design;
+    Design  &m_design;
     
     std::shared_ptr<Cell>       m_curCell;
     std::shared_ptr<PinInfo>    m_curPin;

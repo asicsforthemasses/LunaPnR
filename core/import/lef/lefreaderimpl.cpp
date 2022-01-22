@@ -25,7 +25,7 @@
 
 using namespace ChipDB::LEF;
 
-ReaderImpl::ReaderImpl(Design *design) 
+ReaderImpl::ReaderImpl(Design &design) 
     : m_design(design) 
 {
     m_context = CONTEXT_PIN;
@@ -41,7 +41,7 @@ ReaderImpl::ReaderImpl(Design *design)
 void ReaderImpl::onMacro(const std::string &macroName)
 {
     // create a new cell/macro if necessary    
-    auto newCellKeyObj = m_design->m_cellLib.createCell(macroName);
+    auto newCellKeyObj = m_design.m_cellLib.createCell(macroName);
     if (!newCellKeyObj.isValid())
     {
         std::stringstream ss;
@@ -427,7 +427,7 @@ void ReaderImpl::onLayer(const std::string &layerName)
 {
     doLog(LOG_VERBOSE,"LEF LAYER: %s\n", layerName.c_str());
 
-    auto layerKeyObjPair = m_design->m_techLib.createLayer(layerName);
+    auto layerKeyObjPair = m_design.m_techLib.createLayer(layerName);
 
     m_curLayerInfo = layerKeyObjPair.ptr();
 }
@@ -576,13 +576,7 @@ void ReaderImpl::onLayerMaxWidth(int64_t maxWidth)
 
 void ReaderImpl::onManufacturingGrid(int64_t grid)
 {
-    if (m_design == nullptr)
-    {
-        doLog(LOG_ERROR,"Design is nullptr\n");
-        return;
-    }
-
-    m_design->m_techLib.m_manufacturingGrid = grid;
+    m_design.m_techLib.m_manufacturingGrid = grid;
 }
 
 
@@ -643,7 +637,7 @@ void ReaderImpl::onLayerMinArea(double minArea)
 
 void ReaderImpl::onSite(const std::string &site)
 {
-    auto siteKeyObjPair = m_design->m_techLib.createSiteInfo(site);
+    auto siteKeyObjPair = m_design.m_techLib.createSiteInfo(site);
     m_curSiteInfo = siteKeyObjPair.ptr();
     doLog(LOG_VERBOSE,"LEF SITE: %s\n", site.c_str());
 }

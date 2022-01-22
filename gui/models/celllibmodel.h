@@ -21,9 +21,9 @@ namespace GUI
 class CellLibListModel : public QAbstractListModel
 {
 public:
-    CellLibListModel(const ChipDB::CellLib *m_cellLib);
+    CellLibListModel(const std::shared_ptr<ChipDB::CellLib> m_cellLib);
 
-    void setCellLib(const ChipDB::CellLib *m_cellLib);
+    void setCellLib(const std::shared_ptr<ChipDB::CellLib> m_cellLib);
 
     /** return the number of rows in the list */
     virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -37,12 +37,12 @@ public:
     /** query the view/list header information */
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
-    const ChipDB::Cell* getCell(int row) const;
+    const std::shared_ptr<ChipDB::Cell> getCell(int row) const;
 
 protected:
     QColor m_lightColor;
     QColor m_darkColor;
-    const ChipDB::CellLib *m_cellLib;
+    std::shared_ptr<ChipDB::CellLib> m_cellLib;
 };
 
 
@@ -50,11 +50,11 @@ protected:
 class CellLibTableModel : public QAbstractTableModel, ChipDB::INamedStorageListener
 {
 public:
-    CellLibTableModel(ChipDB::CellLib *m_cellLib);
+    CellLibTableModel(std::shared_ptr<ChipDB::CellLib> m_cellLib);
 
     virtual ~CellLibTableModel();
 
-    void setCellLib(ChipDB::CellLib *m_cellLib);
+    void setCellLib(std::shared_ptr<ChipDB::CellLib> m_cellLib);
 
     /** return the number of rows in the table */
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
@@ -74,9 +74,9 @@ public:
     /** query the view/list header information */
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
-    const ChipDB::Cell* getCell(int row) const;
+    const std::shared_ptr<ChipDB::Cell> getCell(int row) const;
 
-    void notify(int32_t userID, ssize_t index, ChipDB::INamedStorageListener::NotificationType t) override;
+    void notify(ChipDB::ObjectKey index, ChipDB::INamedStorageListener::NotificationType t) override;
 
 protected:
 
@@ -84,7 +84,7 @@ protected:
 
     QColor m_lightColor;
     QColor m_darkColor;
-    ChipDB::CellLib *m_cellLib;
+    std::shared_ptr<ChipDB::CellLib> m_cellLib;
 };
 
 

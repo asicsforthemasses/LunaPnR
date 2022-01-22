@@ -4,7 +4,7 @@
 
 using namespace ChipDB::LEF;
 
-bool Reader::load(Design *design, std::istream &source)
+bool Reader::load(Design &design, std::istream &source)
 {
     try
     {

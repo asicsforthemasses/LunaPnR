@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE(place_multiplier)
     BOOST_CHECK(leffile.good());
 
     ChipDB::Design design;
-    BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
+    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
     std::ifstream verilogfile("test/files/verilog/multiplier.v");
     BOOST_CHECK(verilogfile.good());

@@ -10,7 +10,7 @@ namespace ChipDB::Liberty
 class Reader
 {
 public:
-    static bool load(Design *design, std::istream &source);
+    static bool load(Design &design, std::istream &source);
 };
 
 };

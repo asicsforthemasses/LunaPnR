@@ -60,11 +60,11 @@ BOOST_AUTO_TEST_CASE(iterator_clock_net)
 
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_CHECK(leffile.good());
-    BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
+    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
     std::ifstream libertyfile("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib");
     BOOST_CHECK(libertyfile.good());
-    BOOST_CHECK(ChipDB::Liberty::Reader::load(&design, libertyfile));
+    BOOST_CHECK(ChipDB::Liberty::Reader::load(design, libertyfile));
 
     std::ifstream verilogfile("test/files/verilog/nerv_tsmc018.v");
     BOOST_CHECK(verilogfile.good());
