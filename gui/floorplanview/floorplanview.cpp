@@ -292,7 +292,7 @@ void FloorplanView::drawRegions(QPainter &p)
     const QColor regionColor("#FF90EE90"); // light green
 
     p.setBrush(Qt::NoBrush);
-    for(auto region : m_db->floorplan().m_regions)
+    for(auto region : m_db->floorplan())
     {
         auto regionRect     = m_viewPort.toScreen(region->m_rect);
         auto placementRect  = m_viewPort.toScreen(region->getPlacementRect());
@@ -308,11 +308,11 @@ void FloorplanView::drawRegions(QPainter &p)
         p.setPen(QPen(regionColor, 1, Qt::SolidLine));
         p.drawRect(placementRect);
 
-        drawRows(p, region);
+        drawRows(p, region.ptr());
     }
 }
 
-void FloorplanView::drawRows(QPainter &p, const ChipDB::Region *region)
+void FloorplanView::drawRows(QPainter &p, const std::shared_ptr<ChipDB::Region> region)
 {
     const QColor rowColor("#FFADD8E6"); // light blue
 
@@ -326,7 +326,7 @@ void FloorplanView::drawRows(QPainter &p, const ChipDB::Region *region)
     }
 }
 
-void FloorplanView::drawCell(QPainter &p, const ChipDB::InstanceBase *ins)
+void FloorplanView::drawCell(QPainter &p, const std::shared_ptr<ChipDB::InstanceBase> ins)
 {    
     QRectF cellRect;
     cellRect.setBottomLeft(m_viewPort.toScreen(ins->m_pos));
@@ -371,17 +371,17 @@ void FloorplanView::drawCell(QPainter &p, const ChipDB::InstanceBase *ins)
         drawCenteredText(p, cellRect.center(), ins->getArchetypeName(), font());
     }
 
-    textWidth = fm.horizontalAdvance(QString::fromStdString(ins->m_name));
+    textWidth = fm.horizontalAdvance(QString::fromStdString(ins->name()));
 
     if (cellRect.width() > textWidth)
     {
         auto txtpoint = cellRect.center();
         txtpoint += {0, static_cast<qreal>(fm.height())};
-        drawCenteredText(p, txtpoint, ins->m_name, font());
+        drawCenteredText(p, txtpoint, ins->name(), font());
     }
 }
 
-void FloorplanView::drawPin(QPainter &p, const ChipDB::InstanceBase *ins)
+void FloorplanView::drawPin(QPainter &p, const std::shared_ptr<ChipDB::InstanceBase> ins)
 {
     QRectF cellRect;
     cellRect.setBottomLeft(m_viewPort.toScreen(ins->m_pos));
@@ -397,12 +397,12 @@ void FloorplanView::drawPin(QPainter &p, const ChipDB::InstanceBase *ins)
     QFontMetrics fm(font());
     auto txtpoint = cellRect.center();
     txtpoint += {0, static_cast<qreal>(fm.height())};
-    drawCenteredText(p, txtpoint, ins->m_name, font());
+    drawCenteredText(p, txtpoint, ins->name(), font());
 }
 
-void FloorplanView::drawNet(QPainter &p, const ChipDB::Net *net)
+void FloorplanView::drawNet(QPainter &p, const std::shared_ptr<ChipDB::Net> net)
 {
-    if (net == nullptr)
+    if (!net)
     {
         return;
     }
@@ -412,26 +412,29 @@ void FloorplanView::drawNet(QPainter &p, const ChipDB::Net *net)
         return;
     }
 
+    auto topModule = m_db->design().getTopModule();
+
     p.setPen(QColor("#FFFFFF20"));  // transparent white
 
     // draw net from center to center of each instance
     QPointF p1,p2;
     bool first = true;
-    for(auto const &connection : net->m_connections)
+    for(auto const &connection : *net)
     {
-        auto *ins = connection.m_instance;
-        if ((ins->m_placementInfo == ChipDB::PlacementInfo::PLACED) || 
-            (ins->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED))
+        auto insKey = connection.m_instanceKey;
+        auto insPtr = topModule->m_netlist->lookupInstance(insKey);
+        if ((insPtr->m_placementInfo == ChipDB::PlacementInfo::PLACED) || 
+            (insPtr->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED))
         {
-            auto s = ins->instanceSize();
+            auto s = insPtr->instanceSize();
 
             if (first)
             {
-                p1 = m_viewPort.toScreen(ins->m_pos + ChipDB::Coord64{s.m_x/2, s.m_y/2});
+                p1 = m_viewPort.toScreen(insPtr->m_pos + ChipDB::Coord64{s.m_x/2, s.m_y/2});
             }
             else
             {
-                p2 = m_viewPort.toScreen(ins->m_pos + ChipDB::Coord64{s.m_x/2, s.m_y/2});
+                p2 = m_viewPort.toScreen(insPtr->m_pos + ChipDB::Coord64{s.m_x/2, s.m_y/2});
             }
         }
 
@@ -451,16 +454,16 @@ void FloorplanView::drawNets(QPainter &p)
     }
 
     auto topModule = m_db->design().getTopModule();
-    if (topModule == nullptr)
+    if (!topModule)
     {
         return;
     }
 
     for(auto net : topModule->m_netlist->m_nets)
     {
-        if (net != nullptr)
+        if (net.isValid())
         {
-            drawNet(p, net);
+            drawNet(p, net.ptr());
         }
     }    
 }
@@ -473,26 +476,26 @@ void FloorplanView::drawInstances(QPainter &p)
     }
 
     auto topModule = m_db->design().getTopModule();
-    if (topModule == nullptr)
+    if (!topModule)
     {
         return;
     }
 
     for(auto ins : topModule->m_netlist->m_instances)
     {
-        if ((ins != nullptr) && (ins->m_placementInfo != ChipDB::PlacementInfo::UNPLACED) && (ins->m_placementInfo != ChipDB::PlacementInfo::IGNORE))
+        if (ins.isValid() && (ins->m_placementInfo != ChipDB::PlacementInfo::UNPLACED) && (ins->m_placementInfo != ChipDB::PlacementInfo::IGNORE))
         {
             switch(ins->m_insType)
             {
             case ChipDB::InstanceType::ABSTRACT:
                 break;
             case ChipDB::InstanceType::PIN:
-                drawPin(p, ins);
+                drawPin(p, ins.ptr());
                 break;
             case ChipDB::InstanceType::MODULE:
                 break;
             case ChipDB::InstanceType::CELL:
-                drawCell(p, ins);
+                drawCell(p, ins.ptr());
                 break;
             default:
                 break;         

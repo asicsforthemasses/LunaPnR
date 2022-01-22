@@ -23,6 +23,12 @@ public:
     NamedStorage<InstanceBase> m_instances;
     NamedStorage<Net>          m_nets;
 
+    std::shared_ptr<InstanceBase> lookupInstance(InstanceObjectKey key);
+    KeyObjPair<InstanceBase> lookupInstance(const std::string &name);
+
+    std::shared_ptr<Net> lookupNet(InstanceObjectKey key);
+    KeyObjPair<Net> lookupNet(const std::string &name);
+
     KeyObjPair<Net> createNet(const std::string &netName);
 
     bool connect(const std::string &insName, const std::string &pinName, const std::string &netName);

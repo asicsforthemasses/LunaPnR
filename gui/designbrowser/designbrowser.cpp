@@ -75,7 +75,7 @@ void DesignBrowser::onModuleSelectionChanged(const QItemSelection &cur, const QI
         {
             m_moduleInfoModel->setModule(module);
             update();
-            doLog(LOG_VERBOSE, "Selected module %s\n", module->m_name.c_str());
+            doLog(LOG_VERBOSE, "Selected module %s\n", module->name().c_str());
         }
     }
 }

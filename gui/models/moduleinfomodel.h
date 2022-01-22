@@ -30,7 +30,7 @@ public:
     ModuleInfoModel();
     virtual ~ModuleInfoModel();
 
-    void setModule(const ChipDB::Module *module);
+    void setModule(std::shared_ptr<ChipDB::Module> module);
 
 protected:
     QColor m_pinColor;

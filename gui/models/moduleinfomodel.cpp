@@ -48,7 +48,7 @@ ModuleInfoModel::~ModuleInfoModel()
 
 }
 
-void ModuleInfoModel::setModule(const ChipDB::Module *module)
+void ModuleInfoModel::setModule(std::shared_ptr<ChipDB::Module> module)
 {
     beginResetModel();
     m_rootNode.reset(new ModuleInfoNode("Module", ""));

@@ -325,7 +325,7 @@ static int create_rows(lua_State *L)
     auto numRows   = lua_tointeger(L, 4);
 
     auto region = db->floorplan().lookupRegion(name);
-    if (region == nullptr)
+    if (!region.isValid())
     {
         reportError(L, "Region with name %s does not exists!", name);
         return 0;
@@ -343,7 +343,7 @@ static int create_rows(lua_State *L)
             region->m_rows.emplace_back();
             auto& row = region->m_rows.back();
 
-            row.m_region = region;
+            row.m_region = region.ptr();
             row.m_rect = ChipDB::Rect64(ll,ur);
         }
         else
@@ -355,7 +355,7 @@ static int create_rows(lua_State *L)
         ur += ChipDB::Coord64{0, rowHeight};
     }
 
-    db->floorplan().m_regions.contentsChanged();
+    db->floorplan().contentsChanged();
 
     auto wrapper = getLuaWrapper(L);
     std::stringstream ss;
@@ -382,21 +382,21 @@ static int remove_rows(lua_State *L)
 
     auto name      = lua_tostring(L, 1);
 
-    auto region = db->floorplan().m_regions.lookup(name);
-    if (region == nullptr)
+    auto region = db->floorplan().lookupRegion(name);
+    if (!region.isValid())
     {
         reportError(L, "Region with name %s does not exists!", name);
         return 0;
     }
     
-    db->floorplan().m_regions.contentsChanged();
+    db->floorplan().contentsChanged();
 
     region->m_rows.clear();
 
     auto wrapper = getLuaWrapper(L);
     wrapper->print("Rows removed");
 
-    db->floorplan().m_regions.contentsChanged();
+    db->floorplan().contentsChanged();
 
     return 0;
 }
@@ -414,7 +414,7 @@ static int remove_region(lua_State *L)
 
     auto name      = lua_tostring(L, 1);
 
-    if (!db->floorplan().m_regions.remove(name))
+    if (!db->floorplan().removeRegion(name))
     {
         reportError(L, "Could not regomve region with name %s!", name);
         return 0;
@@ -423,7 +423,7 @@ static int remove_region(lua_State *L)
     auto wrapper = getLuaWrapper(L);
     wrapper->print("Region removed");
 
-    db->floorplan().m_regions.contentsChanged();
+    db->floorplan().contentsChanged();
     return 0;    
 }
 
@@ -468,8 +468,8 @@ static int set_region_halo(lua_State *L)
     auto left   = lua_tointeger(L, 4);
     auto right  = lua_tointeger(L, 5);
 
-    auto region = db->floorplan().m_regions.lookup(name);
-    if (region == nullptr)
+    auto region = db->floorplan().lookupRegion(name);
+    if (!region.isValid())
     {
         reportError(L, "Could not find region with name %s!", name);
         return 0;
@@ -486,12 +486,12 @@ static int set_region_halo(lua_State *L)
     // increase the region size by the new halo
     region->m_rect.expand(region->m_halo);
 
-    db->floorplan().m_regions.contentsChanged();
+    db->floorplan().contentsChanged();
 
     auto wrapper = getLuaWrapper(L);
     wrapper->print("Region halo updated");
 
-    db->floorplan().m_regions.contentsChanged();
+    db->floorplan().contentsChanged();
 
     return 0;    
 }
@@ -516,20 +516,19 @@ static int place_module(lua_State *L)
     auto moduleName = lua_tostring(L, 1);
     auto regionName = lua_tostring(L, 2);
     
-    auto *region = db->floorplan().m_regions.lookup(regionName);
-    if (region == nullptr)
+    auto region = db->floorplan().lookupRegion(regionName);
+    if (!region.isValid())
     {
         reportError(L, "Could not find region with name %s!", regionName);
         return 0;
     }
 
-    auto *mod = db->moduleLib().lookup(moduleName);
-    if (mod == nullptr)
+    auto mod = db->moduleLib().lookupModule(moduleName);
+    if (!mod.isValid())
     {
         reportError(L, "Could not find module with name %s!", moduleName);
         return 0;
     }
-
 
     auto ll = getLogLevel();
     setLogLevel(LOG_VERBOSE);
@@ -549,7 +548,7 @@ static int place_module(lua_State *L)
 
     setLogLevel(ll);
 
-    db->floorplan().m_regions.contentsChanged();
+    db->floorplan().contentsChanged();
 
     return 0;
 }

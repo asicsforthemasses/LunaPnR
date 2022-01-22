@@ -37,3 +37,8 @@ void Floorplan::removeListener(INamedStorageListener *listener)
 {
     m_regions.removeListener(listener);
 }
+
+void Floorplan::contentsChanged() const
+{
+    m_regions.contentsChanged();
+}

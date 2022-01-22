@@ -95,7 +95,7 @@ public:
         QPixmap         m_colorPixmap;
     };
 
-    std::string getName() const noexcept
+    std::string name() const noexcept
     {
         return m_layerName;
     }

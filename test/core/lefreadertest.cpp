@@ -106,7 +106,7 @@ BOOST_AUTO_TEST_CASE(can_read_techlef2)
     }
 
     ChipDB::Design design;
-    BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
+    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
     std::cout << "  Found " << design.m_techLib.getNumberOfLayers() << " layers:\n";
     BOOST_CHECK(design.m_techLib.getNumberOfLayers() == 22);

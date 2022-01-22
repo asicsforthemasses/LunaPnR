@@ -21,6 +21,19 @@ public:
     void addListener(INamedStorageListener *listener);
     void removeListener(INamedStorageListener *listener);
 
+    /** notify all listeners that the floorplan has changed */
+    void contentsChanged() const;
+
+    auto begin() const
+    {
+        return m_regions.begin();
+    }
+
+    auto end() const
+    {
+        return m_regions.end();
+    }
+
 protected:
     NamedStorage<Region> m_regions;
 };

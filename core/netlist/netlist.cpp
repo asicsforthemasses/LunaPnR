@@ -32,6 +32,27 @@ KeyObjPair<Net> Netlist::createNet(const std::string &netName)
     return KeyObjPair<Net>();
 }
 
+std::shared_ptr<InstanceBase> Netlist::lookupInstance(InstanceObjectKey key)
+{
+    return m_instances[key];
+}
+
+KeyObjPair<InstanceBase> Netlist::lookupInstance(const std::string &name)
+{
+    return m_instances[name];
+}
+
+std::shared_ptr<Net> Netlist::lookupNet(InstanceObjectKey key)
+{
+    return m_nets[key];
+}
+
+KeyObjPair<Net> Netlist::lookupNet(const std::string &name)
+{
+    return m_nets[name];
+}
+
+
 bool Netlist::connect(InstanceObjectKey insKey, PinObjectKey pinKey, NetObjectKey netKey)
 {
     auto ins = m_instances[insKey];

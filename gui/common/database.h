@@ -55,22 +55,12 @@ public:
         return m_design.m_netlist;
     }
 
-    const ChipDB::ModuleLib& moduleLib() const
+    std::shared_ptr<ChipDB::ModuleLib> moduleLib() const
     {
         return m_design.m_moduleLib;
     }
 
-    ChipDB::ModuleLib& moduleLib()
-    {
-        return m_design.m_moduleLib;
-    }
-
-    const ChipDB::Floorplan& floorplan() const
-    {
-        return m_design.m_floorplan;
-    }
-
-    ChipDB::Floorplan& floorplan()
+    std::shared_ptr<ChipDB::Floorplan> floorplan() const
     {
         return m_design.m_floorplan;
     }

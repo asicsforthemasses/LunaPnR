@@ -13,6 +13,7 @@ BOOST_AUTO_TEST_CASE(various_tech_tests)
 {
     std::cout << "--== TECHLIB TEST ==--\n";
 
+    //FIXME: actually add tests.. 
     ChipDB::TechLib techlib;
 }
 

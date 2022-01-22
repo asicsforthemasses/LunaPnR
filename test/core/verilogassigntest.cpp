@@ -18,12 +18,12 @@ BOOST_AUTO_TEST_CASE(can_read_assign_statements)
     BOOST_CHECK(leffile.good());
 
     ChipDB::Design design;
-    BOOST_CHECK(ChipDB::LEF::Reader::load(&design, leffile));
+    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
     std::ifstream verilogfile("test/files/verilog/assign_test.v");
     BOOST_CHECK(verilogfile.good());
 
-    BOOST_CHECK(ChipDB::Verilog::Reader::load(&design, verilogfile));
+    BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
     // check the design
     std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";
