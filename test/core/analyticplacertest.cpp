@@ -108,6 +108,16 @@ BOOST_AUTO_TEST_CASE(place_multiplier)
     std::ifstream verilogfile("test/files/verilog/multiplier.v");
     BOOST_CHECK(verilogfile.good());
 
+    BOOST_CHECK(design.m_cellLib->getNumberOfCells() > 0);
+
+    // check if NAND2x1 exists and that it had 3 regular pins
+    auto NandGate = design.m_cellLib->lookupCell("NAND2X1");
+    BOOST_CHECK(NandGate.isValid());
+    BOOST_CHECK(NandGate->getNumberOfPins() == 5);
+    BOOST_CHECK(NandGate->lookupPin("A").isValid());
+    BOOST_CHECK(NandGate->lookupPin("B").isValid());
+    BOOST_CHECK(NandGate->lookupPin("Y").isValid());
+
     ChipDB::Verilog::Reader::load(design, verilogfile);
 
     auto modKeyObjPair = design.m_moduleLib->lookupModule("multiplier");
@@ -122,7 +132,7 @@ BOOST_AUTO_TEST_CASE(place_multiplier)
     {
         if (insKeyObjPair->m_insType == ChipDB::InstanceType::PIN)
         {
-            auto const& pin = insKeyObjPair->getPin(0);
+            auto pin = insKeyObjPair->getPin(0);
             if (pin.m_pinInfo->isInput())
             {
                 insKeyObjPair->m_pos = {0, left_y};

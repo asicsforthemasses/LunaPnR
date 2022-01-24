@@ -47,10 +47,12 @@ void ReaderImpl::onMacro(const std::string &macroName)
         std::stringstream ss;
         ss << "Cannot create LEF MACRO " << macroName << " - perhaps it already exists?\n";
         doLog(LOG_ERROR, ss.str());
+        m_curCell = nullptr;
     }
     else
     {
         doLog(LOG_VERBOSE,"LEF MACRO: %s\n", macroName.c_str());
+        m_curCell = newCellKeyObj.ptr();
     }
 }
 

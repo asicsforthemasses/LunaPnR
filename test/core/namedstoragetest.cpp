@@ -29,9 +29,9 @@ BOOST_AUTO_TEST_CASE(check_NamedStorage)
 
     ChipDB::NamedStorage<MyObject> storage;
 
-    // at() does not throw!
-    BOOST_CHECK_NO_THROW(storage.at(0));
-    BOOST_CHECK(storage.at(0) == nullptr);
+    // at() throws!
+    BOOST_CHECK_THROW(storage.at(0), std::out_of_range);
+    BOOST_CHECK(storage[0] == nullptr);
 
     auto obj1 = std::make_shared<MyObject>("Obj #1");
     auto obj2 = std::make_shared<MyObject>("Obj #2");
@@ -43,12 +43,15 @@ BOOST_AUTO_TEST_CASE(check_NamedStorage)
     BOOST_CHECK(storage.at("Obj #2").ptr() == obj2);
 
     BOOST_CHECK(storage.remove("Obj #1"));
-    BOOST_CHECK(!storage.at("Obj #1").isValid());
+    BOOST_CHECK_THROW(storage.at("Obj #1"), std::out_of_range);
+    BOOST_CHECK(!storage["Obj #1"].isValid());
     BOOST_CHECK(storage.at("Obj #2").ptr() == obj2);
 
     BOOST_CHECK(storage.remove("Obj #2"));
-    BOOST_CHECK(!storage.at("Obj #1").isValid());
-    BOOST_CHECK(!storage.at("Obj #2").isValid());
+    BOOST_CHECK_THROW(storage.at("Obj #1"), std::out_of_range);
+    BOOST_CHECK_THROW(storage.at("Obj #2"), std::out_of_range);
+    BOOST_CHECK(!storage["Obj #1"].isValid());
+    BOOST_CHECK(!storage["Obj #2"].isValid());
 
     BOOST_CHECK(storage.remove("FakeName") == false);
 }

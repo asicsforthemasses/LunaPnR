@@ -38,6 +38,27 @@ public:
     {
         return m_pos;
     }
+
+    size_t getNumberOfPins() const override
+    {
+        return 0;
+    }
+
+    Pin getPin(const std::string &pinName) const override
+    {
+        return Pin();
+    }
+
+    Pin getPin(ChipDB::PinObjectKey key) const override
+    {
+        return Pin();
+    }
+
+    bool setPinNet(ChipDB::PinObjectKey key1, ChipDB::NetObjectKey key2) override
+    {
+        return false;
+    }
+
 };
 
 /** Instance/cell density bitmap */

@@ -28,6 +28,11 @@ public:
         return m_name;
     }
 
+    size_t getNumberOfPins() const noexcept
+    {
+        return m_pins.size();
+    }
+
     PinInfoList     m_pins;         ///< pin information
 
     double          m_area;         ///< area in um^2

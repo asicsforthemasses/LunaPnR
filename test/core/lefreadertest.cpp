@@ -50,6 +50,12 @@ BOOST_AUTO_TEST_CASE(can_read_lef)
 
     auto pin = cellKeyObjPtr->lookupPin("A");
     BOOST_CHECK(pin.isValid());
+
+    if (!pin.isValid())
+    {
+        return;
+    }
+
     BOOST_CHECK(pin->m_iotype == ChipDB::IOType::INPUT);
     BOOST_CHECK(!pin->m_pinLayout.empty()); // check that the pin has geometry
 

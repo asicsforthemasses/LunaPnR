@@ -85,7 +85,7 @@ void ReaderImpl::onGroup(const std::string &group, const std::string &name)
     else if (group == "pin")
     {
         // find pin on cell
-        if (m_curCell != nullptr)
+        if (m_curCell)
         {
             auto pinInfoKeyObjPair  = m_curCell->createPin(name);
 
@@ -119,7 +119,7 @@ void ReaderImpl::onSimpleAttribute(const std::string &name, const std::string &v
         break;
     case GT_PIN:
     {
-        if (m_curPin == nullptr)
+        if (!m_curPin)
         {
             doLog(LOG_ERROR, "onSimpleAttribute pin = nullptr\n");
             return;

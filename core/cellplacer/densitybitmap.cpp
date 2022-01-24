@@ -86,7 +86,7 @@ DensityBitmap* LunaCore::QPlacer::createDensityBitmap(const ChipDB::Netlist *net
 
     // add one fake end cell to the queue
     // to make sure the entire area is processed
-    auto terminationInstance = std::shared_ptr<TerminationInstance>();
+    auto terminationInstance = std::make_shared<TerminationInstance>();
     terminationInstance->m_pos = {regionSize.m_x+1, regionSize.m_y/2};
     queue.push_back(terminationInstance);
 

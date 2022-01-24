@@ -23,11 +23,18 @@ public:
 
     void clear();
 
+    size_t getNumberOfCells() const
+    {
+        return m_cells.size();
+    }
+
+    /** deprecated */
     size_t size() const
     {
         return m_cells.size();
     };
 
+    /** create a cell of the given name or return an existing one */
     KeyObjPair<Cell> createCell(const std::string &name);
     
     KeyObjPair<Cell> lookupCell(const std::string &name) const;

@@ -15,6 +15,13 @@ void CellLib::clear()
 
 KeyObjPair<Cell> CellLib::createCell(const std::string &name)
 {
+    // return a cell of the same name if it exists
+    auto cellObjKey = m_cells[name];
+    if (cellObjKey.isValid())
+    {
+        return cellObjKey;
+    }
+
     auto cellObjKeyOptional = m_cells.add(std::make_shared<Cell>(name));
     if (!cellObjKeyOptional)
     {
