@@ -35,7 +35,7 @@ bool createStringOfInstancesConnectingTwoTerminals(ChipDB::Design &design, std::
     outInsPin->m_iotype = ChipDB::IOType::OUTPUT;
 
     auto ins = std::make_shared<ChipDB::Instance>("src", srcTerminalCell.ptr());
-    if (mod->addInstance(ins).isValid())
+    if (!mod->addInstance(ins).isValid())
     {
         return false;
     }
@@ -132,7 +132,6 @@ BOOST_AUTO_TEST_CASE(check_qla_netlist_generation)
     ChipDB::Design design;
     auto mod = design.m_moduleLib->createModule("glamodule");
     BOOST_CHECK(mod.isValid());
-    mod->m_netlist.reset(new ChipDB::Netlist());
     BOOST_CHECK(mod->m_netlist);    // check netlist pointer is valid
 
     BOOST_CHECK(createStringOfInstancesConnectingTwoTerminals(design, mod.ptr()));
