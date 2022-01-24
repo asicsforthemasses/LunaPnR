@@ -27,7 +27,7 @@ BOOST_AUTO_TEST_CASE(various_instance_tests)
 
     // check unconnected pin returns ObjectNotFound
     auto pin = insPtr->getPin("A");
-    BOOST_CHECK(pin.m_netKey == ChipDB::ObjectNotFound);
+    BOOST_CHECK(pin.netKey() == ChipDB::ObjectNotFound);
         
     // check pin iterator
     cell->createPin("B");

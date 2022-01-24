@@ -117,7 +117,7 @@ public:
         else
             m_insType = InstanceType::CELL;
 
-        m_pinToNet.resize(cell->m_pins.size());
+        m_pinToNet.resize(cell->m_pins.size(), ChipDB::ObjectNotFound);
     }
 
     virtual ~Instance() = default;
@@ -153,6 +153,8 @@ public:
 
     /** return the underlying cell/module name */
     std::string getArchetypeName() const override;
+
+    Pin createPin(const std::string &pinName) const;
 
     Pin getPin(PinObjectKey key) const override;
     Pin getPin(const std::string &pinName) const override;

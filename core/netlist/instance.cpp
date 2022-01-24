@@ -32,7 +32,16 @@ InstanceBase::Pin Instance::getPin(PinObjectKey key) const
     }
 
     pin.m_pinInfo = m_cell->m_pins[key];
-    pin.m_netKey  = m_pinToNet.at(key);
+
+    if (m_pinToNet.size() > key)
+    {
+        pin.m_netKey = m_pinToNet.at(key);
+    }
+    else
+    {
+        pin.m_netKey = ChipDB::ObjectNotFound;
+    }
+
     pin.m_pinKey  = key;
 
     return pin;
@@ -51,7 +60,16 @@ InstanceBase::Pin Instance::getPin(const std::string &pinName) const
     {
         pin.m_pinInfo = pinKeyObjPair.ptr();
         pin.m_pinKey  = pinKeyObjPair.key();
-        pin.m_netKey  = m_pinToNet.at(pinKeyObjPair.key());
+
+        auto key = pinKeyObjPair.key();
+        if (m_pinToNet.size() < key)
+        {
+            pin.m_netKey = m_pinToNet.at(key);
+        }
+        else
+        {
+            pin.m_netKey = ChipDB::ObjectNotFound;
+        }
     }
 
     return pin;
@@ -59,6 +77,16 @@ InstanceBase::Pin Instance::getPin(const std::string &pinName) const
 
 bool Instance::setPinNet(PinObjectKey pinKey, NetObjectKey netKey)
 {
+    if (!m_cell)
+    {
+        return false;
+    }
+
+    if (m_pinToNet.size() < m_cell->getNumberOfPins())
+    {
+        m_pinToNet.resize(m_cell->getNumberOfPins(), ChipDB::ObjectNotFound);
+    }
+
     if (pinKey < m_pinToNet.size())
     {
         m_pinToNet.at(pinKey) = netKey;
