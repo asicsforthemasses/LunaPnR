@@ -42,7 +42,7 @@ void LayerInfoModel::setLayer(std::shared_ptr<ChipDB::LayerInfo> layer)
 
     if (!layer)
     {
-        std::cout << "Layer is null\n";
+        //std::cout << "Layer is null\n";
         endResetModel();
         return;
     }

@@ -161,7 +161,7 @@ int ModuleListModel::rowCount(const QModelIndex &parent) const
 
 void ModuleListModel::setModuleLib(std::shared_ptr<ChipDB::ModuleLib> moduleLib)
 {
-    if (!m_moduleLib)
+    if (m_moduleLib)
     {
         m_moduleLib->removeListener(this);
     }
@@ -170,7 +170,7 @@ void ModuleListModel::setModuleLib(std::shared_ptr<ChipDB::ModuleLib> moduleLib)
     m_moduleLib = moduleLib;
     endResetModel();
 
-    if (!m_moduleLib)
+    if (m_moduleLib)
     {
         m_moduleLib->addListener(this);
     }

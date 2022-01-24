@@ -46,7 +46,7 @@ LuaWrapper::LuaWrapper(MMConsole *console, std::shared_ptr<Database> db) : m_con
 
     //FIXME: this pointer should not be mutable by the VM..
     // expose the Database object to the LUA VM
-    lua_pushlightuserdata(m_L, &m_db);
+    lua_pushlightuserdata(m_L, m_db.get());
     lua_setglobal(m_L, "databaseobj");
 
     Lua::registerFunctions(m_L);

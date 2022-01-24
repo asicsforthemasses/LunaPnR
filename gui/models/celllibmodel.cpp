@@ -109,14 +109,14 @@ CellLibTableModel::~CellLibTableModel()
 
 void CellLibTableModel::setCellLib(std::shared_ptr<ChipDB::CellLib> cellLib)
 {
-    if (!m_cellLib)
+    if (m_cellLib)
     {
         m_cellLib->removeListener(this);
     }
 
     beginResetModel();
     m_cellLib = cellLib;
-    if (!m_cellLib)
+    if (m_cellLib)
     {
         m_cellLib->addListener(this);
     }

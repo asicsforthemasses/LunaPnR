@@ -117,8 +117,16 @@ void TechBrowser::setDatabase(std::shared_ptr<Database> db)
 
     m_db->techLib()->addLayerListener(m_layerInfoModel.get());
 
-    auto layer = m_db->techLib()->layers().at(0);
-    m_layerInfoModel->setLayer(layer);
+    if (m_db->techLib()->getNumberOfLayers() > 0)
+    {
+        auto layer = m_db->techLib()->layers().at(0);
+        m_layerInfoModel->setLayer(layer);
+    }
+    else
+    {
+        m_layerInfoModel->setLayer(nullptr);
+    }
+
     m_layerTableModel->setTechLib(m_db->techLib());
 
     // make sure all columns can expand
