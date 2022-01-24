@@ -186,6 +186,11 @@ public:
         return m_sites;
     }
 
+    void addLayerListener(ChipDB::INamedStorageListener *listener);
+    void removeLayerListener(ChipDB::INamedStorageListener *listener);
+    void addSiteListener(ChipDB::INamedStorageListener *listener);
+    void removeSiteListener(ChipDB::INamedStorageListener *listener);
+
 protected:
     NamedStorage<LayerInfo>  m_layers;
     NamedStorage<SiteInfo>   m_sites;

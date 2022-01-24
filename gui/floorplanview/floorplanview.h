@@ -23,7 +23,7 @@ public:
     QSize sizeHint() const override;
 
     /** set the database which contains the floorplan object */
-    void setDatabase(Database *db);
+    void setDatabase(std::shared_ptr<Database> db);
 
     /** set an overlay object that will draw on to of the floorplan */
     void setOverlay(FloorplanOverlayBase *overlay = nullptr);
@@ -72,7 +72,7 @@ protected:
 
     FloorplanOverlayBase* m_overlay;
 
-    Database *m_db;
+    std::shared_ptr<Database> m_db;
     bool  m_dirty;
 
     bool  m_crosshairEnabled;

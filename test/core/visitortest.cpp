@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE(iterator_clock_net)
 
     ChipDB::Verilog::Reader::load(design, verilogfile);
 
-    auto mod = design.m_moduleLib.lookupModule("nerv");
+    auto mod = design.m_moduleLib->lookupModule("nerv");
     BOOST_CHECK(mod.isValid());
     if (!mod.isValid())
         return;

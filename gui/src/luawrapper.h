@@ -13,7 +13,7 @@ namespace GUI
 class LuaWrapper
 {
 public:
-    LuaWrapper(MMConsole *console, Database &db);
+    LuaWrapper(MMConsole *console, std::shared_ptr<Database> db);
     virtual ~LuaWrapper();
 
     bool run(const char *txt);
@@ -37,7 +37,7 @@ public:
 
 protected:
     MMConsole *m_console;
-    Database &m_db;    
+    std::shared_ptr<Database> m_db;
     lua_State *m_L;
 };
 

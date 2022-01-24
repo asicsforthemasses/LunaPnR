@@ -28,6 +28,16 @@ KeyObjPair<Region> Floorplan::lookupRegion(const std::string &name) const
     return m_regions[name];
 }
 
+bool Floorplan::removeRegion(const std::string &name)
+{
+    return m_regions.remove(name);
+}
+
+bool Floorplan::removeRegion(ChipDB::ObjectKey key)
+{
+    return m_regions.remove(key);
+}
+
 void Floorplan::addListener(INamedStorageListener *listener)
 {
     m_regions.addListener(listener);

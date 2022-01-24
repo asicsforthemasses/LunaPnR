@@ -18,8 +18,8 @@ public:
     explicit CellLayoutView(QWidget *parent = nullptr);
     virtual ~CellLayoutView();
 
-    void setCell(const ChipDB::Cell *cell);
-    void setDatabase(const Database *db);
+    void setCell(const std::shared_ptr<ChipDB::Cell> cell);
+    void setDatabase(std::shared_ptr<Database> db);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -47,14 +47,14 @@ protected:
     void drawGeometry(QPainter &painter, const ChipDB::Rectangle &objs) const;
     void drawGeometry(QPainter &painter, const ChipDB::Polygon &objs) const;
 
-    LayerRenderInfo* getLayerRenderInfo(const std::string &layerName) const;
+    ChipDB::KeyObjPair<GUI::LayerRenderInfo> getLayerRenderInfo(const std::string &layerName) const;
 
     ChipDB::Rect64 m_viewportStartDrag;
     ChipDB::Rect64 m_viewport;
     int32_t        m_zoomLevel;
 
     ChipDB::Cell   m_cell;  ///< (partial) local copy of cell
-    const Database *m_db;
+    std::shared_ptr<Database> m_db;
 };
 
 };  // namespace

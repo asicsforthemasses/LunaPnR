@@ -104,7 +104,7 @@ void FloorplanView::resizeEvent(QResizeEvent *event)
 #endif
 }
 
-void FloorplanView::setDatabase(Database *db)
+void FloorplanView::setDatabase(std::shared_ptr<Database> db)
 {
     m_db = db;
     m_dirty = true;
@@ -292,7 +292,7 @@ void FloorplanView::drawRegions(QPainter &p)
     const QColor regionColor("#FF90EE90"); // light green
 
     p.setBrush(Qt::NoBrush);
-    for(auto region : m_db->floorplan())
+    for(auto region : *m_db->floorplan())
     {
         auto regionRect     = m_viewPort.toScreen(region->m_rect);
         auto placementRect  = m_viewPort.toScreen(region->getPlacementRect());

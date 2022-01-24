@@ -16,18 +16,18 @@ BOOST_AUTO_TEST_SUITE(QLAPlacerTest)
 bool createStringOfInstancesConnectingTwoTerminals(ChipDB::Design &design, std::shared_ptr<ChipDB::Module> mod)
 {
     // create two terminals
-    auto srcTerminalCell = design.m_cellLib.createCell("SrcTerminal");
+    auto srcTerminalCell = design.m_cellLib->createCell("SrcTerminal");
     auto outPin = srcTerminalCell->m_pins.createPin("out");
     outPin->m_iotype = ChipDB::IOType::OUTPUT;
 
-    auto dstTerminalCell = design.m_cellLib.createCell("DstTerminal");
+    auto dstTerminalCell = design.m_cellLib->createCell("DstTerminal");
     auto inPin = dstTerminalCell->m_pins.createPin("in");
     inPin->m_iotype = ChipDB::IOType::INPUT;
 
     srcTerminalCell->m_size = ChipDB::Coord64{800,1000};
     dstTerminalCell->m_size = ChipDB::Coord64{800,1000};
 
-    auto insCell   = design.m_cellLib.createCell("InsCell");
+    auto insCell   = design.m_cellLib->createCell("InsCell");
     auto inInsPin   = insCell->m_pins.createPin("in");
     auto outInsPin  = insCell->m_pins.createPin("out");
     
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(check_qla_netlist_generation)
     // a string of 5 instances that connected the terminals.
 
     ChipDB::Design design;
-    auto mod = design.m_moduleLib.createModule("glamodule");
+    auto mod = design.m_moduleLib->createModule("glamodule");
     BOOST_CHECK(mod.isValid());
     mod->m_netlist.reset(new ChipDB::Netlist());
     BOOST_CHECK(mod->m_netlist);    // check netlist pointer is valid
@@ -177,7 +177,7 @@ BOOST_AUTO_TEST_CASE(check_qla_netlist_placement)
     // a string of 5 instances that connected the terminals.
 
     ChipDB::Design design;
-    auto mod = design.m_moduleLib.createModule("glamodule");
+    auto mod = design.m_moduleLib->createModule("glamodule");
     BOOST_CHECK(mod.isValid());
     mod->m_netlist = std::make_unique<ChipDB::Netlist>();
     BOOST_CHECK(mod->m_netlist);    // check netlist pointer is valid

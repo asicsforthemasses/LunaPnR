@@ -30,7 +30,7 @@ public:
     CellInfoModel();
     virtual ~CellInfoModel();
 
-    void setCell(const ChipDB::Cell *cell);
+    void setCell(const std::shared_ptr<ChipDB::Cell> cell);
 
 protected:
     QColor m_pinColor;

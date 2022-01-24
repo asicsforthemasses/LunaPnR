@@ -49,7 +49,7 @@ CellInfoModel::~CellInfoModel()
 
 }
 
-void CellInfoModel::setCell(const ChipDB::Cell *cell)
+void CellInfoModel::setCell(const std::shared_ptr<ChipDB::Cell> cell)
 {
     beginResetModel();
     m_rootNode.reset(new CellInfoNode("Cell", ""));
@@ -86,7 +86,7 @@ void CellInfoModel::setCell(const ChipDB::Cell *cell)
     {
         m_altColors.resetState();
 
-        auto pinNode = new CellInfoNode("Pin", QString::fromStdString(pin->m_name), m_pinColor);
+        auto pinNode = new CellInfoNode("Pin", QString::fromStdString(pin->name()), m_pinColor);
         pinNode->setIcon(QPixmap("://pinicon.png"));
         m_rootNode->addChild(pinNode);
 

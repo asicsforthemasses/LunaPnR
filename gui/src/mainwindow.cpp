@@ -18,6 +18,8 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+    m_db = std::make_shared<GUI::Database>();
+
     m_floorplanDirty = true;
     m_techLibDirty   = true;
     m_cellLibDirty   = true;
@@ -34,15 +36,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_mainTabWidget = new QTabWidget(this);
 
     m_designBrowser = new GUI::DesignBrowser(this);
-    m_designBrowser->setDatabase(&m_db);
+    m_designBrowser->setDatabase(m_db);
     m_mainTabWidget->addTab(m_designBrowser, tr("Design Browser"));
 
     m_cellBrowser = new GUI::CellBrowser(this);
-    m_cellBrowser->setDatabase(&m_db);
+    m_cellBrowser->setDatabase(m_db);
     m_mainTabWidget->addTab(m_cellBrowser, tr("Cell Browser"));
 
     m_techBrowser = new GUI::TechBrowser(this);
-    m_techBrowser->setDatabase(&m_db);
+    m_techBrowser->setDatabase(m_db);
     m_mainTabWidget->addTab(m_techBrowser, tr("Tech Browser"));
 
     m_floorplanView = new GUI::FloorplanView(this);
@@ -67,12 +69,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     setCentralWidget(container);
 
-    m_techBrowser->setDatabase(&m_db);
-    m_cellBrowser->setDatabase(&m_db);
+    m_techBrowser->setDatabase(m_db);
+    m_cellBrowser->setDatabase(m_db);
 
-    m_db.floorplan().addListener(this);
+    m_db->floorplan()->addListener(this);
 
-    m_floorplanView->setDatabase(&m_db);
+    m_floorplanView->setDatabase(m_db);
     m_floorplanView->update();
 
     connect(&m_guiUpdateTimer, &QTimer::timeout, this, &MainWindow::onGUIUpdateTimer);
@@ -231,7 +233,7 @@ void MainWindow::onImportLEF()
             return;
         }
 
-        if (!ChipDB::LEF::Reader::load(m_db.design(), leffile))
+        if (!ChipDB::LEF::Reader::load(m_db->design(), leffile))
         {
             doLog(LOG_ERROR,"LEF file '%s' contains errors\n", fileName.toStdString().c_str());
             QMessageBox::critical(this, tr("Error"), tr("The LEF file contains errors"), QMessageBox::Close);
@@ -261,7 +263,7 @@ void MainWindow::onImportLIB()
             return;
         }
 
-        if (!ChipDB::Liberty::Reader::load(m_db.design(), libfile))
+        if (!ChipDB::Liberty::Reader::load(m_db->design(), libfile))
         {
             doLog(LOG_ERROR,"LIB file '%s' contains errors\n", fileName.toStdString().c_str());
             QMessageBox::critical(this, tr("Error"), tr("The LIB file contains errors"), QMessageBox::Close);
@@ -288,7 +290,7 @@ void MainWindow::onImportLayers()
         {
             std::stringstream buffer;
             buffer << ifile.rdbuf();
-            if(!m_db.m_layerRenderInfoDB.readJson(buffer.str()))
+            if(!m_db->m_layerRenderInfoDB.readJson(buffer.str()))
             {
                 QMessageBox::critical(this, tr("Error"), tr("The Layer setup file contains errors"), QMessageBox::Close);
                 doLog(LOG_ERROR, "Cannot read/parse Layer setup file!\n");
@@ -311,7 +313,7 @@ void MainWindow::onExportLayers()
 
     if (!fileName.isEmpty())
     {
-        auto json = m_db.m_layerRenderInfoDB.writeJson();
+        auto json = m_db->m_layerRenderInfoDB.writeJson();
         std::ofstream ofile(fileName.toStdString());
         if (!ofile.is_open())
         {
@@ -339,7 +341,7 @@ void MainWindow::onLoadVerilog()
         std::ifstream verilogfile(fileName.toStdString(), std::ios::in);
         if (verilogfile.is_open())
         {
-            if (!ChipDB::Verilog::Reader::load(m_db.design(), verilogfile))
+            if (!ChipDB::Verilog::Reader::load(m_db->design(), verilogfile))
             {
                 QMessageBox::critical(this, tr("Error"), tr("Could not parse Verilog file"), QMessageBox::Close);
                 doLog(LOG_ERROR, "Cannot read/parse verilog file!\n");
@@ -419,7 +421,7 @@ void MainWindow::onGUIUpdateTimer()
 
 void MainWindow::onClearDatabase()
 {
-    m_db.clear();
+    m_db->clear();
     m_console->print("Database cleared", GUI::MMConsole::PrintType::Complete);
 }
 

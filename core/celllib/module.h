@@ -10,7 +10,7 @@ namespace ChipDB
 class Module : public Cell
 {
 public:
-    Module(const std::string &name) : Cell(name) {}
+    Module(const std::string &name);
     
     virtual bool isModule() const override
     {
@@ -24,7 +24,7 @@ public:
     bool connect(InstanceObjectKey insKey, PinObjectKey pinKey, NetObjectKey netKey);    
 
     /** pointer to netlist, or null if the module is a black box */
-    std::unique_ptr<Netlist> m_netlist;
+    std::shared_ptr<Netlist> m_netlist;
 };
 
 };

@@ -56,6 +56,11 @@ template<class T> struct KeyObjPair
         return m_objPtr;
     }
 
+    constexpr T* rawPtr() const noexcept
+    {
+        return m_objPtr.get();
+    }
+
     constexpr bool isValid() const noexcept
     {
         return (m_key >= 0) && m_objPtr;

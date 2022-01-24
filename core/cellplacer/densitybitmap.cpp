@@ -41,6 +41,8 @@ void LunaCore::QPlacer::writeToPGM(std::ostream &os, const DensityBitmap *bitmap
     }
 }
 
+
+//FIXME: refactor out raw pointers
 DensityBitmap* LunaCore::QPlacer::createDensityBitmap(const ChipDB::Netlist *netlist, const ChipDB::Region *region,
     const int64_t bitmapCellWidth /* nm */, 
     const int64_t bitmapCellHeight /* nm */)

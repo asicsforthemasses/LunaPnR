@@ -141,12 +141,11 @@ public:
     /** create a layer with the given name and return a pointer to the new layer.
      *  if it already exists, a pointer to the existing layer is returned.
     */
-    LayerRenderInfo* createLayer(const std::string &name);
+    ChipDB::KeyObjPair<GUI::LayerRenderInfo> createLayer(const std::string &name);
 
     bool readJson(const std::string &txt);
     std::string writeJson() const;
 };
 
 }; // namespace
-
 

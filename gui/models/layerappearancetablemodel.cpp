@@ -64,7 +64,7 @@ QVariant LayerAppearanceTableModel::data(const QModelIndex &index, int role) con
             {
                 if (index.column() == 0)
                 {
-                    return QString::fromStdString(layerPtr->getName());
+                    return QString::fromStdString(layerPtr->name());
                 }
                 else
                 {

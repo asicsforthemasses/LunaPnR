@@ -15,6 +15,8 @@ public:
     KeyObjPair<Region> createRegion(const std::string &name);
     std::shared_ptr<Region> lookupRegion(ChipDB::ObjectKey key) const;
     KeyObjPair<Region> lookupRegion(const std::string &name) const;
+    bool removeRegion(const std::string &name);
+    bool removeRegion(ChipDB::ObjectKey key);
 
     void clear();
 

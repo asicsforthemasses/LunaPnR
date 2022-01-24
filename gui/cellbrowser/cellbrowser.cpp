@@ -134,15 +134,15 @@ QSize CellBrowser::sizeHint() const
     return m_cellTableView->sizeHint();
 }
 
-void CellBrowser::setDatabase(Database *db)
+void CellBrowser::setDatabase(std::shared_ptr<Database> db)
 {
     m_db = db;
     
     m_cellLayoutView->setDatabase(db);
-    m_cellModel->setCellLib(&db->cellLib());
+    m_cellModel->setCellLib(db->cellLib());
     m_layerTableModel->setLayers(&db->m_layerRenderInfoDB);
 
-    auto cellPtr = db->cellLib().m_cells.at(0);
+    auto cellPtr = db->cellLib()->lookupCell(0);
     
     m_cellLayoutView->setCell(cellPtr);    
     m_cellInfoModel->setCell(cellPtr);

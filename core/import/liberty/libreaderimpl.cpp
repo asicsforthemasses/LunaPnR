@@ -79,7 +79,7 @@ void ReaderImpl::onGroup(const std::string &group, const std::string &name)
     else if (group == "cell")
     {
         m_groupStack.push(GT_CELL);
-        auto cellKeyObjPair = m_design.m_cellLib.createCell(name);
+        auto cellKeyObjPair = m_design.m_cellLib->createCell(name);
         m_curCell = cellKeyObjPair.ptr();
     }
     else if (group == "pin")

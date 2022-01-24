@@ -44,13 +44,13 @@ void CellLayoutView::fixCoordinates(QPointF &p1, QPointF &p2)
     p2.setY(y2);
 }
 
-void CellLayoutView::setDatabase(const Database *db)
+void CellLayoutView::setDatabase(std::shared_ptr<Database> db)
 {
     m_db = db;
     update();
 }
 
-void CellLayoutView::setCell(const ChipDB::Cell *cell)
+void CellLayoutView::setCell(const std::shared_ptr<ChipDB::Cell> cell)
 {
     m_zoomLevel = 1;
 
@@ -193,7 +193,7 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
     painter.drawRect(p1.x(),p1.y(),p2.x()-p1.x(),p2.y()-p1.y());
 
     // draw the cell name at the top
-    drawCenteredText(painter, QPointF(width()/2, 20), m_cell.m_name, font());
+    drawCenteredText(painter, QPointF(width()/2, 20), m_cell.name(), font());
 
     // draw the horizontal dimensions of the cell
     //
@@ -239,7 +239,7 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
         for(auto const& layer : layout)
         {
             auto info = getLayerRenderInfo(layer.first);
-            if (info)
+            if (info.isValid())
             {
                 QBrush brush(info->routing().getColorPixmap());
                 brush.setColor(info->routing().getColor());
@@ -257,7 +257,7 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
     for(auto const& layer : m_cell.m_obstructions)
     {
         auto info = getLayerRenderInfo(layer.first);
-        if (info)
+        if (info.isValid())
         {
             std::string obstructionLayerName = layer.first;
             obstructionLayerName.append(":OBS");
@@ -349,12 +349,12 @@ void CellLayoutView::drawGeometry(QPainter &painter, const ChipDB::Polygon &r) c
     painter.drawPolygon(poly);
 }
 
-LayerRenderInfo* CellLayoutView::getLayerRenderInfo(const std::string &layerName) const
+ChipDB::KeyObjPair<GUI::LayerRenderInfo> CellLayoutView::getLayerRenderInfo(const std::string &layerName) const
 {
-    if (m_db == nullptr)
+    if (!m_db)
     {
-        return nullptr;
+        return ChipDB::KeyObjPair<GUI::LayerRenderInfo>();
     }
 
-    return m_db->m_layerRenderInfoDB.lookup(layerName);
+    return m_db->m_layerRenderInfoDB[layerName];
 }

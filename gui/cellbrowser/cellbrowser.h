@@ -41,7 +41,7 @@ public:
     explicit CellBrowser(QWidget *parent = nullptr);
     virtual ~CellBrowser();
 
-    void setDatabase(Database *db);
+    void setDatabase(std::shared_ptr<Database> db);
     void refreshDatabase();
 
     QSize sizeHint() const;
@@ -64,7 +64,7 @@ protected:
     
     SubclassDelegate m_subclassDelegate;
 
-    Database        *m_db;
+    std::shared_ptr<Database> m_db;
 };
 
 };  // namespace

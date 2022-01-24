@@ -25,34 +25,14 @@ public:
         return m_design;
     }
 
-    const ChipDB::CellLib& cellLib() const
+    std::shared_ptr<ChipDB::CellLib> cellLib() const
     {
         return m_design.m_cellLib;
     }
 
-    ChipDB::CellLib& cellLib()
-    {
-        return m_design.m_cellLib;
-    }
-
-    const ChipDB::TechLib& techLib() const
+    std::shared_ptr<ChipDB::TechLib> techLib() const
     {
         return m_design.m_techLib;
-    }
-
-    ChipDB::TechLib& techLib()
-    {
-        return m_design.m_techLib;
-    }
-
-    const ChipDB::Netlist& netlist() const
-    {
-        return m_design.m_netlist;
-    }
-
-    ChipDB::Netlist& netlist()
-    {
-        return m_design.m_netlist;
     }
 
     std::shared_ptr<ChipDB::ModuleLib> moduleLib() const

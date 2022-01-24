@@ -692,7 +692,7 @@ BOOST_AUTO_TEST_CASE(can_partition_multiplier)
 
     ChipDB::Verilog::Reader::load(design, verilogfile);
 
-    auto modKeyObjPair = design.m_moduleLib.lookupModule("multiplier");
+    auto modKeyObjPair = design.m_moduleLib->lookupModule("multiplier");
 
     LunaCore::Partitioner::FMPart partitioner;
     LunaCore::Partitioner::FMContainer container;
@@ -755,7 +755,7 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv_concise)
 
     ChipDB::Verilog::Reader::load(design, verilogfile);
 
-    auto modKeyObjPair = design.m_moduleLib.lookupModule("nerv");
+    auto modKeyObjPair = design.m_moduleLib->lookupModule("nerv");
 
     // nerv fits in approx 650x650 um    
     LunaCore::Partitioner::FMPart partitioner;

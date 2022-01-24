@@ -73,3 +73,23 @@ KeyObjPair<SiteInfo> TechLib::lookupSiteInfo(const std::string &name) const
 {
     return m_sites[name];
 }
+
+void TechLib::addLayerListener(ChipDB::INamedStorageListener *listener)
+{
+    m_layers.addListener(listener);
+}
+
+void TechLib::removeLayerListener(ChipDB::INamedStorageListener *listener)
+{
+    m_layers.removeListener(listener);
+}
+
+void TechLib::addSiteListener(ChipDB::INamedStorageListener *listener)
+{
+    m_sites.addListener(listener);
+}
+
+void TechLib::removeSiteListener(ChipDB::INamedStorageListener *listener)
+{
+    m_sites.removeListener(listener);
+}

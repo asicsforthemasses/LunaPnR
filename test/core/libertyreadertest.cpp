@@ -20,16 +20,16 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty)
     ChipDB::Design design;
     BOOST_CHECK(ChipDB::Liberty::Reader::load(design, libertyfile));
 
-    std::cout << "  Found " << design.m_cellLib.size() << " cells:\n";
-    BOOST_CHECK(design.m_cellLib.size() == 33);
+    std::cout << "  Found " << design.m_cellLib->size() << " cells:\n";
+    BOOST_CHECK(design.m_cellLib->size() == 33);
 
-    for(auto cell : design.m_cellLib)
+    for(auto cell : *design.m_cellLib)
     {
         std::cout << "  " << cell->name() << "\n";
     }
 
     // check parameters of NANDX1 cell
-    auto cellKeyObjPair = design.m_cellLib.lookupCell("NAND2X1");
+    auto cellKeyObjPair = design.m_cellLib->lookupCell("NAND2X1");
     BOOST_CHECK(cellKeyObjPair.isValid());
     BOOST_CHECK(cellKeyObjPair->m_pins.size() == 3);
 
@@ -55,8 +55,8 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty2)
     ChipDB::Design design;
     BOOST_CHECK(ChipDB::Liberty::Reader::load(design, libertyfile));
 
-    std::cout << "  Found " << design.m_cellLib.size() << " cells:\n";
-    BOOST_CHECK(design.m_cellLib.size() == 37);
+    std::cout << "  Found " << design.m_cellLib->size() << " cells:\n";
+    BOOST_CHECK(design.m_cellLib->size() == 37);
 
 #if 0
     for(auto cell : design.m_cellLib)
@@ -81,8 +81,8 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty3)
     ChipDB::Design design;
     BOOST_CHECK(ChipDB::Liberty::Reader::load(design, libertyfile));
 
-    std::cout << "  Found " << design.m_cellLib.size() << " cells:\n";
-    BOOST_CHECK(design.m_cellLib.size() == 135);
+    std::cout << "  Found " << design.m_cellLib->size() << " cells:\n";
+    BOOST_CHECK(design.m_cellLib->size() == 135);
 
 #if 0
     for(auto cell : design.m_cellLib)

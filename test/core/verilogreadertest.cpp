@@ -26,11 +26,11 @@ BOOST_AUTO_TEST_CASE(can_read_netlist)
     BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
     // check the design
-    std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";
-    BOOST_CHECK(design.m_moduleLib.size() == 1);
-    BOOST_CHECK(design.m_moduleLib.lookupModule("adder2").isValid());
+    std::cout << "  Found " << design.m_moduleLib->size() << " modules\n";
+    BOOST_CHECK(design.m_moduleLib->size() == 1);
+    BOOST_CHECK(design.m_moduleLib->lookupModule("adder2").isValid());
     
-    auto mod = design.m_moduleLib.lookupModule("adder2");
+    auto mod = design.m_moduleLib->lookupModule("adder2");
 
     BOOST_CHECK(mod->m_netlist);
 
@@ -97,11 +97,11 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
     BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
     // check the design
-    std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";
-    BOOST_CHECK(design.m_moduleLib.size() == 1);
-    BOOST_CHECK(design.m_moduleLib.lookupModule("multiplier").isValid());
+    std::cout << "  Found " << design.m_moduleLib->size() << " modules\n";
+    BOOST_CHECK(design.m_moduleLib->size() == 1);
+    BOOST_CHECK(design.m_moduleLib->lookupModule("multiplier").isValid());
     
-    auto mod = design.m_moduleLib.lookupModule("multiplier");
+    auto mod = design.m_moduleLib->lookupModule("multiplier");
     if (mod.isValid())
     {
         std::cout << "  module has " << mod->m_netlist->m_instances.size() << " instances\n";
@@ -151,11 +151,11 @@ BOOST_AUTO_TEST_CASE(can_read_nerv32)
     BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
     // check the design
-    std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";
-    BOOST_CHECK(design.m_moduleLib.size() == 1);
-    BOOST_CHECK(design.m_moduleLib.lookupModule("nerv").isValid());
+    std::cout << "  Found " << design.m_moduleLib->size() << " modules\n";
+    BOOST_CHECK(design.m_moduleLib->size() == 1);
+    BOOST_CHECK(design.m_moduleLib->lookupModule("nerv").isValid());
     
-    auto mod = design.m_moduleLib.lookupModule("nerv");
+    auto mod = design.m_moduleLib->lookupModule("nerv");
     if (mod.isValid())
     {
         std::cout << "  module has " << mod->m_netlist->m_instances.size() << " instances\n";
@@ -200,11 +200,11 @@ BOOST_AUTO_TEST_CASE(can_read_picorv32)
     BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
     // check the design
-    std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";
-    BOOST_CHECK(design.m_moduleLib.size() == 1);
-    BOOST_CHECK(design.m_moduleLib.lookupModule("picorv32").isValid());
+    std::cout << "  Found " << design.m_moduleLib->size() << " modules\n";
+    BOOST_CHECK(design.m_moduleLib->size() == 1);
+    BOOST_CHECK(design.m_moduleLib->lookupModule("picorv32").isValid());
     
-    auto mod = design.m_moduleLib.lookupModule("picorv32");
+    auto mod = design.m_moduleLib->lookupModule("picorv32");
     if (mod.isValid())
     {
         BOOST_CHECK(mod->m_netlist.get() != nullptr);

@@ -31,7 +31,7 @@ static int wrapper_print(lua_State *L)
     return 0;
 }
 
-LuaWrapper::LuaWrapper(MMConsole *console, Database &db) : m_console(console), m_db(db)
+LuaWrapper::LuaWrapper(MMConsole *console, std::shared_ptr<Database> db) : m_console(console), m_db(db)
 {
     m_L = luaL_newstate();
     luaL_openlibs(m_L);

@@ -25,7 +25,7 @@ public:
     explicit DesignBrowser(QWidget *parent = nullptr);
     virtual ~DesignBrowser();
 
-    void setDatabase(Database *db);
+    void setDatabase(std::shared_ptr<Database> db);
     void refreshDatabase();
 
     QSize sizeHint() const;
@@ -42,7 +42,7 @@ protected:
     QTableView      *m_moduleTableView;
     QTreeView       *m_moduleTreeView;
 
-    Database        *m_db;
+    std::shared_ptr<Database>   m_db;
 };
 
 };  // namespace

@@ -26,10 +26,10 @@ BOOST_AUTO_TEST_CASE(can_read_assign_statements)
     BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
     // check the design
-    std::cout << "  Found " << design.m_moduleLib.size() << " modules\n";
-    BOOST_CHECK(design.m_moduleLib.size() == 1);
-    BOOST_CHECK(design.m_moduleLib.lookupModule("testmodule").isValid());
-    auto mod = design.m_moduleLib.lookupModule("testmodule");
+    std::cout << "  Found " << design.m_moduleLib->size() << " modules\n";
+    BOOST_CHECK(design.m_moduleLib->size() == 1);
+    BOOST_CHECK(design.m_moduleLib->lookupModule("testmodule").isValid());
+    auto mod = design.m_moduleLib->lookupModule("testmodule");
 
     BOOST_CHECK(mod.isValid());
     if (!mod.isValid())

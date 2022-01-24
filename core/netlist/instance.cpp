@@ -116,6 +116,17 @@ InstanceBase::Pin PinInstance::getPin(const std::string &pinName) const
     return pin;
 }
 
+bool PinInstance::setPinNet(PinObjectKey pinKey, NetObjectKey netKey)
+{
+    if (pinKey != 0)
+    {
+        return false;   // there is only one pin
+    }
+
+    m_connectedNet = netKey;
+    return true;
+}
+
 size_t PinInstance::getNumberOfPins() const
 {
     return 1;

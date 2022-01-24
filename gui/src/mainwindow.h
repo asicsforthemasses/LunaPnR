@@ -79,7 +79,7 @@ protected:
     GUI::DesignBrowser  *m_designBrowser;
     GUI::FloorplanView  *m_floorplanView;
 
-    GUI::Database m_db;
+    std::shared_ptr<GUI::Database> m_db;
 
     bool m_floorplanDirty;
     bool m_techLibDirty;

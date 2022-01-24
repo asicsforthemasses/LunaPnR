@@ -99,27 +99,27 @@ QSize TechBrowser::sizeHint() const
     return m_layerTreeView->sizeHint();
 }
 
-void TechBrowser::setDatabase(Database *db)
+void TechBrowser::setDatabase(std::shared_ptr<Database> db)
 {
-    if (m_db != nullptr)
+    if (m_db)
     {
-        m_db->techLib().m_layers.removeListener(m_layerInfoModel.get());
+        m_db->techLib()->removeLayerListener(m_layerInfoModel.get());
     }
 
     m_db = db;
 
-    if (m_db == nullptr)
+    if (!m_db)
     {
         m_layerInfoModel->setLayer(nullptr);
         m_layerTableModel->setTechLib(nullptr);
         return;
     }
 
-    m_db->techLib().m_layers.addListener(m_layerInfoModel.get());
+    m_db->techLib()->addLayerListener(m_layerInfoModel.get());
 
-    auto layer = m_db->techLib().m_layers.at(0);
+    auto layer = m_db->techLib()->layers().at(0);
     m_layerInfoModel->setLayer(layer);
-    m_layerTableModel->setTechLib(&m_db->techLib());
+    m_layerTableModel->setTechLib(m_db->techLib());
 
     // make sure all columns can expand
     for(size_t c=0; c < m_layerTableView->horizontalHeader()->count(); c++)
@@ -145,12 +145,12 @@ void TechBrowser::refreshDatabase()
         // make sure that every layer in the tech library
         // has a corresponding layer in the layer render library
 
-        for(auto techLayer : m_db->techLib().m_layers)
+        for(auto techLayer : m_db->techLib()->layers())
         {   
-            m_db->m_layerRenderInfoDB.createLayer(techLayer->m_name);
+            m_db->m_layerRenderInfoDB.createLayer(techLayer->name());
         }
                 
-        m_layerTableModel->setTechLib(&m_db->techLib());
+        m_layerTableModel->setTechLib(m_db->techLib());
     }    
 }
 
@@ -169,13 +169,13 @@ void TechBrowser::onLayerSelectionChanged(const QItemSelection &cur, const QItem
             if (m_db != nullptr)
             {
                 // make sure the layer render info database stays in sync
-                if (m_db->m_layerRenderInfoDB.size() != m_db->techLib().m_layers.size())
+                if (m_db->m_layerRenderInfoDB.size() != m_db->techLib()->layers().size())
                 {
                     refreshDatabase();
                 }
 
-                auto info = m_db->m_layerRenderInfoDB.lookup(layer->m_name);
-                if (info != nullptr)
+                auto info = m_db->m_layerRenderInfoDB[layer->name()];
+                if (info.isValid())
                 {
                     m_colorButton->setEnabled(true);
                     m_hatchButton->setEnabled(true);
@@ -203,7 +203,7 @@ void TechBrowser::onLayerSelectionChanged(const QItemSelection &cur, const QItem
             }
 
             update();
-            doLog(LOG_VERBOSE, "Selected layer %s\n", layer->m_name.c_str());
+            doLog(LOG_VERBOSE, "Selected layer %s\n", layer->name().c_str());
         }
     }
 }
@@ -215,8 +215,8 @@ void TechBrowser::onLayerColorChanged()
     
     if ((layer != nullptr) && (m_db != nullptr))
     {
-        auto info = m_db->m_layerRenderInfoDB.lookup(layer->m_name);
-        if (info != nullptr)
+        auto info = m_db->m_layerRenderInfoDB[layer->name()];
+        if (info.isValid())
         {
             info->routing().setColor(m_colorButton->getColor());
             m_db->m_layerRenderInfoDB.contentsChanged();
@@ -246,8 +246,8 @@ void TechBrowser::onChangeHatch()
             auto layer = m_layerTableModel->getLayer(index.row());
             if (layer != nullptr)
             {
-                auto info = m_db->m_layerRenderInfoDB.lookup(layer->m_name);
-                if (info != nullptr)
+                auto info = m_db->m_layerRenderInfoDB[layer->name()];
+                if (info.isValid())
                 {
                     info->routing().setTexture(hatch);
                     m_db->m_layerRenderInfoDB.contentsChanged();
@@ -264,8 +264,8 @@ void TechBrowser::onLayerObsColorChanged()
     
     if ((layer != nullptr) && (m_db != nullptr))
     {
-        auto info = m_db->m_layerRenderInfoDB.lookup(layer->m_name);
-        if (info != nullptr)
+        auto info = m_db->m_layerRenderInfoDB[layer->name()];
+        if (info.isValid())
         {
             info->obstruction().setColor(m_colorObsButton->getColor());
             m_db->m_layerRenderInfoDB.contentsChanged();
@@ -295,8 +295,8 @@ void TechBrowser::onChangeObsHatch()
             auto layer = m_layerTableModel->getLayer(index.row());
             if (layer != nullptr)
             {
-                auto info = m_db->m_layerRenderInfoDB.lookup(layer->m_name);
-                if (info != nullptr)
+                auto info = m_db->m_layerRenderInfoDB[layer->name()];
+                if (info.isValid())
                 {
                     info->obstruction().setTexture(hatch);
                     m_db->m_layerRenderInfoDB.contentsChanged();

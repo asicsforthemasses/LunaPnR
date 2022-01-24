@@ -53,10 +53,10 @@ QSize DesignBrowser::sizeHint() const
     return m_moduleTreeView->sizeHint();
 }
 
-void DesignBrowser::setDatabase(Database *db)
+void DesignBrowser::setDatabase(std::shared_ptr<Database> db)
 {
     m_db = db;
-    m_moduleModel->setModuleLib(&db->moduleLib());
+    m_moduleModel->setModuleLib(db->moduleLib());
 }
 
 void DesignBrowser::refreshDatabase()

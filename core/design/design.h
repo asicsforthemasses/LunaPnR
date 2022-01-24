@@ -12,16 +12,16 @@ namespace ChipDB
 class Design
 {
 public:
-    Design() : m_topModule(nullptr), m_uniqueIDCounter(0) {}
+    Design();
 
     /** clear netlist, celllib, modules and technology information */
     void clear();
 
-    Netlist                 m_netlist;
-    CellLib                 m_cellLib;
-    ModuleLib               m_moduleLib;
-    TechLib                 m_techLib;
-    Floorplan               m_floorplan;
+    //std::shared_ptr<Netlist>    m_netlist;
+    std::shared_ptr<CellLib>    m_cellLib;
+    std::shared_ptr<ModuleLib>  m_moduleLib;
+    std::shared_ptr<TechLib>    m_techLib;
+    std::shared_ptr<Floorplan>  m_floorplan;
 
     auto createUniqueID()
     {

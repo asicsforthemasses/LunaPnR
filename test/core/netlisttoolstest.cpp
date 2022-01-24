@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(check_histogram)
     BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
     // check the design    
-    auto mod = design.m_moduleLib.lookupModule("adder2");
+    auto mod = design.m_moduleLib->lookupModule("adder2");
     BOOST_CHECK(mod.isValid());
     BOOST_CHECK(mod->m_netlist);
 
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(check_histogram_2)
     BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
     // check the design    
-    auto mod = design.m_moduleLib.lookupModule("FemtoRV32");
+    auto mod = design.m_moduleLib->lookupModule("FemtoRV32");
     BOOST_CHECK(mod.isValid());
     BOOST_CHECK(mod->m_netlist);
 
@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE(remove_netcons)
     BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
     // check the design    
-    auto mod = design.m_moduleLib.lookupModule("netcon");
+    auto mod = design.m_moduleLib->lookupModule("netcon");
     BOOST_CHECK(mod.isValid());
     BOOST_CHECK(mod->m_netlist);    
 

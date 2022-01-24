@@ -24,7 +24,7 @@ public:
     explicit TechBrowser(QWidget *parent = nullptr);
     virtual ~TechBrowser();
 
-    void setDatabase(Database *db);
+    void setDatabase(std::shared_ptr<Database> db);
     void refreshDatabase();
     
     QSize sizeHint() const;
@@ -49,7 +49,7 @@ protected:
     SelectColorButton   *m_colorObsButton;
     SelectHatchButton   *m_hatchObsButton;
 
-    Database    *m_db;
+    std::shared_ptr<Database> m_db;
 };
 
 };  // namespace

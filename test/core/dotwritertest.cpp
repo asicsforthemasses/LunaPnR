@@ -24,12 +24,12 @@ BOOST_AUTO_TEST_CASE(can_write_netlist_to_dot)
     BOOST_CHECK(ChipDB::Liberty::Reader::load(design, libertyfile));
 
     // dump FAX1 cell 
-    auto cellKeyObjPair = design.m_cellLib.lookupCell("FAX1");
+    auto cellKeyObjPair = design.m_cellLib->lookupCell("FAX1");
     BOOST_CHECK(cellKeyObjPair.isValid());
 
     for(auto pinInfo : cellKeyObjPair->m_pins)
     {
-        std::cout << "  " << pinInfo->m_name << " " << toString(pinInfo->m_iotype) << "\n";
+        std::cout << "  " << pinInfo->name() << " " << toString(pinInfo->m_iotype) << "\n";
     }
 
     std::ifstream verilogfile("test/files/verilog/adder8.v");
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(can_write_netlist_to_dot)
 
     BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
-    auto modulePtr = design.m_moduleLib.lookupModule("adder8");
+    auto modulePtr = design.m_moduleLib->lookupModule("adder8");
     BOOST_CHECK(modulePtr.isValid());
 
     std::ofstream ofile("test/files/results/adder8.dot");

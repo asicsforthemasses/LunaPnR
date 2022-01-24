@@ -156,9 +156,14 @@ bool LayerRenderInfoDB::readJson(const std::string &txt)
         auto arr = topObj["layers"].toArray();
         for(auto const& obj : arr)
         {
-            LayerRenderInfo *info = new LayerRenderInfo();
-            info->read(obj.toObject());
-            add(info->getName(), info);
+            auto layerObj = std::make_shared<LayerRenderInfo>();
+            layerObj->read(obj.toObject());
+
+            auto layerOpt = add(layerObj);
+            if (!layerOpt.has_value())
+            {
+                doLog(LOG_ERROR, "Cannot add layer %s to database - already exists!\n", layerObj->name().c_str());
+            }            
         }
     }
     else
@@ -178,9 +183,9 @@ std::string LayerRenderInfoDB::writeJson() const
     for(auto layer : m_objects)
     {        
         QJsonObject obj;
-        if (layer != nullptr)
+        if (layer.second)
         {
-            layer->write(obj);
+            layer.second->write(obj);
             arr.append(obj);
         }
     }
@@ -192,14 +197,23 @@ std::string LayerRenderInfoDB::writeJson() const
     return doc.toJson().toStdString();
 }
 
-LayerRenderInfo* LayerRenderInfoDB::createLayer(const std::string &name)
+ChipDB::KeyObjPair<GUI::LayerRenderInfo> LayerRenderInfoDB::createLayer(const std::string &name)
 {
-    auto layer = lookup(name);
-    if (layer == nullptr)
+    auto layerObjKeyPair = this->findObject(name);
+    if (!layerObjKeyPair.isValid())
     {
-        layer = new LayerRenderInfo(name);
-        add(name, layer);
+        auto layerObjKeyPairOpt = add(std::make_shared<LayerRenderInfo>(name));
+        if (layerObjKeyPairOpt.has_value())
+        {
+            layerObjKeyPair = layerObjKeyPairOpt.value();
+        }
+        else
+        {
+            // internal error?
+            doLog(LOG_ERROR,"LayerRenderInfoDB::createLayer internal error\n");
+            return ChipDB::KeyObjPair<GUI::LayerRenderInfo>();
+        }
     }
 
-    return layer;
+    return layerObjKeyPair;
 }

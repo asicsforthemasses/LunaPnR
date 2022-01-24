@@ -268,24 +268,24 @@ static int create_region(lua_State *L)
     auto width  = lua_tointeger(L, 4);
     auto height = lua_tointeger(L, 5);
 
-    auto region = std::make_shared<ChipDB::Region>(name);
-    region->m_rect = ChipDB::Rect64(ChipDB::Coord64{x,y}, ChipDB::Coord64{x+width,y+height});
-
-    if (!db->floorplan().m_regions.add(region))
+    auto regionKeyObjPair = db->floorplan()->createRegion(name);
+    if (!regionKeyObjPair.isValid())
     {
         reportError(L, "Region with name %s already exists!", name);
         return 0;
     }
 
+    regionKeyObjPair->m_rect = ChipDB::Rect64(ChipDB::Coord64{x,y}, ChipDB::Coord64{x+width,y+height});
+    
     auto wrapper = getLuaWrapper(L);
     if (wrapper != nullptr)
     {
         std::stringstream ss;
-        ss << "Created region '" << name << "' at " << region->m_rect << "\n";
+        ss << "Created region '" << name << "' at " << regionKeyObjPair->m_rect << "\n";
         wrapper->print(ss);
     }
 
-    db->floorplan().m_regions.contentsChanged();
+    db->floorplan()->contentsChanged();
 
     return 0;
 }
@@ -324,7 +324,7 @@ static int create_rows(lua_State *L)
     auto rowHeight = lua_tointeger(L, 3);
     auto numRows   = lua_tointeger(L, 4);
 
-    auto region = db->floorplan().lookupRegion(name);
+    auto region = db->floorplan()->lookupRegion(name);
     if (!region.isValid())
     {
         reportError(L, "Region with name %s does not exists!", name);
@@ -355,7 +355,7 @@ static int create_rows(lua_State *L)
         ur += ChipDB::Coord64{0, rowHeight};
     }
 
-    db->floorplan().contentsChanged();
+    db->floorplan()->contentsChanged();
 
     auto wrapper = getLuaWrapper(L);
     std::stringstream ss;
@@ -382,21 +382,19 @@ static int remove_rows(lua_State *L)
 
     auto name      = lua_tostring(L, 1);
 
-    auto region = db->floorplan().lookupRegion(name);
+    auto region = db->floorplan()->lookupRegion(name);
     if (!region.isValid())
     {
         reportError(L, "Region with name %s does not exists!", name);
         return 0;
     }
     
-    db->floorplan().contentsChanged();
-
     region->m_rows.clear();
 
     auto wrapper = getLuaWrapper(L);
     wrapper->print("Rows removed");
 
-    db->floorplan().contentsChanged();
+    db->floorplan()->contentsChanged();
 
     return 0;
 }
@@ -414,7 +412,7 @@ static int remove_region(lua_State *L)
 
     auto name      = lua_tostring(L, 1);
 
-    if (!db->floorplan().removeRegion(name))
+    if (!db->floorplan()->removeRegion(name))
     {
         reportError(L, "Could not regomve region with name %s!", name);
         return 0;
@@ -423,7 +421,7 @@ static int remove_region(lua_State *L)
     auto wrapper = getLuaWrapper(L);
     wrapper->print("Region removed");
 
-    db->floorplan().contentsChanged();
+    db->floorplan()->contentsChanged();
     return 0;    
 }
 
@@ -468,7 +466,7 @@ static int set_region_halo(lua_State *L)
     auto left   = lua_tointeger(L, 4);
     auto right  = lua_tointeger(L, 5);
 
-    auto region = db->floorplan().lookupRegion(name);
+    auto region = db->floorplan()->lookupRegion(name);
     if (!region.isValid())
     {
         reportError(L, "Could not find region with name %s!", name);
@@ -486,12 +484,10 @@ static int set_region_halo(lua_State *L)
     // increase the region size by the new halo
     region->m_rect.expand(region->m_halo);
 
-    db->floorplan().contentsChanged();
-
     auto wrapper = getLuaWrapper(L);
     wrapper->print("Region halo updated");
 
-    db->floorplan().contentsChanged();
+    db->floorplan()->contentsChanged();
 
     return 0;    
 }
@@ -516,14 +512,14 @@ static int place_module(lua_State *L)
     auto moduleName = lua_tostring(L, 1);
     auto regionName = lua_tostring(L, 2);
     
-    auto region = db->floorplan().lookupRegion(regionName);
+    auto region = db->floorplan()->lookupRegion(regionName);
     if (!region.isValid())
     {
         reportError(L, "Could not find region with name %s!", regionName);
         return 0;
     }
 
-    auto mod = db->moduleLib().lookupModule(moduleName);
+    auto mod = db->moduleLib()->lookupModule(moduleName);
     if (!mod.isValid())
     {
         reportError(L, "Could not find module with name %s!", moduleName);
@@ -548,7 +544,7 @@ static int place_module(lua_State *L)
 
     setLogLevel(ll);
 
-    db->floorplan().contentsChanged();
+    db->floorplan()->contentsChanged();
 
     return 0;
 }
@@ -587,8 +583,8 @@ static int place_instance(lua_State *L)
     auto x = lua_tointeger(L,3);
     auto y = lua_tointeger(L,4);
 
-    auto *mod = db->moduleLib().lookup(moduleName);
-    if (mod == nullptr)
+    auto mod = db->moduleLib()->lookupModule(moduleName);
+    if (!mod.isValid())
     {
         reportError(L, "Could not find module with name %s!", moduleName);
         return 0;
@@ -600,8 +596,8 @@ static int place_instance(lua_State *L)
         return 0;        
     }
 
-    auto *ins = mod->m_netlist.get()->m_instances.lookup(insName);
-    if (ins == nullptr)
+    auto ins = mod->m_netlist->lookupInstance(insName);
+    if (!ins.isValid())
     {
         reportError(L, "Could not find instance with name %s!", insName);
         return 0;
@@ -611,7 +607,7 @@ static int place_instance(lua_State *L)
     ins->m_pos.m_y = y;
     ins->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
 
-    db->floorplan().m_regions.contentsChanged();
+    db->floorplan()->contentsChanged();
 
     return 0;
 }
@@ -657,9 +653,9 @@ static int write_placement(lua_State *L)
 
     auto moduleName = lua_tostring(L, 1);
 
-    auto mod = db->moduleLib().lookup(moduleName);
+    auto mod = db->moduleLib()->lookupModule(moduleName);
 
-    if (mod == nullptr)
+    if (!mod.isValid())
     {
         reportError(L, "Could not find module with name %s!", moduleName);
         return 0;        
@@ -707,21 +703,21 @@ static int write_density_bitmap(lua_State *L)
     auto regionName = lua_tostring(L, 2);
     auto fileName   = lua_tostring(L, 3);
     
-    auto *region = db->floorplan().m_regions.lookup(regionName);
-    if (region == nullptr)
+    auto region = db->floorplan()->lookupRegion(regionName);
+    if (!region.isValid())
     {
         reportError(L, "Could not find region with name %s!", regionName);
         return 0;
     }
 
-    auto *mod = db->moduleLib().lookup(moduleName);
-    if (mod == nullptr)
+    auto mod = db->moduleLib()->lookupModule(moduleName);
+    if (!mod.isValid())
     {
         reportError(L, "Could not find module with name %s!", moduleName);
         return 0;
     }
 
-    auto bitmap = LunaCore::QPlacer::createDensityBitmap(mod->m_netlist.get(), region,
+    auto bitmap = LunaCore::QPlacer::createDensityBitmap(mod->m_netlist.get(), region.rawPtr(),
         10000,10000);
 
     if (!bitmap)

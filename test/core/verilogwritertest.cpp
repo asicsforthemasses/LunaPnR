@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(can_write_netlist_to_verilog)
 
     BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
-    auto modulePtr = design.m_moduleLib.lookupModule("adder2");
+    auto modulePtr = design.m_moduleLib->lookupModule("adder2");
     BOOST_CHECK(modulePtr.isValid());
 
     std::ofstream ofile("test/files/results/adder2_export.v");
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(can_write_adder8_to_verilog)
 
     BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
-    auto modulePtr = design.m_moduleLib.lookupModule("adder8");
+    auto modulePtr = design.m_moduleLib->lookupModule("adder8");
     BOOST_CHECK(modulePtr.isValid());
 
     std::ofstream ofile("test/files/results/adder8_export.v");

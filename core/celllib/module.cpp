@@ -6,6 +6,11 @@ using namespace ChipDB;
 //   Module
 // **********************************************************************
 
+Module::Module(const std::string &name) : Cell(name)
+{
+    m_netlist = std::make_shared<Netlist>();
+}
+
 KeyObjPair<InstanceBase> Module::addInstance(std::shared_ptr<InstanceBase> insPtr)
 {
     if (!insPtr)
@@ -35,21 +40,6 @@ KeyObjPair<Net> Module::createNet(const std::string &netName)
     }
 
     return m_netlist->createNet(netName);
-
-#if 0
-    // if the net already exists, return that one.
-    auto netKeyObj = m_netlist->m_nets[netName];
-    if (netKeyObj.isValid() != nullptr)
-    {
-        return netKeyObj.;
-    }
-
-    myNet = new Net;
-    myNet->m_name = netName;
-    m_netlist->m_nets.add(netName, myNet);
-
-    return myNet;
-#endif
 }
 
 bool Module::connect(const std::string &insName, const std::string &pinName, const std::string &netName)

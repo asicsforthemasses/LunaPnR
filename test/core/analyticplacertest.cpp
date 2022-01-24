@@ -110,7 +110,7 @@ BOOST_AUTO_TEST_CASE(place_multiplier)
 
     ChipDB::Verilog::Reader::load(design, verilogfile);
 
-    auto modKeyObjPair = design.m_moduleLib.lookupModule("multiplier");
+    auto modKeyObjPair = design.m_moduleLib->lookupModule("multiplier");
 
     BOOST_CHECK(modKeyObjPair.isValid());
     BOOST_CHECK(modKeyObjPair->m_netlist);
@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(place_multiplier)
     }
 
     // create a floorplan with region
-    auto region = design.m_floorplan.createRegion("core");
+    auto region = design.m_floorplan->createRegion("core");
     region->m_site = "corehd";
     region->m_rect.setSize( {65000+20000,65000+20000} );
     region->m_halo = ChipDB::Margins64{10000,10000,10000,10000};

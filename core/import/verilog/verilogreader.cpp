@@ -42,7 +42,7 @@ bool Reader::load(Design &design, std::istream &source)
             if (parser.execute(tokens))
             {
                 doLog(LOG_INFO,"Verilog netlist parsed.\n");
-                doLog(LOG_INFO,"  modules %d\n", design.m_moduleLib.size());
+                doLog(LOG_INFO,"  modules %d\n", design.m_moduleLib->size());
                 return true;
             }
         }
@@ -98,7 +98,7 @@ void ReaderImpl::throwOnCurInstanceIsNullptr()
 void ReaderImpl::onModule(const std::string &modName,
         const std::vector<std::string> &ports)
 {    
-    m_currentModule = m_design.m_moduleLib.createModule(modName).ptr();
+    m_currentModule = m_design.m_moduleLib->createModule(modName).ptr();
     throwOnModuleIsNullptr();
 
     // we need to create our ports here.
@@ -118,7 +118,7 @@ void ReaderImpl::onInstance(const std::string &modName, const std::string &insNa
     throwOnModuleIsNullptr();
 
     // check for cell or module instance
-    auto const cellKeyObjPtr = m_design.m_cellLib.lookupCell(modName);
+    auto const cellKeyObjPtr = m_design.m_cellLib->lookupCell(modName);
     if (cellKeyObjPtr.isValid())
     {           
         auto insPtr = std::make_shared<Instance>(insName, cellKeyObjPtr.ptr());
@@ -136,7 +136,7 @@ void ReaderImpl::onInstance(const std::string &modName, const std::string &insNa
         return;
     }
     
-    auto moduleKeyObjPair = m_design.m_moduleLib.lookupModule(modName);
+    auto moduleKeyObjPair = m_design.m_moduleLib->lookupModule(modName);
     if (moduleKeyObjPair.isValid())
     {
         auto insPtr = std::make_shared<Instance>(modName, moduleKeyObjPair.ptr());
@@ -351,7 +351,7 @@ void ReaderImpl::onAssign(const std::string &left, const std::string &right)
 
     ss << "__NETCON" << m_design.createUniqueID();
 
-    auto cellKeyObjPair = m_design.m_cellLib.lookupCell("__NETCON");
+    auto cellKeyObjPair = m_design.m_cellLib->lookupCell("__NETCON");
     if (!cellKeyObjPair.isValid())
     {
         doLog(LOG_ERROR,"Verilog reader: cannot find __NETCON cell in cell library\n");

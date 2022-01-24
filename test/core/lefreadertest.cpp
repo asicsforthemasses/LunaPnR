@@ -20,16 +20,16 @@ BOOST_AUTO_TEST_CASE(can_read_lef)
     ChipDB::Design design;
     BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
-    std::cout << "  Found " << design.m_cellLib.size() << " cells\n";
-    BOOST_CHECK(design.m_cellLib.size() == 34);
+    std::cout << "  Found " << design.m_cellLib->size() << " cells\n";
+    BOOST_CHECK(design.m_cellLib->size() == 34);
 
-    for(auto cellKeyObjPair : design.m_cellLib)
+    for(auto cellKeyObjPair : *design.m_cellLib)
     {
         std::cout << "  " << cellKeyObjPair->name() << "\n";
     }    
 
     // check parameters of NANDX1 cell
-    auto cellKeyObjPtr = design.m_cellLib.lookupCell("NAND2X1");
+    auto cellKeyObjPtr = design.m_cellLib->lookupCell("NAND2X1");
     BOOST_CHECK(cellKeyObjPtr.isValid());
     BOOST_CHECK(cellKeyObjPtr->m_pins.size() == 5);
 
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(can_read_lef)
     BOOST_CHECK(!pin->m_pinLayout.empty()); // check that the pin has geometry
 
     // OAI22X1
-    cellKeyObjPtr = design.m_cellLib.lookupCell("OAI22X1");
+    cellKeyObjPtr = design.m_cellLib->lookupCell("OAI22X1");
     BOOST_CHECK(cellKeyObjPtr.isValid());
     BOOST_CHECK(cellKeyObjPtr->m_pins.size() == 7);
 
@@ -88,8 +88,8 @@ BOOST_AUTO_TEST_CASE(can_read_lef2)
     ChipDB::Design design;
     BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
-    std::cout << "  Found " << design.m_cellLib.size() << " cells\n";
-    BOOST_CHECK(design.m_cellLib.size() == 135);
+    std::cout << "  Found " << design.m_cellLib->size() << " cells\n";
+    BOOST_CHECK(design.m_cellLib->size() == 135);
 }
 
 BOOST_AUTO_TEST_CASE(can_read_techlef2)
@@ -108,26 +108,26 @@ BOOST_AUTO_TEST_CASE(can_read_techlef2)
     ChipDB::Design design;
     BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
-    std::cout << "  Found " << design.m_techLib.getNumberOfLayers() << " layers:\n";
-    BOOST_CHECK(design.m_techLib.getNumberOfLayers() == 22);
+    std::cout << "  Found " << design.m_techLib->getNumberOfLayers() << " layers:\n";
+    BOOST_CHECK(design.m_techLib->getNumberOfLayers() == 22);
 
-    for(auto const layerKeyObjPair : design.m_techLib.layers())
+    for(auto const layerKeyObjPair : design.m_techLib->layers())
     {
         std::cout << "    " << layerKeyObjPair->name() << "\n";
     }
 
-    std::cout << "  Found " << design.m_techLib.getNumberOfSites() << " sites:\n";
-    BOOST_CHECK(design.m_techLib.getNumberOfSites() == 1);
-    for(auto const site : design.m_techLib.sites())
+    std::cout << "  Found " << design.m_techLib->getNumberOfSites() << " sites:\n";
+    BOOST_CHECK(design.m_techLib->getNumberOfSites() == 1);
+    for(auto const site : design.m_techLib->sites())
     {
         std::cout << "    " << site->name() << "\n";
     }
 
     // check site parameters
-    BOOST_CHECK(design.m_techLib.sites().at(0)->name() == "FreePDK45_38x28_10R_NP_162NW_34O");
-    BOOST_CHECK(design.m_techLib.sites().at(0)->m_symmetry.m_flags == ChipDB::SymmetryFlags::SYM_Y);
-    BOOST_CHECK(design.m_techLib.sites().at(0)->m_class == ChipDB::SC_CORE);
-    BOOST_CHECK((design.m_techLib.sites().at(0)->m_size == ChipDB::Coord64{190,1400}));
+    BOOST_CHECK(design.m_techLib->sites().at(0)->name() == "FreePDK45_38x28_10R_NP_162NW_34O");
+    BOOST_CHECK(design.m_techLib->sites().at(0)->m_symmetry.m_flags == ChipDB::SymmetryFlags::SYM_Y);
+    BOOST_CHECK(design.m_techLib->sites().at(0)->m_class == ChipDB::SC_CORE);
+    BOOST_CHECK((design.m_techLib->sites().at(0)->m_size == ChipDB::Coord64{190,1400}));
 
 }
 
