@@ -191,6 +191,8 @@ public:
     void addSiteListener(ChipDB::INamedStorageListener *listener);
     void removeSiteListener(ChipDB::INamedStorageListener *listener);
 
+    void contentsChanged() const;
+
 protected:
     NamedStorage<LayerInfo>  m_layers;
     NamedStorage<SiteInfo>   m_sites;

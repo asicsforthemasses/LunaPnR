@@ -69,13 +69,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     setCentralWidget(container);
 
-    m_techBrowser->setDatabase(m_db);
-    m_cellBrowser->setDatabase(m_db);
-
-    m_db->floorplan()->addListener(this);
-
     m_floorplanView->setDatabase(m_db);
-    m_floorplanView->update();
+    //m_floorplanView->update();
+
+    m_db->cellLib()->addListener(this);
+    m_db->moduleLib()->addListener(this);
+    m_db->floorplan()->addListener(this);
 
     connect(&m_guiUpdateTimer, &QTimer::timeout, this, &MainWindow::onGUIUpdateTimer);
     m_guiUpdateTimer.start(1000);
@@ -429,3 +428,4 @@ void MainWindow::onConsoleFontDialog()
 {
     m_console->setFont(QFontDialog::getFont(0, m_console->font()));
 }
+

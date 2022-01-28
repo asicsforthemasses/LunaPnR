@@ -93,3 +93,9 @@ void TechLib::removeSiteListener(ChipDB::INamedStorageListener *listener)
 {
     m_sites.removeListener(listener);
 }
+
+void TechLib::contentsChanged() const
+{
+    m_sites.contentsChanged();
+    m_layers.contentsChanged();
+}

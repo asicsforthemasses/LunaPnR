@@ -148,7 +148,7 @@ void TechBrowser::setDatabase(std::shared_ptr<Database> db)
 
 void TechBrowser::refreshDatabase()
 {
-    if (m_db != nullptr)
+    if (!m_db)
     {
         // make sure that every layer in the tech library
         // has a corresponding layer in the layer render library

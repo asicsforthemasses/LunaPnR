@@ -172,7 +172,6 @@ static int load_layers(lua_State *L)
 
     auto wrapper = getLuaWrapper(L);
     wrapper->print("Layers loaded");
-
     return 0;
 }
 

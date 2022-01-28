@@ -93,7 +93,7 @@ LayerTableModel::~LayerTableModel()
 {
     if (m_techLib)
     {
-        m_techLib->layers().removeListener(this);
+        m_techLib->removeLayerListener(this);
     }
 }
 
@@ -101,14 +101,14 @@ void LayerTableModel::setTechLib(std::shared_ptr<ChipDB::TechLib> techLib)
 {
     if (m_techLib)
     {
-        m_techLib->layers().removeListener(this);
+        m_techLib->removeLayerListener(this);
     }
 
     beginResetModel();
     m_techLib = techLib;
     if (m_techLib)
     {
-        m_techLib->layers().addListener(this);
+        m_techLib->addLayerListener(this);
     }
 
     endResetModel();
