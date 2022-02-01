@@ -1,3 +1,8 @@
+/*
+    SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
+    SPDX-License-Identifier: GPL-3.0-only
+*/
+
 #include "cellbrowser.h"
 #include <QHeaderView>
 #include <QLabel>
