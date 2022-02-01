@@ -1,3 +1,10 @@
+/*
+  SPDX-License-Identifier: GPL-3.0-only
+
+  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
+*/
+
+
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -213,8 +220,9 @@ bool inSkipList(const std::string &path)
 }
 
 const char spdxHeader[] = "/*\n" \
+"  LunaPnR Source Code\n" \
+"  \n" \
 "  SPDX-License-Identifier: GPL-3.0-only\n" \
-"\n" \
 "  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>\n" \
 "*/\n\n";
 
