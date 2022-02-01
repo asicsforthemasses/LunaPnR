@@ -238,7 +238,12 @@ int main(int argc, char *argv[])
         }
 
         if (!dir_entry.is_directory())
-        {            
+        {       
+            if (path.find(".html"))
+            {
+                continue;
+            }
+            
             if ((path.find(".cpp") != std::string::npos) || 
                 (path.find(".h") != std::string::npos))
             {
