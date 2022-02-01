@@ -1,4 +1,12 @@
 /*
+  LunaPnR Source Code
+  
+  SPDX-License-Identifier: GPL-3.0-only
+  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
+*/
+
+
+/*
 
     String list model that adapts a vector 
     of strings to a QAbstractListModel

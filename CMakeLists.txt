@@ -1,3 +1,9 @@
+##  LunaPnR Source Code
+##
+##  SPDX-License-Identifier: GPL-3.0-only
+##  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
+##  
+
 cmake_minimum_required(VERSION 3.16)
 
 set(CMAKE_CXX_STANDARD 17)

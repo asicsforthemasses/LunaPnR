@@ -1,3 +1,11 @@
+/*
+  LunaPnR Source Code
+  
+  SPDX-License-Identifier: GPL-3.0-only
+  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
+*/
+
+
 // inspiration: https://github.com/jupyter/qtconsole/blob/master/qtconsole/console_widget.py
 
 #pragma once
