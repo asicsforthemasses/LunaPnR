@@ -212,9 +212,11 @@ bool inSkipList(const std::string &path)
     return false;
 }
 
-const char pdxHeader[] = "/* SPDX-License-Identifier: GPL-3.0-only\n";
-
-
+const char spdxHeader[] = "/*\n" \
+"  SPDX-License-Identifier: GPL-3.0-only\n" \
+"\n" \
+"  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>\n" \
+"*/\n\n";
 
 int main(int argc, char *argv[])
 {
@@ -243,16 +245,16 @@ int main(int argc, char *argv[])
                 if (scanFile(path))
                 {
                     // patch file
-                    std::ifstream srcFile(path, std::ios::binary);
+                    std::ifstream srcFileIn(path, std::ios::binary);
                     std::stringstream buffer;
-                    buffer << srcFile.rdbuf();
+                    buffer << srcFileIn.rdbuf();
                     std::string contents = buffer.str();
-                    srcFile.close();
+                    srcFileIn.close();
 
-                    std::ofstream srcFile(path, std::ios::binary);
-                    srcFile << spdxHeader << "\n";
-                    srcFile << contents;
-                    srcFile.close();
+                    std::ofstream srcFileOut(path, std::ios::binary);
+                    srcFileOut << spdxHeader << "\n";
+                    srcFileOut << contents;
+                    srcFileOut.close();
                 }
             }
         }
