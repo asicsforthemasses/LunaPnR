@@ -41,4 +41,5 @@
 #include "../export/svg/svgwriter.h"
 #include "../export/dot/dotwriter.h"
 #include "../export/verilog/verilogwriter.h"
+#include "../export/def/defwriter.h"
 

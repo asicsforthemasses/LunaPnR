@@ -5,8 +5,6 @@
   SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
 */
 
-
-
 #include "common/logging.h"
 
 #include "celllib/celllib.h"

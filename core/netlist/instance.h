@@ -49,6 +49,13 @@ public:
         return m_insType == InstanceType::MODULE;
     }
 
+    /** returns true if the instance is placed or placed and fixed */
+    constexpr bool isPlaced() const
+    {
+        return ((m_placementInfo == PlacementInfo::PLACED) || 
+            (m_placementInfo == PlacementInfo::PLACEDANDFIXED));
+    }
+
     /** get area in um² */
     virtual double getArea() const noexcept = 0;
 

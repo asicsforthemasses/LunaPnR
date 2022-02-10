@@ -66,6 +66,7 @@ add_library(lunacore
     import/verilog/verilogreader.cpp
     export/svg/svgwriter.cpp
     export/dot/dotwriter.cpp
+    export/def/defwriter.cpp
     export/verilog/verilogwriter.cpp
     )
 

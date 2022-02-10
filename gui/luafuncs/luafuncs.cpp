@@ -683,6 +683,52 @@ static int write_placement(lua_State *L)
 };
 
 
+///> write_def(module : string, filename : string)
+static int write_def(lua_State *L)
+{
+    auto db = getDB(L);
+
+    if (!lua_isstring(L, 1))
+    {
+        reportError(L, "Param 1: Expected a string for module name");
+        return 0;
+    }
+
+    if (!lua_isstring(L, 2))
+    {
+        reportError(L, "Param 2: Expected a string for file name");
+        return 0;
+    }
+
+    auto moduleName = lua_tostring(L, 1);
+
+    auto mod = db->moduleLib()->lookupModule(moduleName);
+
+    if (!mod.isValid())
+    {
+        reportError(L, "Could not find module with name %s!", moduleName);
+        return 0;        
+    }
+
+    auto fileName = lua_tostring(L,2);
+
+    std::ofstream ofile(fileName);
+    if (!ofile.good())
+    {
+        reportError(L, "Could not write DEF file%s!", fileName);
+        return 0;
+    }
+
+    if (!LunaCore::DEF::write(ofile, mod.ptr()))
+    {
+        reportError(L, "Could not write DEF file%s!", fileName);
+        return 0;
+    }
+
+    return 0;
+};
+
+
 ///> write_density_bitmap(modulename : string, regionname : string, bitmapname : string)
 static int write_density_bitmap(lua_State *L)
 {
@@ -810,6 +856,7 @@ void Lua::registerFunctions(lua_State *L)
     lua_register(L, "place_instance", place_instance);
     lua_register(L, "set_toplevel_module", set_toplevel_module);
     lua_register(L, "write_placement", write_placement);
+    lua_register(L, "write_def", write_def);
     lua_register(L, "write_density_bitmap", write_density_bitmap);
     lua_register(L, "ls", cmd_ls);
     lua_register(L, "cd", cmd_cd);
