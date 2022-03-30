@@ -10,7 +10,7 @@ static PyModuleDef LunaModule = {
     PyModuleDef_HEAD_INIT,
     .m_name = "Luna",
     .m_doc = "Interfaces with LunaPNR core datastructures",
-    .m_size = -1,
+    .m_size = -1
 };
 
 static PyObject* PyInit_Luna()

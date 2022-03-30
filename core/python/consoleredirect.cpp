@@ -1,5 +1,6 @@
 #include <functional>
 #include <string>
+#include <iostream>
 #include <Python.h>
 
 // inspiration:
@@ -19,7 +20,7 @@ struct PyStdout
         if (pyStdout->writeFunc)
         {
             char *str;
-            if (!PyArg_ParseTuple(args, "s", str))
+            if (!PyArg_ParseTuple(args, "s", &str))
             {
                 return nullptr;
             }
@@ -33,7 +34,8 @@ struct PyStdout
     static PyObject* pyFlush(PyObject *self, PyObject *args)
     {
         return Py_BuildValue("");
-    }
+    };
+
 };
 
 PyMethodDef PyStdout_methods[] =
@@ -46,7 +48,7 @@ PyMethodDef PyStdout_methods[] =
 PyTypeObject PyStdoutType = 
 {
     PyVarObject_HEAD_INIT(0, 0)
-    "emb.StdoutType",     /* tp_name */
+    "PyStdoutType",       /* tp_name */
     sizeof(PyStdout),     /* tp_basicsize */
     0,                    /* tp_itemsize */
     0,                    /* tp_dealloc */
@@ -88,16 +90,14 @@ PyTypeObject PyStdoutType =
 PyModuleDef consoleRedirectModule =
 {
     PyModuleDef_HEAD_INIT,
-    "ConsoleRedirect", 0, -1, 0,
+    "ConsoleRedirect", nullptr, -1, nullptr,
 };
 
 PyMODINIT_FUNC PyInit_ConsoleRedirect(void)
 {
-    //g_stdout = 0;
-    //g_stdout_saved = 0;
 
     if (PyType_Ready(&PyStdoutType) < 0)
-        return 0;
+        return nullptr;
 
     PyObject* m = PyModule_Create(&consoleRedirectModule);
     if (m)
@@ -105,6 +105,18 @@ PyMODINIT_FUNC PyInit_ConsoleRedirect(void)
         Py_INCREF(&PyStdoutType);
         PyModule_AddObject(m, "Stdout", reinterpret_cast<PyObject*>(&PyStdoutType));
     }
+
+    // install the stdout
+
+    auto stdTypeObj = PyStdoutType.tp_new(&PyStdoutType, nullptr, nullptr);
+    auto stdObj = reinterpret_cast<PyStdout*>(stdTypeObj);
+
+    stdObj->writeFunc = [](const char *txt)
+    {
+        std::cout << "Console: " << txt << "\n";
+    };
+
+    PySys_SetObject("stdout", (PyObject*)stdObj);
 
     return m;
 };
