@@ -29,6 +29,7 @@ if (UseCLANGTIDY)
 endif()
 
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+find_package (PythonLibs 3.8 REQUIRED COMPONENTS Interpreter Development)
 
 add_library(lunacore 
     common/logging.cpp
@@ -68,7 +69,12 @@ add_library(lunacore
     export/dot/dotwriter.cpp
     export/def/defwriter.cpp
     export/verilog/verilogwriter.cpp
+    python/pylunapnr.cpp
+    python/converters.cpp
+    python/consoleredirect.cpp
+    python/types/pycell.cpp
     )
 
 target_include_directories(lunacore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(lunacore Eigen3::Eigen)
+target_include_directories(lunacore PRIVATE ${PYTHON_INCLUDE_DIRS})
+target_link_libraries(lunacore Eigen3::Eigen ${PYTHON_LIBRARIES})

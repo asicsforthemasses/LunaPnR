@@ -4,10 +4,13 @@
 ##  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
 ##  
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+## Make Debian/Ubuntu happy: this way the executable is not detected as a shared lib :-/
+set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 
 project(luna_pnr VERSION 0.1 HOMEPAGE_URL https://www.asicsforthemasses.com)
 

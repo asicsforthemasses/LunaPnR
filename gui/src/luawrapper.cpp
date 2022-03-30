@@ -15,6 +15,93 @@
 
 using namespace GUI;
 
+template<class T> 
+struct PushObject
+{
+    static T* checkObj(lua_State* lua)
+    {
+        auto userData = luaL_checkudata(lua, 1, T::className);
+        if (userData == nullptr)
+        {
+            luaL_typeerror(lua, 1, T::className);
+            return nullptr; // we will never get here.
+        }
+        return *reinterpret_cast<T**>(userData);        
+    }
+
+    static constexpr auto garbageCollect = [](lua_State* lua) -> int
+    {
+        T *obj = checkObj(lua);
+        if (obj != nullptr)
+        {
+            obj->gc(lua);
+        }
+        return 0;
+    };
+
+    static constexpr auto call = [](lua_State* lua) -> int
+    {
+        T *obj = checkObj(lua);
+        if (obj != nullptr)
+        {
+            return obj->call(lua);
+        }     
+        return 0;
+    }; 
+
+    static constexpr auto index = [](lua_State* lua) -> int
+    {
+        T *obj = checkObj(lua);
+        if (obj != nullptr)
+        {
+            return obj->index(lua);
+        }     
+        return 0;
+    };    
+
+    static constexpr auto newindex = [](lua_State* lua) -> int
+    {
+        T *obj = checkObj(lua);
+        if (obj != nullptr)
+        {
+            return obj->newindex(lua);
+        }     
+        return 0;
+    };
+};
+
+
+template<class T>
+void toLua(lua_State *L, T* obj)
+{   
+    auto ptrptr = static_cast<T**>(lua_newuserdata(L, sizeof(T*)));
+    *ptrptr = obj;
+
+    luaL_getmetatable(L, T::className);
+    if (lua_isnil(L, -1))
+    {
+        lua_pop(L,-1);
+
+        std::cout << "Metatable created!\n";
+        luaL_newmetatable(L, T::className);
+
+        lua_pushcfunction(L, PushObject<T>::call);
+        lua_setfield( L, -2, "__call");
+
+        lua_pushcfunction(L, PushObject<T>::index);
+        lua_setfield( L, -2, "__index");
+        
+        lua_pushcfunction(L, PushObject<T>::newindex);
+        lua_setfield( L, -2, "__newindex");
+        
+        lua_pushcfunction(L, PushObject<T>::garbageCollect);
+        lua_setfield( L, -2, "__gc");
+    }
+    
+    lua_setmetatable(L, -2);
+}
+
+
 static int wrapper_print(lua_State *L)
 {
     lua_getglobal(L, "luawrapperobj");
@@ -39,6 +126,26 @@ static int wrapper_print(lua_State *L)
     return 0;
 }
 
+#if 0
+struct Fart
+{
+    static constexpr const char* className = "Fart";
+
+    void gc(lua_State *L) { return; }
+    int call(lua_State *L) { std::cout << "Called!\n"; return 0; }
+    int index(lua_State *L) { return 0; }
+    int newindex(lua_State *L) { return 0; }
+};
+
+Fart myFart;
+
+static int fart(lua_State *L)
+{
+    toLua(L, &myFart);
+    return 1;
+}
+#endif
+
 LuaWrapper::LuaWrapper(MMConsole *console, std::shared_ptr<Database> db) : m_console(console), m_db(db)
 {
     m_L = luaL_newstate();
@@ -58,6 +165,7 @@ LuaWrapper::LuaWrapper(MMConsole *console, std::shared_ptr<Database> db) : m_con
     lua_setglobal(m_L, "databaseobj");
 
     Lua::registerFunctions(m_L);
+    //lua_register(m_L, "fart", &fart);
 }
 
 LuaWrapper::~LuaWrapper()

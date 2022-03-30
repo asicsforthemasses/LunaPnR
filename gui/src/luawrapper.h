@@ -1,15 +1,17 @@
 /*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
+    LunaPnR Source Code
+
+    SPDX-License-Identifier: GPL-3.0-only
+    SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
 */
 
 
 #pragma once
 #include "lua.hpp"
 
+#include <type_traits>
 #include <string>
+#include <unordered_map>
 #include <QString>
 
 #include "../console/mmconsole.h"
@@ -17,6 +19,11 @@
 
 namespace GUI
 {
+
+struct LuaWrapperObject
+{
+    const char *m_clsname;
+};
 
 class LuaWrapper
 {

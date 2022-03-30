@@ -1,3 +1,6 @@
+cmake_minimum_required(VERSION 3.20)
+
+set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 
 find_package(Qt5 5.12 REQUIRED QUIET COMPONENTS Core Widgets LinguistTools)
 
@@ -73,6 +76,9 @@ add_dependencies(lunapnr commandcompletion)
 target_link_libraries(lunapnr lunacore Qt5::Widgets liblua)
 target_include_directories(lunapnr PUBLIC ../core/include ../contrib/lua-5.4.3/src .)
 
+## Make Debian/Ubuntu happy: this way the executable is not detected as a shared lib :-/
+target_compile_options(lunapnr PUBLIC -fno-pie -no-pie)
+target_link_options(lunapnr PUBLIC -fno-pie -no-pie)
 
 set_property(TARGET lunapnr PROPERTY AUTOMOC ON)
 set_property(TARGET lunapnr PROPERTY AUTOUIC ON)

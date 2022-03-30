@@ -1,7 +1,10 @@
 # LunaPnR CMAKE file for LUA
 
 project(lua C)
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
+
+## Make Debian/Ubuntu happy: this way the executable is not detected as a shared lib :-/
+set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 
 set(SRC
     src/lapi.c
