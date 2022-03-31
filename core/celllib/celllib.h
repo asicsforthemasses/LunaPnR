@@ -64,6 +64,16 @@ public:
         return m_cells.end();
     }
 
+    auto begin() noexcept
+    {
+        return m_cells.begin();
+    }
+
+    auto end() noexcept
+    {
+        return m_cells.end();
+    }
+
     void addListener(INamedStorageListener *listener);
     void removeListener(INamedStorageListener *listener);
 

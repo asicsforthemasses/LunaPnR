@@ -54,6 +54,11 @@ PyObject* Python::toPython(const std::string &t)
     }    
 }
 
+PyObject* Python::toPython(const char *t)
+{
+    return PyUnicode_FromString(t);
+}
+
 
 // ********************************************************************************
 //   fromPython

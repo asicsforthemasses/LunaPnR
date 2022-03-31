@@ -3,6 +3,7 @@
 
 #include "consoleredirect.h"
 #include "types/pycell.h"
+#include "types/pycelllib.h"
 
 #include "pylunapnr.h"
 
@@ -15,7 +16,12 @@ static PyModuleDef LunaModule = {
 
 static PyObject* PyInit_Luna()
 {
+    std::cout << "Luna module init called\n";
+
     if (PyType_Ready(&PyCellType) < 0)
+        return nullptr;
+
+    if (PyType_Ready(&PyCellLibType) < 0)
         return nullptr;
 
     auto m = PyModule_Create(&LunaModule);
@@ -30,27 +36,38 @@ static PyObject* PyInit_Luna()
         return nullptr;
     }
 
-#if 0
-    g_vector.emplace_back(std::make_shared<MyCppStruct>());
-    g_vector.emplace_back(std::make_shared<MyCppStruct>());
-    g_vector.emplace_back(std::make_shared<MyCppStruct>());
-    g_vector.emplace_back(std::make_shared<MyCppStruct>());
-
-    g_vector.at(0)->m_name = "Vlaai";
-    g_vector.at(1)->m_name = "Susanne";
-    g_vector.at(2)->m_name = "Niels";
-    g_vector.at(3)->m_name = "Joyce";
-#endif
+    Py_INCREF(&PyCellLibType);
+    if (PyModule_AddObject(m, PyCellLibType.tp_name, (PyObject *) &PyCellLibType) < 0) 
+    {
+        Py_DECREF(&PyCellLibType);
+        Py_DECREF(m);
+        return nullptr;
+    }
 
     return m;
 }
 
-Scripting::Python::Python()
+Scripting::Python::Python(ChipDB::Design *design) : m_design(design)
 {
     PyImport_AppendInittab("ConsoleRedirect", &PyInit_ConsoleRedirect);
     PyImport_AppendInittab("Luna", &PyInit_Luna);
-    Py_Initialize();    
+    Py_Initialize();
+
     PyImport_ImportModule("ConsoleRedirect");
+    auto lunaModule = PyImport_ImportModule("Luna");
+
+    if (lunaModule == nullptr)
+    {
+        std::cout << "Luna module init failed!\n";
+    }
+
+    auto capsule = PyCapsule_New(design->m_cellLib.get(), "Luna.CellLibraryPtr", nullptr);
+
+    if (PyModule_AddObject(lunaModule, "CellLibraryPtr", capsule) < 0)
+    {
+        std::cout << "PyModule_AddObject failed!\n";
+        Py_XDECREF(capsule);
+    }
 }
 
 Scripting::Python::~Python()
@@ -68,3 +85,4 @@ bool Scripting::Python::executeScript(const std::string &code)
 
     return false;
 }
+

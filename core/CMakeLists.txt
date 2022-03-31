@@ -1,4 +1,15 @@
+##  LunaPnR Source Code
+##
+##  SPDX-License-Identifier: GPL-3.0-only
+##  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
+##  
+
 project(lunacore)
+
+set(CMAKE_CXX_STANDARD C99)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 option(UseCPPCHECK "UseCPPCHECK")
 option(UseCLANGTIDY "UseCLANGTIDY")
@@ -73,6 +84,7 @@ add_library(lunacore
     python/converters.cpp
     python/consoleredirect.cpp
     python/types/pycell.cpp
+    python/types/pycelllib.cpp
     )
 
 target_include_directories(lunacore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

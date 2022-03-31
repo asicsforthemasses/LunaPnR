@@ -33,6 +33,8 @@ PyObject* toPython(const std::string_view &t);
 
 PyObject* toPython(const std::string &t);
 
+PyObject* toPython(const char *t);
+
 
 // ********************************************************************************
 //   fromPython

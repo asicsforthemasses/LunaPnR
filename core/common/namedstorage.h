@@ -268,6 +268,9 @@ public:
 
         using BaseIteratorType  = typename ContainerType::iterator;
 
+        Iterator() = default;
+        Iterator(const Iterator &) = default;
+
         Iterator(BaseIteratorType baseIterator) 
             : m_baseIterator(baseIterator) {}
 
@@ -319,6 +322,9 @@ public:
 
         using BaseIteratorType  = typename ContainerType::const_iterator;
 
+        ConstIterator() = default;
+        ConstIterator(const ConstIterator &) = default;
+        
         ConstIterator(BaseIteratorType baseIterator) 
             : m_baseIterator(baseIterator) {}
 
@@ -419,6 +425,9 @@ public:
     {
         notifyAll();
     }
+
+    using iterator = Iterator;
+    using const_iterator = ConstIterator;
 
 protected:
     
