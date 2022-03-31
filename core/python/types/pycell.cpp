@@ -20,7 +20,7 @@ struct PyCell : public Python::TypeTemplate<ChipDB::Cell>
 {
     static PyObject* getName(PyCell *self, void *closure)
     {
-        std::cout << "PyCell::getName\n";
+        //std::cout << "PyCell::getName\n";
         if (self->ok())
         {
             return Python::toPython(self->obj()->name());
@@ -32,13 +32,13 @@ struct PyCell : public Python::TypeTemplate<ChipDB::Cell>
     /** set internal values of PyCell */
     static int pyInit(PyCell *self, PyObject *args, PyObject *kwds)
     {
-        std::cout << "pyInit\n";
+        //std::cout << "pyInit\n";
 
         // do not use ok() here, as it checks for
         // m_holder to be != nullptr.
         if (self->m_holder != nullptr)
         {
-            std::cout << "  Shared pointer created\n";
+            //std::cout << "  Shared pointer created\n";
             //self->m_holder->reset(new MyCell());
             //self->obj()->name = "Niels";
             //self->obj()->m_number = 123;
@@ -134,9 +134,10 @@ PyObject* Python::toPython(std::shared_ptr<ChipDB::Cell> cellPtr)
 {
     // create a new PyCell oject
     auto cellObject = reinterpret_cast<PyCell*>(PyObject_CallObject((PyObject*)&PyCellType, nullptr));
-    if (cellObject->ok())
+    if (cellObject->m_holder != nullptr)
     {
         *cellObject->m_holder = cellPtr;
+        return (PyObject*)cellObject;
     }
     return nullptr;
 };

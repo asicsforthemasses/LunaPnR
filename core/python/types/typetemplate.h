@@ -12,7 +12,7 @@ struct TypeTemplate
     
     TypeTemplate() 
     {
-        std::cout << "TypeTemplate constructor called\n";
+        //std::cout << "TypeTemplate constructor called\n";
     }
 
     TypeHolder *m_holder;
@@ -30,12 +30,11 @@ struct TypeTemplate
     /** allocate memory for the PyCell */
     static PyObject* pyNewCall(PyTypeObject *type, PyObject *args, PyObject *kwds)
     {
-        std::cout << "TypeTemplate pyNewCall\n";
+        //std::cout << type->tp_name << " pyNewCall\n";
 
         auto *self = reinterpret_cast<TypeTemplate*>(type->tp_alloc(type, 0));
         if (self != nullptr)
         {
-            std::cout << "Type holder created\n";
             self->m_holder = new TypeHolder();
         }
 
@@ -44,7 +43,8 @@ struct TypeTemplate
 
     static void pyDeAlloc(TypeTemplate *self)
     {
-        std::cout << "TypeTemplate pyDeAlloc\n";
+        auto tp = Py_TYPE(self);
+        //std::cout << tp->tp_name << " pyDeAlloc\n";
 
         /* add additional memory free operations here, if necessary */
 
@@ -53,7 +53,6 @@ struct TypeTemplate
             delete self->m_holder;
         }
 
-        auto tp = Py_TYPE(self);
         if (tp != nullptr)
         {
             tp->tp_free((PyObject*)self);

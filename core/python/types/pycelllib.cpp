@@ -38,13 +38,13 @@ struct PyCellLib : public Python::TypeTemplate<PyCellLibIterator>
     /** set internal values of PyCell */
     static int pyInit(PyCellLib *self, PyObject *args, PyObject *kwds)
     {
-        std::cout << "PyCellLib::Init\n";
+        //std::cout << "PyCellLib::Init\n";
 
         // do not use ok() here, as it checks for
         // m_holder to be != nullptr.
         if (self->m_holder != nullptr)
         {
-            std::cout << "  Shared pointer created\n";
+            //std::cout << "  Shared pointer created\n";
 
             self->m_holder->reset(new PyCellLibIterator());
             self->obj()->m_iter = self->obj()->end();
@@ -55,7 +55,7 @@ struct PyCellLib : public Python::TypeTemplate<PyCellLibIterator>
             {
                 std::cout << "UGH Capsule is nullptr!\n";
             }
-            
+
             self->obj()->m_cellLib = cellLibPtr;
         }
         else
@@ -68,7 +68,7 @@ struct PyCellLib : public Python::TypeTemplate<PyCellLibIterator>
 
     static PyObject* pyIter(PyCellLib *self)
     {
-        std::cout << "PyCellLib::Iter\n";
+        //std::cout << "PyCellLib::Iter\n";
 
         if (self->ok())
         {
@@ -82,7 +82,7 @@ struct PyCellLib : public Python::TypeTemplate<PyCellLibIterator>
 
     static PyObject* pyIterNext(PyCellLib *self)
     {
-        std::cout << "PyCellLib::IterNext\n";
+        //std::cout << "PyCellLib::IterNext\n";
 
         if (self->ok())
         {
@@ -93,9 +93,9 @@ struct PyCellLib : public Python::TypeTemplate<PyCellLibIterator>
 
             auto kvpair = *self->obj()->m_iter;
             PyObject *cellObject = Python::toPython(kvpair.ptr());
-            self->obj()->m_iter++;
+            //Py_INCREF(cellObject);
 
-            //Py_INCREF(self);
+            self->obj()->m_iter++;
             return (PyObject*)cellObject;
         }
 
