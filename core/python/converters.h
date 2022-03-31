@@ -5,6 +5,7 @@
 
 #include <string>
 #include <string_view>
+#include "common/dbtypes.h"
 
 namespace Python
 {
@@ -35,6 +36,11 @@ PyObject* toPython(const std::string &t);
 
 PyObject* toPython(const char *t);
 
+PyObject* toPython(const ChipDB::Coord64 &t);
+
+PyObject* toPython(const ChipDB::CellClass &t);
+
+PyObject* toPython(const ChipDB::CellSubclass &t);
 
 // ********************************************************************************
 //   fromPython

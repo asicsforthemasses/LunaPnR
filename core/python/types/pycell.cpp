@@ -29,6 +29,76 @@ struct PyCell : public Python::TypeTemplate<ChipDB::Cell>
         return nullptr;
     };
 
+    static PyObject* getLeakagePower(PyCell *self, void *closure)
+    {
+        if (self->ok())
+        {
+            return Python::toPython(self->obj()->m_leakagePower);
+        }
+        
+        return nullptr;        
+    };
+
+    static PyObject* getArea(PyCell *self, void *closure)
+    {
+        if (self->ok())
+        {
+            return Python::toPython(self->obj()->m_area);
+        }
+        
+        return nullptr;        
+    };
+
+    static PyObject* getSize(PyCell *self, void *closure)
+    {
+        if (self->ok())
+        {
+            return Python::toPython(self->obj()->m_size);
+        }
+        
+        return nullptr;        
+    };
+
+    static PyObject* getOffset(PyCell *self, void *closure)
+    {
+        if (self->ok())
+        {
+            return Python::toPython(self->obj()->m_offset);
+        }
+        
+        return nullptr;        
+    };
+
+    static PyObject* getSite(PyCell *self, void *closure)
+    {
+        if (self->ok())
+        {
+            return Python::toPython(self->obj()->m_site);
+        }
+        
+        return nullptr;        
+    };
+
+    static PyObject* getClass(PyCell *self, void *closure)
+    {
+        if (self->ok())
+        {
+            return Python::toPython(self->obj()->m_class);
+        }
+        
+        return nullptr;        
+    };
+
+    static PyObject* getSubClass(PyCell *self, void *closure)
+    {
+        if (self->ok())
+        {
+            return Python::toPython(self->obj()->m_subclass);
+        }
+        
+        return nullptr;        
+    };
+
     /** set internal values of PyCell */
     static int pyInit(PyCell *self, PyObject *args, PyObject *kwds)
     {
@@ -54,7 +124,7 @@ struct PyCell : public Python::TypeTemplate<ChipDB::Cell>
     /** set internal values of PyCell */
     static PyObject* pyStr(PyObject *self)
     {
-        std::cout << "pyStr\n";
+        //std::cout << "pyStr\n";
         return Python::toPython(PyCell::PythonObjectName);
     };
 
@@ -78,9 +148,17 @@ static PyMemberDef PyCellMembers[] =    // NOLINT(modernize-avoid-c-arrays)
 static PyGetSetDef PyCellGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
 {
     {"name", (getter)PyCell::getName, nullptr, "", nullptr /* closure */},
-    //{"number", (getter)PyCell::getNumber, (setter)PyCell::setNumber, "", nullptr /* closure */},
+    {"leakagePower", (getter)PyCell::getLeakagePower, nullptr, "cell leakage power in Watts", nullptr /* closure */},
+    {"area", (getter)PyCell::getLeakagePower, nullptr, "cell area in um^2", nullptr /* closure */},
+    {"size", (getter)PyCell::getSize, nullptr, "cell size in nm", nullptr /* closure */},
+    {"offset", (getter)PyCell::getOffset, nullptr, "cell offset in nm", nullptr /* closure */},
+    {"site", (getter)PyCell::getSite, nullptr, "cell site name", nullptr /* closure */},
+    {"cellClass", (getter)PyCell::getClass, nullptr, "cell class", nullptr /* closure */},
+    {"cellSubClass", (getter)PyCell::getClass, nullptr, "cell subclass", nullptr /* closure */},
     {nullptr}
 };
+
+//ChipDB::Cell::
 
 static PyMethodDef PyCellMethods[] =    // NOLINT(modernize-avoid-c-arrays)
 {

@@ -59,6 +59,20 @@ PyObject* Python::toPython(const char *t)
     return PyUnicode_FromString(t);
 }
 
+PyObject* Python::toPython(const ChipDB::Coord64 &t)
+{
+    return Py_BuildValue("ll", t.m_x, t.m_y);
+}
+
+PyObject* Python::toPython(const ChipDB::CellClass &t)
+{
+    return Python::toPython(ChipDB::toString(t));
+}
+
+PyObject* Python::toPython(const ChipDB::CellSubclass &t)
+{
+    return Python::toPython(ChipDB::toString(t));    
+}
 
 // ********************************************************************************
 //   fromPython
