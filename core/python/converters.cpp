@@ -1,3 +1,4 @@
+#include <sstream>
 #include "converters.h"
 
 PyObject* Python::toPython(const int &t)
@@ -72,6 +73,39 @@ PyObject* Python::toPython(const ChipDB::CellClass &t)
 PyObject* Python::toPython(const ChipDB::CellSubclass &t)
 {
     return Python::toPython(ChipDB::toString(t));    
+}
+
+PyObject* Python::toPython(const ChipDB::SymmetryFlags &t)
+{
+    std::stringstream ss;
+    auto flags = static_cast<uint8_t>(t.m_flags);
+    if (flags & ChipDB::SymmetryFlags::SYM_X)
+    {
+        ss << "X ";
+    }
+    if (flags & ChipDB::SymmetryFlags::SYM_Y)
+    {
+        ss << "Y ";
+    }
+    if (flags & ChipDB::SymmetryFlags::SYM_R90)
+    {
+        ss << "R90 ";
+    }
+
+    std::string flagString = ss.str();
+    if (flagString.empty())
+    {
+        flagString = "NONE";
+    }
+
+    // make it pretty by removing the superfluous space
+    // at the end of the string, if there is one.
+    if (flagString.back() == ' ')
+    {
+        flagString.pop_back();
+    }
+
+    return Python::toPython(flagString);
 }
 
 // ********************************************************************************

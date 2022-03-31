@@ -42,6 +42,8 @@ PyObject* toPython(const ChipDB::CellClass &t);
 
 PyObject* toPython(const ChipDB::CellSubclass &t);
 
+PyObject* toPython(const ChipDB::SymmetryFlags &t);
+
 // ********************************************************************************
 //   fromPython
 // ********************************************************************************

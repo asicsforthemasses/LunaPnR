@@ -99,6 +99,17 @@ struct PyCell : public Python::TypeTemplate<ChipDB::Cell>
         return nullptr;        
     };
 
+    static PyObject* getSymmetry(PyCell *self, void *closure)
+    {
+        if (self->ok())
+        {
+            return Python::toPython(self->obj()->m_symmetry);
+        }
+        
+        return nullptr;        
+    };
+
+
     /** set internal values of PyCell */
     static int pyInit(PyCell *self, PyObject *args, PyObject *kwds)
     {
@@ -155,6 +166,7 @@ static PyGetSetDef PyCellGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
     {"site", (getter)PyCell::getSite, nullptr, "cell site name", nullptr /* closure */},
     {"cellClass", (getter)PyCell::getClass, nullptr, "cell class", nullptr /* closure */},
     {"cellSubClass", (getter)PyCell::getSubClass, nullptr, "cell subclass", nullptr /* closure */},
+    {"symmetry", (getter)PyCell::getSymmetry, nullptr, "cell symmetry flags", nullptr /* closure */},
     {nullptr}
 };
 

@@ -12,5 +12,6 @@ for c in cells:
     print("\tOffset   ", c.offset, "nm")
     print("\tClass    ", c.cellClass)
     print("\tSubclass ", c.cellSubClass)
+    print("\tSymmetry ", c.symmetry)
 
 help(Luna.Cell())
