@@ -154,7 +154,7 @@ static PyGetSetDef PyCellGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
     {"offset", (getter)PyCell::getOffset, nullptr, "cell offset in nm", nullptr /* closure */},
     {"site", (getter)PyCell::getSite, nullptr, "cell site name", nullptr /* closure */},
     {"cellClass", (getter)PyCell::getClass, nullptr, "cell class", nullptr /* closure */},
-    {"cellSubClass", (getter)PyCell::getClass, nullptr, "cell subclass", nullptr /* closure */},
+    {"cellSubClass", (getter)PyCell::getSubClass, nullptr, "cell subclass", nullptr /* closure */},
     {nullptr}
 };
 
