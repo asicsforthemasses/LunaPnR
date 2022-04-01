@@ -5,6 +5,28 @@
 namespace Python
 {
 
+/** non-owning raw pointer holder for use with TypeTemplate. */
+template<typename MyType>
+class RawPointer
+{
+public:
+    RawPointer() = default;
+    RawPointer(MyType *ptr) : m_ptr(ptr) {}
+
+    constexpr MyType* get() 
+    {
+        return m_ptr;
+    }
+
+    constexpr operator bool() const
+    {
+        return m_ptr != nullptr;
+    }
+
+protected:
+    MyType *m_ptr = nullptr;
+};
+
 template<typename MyType, typename TypeHolder = typename std::shared_ptr<MyType> >
 struct TypeTemplate
 {    

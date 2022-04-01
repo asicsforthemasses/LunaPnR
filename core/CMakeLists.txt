@@ -85,6 +85,8 @@ add_library(lunacore
     python/consoleredirect.cpp
     python/types/pycell.cpp
     python/types/pycelllib.cpp
+    python/types/pypininfo.cpp
+    python/types/pypininfolist.cpp
     )
 
 target_include_directories(lunacore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

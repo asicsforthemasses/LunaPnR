@@ -9,9 +9,6 @@ int main(int argc, char *argv[])
     ChipDB::Design design;    
     Scripting::Python p(&design);
 
-    design.m_cellLib->createCell("Foobar");
-    design.m_cellLib->createCell("Barfood");
-
     if (argc > 1)
     {
         //td::fstream ifile(argv[1], std::ios::binary);

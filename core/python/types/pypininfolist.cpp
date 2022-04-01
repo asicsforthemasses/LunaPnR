@@ -13,62 +13,66 @@
 
 #include "../converters.h"
 #include "typetemplate.h"
+#include "celllib/cell.h"
+#include "celllib/pin.h"
+#include "pypininfo.h"
 #include "pycell.h"
-#include "celllib/celllib.h"
+#include "pypininfolist.h"
 
-struct PyCellLibIterator
+struct PyPinInfoListIterator
 {
-    ChipDB::CellLib* m_cellLib; // we do not manage the memory for this
-    ChipDB::NamedStorage<ChipDB::Cell>::iterator m_iter;
+    ChipDB::PinInfoList *m_pinInfoList = nullptr;
+    ChipDB::PinInfoList::iterator m_iter;
 
-    auto end()
+    ChipDB::PinInfoList::iterator end()
     {
-        return m_cellLib->end();
+        if (m_pinInfoList)
+        {
+            return m_pinInfoList->end();
+        }
+        else
+        {
+            return ChipDB::PinInfoList::iterator();
+        }
     }
 
-    auto begin()
+    ChipDB::PinInfoList::iterator begin()
     {
-        return m_cellLib->begin();
+        if (m_pinInfoList)
+        {
+            return m_pinInfoList->begin();
+        }
+        else
+        {
+            return ChipDB::PinInfoList::iterator();
+        }        
     }    
 };
 
 /** container for LunaCore::Cell */
-struct PyCellLib : public Python::TypeTemplate<PyCellLibIterator>
+struct PyPinInfoList : public Python::TypeTemplate<PyPinInfoListIterator>
 {
-    /** set internal values of PyCell */
-    static int pyInit(PyCellLib *self, PyObject *args, PyObject *kwds)
+    /** set internal values of PyCell 
+    */
+    static int pyInit(PyPinInfoList *self, PyObject *args, PyObject *kwds)
     {
-        //std::cout << "PyCellLib::Init\n";
+        //std::cout << "PyPinInfoList::Init\n";
 
         // do not use ok() here, as it checks for
         // m_holder to be != nullptr.
-        if (self->m_holder != nullptr)
+        if (self->m_holder == nullptr)
         {
             //std::cout << "  Shared pointer created\n";
-
-            self->m_holder->reset(new PyCellLibIterator());
-            self->obj()->m_iter = self->obj()->end();
-
-            // get a pointer to 
-            auto cellLibPtr = reinterpret_cast<ChipDB::CellLib*>(PyCapsule_Import("Luna.CellLibraryPtr", 0));
-            if (cellLibPtr == nullptr)
-            {
-                std::cout << "UGH Capsule is nullptr!\n";
-            }
-
-            self->obj()->m_cellLib = cellLibPtr;
-        }
-        else
-        {
-            self->m_holder = nullptr;
+            return -1; /* error */
         }
 
+        self->m_holder->reset(new PyPinInfoListIterator());
         return 0;   /* success */
     };
 
-    static PyObject* pyIter(PyCellLib *self)
+    static PyObject* pyIter(PyPinInfoList *self)
     {
-        //std::cout << "PyCellLib::Iter\n";
+        //std::cout << "PyPinInfoList::Iter\n";
 
         if (self->ok())
         {
@@ -80,9 +84,9 @@ struct PyCellLib : public Python::TypeTemplate<PyCellLibIterator>
         return nullptr;
     };
 
-    static PyObject* pyIterNext(PyCellLib *self)
+    static PyObject* pyIterNext(PyPinInfoList *self)
     {
-        //std::cout << "PyCellLib::IterNext\n";
+        //std::cout << "PyPinInfoList::IterNext\n";
 
         if (self->ok())
         {
@@ -91,8 +95,8 @@ struct PyCellLib : public Python::TypeTemplate<PyCellLibIterator>
                 return nullptr; // no more object, stop iteration
             }
 
-            auto kvpair = *self->obj()->m_iter;
-            PyObject *cellObject = Python::toPython(kvpair.ptr());
+            auto ptr = *self->obj()->m_iter;
+            PyObject *cellObject = Python::toPython(ptr);
             //Py_INCREF(cellObject);
 
             self->obj()->m_iter++;
@@ -105,15 +109,15 @@ struct PyCellLib : public Python::TypeTemplate<PyCellLibIterator>
     /** set internal values of PyCell */
     static PyObject* pyStr(PyObject *self)
     {
-        return Python::toPython(PyCellLib::PythonObjectName);
+        return Python::toPython(PyPinInfoList::PythonObjectName);
     };
 
-    static constexpr const char *PythonObjectName = "CellLib";
-    static constexpr const char *PythonObjectDoc  = "Cell library object";
+    static constexpr const char *PythonObjectName = "PinInfoList";
+    static constexpr const char *PythonObjectDoc  = "PinInfoList object";
 };
 
 // cppcheck-suppress "suppressed_error_id"
-static PyMemberDef PyCellMembers[] =    // NOLINT(modernize-avoid-c-arrays)
+static PyMemberDef PyPinInfoListMembers[] =    // NOLINT(modernize-avoid-c-arrays)
 {/*
     {"first", T_OBJECT_EX, offsetof(Noddy, first), nullptr,
     "first name"},
@@ -125,25 +129,25 @@ static PyMemberDef PyCellMembers[] =    // NOLINT(modernize-avoid-c-arrays)
     {nullptr}  /* Sentinel */
 };
 
-static PyGetSetDef PyCellGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
+static PyGetSetDef PyPinInfoListGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
 {
     //{"name", (getter)PyCell::getName, nullptr, "", nullptr /* closure */},
     //{"number", (getter)PyCell::getNumber, (setter)PyCell::setNumber, "", nullptr /* closure */},
     {nullptr}
 };
 
-static PyMethodDef PyCellMethods[] =    // NOLINT(modernize-avoid-c-arrays)
+static PyMethodDef PyPinInfoListMethods[] =    // NOLINT(modernize-avoid-c-arrays)
 {
 //    {"name", (PyCFunction)PyCell::name, METH_NOARGS, "Return the cell name"},
     {nullptr}  /* Sentinel */
 };
 
-PyTypeObject PyCellLibType = {
+PyTypeObject PyPinInfoListType = {
     PyVarObject_HEAD_INIT(nullptr, 0)
-    PyCellLib::PythonObjectName,       /* tp_name */
-    sizeof(PyCellLib),                 /* tp_basicsize */
+    PyPinInfoList::PythonObjectName,       /* tp_name */
+    sizeof(PyPinInfoList),                 /* tp_basicsize */
     0,                              /* tp_itemsize */
-    (destructor)PyCellLib::pyDeAlloc,  /* tp_dealloc */
+    (destructor)PyPinInfoList::pyDeAlloc,  /* tp_dealloc */
     0,                              /* tp_print */
     nullptr,                        /* tp_getattr */
     nullptr,                        /* tp_setattr */
@@ -154,28 +158,41 @@ PyTypeObject PyCellLibType = {
     nullptr,                        /* tp_as_mapping */
     nullptr,                        /* tp_hash  */
     nullptr,                        /* tp_call */
-    PyCellLib::pyStr,                  /* tp_str */
+    PyPinInfoList::pyStr,                  /* tp_str */
     nullptr,                        /* tp_getattro */
     nullptr,                        /* tp_setattro */
     nullptr,                        /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,        /* tp_flags */
-    PyCellLib::PythonObjectDoc,        /* tp_doc */
+    PyPinInfoList::PythonObjectDoc,        /* tp_doc */
     nullptr,                        /* tp_traverse */
     nullptr,                        /* tp_clear */
     nullptr,                        /* tp_richcompare */
     0,                              /* tp_weaklistoffset */
-    (getiterfunc)PyCellLib::pyIter,         /* tp_iter */
-    (iternextfunc)PyCellLib::pyIterNext,    /* tp_iternext */
-    PyCellMethods,                  /* tp_methods */
-    PyCellMembers,                  /* tp_members */
-    PyCellGetSet,                   /* tp_getset */
+    (getiterfunc)PyPinInfoList::pyIter,         /* tp_iter */
+    (iternextfunc)PyPinInfoList::pyIterNext,    /* tp_iternext */
+    PyPinInfoListMethods,                  /* tp_methods */
+    PyPinInfoListMembers,                  /* tp_members */
+    PyPinInfoListGetSet,                   /* tp_getset */
     nullptr,                        /* tp_base */
     nullptr,                        /* tp_dict */
     nullptr,                        /* tp_descr_get */
     nullptr,                        /* tp_descr_set */
     0,                              /* tp_dictoffset */
-    (initproc)PyCellLib::pyInit,       /* tp_init */
+    (initproc)PyPinInfoList::pyInit,       /* tp_init */
     nullptr,                        /* tp_alloc */
-    PyCellLib::pyNewCall,
+    PyPinInfoList::pyNewCall
 };
+
+PyObject* Python::toPython(ChipDB::PinInfoList *pinInfoListPtr)
+{
+    // create a new PyPinInfoList oject
+
+    auto pinInfoListObject = reinterpret_cast<PyPinInfoList*>(PyObject_CallObject((PyObject*)&PyPinInfoListType, nullptr));
+    if (pinInfoListObject->ok())
+    {
+        pinInfoListObject->obj()->m_pinInfoList = pinInfoListPtr;
+        return (PyObject*)pinInfoListObject;
+    }
+    return nullptr;    
+}

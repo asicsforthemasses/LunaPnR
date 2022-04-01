@@ -6,11 +6,11 @@
 
 #pragma once
 #include <Python.h>
-#include "celllib/cell.h"
+#include "celllib/pin.h"
 
-extern PyTypeObject PyCellType;
+extern PyTypeObject PyPinInfoType;
 
 namespace Python
 {
-    PyObject* toPython(std::shared_ptr<ChipDB::Cell> cellPtr);
+    PyObject* toPython(std::shared_ptr<ChipDB::PinInfo> ptr);
 };

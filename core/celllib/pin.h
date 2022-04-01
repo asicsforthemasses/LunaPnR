@@ -123,7 +123,12 @@ PinInfo(const std::string &name) :
 
 class PinInfoList
 {
+    using ContainerType = std::vector<std::shared_ptr<PinInfo> >;
+
 public:
+
+    using iterator = typename ContainerType::iterator;
+    using const_iterator = typename ContainerType::const_iterator;
 
     /** create a pin by name. if a pin by that name already exists, return that */
     KeyObjPair<PinInfo> createPin(const std::string &name);
@@ -193,7 +198,6 @@ public:
     KeyObjPair<PinInfo> operator[](const std::string &name) const;
 
 protected:   
-    using ContainerType = std::vector<std::shared_ptr<PinInfo> >;
 
     KeyObjPair<PinInfo> find(const std::string &name) const;
     ContainerType m_pins;

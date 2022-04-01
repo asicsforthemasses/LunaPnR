@@ -12,8 +12,9 @@
 #include <iostream>
 
 #include "../converters.h"
-#include "pycell.h"
 #include "typetemplate.h"
+#include "pycell.h"
+#include "pypininfolist.h"
 
 /** container for LunaCore::Cell */
 struct PyCell : public Python::TypeTemplate<ChipDB::Cell>
@@ -106,9 +107,20 @@ struct PyCell : public Python::TypeTemplate<ChipDB::Cell>
             return Python::toPython(self->obj()->m_symmetry);
         }
         
-        return nullptr;        
+        return nullptr;
     };
 
+
+    static PyObject* getPins(PyCell *self, void *closure)
+    {
+        if (self->ok())
+        {
+            auto pinInfoList = Python::toPython( &(self->obj()->m_pins));
+            return pinInfoList;
+        }
+        
+        return nullptr;
+    }
 
     /** set internal values of PyCell */
     static int pyInit(PyCell *self, PyObject *args, PyObject *kwds)
@@ -160,13 +172,14 @@ static PyGetSetDef PyCellGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
 {
     {"name", (getter)PyCell::getName, nullptr, "", nullptr /* closure */},
     {"leakagePower", (getter)PyCell::getLeakagePower, nullptr, "cell leakage power in Watts", nullptr /* closure */},
-    {"area", (getter)PyCell::getLeakagePower, nullptr, "cell area in um^2", nullptr /* closure */},
+    {"area", (getter)PyCell::getArea, nullptr, "cell area in um^2", nullptr /* closure */},
     {"size", (getter)PyCell::getSize, nullptr, "cell size in nm", nullptr /* closure */},
     {"offset", (getter)PyCell::getOffset, nullptr, "cell offset in nm", nullptr /* closure */},
     {"site", (getter)PyCell::getSite, nullptr, "cell site name", nullptr /* closure */},
     {"cellClass", (getter)PyCell::getClass, nullptr, "cell class", nullptr /* closure */},
     {"cellSubClass", (getter)PyCell::getSubClass, nullptr, "cell subclass", nullptr /* closure */},
     {"symmetry", (getter)PyCell::getSymmetry, nullptr, "cell symmetry flags", nullptr /* closure */},
+    {"pins", (getter)PyCell::getPins, nullptr, "cell pin list", nullptr /* closure */},
     {nullptr}
 };
 
