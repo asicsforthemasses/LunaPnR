@@ -14,7 +14,7 @@
 #include "../converters.h"
 #include "typetemplate.h"
 #include "pypin.h"
-#include "pypininfolist.h"
+#include "pypininfo.h"
 
 /** container for LunaCore::Cell */
 struct PyPin : public Python::TypeTemplate<ChipDB::InstanceBase::Pin, 
@@ -31,89 +31,38 @@ struct PyPin : public Python::TypeTemplate<ChipDB::InstanceBase::Pin,
         return nullptr;
     };
 
-#if 0
-    static PyObject* getArchetype(PyPin *self, void *closure)
+    static PyObject* getNetKey(PyPin *self, PyObject *args)
     {
         if (self->ok())
         {
-            return Python::toPython(self->obj()->getArchetypeName());
-        }
-
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
-        return nullptr;
-    }
-
-    static PyObject* getPosition(PyPin *self, void *closure)
-    {
-        if (self->ok())
-        {
-            return Python::toPython(self->obj()->m_pos);
-        }
-
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
-        return nullptr;
-    }
-
-    static int setPosition(PyPin *self, PyObject *value, void *closure)
-    {
-        if (self->ok())
-        {
-            if (!PyArg_ParseTuple(value, "LL", &self->obj()->m_pos.m_x, &self->obj()->m_pos.m_y))
-            {
-                return -1;
-            }
-            return 0; // success
-        }
-
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
-        return -1;
-    }
-
-    static PyObject* getPlacementInfo(PyPin *self, void *closure)
-    {
-        if (self->ok())
-        {
-            return Python::toPython(ChipDB::toString(self->obj()->m_placementInfo));
-        }
-
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
-        return nullptr;
-    }
-
-    static PyObject* getOrientation(PyPin *self, void *closure)
-    {
-        if (self->ok())
-        {
-            return Python::toPython(ChipDB::toString(self->obj()->m_orientation));
-        }
-
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
-        return nullptr;
-    }
-
-    static PyObject* getSize(PyPin *self, void *closure)
-    {
-        if (self->ok())
-        {
-            return Python::toPython(self->obj()->instanceSize());
+            return Python::toPython(self->obj()->m_netKey);
         }
         
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");        
-        return nullptr;        
-    };
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
+        return nullptr;
+    }
 
-    static PyObject* getArea(PyPin *self, void *closure)
+    static PyObject* getPinKey(PyPin *self, PyObject *args)
     {
         if (self->ok())
         {
-            return Python::toPython(self->obj()->getArea());
+            return Python::toPython(self->obj()->m_pinKey);
         }
         
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");        
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
         return nullptr;        
-    };
+    }
 
-#endif
+    static PyObject* getPinInfo(PyPin *self, PyObject *args)
+    {
+        if (self->ok())
+        {
+            return Python::toPython(self->obj()->m_pinInfo);
+        }
+        
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
+        return nullptr;        
+    }
 
     /** set internal values of PyPin */
     static int pyInit(PyPin *self, PyObject *args, PyObject *kwds)
@@ -134,26 +83,21 @@ struct PyPin : public Python::TypeTemplate<ChipDB::InstanceBase::Pin,
 
 // cppcheck-suppress "suppressed_error_id"
 static PyMemberDef PyPinMembers[] =    // NOLINT(modernize-avoid-c-arrays)
-{/*
-    {"first", T_OBJECT_EX, offsetof(Noddy, first), nullptr,
-    "first name"},
-    {"last", T_OBJECT_EX, offsetof(Noddy, last), nullptr,
-    "last name"},
-    {"number", T_INT, offsetof(Noddy, number), nullptr,
-    "noddy number"},
-*/
+{
     {nullptr}  /* Sentinel */
 };
 
 static PyGetSetDef PyPinGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
 {
-    {"name", (getter)PyPin::getName, nullptr, "instance name", nullptr /* closure */},
+    {"name", (getter)PyPin::getName, nullptr, "pin name", nullptr /* closure */},
+    {"pinInfo", (getter)PyPin::getPinInfo, nullptr, "pin information", nullptr /* closure */},
     {nullptr}
 };
 
 static PyMethodDef PyPinMethods[] =    // NOLINT(modernize-avoid-c-arrays)
 {
-//    {"name", (PyCFunction)PyPin::name, METH_NOARGS, "Return the cell name"},
+    {"getPinKey", (PyCFunction)PyPin::getPinKey, METH_NOARGS, "Return the access key for the pin"},
+    {"getNetKey", (PyCFunction)PyPin::getNetKey, METH_NOARGS, "Return the access key for the connected net"},
     {nullptr}  /* Sentinel */
 };
 

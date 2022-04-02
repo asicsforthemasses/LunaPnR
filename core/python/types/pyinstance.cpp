@@ -133,7 +133,13 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
                 return Python::toPython(self->obj()->getPin(key));
             }
 
-            PyErr_Format(PyExc_ValueError, "getPin requires a key as argument");
+            const char *pinName = nullptr;
+            if (PyArg_ParseTuple(args,"s", &pinName))
+            {
+                return Python::toPython(self->obj()->getPin(pinName));
+            }
+
+            PyErr_Format(PyExc_ValueError, "getPin requires a key or name as argument");
             return nullptr;
         }
         

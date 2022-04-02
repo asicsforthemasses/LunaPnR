@@ -55,4 +55,5 @@ for ins in Luna.Instances():
         print(ins.name, "->", ins.archetype, " pos", ins.position)
 
     for key in range(0, ins.getPinCount()):
-        print("\tpin:", ins.getPin(key).name)
+        pin = ins.getPin(key)
+        print("\tpin:", pin.name, " connected net key:", pin.getNetKey(), " pin type:", pin.pinInfo.ioType)
