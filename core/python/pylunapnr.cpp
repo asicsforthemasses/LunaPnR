@@ -7,6 +7,7 @@
 #include "consoleredirect.h"
 #include "types/pypininfo.h"
 #include "types/pypininfolist.h"
+#include "types/pypin.h"
 #include "types/pycell.h"
 #include "types/pycelllib.h"
 #include "types/pyinstance.h"
@@ -208,10 +209,14 @@ static PyObject* PyInit_Luna()
     if (PyType_Ready(&PyInstancesType) < 0)
         return nullptr;
 
+    if (PyType_Ready(&PyPinType) < 0)
+        return nullptr;
+
     auto m = PyModule_Create(&LunaModule);
     if (m == nullptr)
         return nullptr;
 
+    incRefAndAddObject(m, &PyPinType);
     incRefAndAddObject(m, &PyPinInfoType);
     incRefAndAddObject(m, &PyPinInfoListType);
     incRefAndAddObject(m, &PyCellType);

@@ -14,13 +14,13 @@
 #include "../converters.h"
 #include "typetemplate.h"
 #include "pypin.h"
-#include "pyinstance.h"
 #include "pypininfolist.h"
 
 /** container for LunaCore::Cell */
-struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
+struct PyPin : public Python::TypeTemplate<ChipDB::InstanceBase::Pin, 
+    Python::ValueContainer<ChipDB::InstanceBase::Pin> >
 {
-    static PyObject* getName(PyInstance *self, void *closure)
+    static PyObject* getName(PyPin *self, void *closure)
     {
         if (self->ok())
         {
@@ -31,7 +31,8 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
         return nullptr;
     };
 
-    static PyObject* getArchetype(PyInstance *self, void *closure)
+#if 0
+    static PyObject* getArchetype(PyPin *self, void *closure)
     {
         if (self->ok())
         {
@@ -42,7 +43,7 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
         return nullptr;
     }
 
-    static PyObject* getPosition(PyInstance *self, void *closure)
+    static PyObject* getPosition(PyPin *self, void *closure)
     {
         if (self->ok())
         {
@@ -53,13 +54,12 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
         return nullptr;
     }
 
-    static int setPosition(PyInstance *self, PyObject *value, void *closure)
+    static int setPosition(PyPin *self, PyObject *value, void *closure)
     {
         if (self->ok())
         {
             if (!PyArg_ParseTuple(value, "LL", &self->obj()->m_pos.m_x, &self->obj()->m_pos.m_y))
             {
-                PyErr_Format(PyExc_ValueError, "x,y value required");
                 return -1;
             }
             return 0; // success
@@ -69,7 +69,7 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
         return -1;
     }
 
-    static PyObject* getPlacementInfo(PyInstance *self, void *closure)
+    static PyObject* getPlacementInfo(PyPin *self, void *closure)
     {
         if (self->ok())
         {
@@ -80,7 +80,7 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
         return nullptr;
     }
 
-    static PyObject* getOrientation(PyInstance *self, void *closure)
+    static PyObject* getOrientation(PyPin *self, void *closure)
     {
         if (self->ok())
         {
@@ -91,7 +91,7 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
         return nullptr;
     }
 
-    static PyObject* getSize(PyInstance *self, void *closure)
+    static PyObject* getSize(PyPin *self, void *closure)
     {
         if (self->ok())
         {
@@ -102,7 +102,7 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
         return nullptr;        
     };
 
-    static PyObject* getArea(PyInstance *self, void *closure)
+    static PyObject* getArea(PyPin *self, void *closure)
     {
         if (self->ok())
         {
@@ -113,53 +113,27 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
         return nullptr;        
     };
 
-    static PyObject* getPinCount(PyInstance *self, PyObject *args)
-    {
-        if (self->ok())
-        {
-            return Python::toPython(self->obj()->getNumberOfPins());
-        }
-        
-        return nullptr;                
-    }
+#endif
 
-    static PyObject* getPin(PyInstance *self, PyObject *args)
-    {
-        if (self->ok())
-        {
-            ChipDB::PinObjectKey key;
-            if (PyArg_ParseTuple(args,"L", &key))
-            {
-                return Python::toPython(self->obj()->getPin(key));
-            }
-
-            PyErr_Format(PyExc_ValueError, "getPin requires a key as argument");
-            return nullptr;
-        }
-        
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");        
-        return nullptr;                
-    }
-
-    /** set internal values of PyInstance */
-    static int pyInit(PyInstance *self, PyObject *args, PyObject *kwds)
+    /** set internal values of PyPin */
+    static int pyInit(PyPin *self, PyObject *args, PyObject *kwds)
     {
         return 0;   /* success */
     };
 
-    /** set internal values of PyInstance */
+    /** set internal values of PyPin */
     static PyObject* pyStr(PyObject *self)
     {
         //std::cout << "pyStr\n";
-        return Python::toPython(PyInstance::PythonObjectName);
+        return Python::toPython(PyPin::PythonObjectName);
     };
 
-    static constexpr const char *PythonObjectName = "Instance";
-    static constexpr const char *PythonObjectDoc  = "Instance object";
+    static constexpr const char *PythonObjectName = "InstancePin";
+    static constexpr const char *PythonObjectDoc  = "InstancePin object";
 };
 
 // cppcheck-suppress "suppressed_error_id"
-static PyMemberDef PyInstanceMembers[] =    // NOLINT(modernize-avoid-c-arrays)
+static PyMemberDef PyPinMembers[] =    // NOLINT(modernize-avoid-c-arrays)
 {/*
     {"first", T_OBJECT_EX, offsetof(Noddy, first), nullptr,
     "first name"},
@@ -171,32 +145,24 @@ static PyMemberDef PyInstanceMembers[] =    // NOLINT(modernize-avoid-c-arrays)
     {nullptr}  /* Sentinel */
 };
 
-static PyGetSetDef PyInstanceGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
+static PyGetSetDef PyPinGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
 {
-    {"name", (getter)PyInstance::getName, nullptr, "instance name", nullptr /* closure */},
-    {"archetype", (getter)PyInstance::getArchetype, nullptr, "archetype name", nullptr /* closure */},
-    {"position", (getter)PyInstance::getPosition, (setter)PyInstance::setPosition, "lower left position in nm", nullptr /* closure */},
-    {"pos", (getter)PyInstance::getPosition, (setter)PyInstance::setPosition, "lower left position in nm", nullptr /* closure */},
-    {"placementInfo", (getter)PyInstance::getPlacementInfo, nullptr, "placement status", nullptr /* closure */},
-    {"orientation", (getter)PyInstance::getOrientation, nullptr, "orientation of instance", nullptr /* closure */},
-    {"size", (getter)PyInstance::getSize, nullptr, "size in nm", nullptr /* closure */},
-    {"area", (getter)PyInstance::getArea, nullptr, "area in um^2", nullptr /* closure */},
+    {"name", (getter)PyPin::getName, nullptr, "instance name", nullptr /* closure */},
     {nullptr}
 };
 
-static PyMethodDef PyInstanceMethods[] =    // NOLINT(modernize-avoid-c-arrays)
+static PyMethodDef PyPinMethods[] =    // NOLINT(modernize-avoid-c-arrays)
 {
-    {"getPin", (PyCFunction)PyInstance::getPin, METH_VARARGS, "get pin by key"},
-    {"getPinCount", (PyCFunction)PyInstance::getPinCount, METH_NOARGS, "get number of pins"},
+//    {"name", (PyCFunction)PyPin::name, METH_NOARGS, "Return the cell name"},
     {nullptr}  /* Sentinel */
 };
 
-PyTypeObject PyInstanceType = {
+PyTypeObject PyPinType = {
     PyVarObject_HEAD_INIT(nullptr, 0)
-    PyInstance::PythonObjectName,       /* tp_name */
-    sizeof(PyInstance),                 /* tp_basicsize */
+    PyPin::PythonObjectName,       /* tp_name */
+    sizeof(PyPin),                 /* tp_basicsize */
     0,                              /* tp_itemsize */
-    (destructor)PyInstance::pyDeAlloc,  /* tp_dealloc */
+    (destructor)PyPin::pyDeAlloc,  /* tp_dealloc */
     0,                              /* tp_print */
     nullptr,                        /* tp_getattr */
     nullptr,                        /* tp_setattr */
@@ -207,40 +173,40 @@ PyTypeObject PyInstanceType = {
     nullptr,                        /* tp_as_mapping */
     nullptr,                        /* tp_hash  */
     nullptr,                        /* tp_call */
-    PyInstance::pyStr,                  /* tp_str */
+    PyPin::pyStr,                  /* tp_str */
     nullptr,                        /* tp_getattro */
     nullptr,                        /* tp_setattro */
     nullptr,                        /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT |
         Py_TPFLAGS_BASETYPE,        /* tp_flags */
-    PyInstance::PythonObjectDoc,        /* tp_doc */
+    PyPin::PythonObjectDoc,        /* tp_doc */
     nullptr,                        /* tp_traverse */
     nullptr,                        /* tp_clear */
     nullptr,                        /* tp_richcompare */
     0,                              /* tp_weaklistoffset */
     nullptr,                        /* tp_iter */
     nullptr,                        /* tp_iternext */
-    PyInstanceMethods,                  /* tp_methods */
-    PyInstanceMembers,                  /* tp_members */
-    PyInstanceGetSet,                   /* tp_getset */
+    PyPinMethods,                  /* tp_methods */
+    PyPinMembers,                  /* tp_members */
+    PyPinGetSet,                   /* tp_getset */
     nullptr,                        /* tp_base */
     nullptr,                        /* tp_dict */
     nullptr,                        /* tp_descr_get */
     nullptr,                        /* tp_descr_set */
     0,                              /* tp_dictoffset */
-    (initproc)PyInstance::pyInit,       /* tp_init */
+    (initproc)PyPin::pyInit,       /* tp_init */
     nullptr,                        /* tp_alloc */
-    PyInstance::pyNewCall
+    PyPin::pyNewCall
 };
 
-PyObject* Python::toPython(std::shared_ptr<ChipDB::InstanceBase> instancePtr)
+PyObject* Python::toPython(const ChipDB::InstanceBase::Pin &pin)
 {
-    // create a new PyInstance oject
-    auto instanceObject = reinterpret_cast<PyInstance*>(PyObject_CallObject((PyObject*)&PyInstanceType, nullptr));
-    if (instanceObject->m_holder != nullptr)
+    // create a new PyPin oject
+    auto pinObject = reinterpret_cast<PyPin*>(PyObject_CallObject((PyObject*)&PyPinType, nullptr));
+    if (pinObject->m_holder != nullptr)
     {
-        *instanceObject->m_holder = instancePtr;
-        return (PyObject*)instanceObject;
+        *pinObject->m_holder = pin;
+        return (PyObject*)pinObject;
     }
     return nullptr;
 };

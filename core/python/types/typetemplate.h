@@ -7,6 +7,29 @@ namespace Python
 
 /** non-owning raw pointer holder for use with TypeTemplate. */
 template<typename MyType>
+class ValueContainer
+{
+public:
+    ValueContainer() = default;
+    ValueContainer(const MyType &value) : m_value(value) {}
+    ValueContainer(MyType *ptr) : m_value(*ptr) {}
+
+    constexpr MyType* get() 
+    {
+        return &m_value;
+    }
+
+    constexpr operator bool() const
+    {
+        return true;
+    }
+
+protected:
+    MyType m_value;
+};
+
+/** non-owning raw pointer holder for use with TypeTemplate. */
+template<typename MyType>
 class RawPointer
 {
 public:

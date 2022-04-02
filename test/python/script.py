@@ -53,3 +53,6 @@ for ins in Luna.Instances():
         print(ins.name, "->", ins.archetype, " size:", ins.size," pos", ins.position, " placement:", ins.placementInfo, " orientation:", ins.orientation)
     else:
         print(ins.name, "->", ins.archetype, " pos", ins.position)
+
+    for key in range(0, ins.getPinCount()):
+        print("\tpin:", ins.getPin(key).name)
