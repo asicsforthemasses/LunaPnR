@@ -57,3 +57,12 @@ for ins in Luna.Instances():
     for key in range(0, ins.getPinCount()):
         pin = ins.getPin(key)
         print("\tpin:", pin.name, " connected net key:", pin.getNetKey(), " pin type:", pin.pinInfo.ioType)
+
+# get an instance by name
+instances = Luna.Instances()
+myInstance = instances.getInstance("_21_")
+print("Lookup of instance _21_ returns: ", myInstance.name, " ", myInstance.archetype)
+
+# get a cell by name
+myCell = Luna.CellLib().getCell("BUFX2")
+print("Lookup of cell BUFX2 returns: ", myCell.name)

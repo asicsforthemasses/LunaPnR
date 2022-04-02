@@ -59,7 +59,7 @@ struct PyInstances : public Python::TypeTemplate<PyInstancesIterator>
             //std::cout << "  Shared pointer created\n";
 
             self->m_holder->reset(new PyInstancesIterator());
-            self->obj()->m_iter = self->obj()->end();
+            self->obj()->m_iter = PyInstancesIterator::iterator();
 
             // get a pointer to 
             auto designPtr = reinterpret_cast<ChipDB::Design*>(PyCapsule_Import("Luna.DesignPtr", 0));
@@ -86,6 +86,52 @@ struct PyInstances : public Python::TypeTemplate<PyInstancesIterator>
 
         return 0;   /* success */
     };
+
+    static PyObject* getInstance(PyInstances *self, PyObject *args)
+    {
+        if (self->ok())
+        {
+            if (!self->obj()->m_netlist)
+            {
+                PyErr_Format(PyExc_RuntimeError, "Top module has no netlist");
+                return nullptr;
+            }
+
+            ChipDB::InstanceObjectKey key;
+            if (PyArg_ParseTuple(args,"L", &key))
+            {
+                auto ins = self->obj()->m_netlist->m_instances[key];
+                if (!ins)
+                {
+                    PyErr_Format(PyExc_ValueError, "Instance with key %ld not found", key);
+                    return nullptr;                    
+                }                
+                return Python::toPython(ins);
+            }
+
+            // clear previous PyArg_ParseTuple exception
+            PyErr_Clear();
+
+            const char *instanceName = nullptr;
+            if (PyArg_ParseTuple(args,"s", &instanceName))
+            {
+                auto ins = self->obj()->m_netlist->m_instances[instanceName];
+                if (!ins.isValid())
+                {
+                    PyErr_Format(PyExc_ValueError, "Instance %s not found", instanceName);
+                    return nullptr;
+                }
+
+                return Python::toPython(ins.ptr());
+            }
+
+            PyErr_Format(PyExc_ValueError, "getInstance requires a key or name as argument");
+            return nullptr;
+        }
+        
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");        
+        return nullptr;         
+    }
 
     static PyObject* pyIter(PyInstances *self)
     {
@@ -133,28 +179,21 @@ struct PyInstances : public Python::TypeTemplate<PyInstancesIterator>
 };
 
 // cppcheck-suppress "suppressed_error_id"
-static PyMemberDef PyCellMembers[] =    // NOLINT(modernize-avoid-c-arrays)
-{/*
-    {"first", T_OBJECT_EX, offsetof(Noddy, first), nullptr,
-    "first name"},
-    {"last", T_OBJECT_EX, offsetof(Noddy, last), nullptr,
-    "last name"},
-    {"number", T_INT, offsetof(Noddy, number), nullptr,
-    "noddy number"},
-*/
+static PyMemberDef PyInstancesMembers[] =    // NOLINT(modernize-avoid-c-arrays)
+{
     {nullptr}  /* Sentinel */
 };
 
-static PyGetSetDef PyCellGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
+static PyGetSetDef PyInstancesGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
 {
     //{"name", (getter)PyCell::getName, nullptr, "", nullptr /* closure */},
     //{"number", (getter)PyCell::getNumber, (setter)PyCell::setNumber, "", nullptr /* closure */},
     {nullptr}
 };
 
-static PyMethodDef PyCellMethods[] =    // NOLINT(modernize-avoid-c-arrays)
+static PyMethodDef PyInstancesMethods[] =    // NOLINT(modernize-avoid-c-arrays)
 {
-//    {"name", (PyCFunction)PyCell::name, METH_NOARGS, "Return the cell name"},
+    {"getInstance", (PyCFunction)PyInstances::getInstance, METH_VARARGS, "Lookup and return an instance (by name or by key)"},
     {nullptr}  /* Sentinel */
 };
 
@@ -187,9 +226,9 @@ PyTypeObject PyInstancesType = {
     0,                              /* tp_weaklistoffset */
     (getiterfunc)PyInstances::pyIter,         /* tp_iter */
     (iternextfunc)PyInstances::pyIterNext,    /* tp_iternext */
-    PyCellMethods,                  /* tp_methods */
-    PyCellMembers,                  /* tp_members */
-    PyCellGetSet,                   /* tp_getset */
+    PyInstancesMethods,                  /* tp_methods */
+    PyInstancesMembers,                  /* tp_members */
+    PyInstancesGetSet,                   /* tp_getset */
     nullptr,                        /* tp_base */
     nullptr,                        /* tp_dict */
     nullptr,                        /* tp_descr_get */

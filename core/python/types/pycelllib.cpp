@@ -66,6 +66,52 @@ struct PyCellLib : public Python::TypeTemplate<PyCellLibIterator>
         return 0;   /* success */
     };
 
+    static PyObject* getCell(PyCellLib *self, PyObject *args)
+    {
+        if (self->ok())
+        {
+            if (!self->obj()->m_cellLib)
+            {
+                PyErr_Format(PyExc_RuntimeError, "CellLib is uninitialized");
+                return nullptr;
+            }
+
+            ChipDB::ObjectKey key = -1;
+            if (PyArg_ParseTuple(args,"l", &key))
+            {
+                auto ins = self->obj()->m_cellLib->lookupCell(key);
+                if (!ins)
+                {
+                    PyErr_Format(PyExc_ValueError, "Cell with key %ld not found", key);
+                    return nullptr;                    
+                }                
+                return Python::toPython(ins);
+            }
+
+            // clear previous PyArg_ParseTuple exception
+            PyErr_Clear();
+
+            const char *cellName = nullptr;
+            if (PyArg_ParseTuple(args,"s", &cellName))
+            {
+                auto ins = self->obj()->m_cellLib->lookupCell(cellName);
+                if (!ins.isValid())
+                {
+                    PyErr_Format(PyExc_ValueError, "Cell %s not found", cellName);
+                    return nullptr;
+                }
+
+                return Python::toPython(ins.ptr());
+            }
+
+            PyErr_Format(PyExc_ValueError, "getCell requires a key or name as argument");
+            return nullptr;
+        }
+        
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");        
+        return nullptr;                 
+    }
+
     static PyObject* pyIter(PyCellLib *self)
     {
         //std::cout << "PyCellLib::Iter\n";
@@ -134,7 +180,7 @@ static PyGetSetDef PyCellGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
 
 static PyMethodDef PyCellMethods[] =    // NOLINT(modernize-avoid-c-arrays)
 {
-//    {"name", (PyCFunction)PyCell::name, METH_NOARGS, "Return the cell name"},
+    {"getCell", (PyCFunction)PyCellLib::getCell, METH_VARARGS, "Lookup and return a cell (by name or by key)"},
     {nullptr}  /* Sentinel */
 };
 

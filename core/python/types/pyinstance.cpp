@@ -133,6 +133,9 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
                 return Python::toPython(self->obj()->getPin(key));
             }
 
+            // clear previous PyArg_ParseTuple exception
+            PyErr_Clear();
+
             const char *pinName = nullptr;
             if (PyArg_ParseTuple(args,"s", &pinName))
             {
@@ -150,6 +153,7 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
     /** set internal values of PyInstance */
     static int pyInit(PyInstance *self, PyObject *args, PyObject *kwds)
     {
+        //std::cout << "Instance init called\n";
         return 0;   /* success */
     };
 
