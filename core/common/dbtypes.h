@@ -435,6 +435,9 @@ namespace ChipDB
         PLACEDANDFIXED,   ///< instance placed and not movable
     };
 
+    std::string toString(const PlacementInfo &v);
+    std::string toString(const Orientation &v);
+
     struct SymmetryFlags
     {
         SymmetryFlags() : m_flags(0) {}

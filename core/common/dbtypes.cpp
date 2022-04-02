@@ -116,3 +116,39 @@ std::string ChipDB::toString(const CellClass &v)
         return std::string("?");
     }
 }
+
+std::string ChipDB::toString(const Orientation &v)
+{
+    constexpr const std::array<const char*, 9> names = 
+    {{
+        "UNDEFINED", "R0", "R90", "R180", "R270", "MX", "MX90", "MY", "MY90"
+    }};
+
+    auto index = static_cast<size_t>(v);
+    if (index < names.size())
+    {
+        return std::string(names[index]);
+    }
+    else
+    {
+        return std::string("?");
+    }
+}
+
+std::string ChipDB::toString(const PlacementInfo &v)
+{
+    constexpr const std::array<const char*, 9> names = 
+    {{
+        "IGNORE", "UNPLACED", "PLACED", "PLACEDANDFIXED"
+    }};
+
+    auto index = static_cast<size_t>(v);
+    if (index < names.size())
+    {
+        return std::string(names[index]);
+    }
+    else
+    {
+        return std::string("?");
+    }
+}

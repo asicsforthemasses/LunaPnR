@@ -87,6 +87,8 @@ add_library(lunacore
     python/types/pycelllib.cpp
     python/types/pypininfo.cpp
     python/types/pypininfolist.cpp
+    python/types/pyinstance.cpp
+    python/types/pyinstances.cpp
     )
 
 target_include_directories(lunacore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

@@ -1,16 +1,17 @@
 import Luna
 print("Hello!")
 
-Luna.loadLib("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib")
-Luna.loadLef("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef")
-
 # test the creation of the celllib
 cells = Luna.CellLib()
 print("Luna.CellLib prints as: ", cells)
 
-# test the creation of the cell
+# test the creation of a cell
 myCell = Luna.Cell()
 print("Luna.Cell prints as: ", myCell)
+
+# test the creation of an instance
+myInstance = Luna.Instance()
+print("Luna.Instance prints as: ", myInstance)
 
 # test celllib and cell pin iteration
 for c in cells:
@@ -38,3 +39,17 @@ for c in cells:
 pininfo = Luna.PinInfo()
 print("Luna.PinInfo prints as: ", pininfo)
 
+# load LEF and LIB
+Luna.loadLib("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib")
+Luna.loadLef("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef")
+
+# load verilog
+Luna.loadVerilog("test/files/verilog/adder8.v")
+
+Luna.setTopModule("adder8")
+
+for ins in Luna.Instances():
+    if not(ins.archetype == "__PIN"):
+        print(ins.name, "->", ins.archetype, " size:", ins.size," pos", ins.position, " placement:", ins.placementInfo, " orientation:", ins.orientation)
+    else:
+        print(ins.name, "->", ins.archetype, " pos", ins.position)

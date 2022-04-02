@@ -9,8 +9,11 @@
 #include "types/pypininfolist.h"
 #include "types/pycell.h"
 #include "types/pycelllib.h"
+#include "types/pyinstance.h"
+#include "types/pyinstances.h"
 #include "pylunapnr.h"
 
+#include "import/verilog/verilogreader.h"
 #include "import/lef/lefreader.h"
 #include "import/liberty/libreader.h"
 
@@ -85,10 +88,75 @@ static PyObject* pyLoadLIB(PyObject *self, PyObject *args)
     return nullptr;
 }
 
+static PyObject* pyLoadVerilog(PyObject *self, PyObject *args)
+{
+    const char *VerilogFileName = nullptr;
+    if (PyArg_ParseTuple(args, "s", &VerilogFileName))
+    {
+        std::ifstream Verilogfile(VerilogFileName);
+        if (!Verilogfile.good())
+        {
+            PyErr_Format(PyExc_FileNotFoundError, "Cannot open file %s", VerilogFileName);
+            return nullptr;
+        }
+
+        auto designPtr = reinterpret_cast<ChipDB::Design*>(PyCapsule_Import("Luna.DesignPtr", 0));
+        if (designPtr == nullptr)
+        {
+            PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
+            return nullptr;
+        }
+
+        if (ChipDB::Verilog::Reader::load(*designPtr, Verilogfile))
+        {
+            // Success!
+            Py_INCREF(Py_None);
+            return Py_None;
+        }
+        
+        // load error
+        PyErr_Format(PyExc_RuntimeError, "Unable parse/load verilog netlist file %s", VerilogFileName);
+        return nullptr;
+    }    
+
+    PyErr_Format(PyExc_RuntimeError, "loadVerilog requires a filename argument");
+    return nullptr;
+}
+
+static PyObject* pySetTopModule(PyObject *self, PyObject *args)
+{
+    const char *topModuleName = nullptr;
+    if (PyArg_ParseTuple(args, "s", &topModuleName))
+    {
+
+        auto designPtr = reinterpret_cast<ChipDB::Design*>(PyCapsule_Import("Luna.DesignPtr", 0));
+        if (designPtr == nullptr)
+        {
+            PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
+            return nullptr;
+        }
+
+        if (!designPtr->setTopModule(topModuleName))
+        {
+            PyErr_Format(PyExc_RuntimeError, "cannot set top module to %s", topModuleName);
+            return nullptr;
+        }
+
+        // Success!
+        Py_INCREF(Py_None);
+        return Py_None;        
+    }
+
+    PyErr_Format(PyExc_RuntimeError, "setTopModule requires a module name argument");
+    return nullptr;    
+}
+
 static PyMethodDef LunaMethods[] =  // NOLINT(modernize-avoid-c-arrays)
 {
     {"loadLef", pyLoadLEF, METH_VARARGS, "load LEF file"},
     {"loadLib", pyLoadLIB, METH_VARARGS, "load LIB file"},
+    {"loadVerilog", pyLoadVerilog, METH_VARARGS, "load verlog netlist file"},
+    {"setTopModule", pySetTopModule, METH_VARARGS, "set the top level module"},
     {nullptr}
 };
 
@@ -99,6 +167,24 @@ static PyModuleDef LunaModule = {
     .m_size = -1,
     .m_methods = LunaMethods
 };
+
+/** function to add a type to the Python interpreter */
+bool incRefAndAddObject(PyObject *module, PyTypeObject *typeObj)
+{
+    if (typeObj == nullptr)
+    {
+        return false;
+    }
+
+    Py_INCREF(typeObj);
+    if (PyModule_AddObject(module, typeObj->tp_name, (PyObject *)typeObj) < 0)
+    {
+        Py_DECREF(&PyPinInfoType);
+        return false;        
+    }
+
+    return true;
+}
 
 static PyObject* PyInit_Luna()
 {
@@ -116,42 +202,23 @@ static PyObject* PyInit_Luna()
     if (PyType_Ready(&PyPinInfoListType) < 0)
         return nullptr;
 
+    if (PyType_Ready(&PyInstanceType) < 0)
+        return nullptr;
+
+    if (PyType_Ready(&PyInstancesType) < 0)
+        return nullptr;
+
     auto m = PyModule_Create(&LunaModule);
     if (m == nullptr)
         return nullptr;
 
-    Py_INCREF(&PyPinInfoType);
-    if (PyModule_AddObject(m, PyPinInfoType.tp_name, (PyObject *) &PyPinInfoType) < 0) 
-    {
-        Py_DECREF(&PyPinInfoType);
-        Py_DECREF(m);
-        return nullptr;
-    }
-
-    Py_INCREF(&PyPinInfoListType);
-    if (PyModule_AddObject(m, PyPinInfoListType.tp_name, (PyObject *) &PyPinInfoListType) < 0) 
-    {
-        Py_DECREF(&PyPinInfoListType);
-        Py_DECREF(m);
-        return nullptr;
-    }
-
-    Py_INCREF(&PyCellType);
-    if (PyModule_AddObject(m, PyCellType.tp_name, (PyObject *) &PyCellType) < 0) 
-    {
-        Py_DECREF(&PyCellType);
-        Py_DECREF(m);
-        return nullptr;
-    }
-
-    Py_INCREF(&PyCellLibType);
-    if (PyModule_AddObject(m, PyCellLibType.tp_name, (PyObject *) &PyCellLibType) < 0) 
-    {
-        Py_DECREF(&PyCellLibType);
-        Py_DECREF(m);
-        return nullptr;
-    }
-
+    incRefAndAddObject(m, &PyPinInfoType);
+    incRefAndAddObject(m, &PyPinInfoListType);
+    incRefAndAddObject(m, &PyCellType);
+    incRefAndAddObject(m, &PyCellLibType);
+    incRefAndAddObject(m, &PyInstanceType);
+    incRefAndAddObject(m, &PyInstancesType);
+    
     return m;
 }
 
