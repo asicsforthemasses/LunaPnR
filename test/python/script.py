@@ -27,8 +27,7 @@ class SimpleTestCases(unittest.TestCase):
     def createPinInfo(self):
         pininfo = Luna.PinInfo()
         self.assertTrue(str(pininfo) == "PinInfo")
-        print("Luna.PinInfo prints as: ", pininfo)
-
+        print("Luna.PinInfo prints as: ", pininfo)        
 
 class CellLibIterationTest(unittest.TestCase):
 
@@ -73,6 +72,63 @@ class TestImporters(unittest.TestCase):
         Luna.loadVerilog("test/files/verilog/adder8.v")
 
 
+class CellLibLookupTests(unittest.TestCase):
+
+    def testCellLookups(self):
+        Luna.clear()
+        Luna.loadLef("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef")
+        Luna.loadLib("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib")
+        Luna.loadVerilog("test/files/verilog/adder8.v")
+        Luna.setTopModule("adder8")
+
+        # get an instance by name
+        instances = Luna.Instances()
+        myInstance = instances.getInstance("_21_")
+        self.assertTrue(myInstance.name == "_21_")
+        self.assertTrue(myInstance.archetype == "BUFX2")
+        print("Lookup of instance _21_ returns: ", myInstance.name, " ", myInstance.archetype)
+
+        # check we can access a pin of an instance
+        self.assertTrue(myInstance.getPinCount() == 4)
+        myInputPin = myInstance.getPin(0)
+        myGndPin = myInstance.getPin(1)
+        myOutputPin = myInstance.getPin(2)
+        myVccPin = myInstance.getPin(3)
+        self.assertTrue(myInputPin.name == "A")
+        self.assertTrue(myInputPin.pinInfo.ioType == "INPUT")
+        self.assertTrue(myOutputPin.name == "Y")
+        self.assertTrue(myOutputPin.pinInfo.ioType == "OUTPUT")
+
+        # test that the input and output pins have a net associated with them
+        self.assertTrue(myInputPin.getNetKey() >= 0)
+        self.assertTrue(myOutputPin.getNetKey() >= 0)
+
+        # test that the pwr/gnd pins are unconnected
+        self.assertTrue(myGndPin.getNetKey() < 0)
+        self.assertTrue(myVccPin.getNetKey() < 0)
+
+        # check a non-existing instance lookup by name throws an exceptions
+        with self.assertRaises(ValueError):
+            instances.getInstance("ClaireDanes")
+
+        # check a non-existing instance lookup by key throws an exceptions
+        with self.assertRaises(ValueError):
+            instances.getInstance(54321)
+
+        # get a cell by name
+        myCell = Luna.CellLib().getCell("BUFX2")
+        self.assertTrue(myCell.name == "BUFX2")
+        print("Lookup of cell BUFX2 returns: ", myCell.name)
+
+        # check a non-existing cell lookup by name throws an exceptions
+        with self.assertRaises(ValueError):
+            Luna.CellLib().getCell("SalmaHayek")
+
+        # check a non-existing cell lookup by key throws an exceptions
+        with self.assertRaises(ValueError):
+            Luna.CellLib().getCell(54321)
+
+
 class TestNetlistAccess(unittest.TestCase):
 
     def test(self):
@@ -96,18 +152,6 @@ class TestNetlistAccess(unittest.TestCase):
             for key in range(0, ins.getPinCount()):
                 pin = ins.getPin(key)
                 print("\tpin:", pin.name, " connected net key:", pin.getNetKey(), " pin type:", pin.pinInfo.ioType)
-
-        # get an instance by name
-        instances = Luna.Instances()
-        myInstance = instances.getInstance("_21_")
-        self.assertTrue(myInstance.name == "_21_")
-        self.assertTrue(myInstance.archetype == "BUFX2")
-        print("Lookup of instance _21_ returns: ", myInstance.name, " ", myInstance.archetype)
-
-        # get a cell by name
-        myCell = Luna.CellLib().getCell("BUFX2")
-        self.assertTrue(myCell.name == "BUFX2")
-        print("Lookup of cell BUFX2 returns: ", myCell.name)
 
 
 
