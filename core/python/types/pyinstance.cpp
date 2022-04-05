@@ -80,6 +80,35 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
         return nullptr;
     }
 
+    static int setPlacementInfo(PyInstance *self, PyObject *value, void *closure)
+    {
+        if (self->ok())
+        {
+            const char *placementString = PyUnicode_AsUTF8(value);            
+
+            std::cout << "  " << placementString << "\n";
+
+            if (placementString == nullptr)
+            {
+                PyErr_Format(PyExc_ValueError, "placementInfo requires a string");
+                return -1; /* failure */
+            }
+
+            if (!ChipDB::fromString(placementString, self->obj()->m_placementInfo))
+            {
+                PyErr_Format(PyExc_ValueError, "Placement info: unknown option %s", placementString);
+                Py_XDECREF(placementString);
+                return -1; /* failure */
+            }
+
+            Py_XDECREF(placementString);
+            return 0; /* success */
+        }
+
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
+        return -1;
+    }
+
     static PyObject* getOrientation(PyInstance *self, void *closure)
     {
         if (self->ok())
@@ -187,7 +216,7 @@ static PyGetSetDef PyInstanceGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
     {"archetype", (getter)PyInstance::getArchetype, nullptr, "archetype name", nullptr /* closure */},
     {"position", (getter)PyInstance::getPosition, (setter)PyInstance::setPosition, "lower left position in nm", nullptr /* closure */},
     {"pos", (getter)PyInstance::getPosition, (setter)PyInstance::setPosition, "lower left position in nm", nullptr /* closure */},
-    {"placementInfo", (getter)PyInstance::getPlacementInfo, nullptr, "placement status", nullptr /* closure */},
+    {"placementInfo", (getter)PyInstance::getPlacementInfo, (setter)PyInstance::setPlacementInfo, "placement status", nullptr /* closure */},
     {"orientation", (getter)PyInstance::getOrientation, nullptr, "orientation of instance", nullptr /* closure */},
     {"size", (getter)PyInstance::getSize, nullptr, "size in nm", nullptr /* closure */},
     {"area", (getter)PyInstance::getArea, nullptr, "area in um^2", nullptr /* closure */},

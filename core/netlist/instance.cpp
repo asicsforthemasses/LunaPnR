@@ -10,6 +10,23 @@
 
 using namespace ChipDB;
 
+std::string ChipDB::toString(const InstanceType &t)
+{
+    constexpr const std::array<const char*, 5> names = 
+    {{
+        "UNKNOWN", "ABSTRACT", "CELL", "MODULE", "PIN"
+    }};
+
+    auto index = static_cast<size_t>(t);
+    if (index < names.size())
+    {
+        return std::string(names[index]);
+    }
+    else
+    {
+        return std::string("UNKNOWN");
+    }
+};
 
 // **********************************************************************
 //  Instance implementation

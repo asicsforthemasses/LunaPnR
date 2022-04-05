@@ -38,6 +38,8 @@ PyObject* toPython(const char *t);
 
 PyObject* toPython(const ChipDB::Coord64 &t);
 
+PyObject* toPython(const ChipDB::Rect64 &t);
+
 PyObject* toPython(const ChipDB::CellClass &t);
 
 PyObject* toPython(const ChipDB::CellSubclass &t);

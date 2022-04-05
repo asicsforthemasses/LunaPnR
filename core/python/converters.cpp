@@ -65,6 +65,12 @@ PyObject* Python::toPython(const ChipDB::Coord64 &t)
     return Py_BuildValue("ll", t.m_x, t.m_y);
 }
 
+PyObject* toPython(const ChipDB::Rect64 &t)
+{
+    return Py_BuildValue("(ll)(ll)", t.getLL().m_x, t.getLL().m_y, 
+        t.getUR().m_x, t.getUR().m_y);
+}
+
 PyObject* Python::toPython(const ChipDB::CellClass &t)
 {
     return Python::toPython(ChipDB::toString(t));

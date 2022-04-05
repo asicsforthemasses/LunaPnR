@@ -48,10 +48,15 @@ Luna.loadVerilog("test/files/verilog/adder8.v")
 
 Luna.setTopModule("adder8")
 
+x = 1000
 for ins in Luna.Instances():
     if not(ins.archetype == "__PIN"):
         print(ins.name, "->", ins.archetype, " size:", ins.size," pos", ins.position, " placement:", ins.placementInfo, " orientation:", ins.orientation)
     else:
+        # test setting the positiob
+        ins.position = (x,1000)
+        ins.placementInfo = "PLACED"
+        x = x + 1000
         print(ins.name, "->", ins.archetype, " pos", ins.position)
 
     for key in range(0, ins.getPinCount()):

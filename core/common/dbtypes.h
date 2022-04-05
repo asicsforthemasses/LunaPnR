@@ -9,6 +9,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 #ifdef NO_SSIZE_T
@@ -429,15 +430,18 @@ namespace ChipDB
 
     enum class PlacementInfo : uint8_t
     {
-        IGNORE = 0,       ///< ignore instance during placement
+        UNDEFINED = 0,
+        IGNORE,           ///< ignore instance during placement
         UNPLACED,         ///< instance unplaced
         PLACED,           ///< instance placed but still movable
         PLACEDANDFIXED,   ///< instance placed and not movable
     };
 
+    bool fromString(const char *v, ChipDB::PlacementInfo &result);
+    bool fromString(std::string_view v, ChipDB::PlacementInfo &result);
+
     std::string toString(const PlacementInfo &v);
     std::string toString(const Orientation &v);
-
     struct SymmetryFlags
     {
         SymmetryFlags() : m_flags(0) {}
@@ -520,3 +524,7 @@ ChipDB::SymmetryFlags& operator+=(ChipDB::SymmetryFlags &lhs, const uint8_t &rhs
 
 std::ostream& operator<<(std::ostream& os, const ChipDB::Coord64& r);
 std::ostream& operator<<(std::ostream& os, const ChipDB::Rect64& r);
+std::ostream& operator<<(std::ostream& os, const ChipDB::CellClass& cc);
+std::ostream& operator<<(std::ostream& os, const ChipDB::CellSubclass& sc);
+std::ostream& operator<<(std::ostream& os, const ChipDB::PlacementInfo& pi);
+std::ostream& operator<<(std::ostream& os, const ChipDB::Orientation& orientation);

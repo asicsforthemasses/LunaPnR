@@ -39,6 +39,31 @@ std::ostream& operator<<(std::ostream& os, const ChipDB::Rect64& r)
     return os;    
 }
 
+std::ostream& operator<<(std::ostream& os, const ChipDB::CellClass& cc)
+{
+    os << ChipDB::toString(cc);
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const ChipDB::CellSubclass& sc)
+{
+    os << ChipDB::toString(sc);
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const ChipDB::PlacementInfo& pi)
+{
+    os << ChipDB::toString(pi);
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const ChipDB::Orientation& orientation)
+{
+    os << ChipDB::toString(orientation);
+    return os;
+}
+
+
 #if 0
 
 bool ChipDB::isInsideRect(const ChipDB::Coord64 &p, const ChipDB::Rect64 &r) noexcept
@@ -137,9 +162,9 @@ std::string ChipDB::toString(const Orientation &v)
 
 std::string ChipDB::toString(const PlacementInfo &v)
 {
-    constexpr const std::array<const char*, 9> names = 
+    constexpr const std::array<const char*, 5> names = 
     {{
-        "IGNORE", "UNPLACED", "PLACED", "PLACEDANDFIXED"
+        "UNDEFINED", "IGNORE", "UNPLACED", "PLACED", "PLACEDANDFIXED"
     }};
 
     auto index = static_cast<size_t>(v);
@@ -149,6 +174,29 @@ std::string ChipDB::toString(const PlacementInfo &v)
     }
     else
     {
-        return std::string("?");
+        return std::string("UNDEFINED");
     }
+}
+
+bool ChipDB::fromString(const char *v, ChipDB::PlacementInfo &result)
+{
+    return fromString(std::string_view(v), result);
+}
+
+bool ChipDB::fromString(std::string_view v, ChipDB::PlacementInfo &result)
+{
+    constexpr const std::array<const char*, 5> names = 
+    {{
+        "UNDEFINED", "IGNORE", "UNPLACED", "PLACED", "PLACEDANDFIXED"
+    }};    
+
+    for(int index = 0; index < names.size(); index++)
+    {
+        if (v == std::string_view(names.at(index)))
+        {
+            result = static_cast<ChipDB::PlacementInfo>(index);
+            return true;
+        }
+    }
+    return false;
 }

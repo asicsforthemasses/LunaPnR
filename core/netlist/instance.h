@@ -28,6 +28,8 @@ enum class InstanceType
     PIN
 };
 
+std::string toString(const InstanceType &t);
+
 class InstanceBase
 {
 public:
