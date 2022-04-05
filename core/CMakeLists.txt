@@ -84,6 +84,8 @@ add_library(lunacore
     python/converters.cpp
     python/consoleredirect.cpp
     python/types/pypin.cpp
+    python/types/pynet.cpp
+    python/types/pynets.cpp
     python/types/pycell.cpp
     python/types/pycelllib.cpp
     python/types/pypininfo.cpp

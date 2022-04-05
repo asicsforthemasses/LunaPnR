@@ -92,6 +92,10 @@ public:
     {
         return m_connections.end();
     }
+    
+    using iterator          = typename std::vector<NetConnect>::iterator;
+    using const_iterator    = typename std::vector<NetConnect>::const_iterator;
+    using value_type        = NetConnect;
 
 protected:
     std::string m_name;         ///< net name

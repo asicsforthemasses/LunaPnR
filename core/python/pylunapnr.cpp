@@ -12,6 +12,8 @@
 #include "types/pycelllib.h"
 #include "types/pyinstance.h"
 #include "types/pyinstances.h"
+#include "types/pynet.h"
+#include "types/pynets.h"
 #include "pylunapnr.h"
 
 #include "import/verilog/verilogreader.h"
@@ -228,6 +230,12 @@ static PyObject* PyInit_Luna()
     if (PyType_Ready(&PyPinType) < 0)
         return nullptr;
 
+    if (PyType_Ready(&PyNetType) < 0)
+        return nullptr;
+
+    if (PyType_Ready(&PyNetsType) < 0)
+        return nullptr;
+
     auto m = PyModule_Create(&LunaModule);
     if (m == nullptr)
         return nullptr;
@@ -239,6 +247,8 @@ static PyObject* PyInit_Luna()
     incRefAndAddObject(m, &PyCellLibType);
     incRefAndAddObject(m, &PyInstanceType);
     incRefAndAddObject(m, &PyInstancesType);
+    incRefAndAddObject(m, &PyNetType);
+    incRefAndAddObject(m, &PyNetsType);
     
     return m;
 }

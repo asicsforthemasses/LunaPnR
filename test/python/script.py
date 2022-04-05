@@ -5,34 +5,45 @@ import Luna
 class SimpleTestCases(unittest.TestCase):    
     
     # test the creation of the celllib
-    def createCellLib(self):
+    def test_createCellLib(self):
+        print("test createCellLib")
         cells = Luna.CellLib()
-        self.assertTrue(str(cells) == "Cells")
+        self.assertTrue(str(cells) == "CellLib")
         print("Luna.CellLib prints as: ", cells)
 
     # test the creation of a cell
-    def createCell(self):
+    def test_createCell(self):
+        print("test createCell")
         myCell = Luna.Cell()
         self.assertTrue(str(myCell) == "Cell")
         print("Luna.Cell prints as: ", myCell)
 
     # test the creation of an instance
-    def createInstance(self):
+    def test_createInstance(self):
+        print("test createInstance")
         myInstance = Luna.Instance()
         self.assertTrue(str(myInstance) == "Instance")
         print("Luna.Instance prints as: ", myInstance)
 
-    # 
     # test creation of pininfo
-    def createPinInfo(self):
+    def test_createPinInfo(self):
+        print("test createPinInfo")
         pininfo = Luna.PinInfo()
         self.assertTrue(str(pininfo) == "PinInfo")
         print("Luna.PinInfo prints as: ", pininfo)        
 
-class CellLibIterationTest(unittest.TestCase):
+    # test creation of pininfo
+    def test_createNetObject(self):
+        print("test createNetObject")
+        myNet = Luna.Net()
+        print("Luna.Net prints as: ", myNet)
+        self.assertTrue(str(myNet) == "Net")        
+
+
+class IterationTest(unittest.TestCase):
 
     # test celllib and cell pin iteration
-    def testCellAndPinIteration(self):
+    def test_CellAndPinIteration(self):
         Luna.clear()
         cells = Luna.CellLib()
         for c in cells:
@@ -57,15 +68,18 @@ class CellLibIterationTest(unittest.TestCase):
 
 class TestImporters(unittest.TestCase):
     
-    def testLEF(self):
+    def test_LEF(self):
+        print("test LEF import")
         Luna.clear()
         Luna.loadLef("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef")
 
-    def testLib(self):    
+    def test_Lib(self):  
+        print("test Libery import")  
         Luna.clear()
         Luna.loadLib("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib")
     
-    def testVerilog(self):
+    def test_Verilog(self):
+        print("test Verilog import")  
         Luna.clear()
         Luna.loadLef("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef")
         Luna.loadLib("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib")
@@ -74,7 +88,8 @@ class TestImporters(unittest.TestCase):
 
 class CellLibLookupTests(unittest.TestCase):
 
-    def testCellLookups(self):
+    def test_CellLookups(self):
+        print("test CellLookups")
         Luna.clear()
         Luna.loadLef("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef")
         Luna.loadLib("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib")
@@ -131,13 +146,15 @@ class CellLibLookupTests(unittest.TestCase):
 
 class TestNetlistAccess(unittest.TestCase):
 
-    def test(self):
+    def test_(self):
+        print("test NetlistAccess")
         Luna.clear()
         Luna.loadLef("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef")
         Luna.loadLib("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib")
         Luna.loadVerilog("test/files/verilog/adder8.v")
         Luna.setTopModule("adder8")
 
+        # change the pin positions (test write acccess)
         x = 1000
         for ins in Luna.Instances():
             if not(ins.archetype == "__PIN"):
@@ -153,7 +170,18 @@ class TestNetlistAccess(unittest.TestCase):
                 pin = ins.getPin(key)
                 print("\tpin:", pin.name, " connected net key:", pin.getNetKey(), " pin type:", pin.pinInfo.ioType)
 
+        # check we can access the net
+        fullAdderYCPin = Luna.Instances().getInstance("_26_").getPin("YC")
+        self.assertTrue(fullAdderYCPin.name == "YC")
+        self.assertTrue(fullAdderYCPin.getPinKey() == 0)
+        self.assertTrue(fullAdderYCPin.getNetKey() == 10)
+        
+        netYC = Luna.Nets().getNet(10)
+        print("YC connected net name: ", netYC.name)
 
+        for netConnTuple in netYC:
+            myIns = Luna.Instances().getInstance(netConnTuple[0])            
+            print("\t ins:", myIns.name, "pin:", netConnTuple[1])
 
 if (__name__ == "__main__"):
     unittest.main()

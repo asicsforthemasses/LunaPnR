@@ -14,6 +14,8 @@ public:
     ValueContainer(const MyType &value) : m_value(value) {}
     ValueContainer(MyType *ptr) : m_value(*ptr) {}
 
+    virtual ~ValueContainer() = default;
+
     constexpr MyType* get() 
     {
         return &m_value;
