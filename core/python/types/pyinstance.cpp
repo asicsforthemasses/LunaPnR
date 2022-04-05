@@ -101,7 +101,7 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
                 return -1; /* failure */
             }
 
-            Py_XDECREF(placementString);
+            //Py_XDECREF(placementString);
             return 0; /* success */
         }
 

@@ -152,8 +152,24 @@ static PyObject* pySetTopModule(PyObject *self, PyObject *args)
     return nullptr;    
 }
 
+static PyObject* pyClear(PyObject *slef, PyObject *args)
+{
+    auto designPtr = reinterpret_cast<ChipDB::Design*>(PyCapsule_Import("Luna.DesignPtr", 0));
+    if (designPtr == nullptr)
+    {
+        PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
+        return nullptr;
+    }
+
+    designPtr->clear();
+    // Success!
+    Py_INCREF(Py_None);
+    return Py_None;      
+}
+
 static PyMethodDef LunaMethods[] =  // NOLINT(modernize-avoid-c-arrays)
 {
+    {"clear", pyClear, METH_NOARGS, "clear the design database"},
     {"loadLef", pyLoadLEF, METH_VARARGS, "load LEF file"},
     {"loadLib", pyLoadLIB, METH_VARARGS, "load LIB file"},
     {"loadVerilog", pyLoadVerilog, METH_VARARGS, "load verlog netlist file"},

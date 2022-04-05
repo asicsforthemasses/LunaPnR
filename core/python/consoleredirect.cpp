@@ -122,7 +122,8 @@ PyMODINIT_FUNC PyInit_ConsoleRedirect(void)
 
     stdErrObj->writeFunc = [](const char *txt)
     {
-        std::cout << "ERROR: " << txt << "\n";
+        //std::cout << "ERROR: " << txt << "\n";
+        std::cout << txt << std::flush;
     };
 
     PySys_SetObject("stdout", (PyObject*)stdObj);
