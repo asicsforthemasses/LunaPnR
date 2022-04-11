@@ -157,8 +157,10 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
         if (self->ok())
         {
             ChipDB::PinObjectKey key;
-            if (PyArg_ParseTuple(args,"L", &key))
+            if (PyArg_ParseTuple(args,"i", &key))
             {
+                auto pin = self->obj()->getPin(key);
+                //std::cout << "\t\tgetPin: of ins" << self->obj()->name() << " PinName:" << pin.name() << " PinKey:" << pin.m_pinKey << " NetKey:" << pin.m_netKey << "\n";
                 return Python::toPython(self->obj()->getPin(key));
             }
 
@@ -168,7 +170,9 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
             const char *pinName = nullptr;
             if (PyArg_ParseTuple(args,"s", &pinName))
             {
-                return Python::toPython(self->obj()->getPin(pinName));
+                auto pin = self->obj()->getPin(pinName);
+                //std::cout << "\t\tgetPin: of ins" << self->obj()->name() << " PinName:" << pin.name() << " PinKey:" << pin.m_pinKey << " NetKey:" << pin.m_netKey << "\n";
+                return Python::toPython(self->obj()->getPin(pinName));                
             }
 
             PyErr_Format(PyExc_ValueError, "getPin requires a key or name as argument");

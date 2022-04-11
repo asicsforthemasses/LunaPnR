@@ -1,6 +1,6 @@
 import unittest
 import Luna
-
+import sys
 
 class SimpleTestCases(unittest.TestCase):    
     
@@ -38,6 +38,28 @@ class SimpleTestCases(unittest.TestCase):
         myNet = Luna.Net()
         print("Luna.Net prints as: ", myNet)
         self.assertTrue(str(myNet) == "Net")        
+
+class TestPinBehaviour(unittest.TestCase):
+
+    # create a valid pin and try to copy it
+    def test_createAndCopyPin(self):
+        pin = Luna.InstancePin()
+
+        pin.setNetKey(123)
+        pin.setPinKey(0)
+
+        self.assertTrue(pin.getNetKey() == 123)
+        self.assertTrue(pin.getPinKey() == 0)
+
+        pinCopy = pin
+        self.assertTrue(pinCopy.getNetKey() == 123)
+        self.assertTrue(pinCopy.getPinKey() == 0)
+
+        # check that the pin is a shallow copy
+        pin.setNetKey(456)
+        pin.setPinKey(2)
+        self.assertTrue(pinCopy.getNetKey() == 456)
+        self.assertTrue(pinCopy.getPinKey() == 2)
 
 
 class IterationTest(unittest.TestCase):
@@ -168,14 +190,33 @@ class TestNetlistAccess(unittest.TestCase):
 
             for key in range(0, ins.getPinCount()):
                 pin = ins.getPin(key)
-                print("\tpin:", pin.name, " connected net key:", pin.getNetKey(), " pin type:", pin.pinInfo.ioType)
+                print("\tpin ",key,":", pin.name, " connected net key:", pin.getNetKey(), " pin type:", pin.pinInfo.ioType)
+
+        # check we can access the net
+        ins_26 = Luna.Instances().getInstance("_26_")
+        #print("  instance prints as:",ins_26)
+
+        self.assertTrue(ins_26.name == "_26_")
+        fullAdderYSPin = ins_26.getPin("YS")
+        #print("  instancePin prints as:",fullAdderYSPin)
+        #print("    netkey =", fullAdderYSPin.getNetKey())
+        #print("    pinkey =", fullAdderYSPin.getPinKey())
+
+        #print("fullAdderYSPin refcount = ", sys.getrefcount(fullAdderYSPin))
+        self.assertTrue(fullAdderYSPin.name == "YS")
+        self.assertTrue(fullAdderYSPin.pinInfo.ioType == "OUTPUT")
+        
+        self.assertTrue(fullAdderYSPin.getNetKey() == 35)
+        self.assertTrue(fullAdderYSPin.getPinKey() == 1)
 
         # check we can access the net
         fullAdderYCPin = Luna.Instances().getInstance("_26_").getPin("YC")
+        #print("fullAdderYCPin refcount = ", sys.getrefcount(fullAdderYCPin))
         self.assertTrue(fullAdderYCPin.name == "YC")
-        self.assertTrue(fullAdderYCPin.getPinKey() == 0)
+        self.assertTrue(fullAdderYCPin.pinInfo.ioType == "OUTPUT")
         self.assertTrue(fullAdderYCPin.getNetKey() == 10)
-        
+        self.assertTrue(fullAdderYCPin.getPinKey() == 0)
+            
         netYC = Luna.Nets().getNet(10)
         print("YC connected net name: ", netYC.name)
 

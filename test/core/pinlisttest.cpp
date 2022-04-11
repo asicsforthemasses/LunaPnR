@@ -18,6 +18,30 @@
 BOOST_AUTO_TEST_SUITE(PinInfoListTest)
 
 
+BOOST_AUTO_TEST_CASE(check_pin)
+{
+    std::cout << "--== CHECK PIN ==--\n";
+
+    ChipDB::InstanceBase::Pin pin;    
+
+    // check defaults
+    BOOST_CHECK(!pin.isValid());
+    BOOST_CHECK(pin.netKey() == ChipDB::ObjectNotFound);
+    BOOST_CHECK(pin.pinKey() == ChipDB::ObjectNotFound);
+    BOOST_CHECK(pin.name() == "INVALID PININFO");
+
+    // create a valid pin
+    pin.m_netKey = 123;
+    pin.m_pinKey = 456;
+    pin.m_pinInfo = std::make_shared<ChipDB::PinInfo>();
+    BOOST_CHECK(pin.isValid());
+
+    // check that we can copy a pin
+    auto pin2 = pin;
+    BOOST_CHECK(pin.isValid());
+    BOOST_CHECK(pin.netKey() == 123);
+    BOOST_CHECK(pin.pinKey() == 456);
+}
 
 BOOST_AUTO_TEST_CASE(check_pininfolist)
 {

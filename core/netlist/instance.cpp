@@ -85,9 +85,9 @@ InstanceBase::Pin Instance::getPin(const std::string &pinName) const
     {
         pin.m_pinInfo = pinKeyObjPair.ptr();
         pin.m_pinKey  = pinKeyObjPair.key();
-
+        
         auto key = pinKeyObjPair.key();
-        if (m_pinToNet.size() < key)
+        if (key < m_pinToNet.size())
         {
             pin.m_netKey = m_pinToNet.at(key);
         }

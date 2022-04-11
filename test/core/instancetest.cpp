@@ -59,6 +59,11 @@ BOOST_AUTO_TEST_CASE(various_instance_tests)
 
     auto insPtr2 = std::make_shared<ChipDB::Instance>("diederik", modPtr);
     BOOST_CHECK(insPtr2->isModule());
+
+    // Regression: test that the net key is correct when looking a pin up by name
+    BOOST_CHECK(insPtr->setPinNet(0 /* pin A */, 123));
+    BOOST_CHECK(insPtr->getPin("A").netKey() == 123);   // lookup by name
+    BOOST_CHECK(insPtr->getPin(0).netKey() == 123);   // lookup by id for good measure
 }
 
 BOOST_AUTO_TEST_SUITE_END()
