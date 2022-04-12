@@ -181,14 +181,14 @@ static PyMethodDef LunaMethods[] =  // NOLINT(modernize-avoid-c-arrays)
 
 static PyModuleDef LunaModule = {
     PyModuleDef_HEAD_INIT,
-    .m_name = "Luna",
+    .m_name = "Luna",               // NOLINT(clang-diagnostic-c99-designator)
     .m_doc = "Interfaces with LunaPNR core datastructures",
     .m_size = -1,
     .m_methods = LunaMethods
 };
 
 /** function to add a type to the Python interpreter */
-bool incRefAndAddObject(PyObject *module, PyTypeObject *typeObj)
+static bool incRefAndAddObject(PyObject *module, PyTypeObject *typeObj)
 {
     if (typeObj == nullptr)
     {
@@ -198,7 +198,7 @@ bool incRefAndAddObject(PyObject *module, PyTypeObject *typeObj)
     Py_INCREF(typeObj);
     if (PyModule_AddObject(module, typeObj->tp_name, (PyObject *)typeObj) < 0)
     {
-        Py_DECREF(&PyPinInfoType);
+        Py_DECREF(typeObj);
         return false;        
     }
 
@@ -207,8 +207,6 @@ bool incRefAndAddObject(PyObject *module, PyTypeObject *typeObj)
 
 static PyObject* PyInit_Luna()
 {
-    std::cout << "Luna module init called\n";
-
     if (PyType_Ready(&PyCellType) < 0)
         return nullptr;
 
@@ -253,10 +251,13 @@ static PyObject* PyInit_Luna()
     return m;
 }
 
-Scripting::Python::Python(ChipDB::Design *design) : m_design(design)
+void Scripting::Python::init()
 {
     PyImport_AppendInittab("ConsoleRedirect", &PyInit_ConsoleRedirect);
     PyImport_AppendInittab("Luna", &PyInit_Luna);
+
+    preInitHook();
+
     Py_Initialize();
 
     PyImport_ImportModule("ConsoleRedirect");
@@ -267,7 +268,7 @@ Scripting::Python::Python(ChipDB::Design *design) : m_design(design)
         std::cout << "Luna module init failed!\n";
     }
 
-    auto capsule  = PyCapsule_New(design->m_cellLib.get(), "Luna.CellLibraryPtr", nullptr);
+    auto capsule  = PyCapsule_New(m_design->m_cellLib.get(), "Luna.CellLibraryPtr", nullptr);
     
     if (PyModule_AddObject(lunaModule, "CellLibraryPtr", capsule) < 0)
     {
@@ -275,13 +276,19 @@ Scripting::Python::Python(ChipDB::Design *design) : m_design(design)
         Py_XDECREF(capsule);
     }
 
-    auto capsule2 = PyCapsule_New(design, "Luna.DesignPtr", nullptr);
+    auto capsule2 = PyCapsule_New(m_design, "Luna.DesignPtr", nullptr);
 
     if (PyModule_AddObject(lunaModule, "DesignPtr", capsule2) < 0)
     {
         std::cout << "PyModule_AddObject failed!\n";
         Py_XDECREF(capsule);
     }
+
+    postInitHook();
+}
+
+Scripting::Python::Python(ChipDB::Design *design) : m_design(design)
+{
 }
 
 Scripting::Python::~Python()
@@ -316,3 +323,36 @@ bool Scripting::Python::executeScript(const std::string &code)
     return false;
 }
 
+#if 0
+void Scripting::Python::addModule(const char *moduleName, 
+    ModuleInitFunctionType initFunction)
+{
+    PyImport_AddModule(moduleName);
+    PyObject* pyModule = initFunction();
+    PyObject* sys_modules = PyImport_GetModuleDict();
+    PyDict_SetItemString(sys_modules, moduleName, pyModule);
+    Py_DECREF(pyModule);
+}    
+
+bool Scripting::Python::createCapsule(PyModuleDef *moduleDef,
+    const char *extendedName,
+    const char *capsuleName,
+    void *ptr)
+{
+    auto pyModule = PyState_FindModule(moduleDef);
+    if (pyModule == nullptr)
+    {
+        return false;
+    }
+
+    auto capsule = PyCapsule_New(ptr, extendedName, nullptr);
+
+    if (PyModule_AddObject(pyModule, capsuleName, capsule) < 0)
+    {
+        Py_XDECREF(capsule);
+        return false;
+    }
+
+    return true;
+}
+#endif

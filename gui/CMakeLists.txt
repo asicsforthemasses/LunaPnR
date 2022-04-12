@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 
 find_package(Qt5 5.12 REQUIRED QUIET COMPONENTS Core Widgets LinguistTools)
+find_package(PythonLibs 3.8 REQUIRED COMPONENTS Interpreter Development)
 
 # The qm files are generated in the build tree, but the qrc file is inside the
 # source directory and the path to resources are relative to the location of
@@ -46,11 +47,14 @@ set (LUNA_SRC_FILES
     cellbrowser/celllayoutview.cpp
     propertyview/propertyview.cpp
     console/mmconsole.cpp
+    python/pyluna_extra.cpp
     #luafuncs/luafuncs.cpp
     #src/luawrapper.cpp
     src/mainwindow.cpp
     src/main.cpp
 )
+
+#set_property(SOURCE python/pyluna_extra.cpp PROPERTY SKIP_AUTOGEN ON)
 
 #set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/translations/lunapnr.en_US.ts
 #    PROPERTIES OUTPUT_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/resources/translations")
@@ -73,10 +77,8 @@ add_executable(lunapnr
 
 #add_dependencies(lunapnr commandcompletion)
 
-#target_link_libraries(lunapnr lunacore Qt5::Widgets liblua)
-#target_include_directories(lunapnr PUBLIC ../core/include ../contrib/lua-5.4.3/src .)
 target_link_libraries(lunapnr lunacore Qt5::Widgets)
-target_include_directories(lunapnr PUBLIC ../core/include .)
+target_include_directories(lunapnr PUBLIC ../core/include ${PYTHON_INCLUDE_DIRS} .)
 
 ## Make Debian/Ubuntu happy: this way the executable is not detected as a shared lib :-/
 target_compile_options(lunapnr PUBLIC -fno-pie -no-pie)

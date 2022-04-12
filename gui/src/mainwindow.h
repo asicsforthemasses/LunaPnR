@@ -28,7 +28,7 @@
 
 #include "lunacore.h"
 #include "../common/database.h"
-
+#include "../python/pyluna_extra.h"
 
 class MainWindow : public QMainWindow, public ChipDB::INamedStorageListener
 {
@@ -94,5 +94,5 @@ protected:
 
     QTimer m_guiUpdateTimer;
 
-    std::unique_ptr<Scripting::Python> m_python;
+    std::unique_ptr<GUI::Python> m_python;
 };

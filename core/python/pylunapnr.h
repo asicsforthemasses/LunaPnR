@@ -1,7 +1,9 @@
 #pragma once
+#include <type_traits>
 #include <functional>
 #include <string>
 #include "design/design.h"
+
 namespace Scripting
 {
 
@@ -10,6 +12,11 @@ class Python
 public:
     Python(ChipDB::Design *design);
     virtual ~Python();
+
+    void init();
+
+    virtual bool preInitHook() { return true; };
+    virtual bool postInitHook() { return true; };
 
     bool executeScript(const std::string &code);
 
