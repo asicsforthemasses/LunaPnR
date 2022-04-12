@@ -27,7 +27,6 @@
 #include "../floorplanview/floorplanview.h"
 
 #include "lunacore.h"
-#include "luawrapper.h"
 #include "../common/database.h"
 
 
@@ -95,5 +94,5 @@ protected:
 
     QTimer m_guiUpdateTimer;
 
-    std::unique_ptr<GUI::LuaWrapper> m_lua;
+    std::unique_ptr<Scripting::Python> m_python;
 };

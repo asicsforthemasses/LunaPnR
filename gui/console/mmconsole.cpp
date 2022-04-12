@@ -361,6 +361,11 @@ void MMConsole::print(const std::string &txt, PrintType pt)
     print(QString::fromStdString(txt), pt);
 }
 
+void MMConsole::print(const std::string_view txt, PrintType pt)
+{
+    print(QString::fromUtf8(&txt.at(0), txt.size()), pt);
+}
+
 void MMConsole::print(const std::stringstream &ss, PrintType pt)
 {
     print(QString::fromStdString(ss.str()), pt);

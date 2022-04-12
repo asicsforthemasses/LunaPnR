@@ -183,6 +183,27 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
         return nullptr;                
     }
 
+    static PyObject* setPinNet(PyInstance *self, PyObject *args)
+    {
+        if (self->ok())
+        {
+            ChipDB::PinObjectKey pinKey = -1;
+            ChipDB::NetObjectKey netKey = -1;
+            if (PyArg_ParseTuple(args,"ii", &pinKey, &netKey))
+            {
+                if (self->obj()->setPinNet(pinKey, netKey))
+                {
+                    Py_RETURN_NONE;
+                }
+            }
+            PyErr_Format(PyExc_ValueError, "setPinNet requires a pin key and net key argument");
+            return nullptr;
+        }
+
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
+        return nullptr;                
+    }
+
     /** set internal values of PyInstance */
     static int pyInit(PyInstance *self, PyObject *args, PyObject *kwds)
     {
@@ -229,8 +250,9 @@ static PyGetSetDef PyInstanceGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
 
 static PyMethodDef PyInstanceMethods[] =    // NOLINT(modernize-avoid-c-arrays)
 {
-    {"getPin", (PyCFunction)PyInstance::getPin, METH_VARARGS, "get pin by key"},
+    {"getPin", (PyCFunction)PyInstance::getPin, METH_VARARGS, "get pin by pin key or name"},
     {"getPinCount", (PyCFunction)PyInstance::getPinCount, METH_NOARGS, "get number of pins"},
+    {"setPinNet", (PyCFunction)PyInstance::setPinNet, METH_VARARGS, "set the net key of a pin: setPinNet(pinKey, netKey). returns TRUE if successful."},
     {nullptr}  /* Sentinel */
 };
 

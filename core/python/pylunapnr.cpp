@@ -289,6 +289,22 @@ Scripting::Python::~Python()
     Py_FinalizeEx();
 }
 
+void Scripting::Python::setConsoleRedirect(std::function<void(const char *, ssize_t)> stdoutFunc,
+    std::function<void(const char *, ssize_t)> stderrFunc)
+{
+    auto pyStdout = reinterpret_cast<Scripting::PyConsoleRedirect::PyStdout*>(PySys_GetObject("stdout"));
+    if (pyStdout != nullptr)
+    {
+        pyStdout->writeFunc = stdoutFunc;
+    }    
+
+    auto pyStderr = reinterpret_cast<Scripting::PyConsoleRedirect::PyStdout*>(PySys_GetObject("stderr"));
+    if (pyStderr != nullptr)
+    {
+        pyStderr->writeFunc = stderrFunc;
+    }        
+}
+
 bool Scripting::Python::executeScript(const std::string &code)
 {
     const int PyResultOK = 0;

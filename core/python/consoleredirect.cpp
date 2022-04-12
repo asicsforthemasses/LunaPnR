@@ -1,43 +1,40 @@
-#include <functional>
+
 #include <string>
 #include <iostream>
-#include <Python.h>
+#include "consoleredirect.h"
 
 // inspiration:
 // https://github.com/mloskot/workshop/blob/master/python/emb/emb.cpp
 
-namespace Python::ConsoleRedirect
+PyObject* Scripting::PyConsoleRedirect::PyStdout::pyWrite(PyObject *self, PyObject *args)
 {
-
-struct PyStdout
-{
-    PyObject_HEAD
-    std::function<void(const char *)> writeFunc;
-
-    static PyObject* pyWrite(PyObject *self, PyObject *args)
+    auto *pyStdout = reinterpret_cast<Scripting::PyConsoleRedirect::PyStdout*>(self);
+    if (pyStdout->writeFunc)
     {
-        auto *pyStdout = reinterpret_cast<PyStdout*>(self);
-        if (pyStdout->writeFunc)
+        Py_ssize_t strLen;
+        char *str;
+        if (PyArg_ParseTuple(args, "s#", &str, &strLen))
         {
-            char *str;
-            if (!PyArg_ParseTuple(args, "s", &str))
-            {
-                return nullptr;
-            }
-
-            pyStdout->writeFunc(str);
+            pyStdout->writeFunc(str, strLen);
+            return nullptr;
         }
+        else
+        {
+            // FIXME: handle conversion error
+        }
+    }
 
-        return Py_BuildValue("");
-    };
+    Py_RETURN_NONE;
+}
 
-    static PyObject* pyFlush(PyObject *self, PyObject *args)
-    {
-        return Py_BuildValue("");
-    };
-
+PyObject* Scripting::PyConsoleRedirect::PyStdout::pyFlush(PyObject *self, PyObject *args)
+{
+    Py_RETURN_NONE;
 };
 
+
+namespace Scripting::PyConsoleRedirect
+{
 
 PyMethodDef PyStdout_methods[] =    // NOLINT(modernize-avoid-c-arrays)
 {
@@ -112,18 +109,19 @@ PyMODINIT_FUNC PyInit_ConsoleRedirect(void)
     auto stdTypeObj = PyStdoutType.tp_new(&PyStdoutType, nullptr, nullptr);
     auto stdObj = reinterpret_cast<PyStdout*>(stdTypeObj);
 
-    stdObj->writeFunc = [](const char *txt)
+    stdObj->writeFunc = [](const char *txt, ssize_t strLen)
     {
-        std::cout << txt << std::flush;
+        std::string_view sv(txt, strLen);
+        std::cout << sv << std::flush;
     };
 
     auto stdErrTypeObj = PyStdoutType.tp_new(&PyStdoutType, nullptr, nullptr);
     auto stdErrObj = reinterpret_cast<PyStdout*>(stdErrTypeObj);
 
-    stdErrObj->writeFunc = [](const char *txt)
+    stdErrObj->writeFunc = [](const char *txt, ssize_t strLen)
     {
-        //std::cout << "ERROR: " << txt << "\n";
-        std::cout << txt << std::flush;
+        std::string_view sv(txt, strLen);
+        std::cerr << sv << std::flush;
     };
 
     PySys_SetObject("stdout", (PyObject*)stdObj);

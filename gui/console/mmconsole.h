@@ -11,6 +11,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
 #include <sstream>
 
@@ -94,6 +95,7 @@ public:
 
     void print(const QString &txt, PrintType pt);
     void print(const std::string &txt, PrintType pt);
+    void print(const std::string_view txt, PrintType pt);
     void print(const std::stringstream &ss, PrintType pt);
     void print(const char *txt, PrintType pt);
 

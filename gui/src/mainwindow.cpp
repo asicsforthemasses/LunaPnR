@@ -5,8 +5,6 @@
   SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
 */
 
-
-
 #include <QAction>
 #include <QTimer>
 #include <QTabWidget>
@@ -89,9 +87,43 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     loadSettings();
 
-    m_lua.reset(new GUI::LuaWrapper(m_console, m_db));
-    
-    m_lua->run("print(\"Running \" .. _VERSION)\n");
+    //m_lua.reset(new GUI::LuaWrapper(m_console, m_db));
+    //m_lua->run("print(\"Running \" .. _VERSION)\n");
+
+    m_python = std::make_unique<Scripting::Python>(&m_db->design());
+
+    // install python console redirection
+    m_python->setConsoleRedirect(
+        [this](const char *txt, ssize_t strLen)
+        {
+            if (strLen <= 0)
+            {
+                return;
+            }
+
+            std::string_view svTxt(txt, strLen);
+
+            if (svTxt.back() != '\n')
+            {   
+                m_console->print(svTxt, GUI::MMConsole::PrintType::Partial);
+            }
+            else
+            {
+                m_console->print(svTxt, GUI::MMConsole::PrintType::Complete);
+            }
+        },
+        [this](const char *txt, ssize_t strLen)
+        {
+            if (txt == nullptr) 
+            {
+                return;
+            }
+
+            m_console->print(txt, GUI::MMConsole::PrintType::Error);
+        }        
+    );
+
+    m_python->executeScript(R"(import sys; print("Python version"); print (sys.version); )");
 }
 
 MainWindow::~MainWindow()
@@ -365,15 +397,15 @@ void MainWindow::onLoadVerilog()
 
 void MainWindow::onConsoleCommand(const QString &cmd)
 {
-    if (m_lua)
+    if (m_python)
     {
         m_console->disablePrompt();
-        m_lua->run(cmd.toUtf8().data());
+        m_python->executeScript(cmd.toUtf8().data());
         m_console->enablePrompt();
     }
     else
     {
-        doLog(LOG_ERROR, "LUA not available!\n");
+        doLog(LOG_ERROR, "Python not available!\n");
     }
 }
 
@@ -382,27 +414,27 @@ void MainWindow::onRunScript()
     QString directory("");
 
     // Fixme: remember the last directory
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Run LUA Script"), directory,
-            tr("LUA script (*.lua)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Run Python Script"), directory,
+            tr("Python script (*.py)"));
 
-    if ((!fileName.isEmpty()) && m_lua)
+    if ((!fileName.isEmpty()) && m_python)
     {
-        std::ifstream luafile(fileName.toStdString());
-        if (!luafile.good())
+        std::ifstream pyFile(fileName.toStdString());
+        if (!pyFile.good())
         {
             doLog(LOG_ERROR,"Script file '%s' cannot be opened for reading\n", fileName.toStdString().c_str());
-            QMessageBox::critical(this, tr("Error"), tr("The LUA script file could not be opened for reading"), QMessageBox::Close);
+            QMessageBox::critical(this, tr("Error"), tr("The Python script file could not be opened for reading"), QMessageBox::Close);
             return;
         }
 
         std::stringstream ss;
-        ss << luafile.rdbuf();
+        ss << pyFile.rdbuf();
 
         m_console->disablePrompt();
         std::stringstream message;
         message << "\nRunning script " << fileName.toStdString() << "\n";
         m_console->print(message, GUI::MMConsole::PrintType::Complete);        
-        m_lua->run(ss.str());
+        m_python->executeScript(ss.str());
         m_console->enablePrompt();
     }
 }
