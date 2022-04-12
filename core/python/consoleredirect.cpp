@@ -11,16 +11,17 @@ PyObject* Scripting::PyConsoleRedirect::PyStdout::pyWrite(PyObject *self, PyObje
     auto *pyStdout = reinterpret_cast<Scripting::PyConsoleRedirect::PyStdout*>(self);
     if (pyStdout->writeFunc)
     {
-        Py_ssize_t strLen;
-        char *str;
+        ssize_t strLen = 0;
+        const char *str;
         if (PyArg_ParseTuple(args, "s#", &str, &strLen))
         {
             pyStdout->writeFunc(str, strLen);
-            return nullptr;
+            Py_RETURN_NONE;
         }
         else
         {
             // FIXME: handle conversion error
+            return nullptr;
         }
     }
 
