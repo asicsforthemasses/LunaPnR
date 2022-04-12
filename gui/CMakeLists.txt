@@ -15,13 +15,13 @@ find_package(PythonLibs 3.8 REQUIRED COMPONENTS Interpreter Development)
 # add a dependency to make console/commandcompletion.cpp using the
 # doctool from the tools directory
 
-#add_custom_target(commandcompletion
-#    ${CMAKE_BINARY_DIR}/tools/doctool ${CMAKE_CURRENT_SOURCE_DIR}/luafuncs/luafuncs.cpp ${CMAKE_CURRENT_SOURCE_DIR}/console/commandcompletion.inc
-#    BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/console/commandcompletion.inc
-#    VERBATIM
-#    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/luafuncs/luafuncs.cpp
-#    USES_TERMINAL
-#    )
+add_custom_target(commandcompletion
+    ${CMAKE_BINARY_DIR}/tools/doctool ${CMAKE_CURRENT_SOURCE_DIR}/python/pyluna_extra.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../core/python/pylunapnr.cpp ${CMAKE_CURRENT_SOURCE_DIR}/console/commandcompletion.inc
+    BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/console/commandcompletion.inc
+    VERBATIM
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/luafuncs/luafuncs.cpp
+    USES_TERMINAL
+    )
 
 set (LUNA_SRC_FILES
     models/modelnodebase.cpp
@@ -48,13 +48,9 @@ set (LUNA_SRC_FILES
     propertyview/propertyview.cpp
     console/mmconsole.cpp
     python/pyluna_extra.cpp
-    #luafuncs/luafuncs.cpp
-    #src/luawrapper.cpp
     src/mainwindow.cpp
     src/main.cpp
 )
-
-#set_property(SOURCE python/pyluna_extra.cpp PROPERTY SKIP_AUTOGEN ON)
 
 #set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/translations/lunapnr.en_US.ts
 #    PROPERTIES OUTPUT_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/resources/translations")
@@ -75,7 +71,7 @@ add_executable(lunapnr
     ${QM_FILES}
     )
 
-#add_dependencies(lunapnr commandcompletion)
+add_dependencies(lunapnr commandcompletion)
 
 target_link_libraries(lunapnr lunacore Qt5::Widgets)
 target_include_directories(lunapnr PUBLIC ../core/include ${PYTHON_INCLUDE_DIRS} .)

@@ -20,6 +20,12 @@
 #include "import/lef/lefreader.h"
 #include "import/liberty/libreader.h"
 
+static inline ChipDB::Design* getDesign()
+{
+    return (ChipDB::Design*)PyCapsule_Import("Luna.DesignPtr", 0);
+}
+
+///> loadLef(filename : string)
 static PyObject* pyLoadLEF(PyObject *self, PyObject *args)
 {
     const char *LEFFileName = nullptr;
@@ -28,34 +34,30 @@ static PyObject* pyLoadLEF(PyObject *self, PyObject *args)
         std::ifstream LEFfile(LEFFileName);
         if (!LEFfile.good())
         {
-            PyErr_Format(PyExc_FileNotFoundError, "Cannot open file %s", LEFFileName);
-            return nullptr;
+            return PyErr_Format(PyExc_FileNotFoundError, "Cannot open file %s", LEFFileName);
         }
 
-        auto designPtr = reinterpret_cast<ChipDB::Design*>(PyCapsule_Import("Luna.DesignPtr", 0));
+        auto designPtr = getDesign();
         if (designPtr == nullptr)
         {
-            PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
-            return nullptr;
+            return PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
         }
 
         if (ChipDB::LEF::Reader::load(*designPtr, LEFfile))
         {
-            // Success!            
-            Py_INCREF(Py_None);
-            return Py_None;
+            // Success!
+            Py_RETURN_NONE;
         }
         
         // TODO: set exception / error.
         // load error
-        PyErr_Format(PyExc_RuntimeError, "Unable parse/load LEF file %s", LEFFileName);
-        return nullptr;
+        return PyErr_Format(PyExc_RuntimeError, "Unable parse/load LEF file %s", LEFFileName);
     }    
 
-    PyErr_Format(PyExc_RuntimeError, "loadLef requires a filename argument");
-    return nullptr;
+    return PyErr_Format(PyExc_RuntimeError, "loadLef requires a filename argument");
 }
 
+///> loadLib(filename : string)
 static PyObject* pyLoadLIB(PyObject *self, PyObject *args)
 {
     const char *LIBFileName = nullptr;
@@ -63,34 +65,30 @@ static PyObject* pyLoadLIB(PyObject *self, PyObject *args)
     {
         std::ifstream LIBfile(LIBFileName);
         if (!LIBfile.good())
-        {
-            PyErr_Format(PyExc_FileNotFoundError, "Cannot open file %s", LIBFileName);
-            return nullptr;
+        {            
+            return PyErr_Format(PyExc_FileNotFoundError, "Cannot open file %s", LIBFileName);
         }
 
-        auto designPtr = reinterpret_cast<ChipDB::Design*>(PyCapsule_Import("Luna.DesignPtr", 0));
+        auto designPtr = getDesign();
         if (designPtr == nullptr)
         {
-            PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
-            return nullptr;
+            return PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
         }
 
         if (ChipDB::Liberty::Reader::load(*designPtr, LIBfile))
         {
             // Success!
-            Py_INCREF(Py_None);
-            return Py_None;
+            Py_RETURN_NONE;
         }
         
         // load error
-        PyErr_Format(PyExc_RuntimeError, "Unable parse/load LIB file %s", LIBFileName);
-        return nullptr;
+        return PyErr_Format(PyExc_RuntimeError, "Unable parse/load LIB file %s", LIBFileName);
     }    
 
-    PyErr_Format(PyExc_RuntimeError, "loadLib requires a filename argument");
-    return nullptr;
+    return PyErr_Format(PyExc_RuntimeError, "loadLib requires a filename argument");
 }
 
+///> loadVerilog(filename : string)
 static PyObject* pyLoadVerilog(PyObject *self, PyObject *args)
 {
     const char *VerilogFileName = nullptr;
@@ -99,74 +97,102 @@ static PyObject* pyLoadVerilog(PyObject *self, PyObject *args)
         std::ifstream Verilogfile(VerilogFileName);
         if (!Verilogfile.good())
         {
-            PyErr_Format(PyExc_FileNotFoundError, "Cannot open file %s", VerilogFileName);
-            return nullptr;
+            return PyErr_Format(PyExc_FileNotFoundError, "Cannot open file %s", VerilogFileName);
         }
 
-        auto designPtr = reinterpret_cast<ChipDB::Design*>(PyCapsule_Import("Luna.DesignPtr", 0));
+        auto designPtr = getDesign();
         if (designPtr == nullptr)
         {
-            PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
-            return nullptr;
+            return PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
         }
 
         if (ChipDB::Verilog::Reader::load(*designPtr, Verilogfile))
         {
             // Success!
-            Py_INCREF(Py_None);
-            return Py_None;
+            Py_RETURN_NONE;
         }
         
         // load error
-        PyErr_Format(PyExc_RuntimeError, "Unable parse/load verilog netlist file %s", VerilogFileName);
-        return nullptr;
+        return PyErr_Format(PyExc_RuntimeError, "Unable parse/load verilog netlist file %s", VerilogFileName);
     }    
 
-    PyErr_Format(PyExc_RuntimeError, "loadVerilog requires a filename argument");
-    return nullptr;
+    return PyErr_Format(PyExc_RuntimeError, "loadVerilog requires a filename argument");
 }
 
+///> setTopModule(module name : string)
 static PyObject* pySetTopModule(PyObject *self, PyObject *args)
 {
     const char *topModuleName = nullptr;
     if (PyArg_ParseTuple(args, "s", &topModuleName))
     {
 
-        auto designPtr = reinterpret_cast<ChipDB::Design*>(PyCapsule_Import("Luna.DesignPtr", 0));
+        auto designPtr = getDesign();
         if (designPtr == nullptr)
         {
-            PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
-            return nullptr;
+            return PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
         }
 
         if (!designPtr->setTopModule(topModuleName))
         {
-            PyErr_Format(PyExc_RuntimeError, "cannot set top module to %s", topModuleName);
-            return nullptr;
+            return PyErr_Format(PyExc_RuntimeError, "cannot set top module to %s", topModuleName);
         }
 
         // Success!
-        Py_INCREF(Py_None);
-        return Py_None;        
+        Py_RETURN_NONE;
     }
 
-    PyErr_Format(PyExc_RuntimeError, "setTopModule requires a module name argument");
-    return nullptr;    
+    return PyErr_Format(PyExc_RuntimeError, "setTopModule requires a module name argument");
 }
 
-static PyObject* pyClear(PyObject *slef, PyObject *args)
+static PyObject* pyClear(PyObject *self, PyObject *args)
 {
-    auto designPtr = reinterpret_cast<ChipDB::Design*>(PyCapsule_Import("Luna.DesignPtr", 0));
+    auto designPtr = getDesign();
     if (designPtr == nullptr)
     {
-        PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
-        return nullptr;
+        return PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
     }
 
     designPtr->clear();
+
     // Success!
-    Py_INCREF(Py_None);
-    return Py_None;      
+    Py_RETURN_NONE;
+}
+
+///> create_region(regionname : string, x : integer, y : integer, width : integer, height : integer)
+static PyObject* pyCreateRegion(PyObject *self, PyObject *args)
+{
+    auto designPtr = getDesign();
+    if (designPtr == nullptr)
+    {
+        return PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
+    }
+
+    if (!designPtr->m_floorplan)
+    {
+        return PyErr_Format(PyExc_RuntimeError, "Unable to access floorplan");
+    }
+
+    // check if the long int has the same range as ChipDB::CoordType
+    // if this fails, we have to change the PyArg_ParseTuple format string
+    static_assert(sizeof(long int) == sizeof(ChipDB::CoordType));
+
+    long int x,y,width,height;
+    const char *regionName;
+    if (PyArg_ParseTuple(args, "sllll", &regionName, &x, &y, &width, &height))
+    {        
+        auto regionKeyObjPair = designPtr->m_floorplan->createRegion(regionName);
+        if (!regionKeyObjPair.isValid())
+        {
+            return PyErr_Format(PyExc_RuntimeError, "Region with name %s already exists!", regionName);
+        }
+
+        regionKeyObjPair->m_rect = ChipDB::Rect64(ChipDB::Coord64{x,y}, ChipDB::Coord64{x+width,y+height});
+
+        // Success!
+        Py_RETURN_NONE;        
+    }
+
+    return PyErr_Format(PyExc_RuntimeError, "Wrong number or type of arguments");
 }
 
 static PyMethodDef LunaMethods[] =  // NOLINT(modernize-avoid-c-arrays)

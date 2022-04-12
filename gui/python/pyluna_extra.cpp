@@ -5,7 +5,14 @@
 #include <Python.h>
 
 #include "pyluna_extra.h"
+#include "common/guihelpers.h"
 
+static GUI::Database* getDatabase()
+{
+    return reinterpret_cast<GUI::Database*>(PyCapsule_Import("LunaExtra.DatabasePtr", 0));
+}
+
+///> loadLayers(filename : string)
 static PyObject* pyLoadLayers(PyObject *self, PyObject *args)
 {
     const char *layerFileName = nullptr;
@@ -18,11 +25,10 @@ static PyObject* pyLoadLayers(PyObject *self, PyObject *args)
             return nullptr;
         }
 
-        auto databasePtr = reinterpret_cast<GUI::Database*>(PyCapsule_Import("LunaExtra.DatabasePtr", 0));
+        auto databasePtr = getDatabase();
         if (databasePtr == nullptr)
         {
-            PyErr_Format(PyExc_RuntimeError, "Unable to access GUI database");
-            return nullptr;
+            return PyErr_Format(PyExc_RuntimeError, "Unable to access GUI database");
         }
 
         std::stringstream buffer;
@@ -30,15 +36,38 @@ static PyObject* pyLoadLayers(PyObject *self, PyObject *args)
 
         if (!databasePtr->m_layerRenderInfoDB.readJson(buffer.str()))
         {
-            PyErr_Format(PyExc_RuntimeError, "Error parsing Layers file '%s'", layerFileName);
-            return nullptr;
+            return PyErr_Format(PyExc_RuntimeError, "Error parsing Layers file '%s'", layerFileName);
         }
         
         Py_RETURN_NONE;
     }
+    
+    return PyErr_Format(PyExc_RuntimeError, "loadLayers requires a filename argument");
+}
 
-    PyErr_Format(PyExc_RuntimeError, "loadLayers requires a filename argument");
-    return nullptr;
+///> addHatch(width : integer, height : integer, pattern : string)
+static PyObject* pyAddHatch(PyObject *self, PyObject *args)
+{
+    auto databasePtr = getDatabase();
+    if (databasePtr == nullptr)
+    {
+        PyErr_Format(PyExc_RuntimeError, "Unable to access GUI database");
+        return nullptr;
+    }
+
+    int width, height;
+    const char *str;
+    if (PyArg_ParseTuple(args, "iis", &width, &height, &str))
+    {
+        auto hatchPixmap = GUI::createPixmapFromString(std::string(str), width, height);
+        if (hatchPixmap.has_value())
+        {
+            databasePtr->m_hatchLib.m_hatches.push_back(*hatchPixmap);
+        }        
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_Format(PyExc_RuntimeError, "Invalid arguments");
 }
 
 /** function to add a type to the Python interpreter */
@@ -62,12 +91,13 @@ static bool incRefAndAddObject(PyObject *module, PyTypeObject *typeObj)
 static PyMethodDef LunaExtraMethods[] =  // NOLINT(modernize-avoid-c-arrays)
 {
     {"loadLayers", pyLoadLayers, METH_VARARGS, "load the layer definitions for the GUI"},
+    {"addHatch", pyAddHatch, METH_VARARGS, "add hatch to the hatch library"},
     {nullptr}
 };
 
 static PyModuleDef LunaExtraModule = {  
     PyModuleDef_HEAD_INIT,              
-    .m_name = "LunaExtra",              // NOLINT(clang-diagnostic-c99-designator)
+    .m_name = "LunaExtra",                  // NOLINT(clang-diagnostic-c99-designator)
     .m_doc = "Interfaces with LunaPNR GUI",
     .m_size = -1,
     .m_methods = LunaExtraMethods

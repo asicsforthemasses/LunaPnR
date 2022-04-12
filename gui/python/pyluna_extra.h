@@ -1,7 +1,7 @@
 #pragma once
 
 #include "lunacore.h"
-#include "../common/database.h"
+#include "common/database.h"
 
 namespace GUI
 {

@@ -29,40 +29,58 @@ int main(int argc, char *argv[])
 
     if (argc<3)
     {
-        std::cerr << "Usage: " << argv[0] << " <luacpp> <output>\n";
+        std::cerr << "Usage: " << argv[0] << " <luacpp1 luacpp2 ..>  <output>\n";
         return EXIT_FAILURE;
     }
 
-    std::ifstream ifile(argv[1]);
-    std::ofstream ofile(argv[2]);
+    std::string outputFileName(argv[argc-1]);    
+    std::ofstream ofile(outputFileName);
 
-    std::cout << "input : " << argv[1] << "\n";
-    std::cout << "output: " << argv[2] << "\n";
+    if (!ofile.good())
+    {
+        std::cerr << "Cannot open file " << outputFileName << "\n";
+        return EXIT_FAILURE;
+    }
+
+    std::cout << "output: " << outputFileName << "\n";
 
     std::stringstream ss;
-
     ss << fileTemplate;
-
-    bool first = true;
+    bool firstItem = true;
     size_t items = 0;
-    for (std::string line; std::getline(ifile, line); ) 
-    {
-        std::smatch sm;
-        if (std::regex_search(line, sm, luaregex))
-        {
-            auto helpStr = sm[1].str();
 
-            std::smatch sm2;
-            if (std::regex_search(helpStr, sm2, cmdregex))
+    for(int arg=1; arg<(argc-1); arg++)
+    {
+        std::string inputFileName(argv[arg]);
+        std::ifstream ifile(inputFileName);
+
+        if (!ifile.good())
+        {
+            std::cerr << "Cannot open file " << inputFileName << "\n";
+            return EXIT_FAILURE;
+        }
+
+        std::cout << "input : " << inputFileName << "\n";    
+        
+        for (std::string line; std::getline(ifile, line); ) 
+        {
+            std::smatch sm;
+            if (std::regex_search(line, sm, luaregex))
             {
-                auto cmdStr = sm2[1];
-                if (!first) 
-                {   
-                    ss << ",";
+                auto helpStr = sm[1].str();
+
+                std::smatch sm2;
+                if (std::regex_search(helpStr, sm2, cmdregex))
+                {
+                    auto cmdStr = sm2[1];
+                    if (!firstItem) 
+                    {   
+                        ss << ",";
+                    }
+                    ss << "{\"" << cmdStr << "\",\"" << helpStr << "\"}\n";
+                    firstItem = false;
+                    items++;
                 }
-                ss << "{\"" << cmdStr << "\",\"" << helpStr << "\"}\n";
-                first = false;
-                items++;
             }
         }
     }
@@ -77,6 +95,5 @@ int main(int argc, char *argv[])
     ofile << txt;
 
     std::cout << "produced " << items << " items\n\n";
-
     return EXIT_SUCCESS;
 }
