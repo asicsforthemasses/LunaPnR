@@ -16,6 +16,8 @@
 #include "types/pynets.h"
 #include "pylunapnr.h"
 
+#include "common/logging.h"
+#include "cellplacer/qlaplacer.h"
 #include "import/verilog/verilogreader.h"
 #include "import/lef/lefreader.h"
 #include "import/liberty/libreader.h"
@@ -158,7 +160,7 @@ static PyObject* pyClear(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-///> create_region(regionname : string, x : integer, y : integer, width : integer, height : integer)
+///> createRegion(regionname : string, x : integer, y : integer, width : integer, height : integer)
 static PyObject* pyCreateRegion(PyObject *self, PyObject *args)
 {
     auto designPtr = getDesign();
@@ -195,13 +197,190 @@ static PyObject* pyCreateRegion(PyObject *self, PyObject *args)
     return PyErr_Format(PyExc_RuntimeError, "Wrong number or type of arguments");
 }
 
+///> createRows(regionname : string, startY : integer, rowHeight : integer, numberOfRows : integer)
+static PyObject* pyCreateRows(PyObject *self, PyObject *args)
+{
+    auto designPtr = getDesign();
+    if (designPtr == nullptr)
+    {
+        return PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
+    }
+
+    if (!designPtr->m_floorplan)
+    {
+        return PyErr_Format(PyExc_RuntimeError, "Unable to access floorplan");
+    }
+
+    // check if the long int has the same range as ChipDB::CoordType
+    // if this fails, we have to change the PyArg_ParseTuple format string
+    static_assert(sizeof(long int) == sizeof(ChipDB::CoordType));
+
+    long int starty,rowHeight,numRows;
+    const char *regionName;
+    if (PyArg_ParseTuple(args, "slll", &regionName, &starty, &rowHeight, &numRows))
+    {        
+        auto region = designPtr->m_floorplan->lookupRegion(regionName);
+        if (!region.isValid())
+        {
+            return PyErr_Format(PyExc_RuntimeError, "Region with name %s does not exists!", regionName);
+        }
+
+        auto placeRect = region->getPlacementRect();
+
+        ChipDB::Coord64 ll = placeRect.m_ll + ChipDB::Coord64{0,starty};
+        ChipDB::Coord64 ur = ll + ChipDB::Coord64{placeRect.width(), rowHeight};
+        size_t skippedRows = 0;
+        for(int i=0; i<numRows; i++)
+        {
+            if (placeRect.contains(ll) && placeRect.contains(ur))
+            {
+                region->m_rows.emplace_back();
+                auto& row = region->m_rows.back();
+
+                row.m_region = region.ptr();
+                row.m_rect = ChipDB::Rect64(ll,ur);
+            }
+            else
+            {
+                skippedRows++;
+            };
+
+            ll += ChipDB::Coord64{0, rowHeight};
+            ur += ChipDB::Coord64{0, rowHeight};
+        }
+
+        designPtr->m_floorplan->contentsChanged();
+
+        // Success!
+        Py_RETURN_NONE;        
+    }
+
+    return PyErr_Format(PyExc_RuntimeError, "Wrong number or type of arguments");
+}
+
+///> place_module(modulename : string, regionname : string)
+static PyObject* pyPlaceModule(PyObject *self, PyObject *args)
+{
+    auto designPtr = getDesign();
+    if (designPtr == nullptr)
+    {
+        return PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
+    }
+
+    if (!designPtr->m_floorplan)
+    {
+        return PyErr_Format(PyExc_RuntimeError, "Unable to access floorplan");
+    }
+
+    if (!designPtr->m_moduleLib)
+    {
+        return PyErr_Format(PyExc_RuntimeError, "Unable to access module library");
+    }
+
+    const char *moduleName;
+    const char *regionName;
+    if (PyArg_ParseTuple(args, "ss", &moduleName, &regionName))
+    {        
+        auto region = designPtr->m_floorplan->lookupRegion(regionName);
+        if (!region.isValid())
+        {
+            return PyErr_Format(PyExc_RuntimeError, "Region with name %s does not exists!", regionName);
+        }
+
+        auto mod = designPtr->m_moduleLib->lookupModule(moduleName);
+        if (!mod.isValid())
+        {
+            return PyErr_Format(PyExc_RuntimeError, "Could not find module with name %s!", moduleName);
+        }
+
+        auto ll = getLogLevel();
+        setLogLevel(LOG_VERBOSE);
+
+        if (!LunaCore::QLAPlacer::place(*region, *mod->m_netlist.get(), nullptr))
+        {
+            return PyErr_Format(PyExc_RuntimeError, "Placement failed!");
+        }
+
+        setLogLevel(ll);
+
+        designPtr->m_floorplan->contentsChanged();
+
+        // Success!
+        Py_RETURN_NONE;        
+    }
+
+    return PyErr_Format(PyExc_RuntimeError, "Wrong number or type of arguments");
+}
+
+///> placeInstance(insname : string, module : string, x : integer, y : integer)
+static PyObject* pyPlaceInstance(PyObject *self, PyObject *args)
+{
+    auto designPtr = getDesign();
+    if (designPtr == nullptr)
+    {
+        return PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
+    }
+
+    if (!designPtr->m_floorplan)
+    {
+        return PyErr_Format(PyExc_RuntimeError, "Unable to access floorplan");
+    }
+
+    if (!designPtr->m_moduleLib)
+    {
+        return PyErr_Format(PyExc_RuntimeError, "Unable to access module library");
+    }
+
+    // check if the long int has the same range as ChipDB::CoordType
+    // if this fails, we have to change the PyArg_ParseTuple format string
+    static_assert(sizeof(long int) == sizeof(ChipDB::CoordType));
+
+    const char *insName;
+    const char *modName;
+    long int x,y;
+    if (PyArg_ParseTuple(args, "ssll", &insName, &modName, &x, &y))
+    {        
+        auto mod = designPtr->m_moduleLib->lookupModule(modName);
+        if (!mod.isValid())
+        {
+            return PyErr_Format(PyExc_RuntimeError, "Could not find module with name %s!", modName);
+        }
+
+        if (!mod->m_netlist)
+        {
+            return PyErr_Format(PyExc_RuntimeError, "Module %s has no instances!", modName);
+        }
+
+        auto ins = mod->m_netlist->lookupInstance(insName);
+        if (!ins.isValid())
+        {
+            return PyErr_Format(PyExc_RuntimeError, "Could not find instance with name %s!", insName);
+        }
+
+        ins->m_pos.m_x = x;
+        ins->m_pos.m_y = y;
+        ins->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
+
+        designPtr->m_floorplan->contentsChanged();
+
+        // Success!
+        Py_RETURN_NONE;
+    }
+
+    return PyErr_Format(PyExc_RuntimeError, "Wrong number or type of arguments");
+}
+
 static PyMethodDef LunaMethods[] =  // NOLINT(modernize-avoid-c-arrays)
 {
     {"clear", pyClear, METH_NOARGS, "clear the design database"},
     {"loadLef", pyLoadLEF, METH_VARARGS, "load LEF file"},
-    {"loadLib", pyLoadLIB, METH_VARARGS, "load LIB file"},
+    {"loadLib", pyLoadLIB, METH_VARARGS, "load Liberty file"},
     {"loadVerilog", pyLoadVerilog, METH_VARARGS, "load verlog netlist file"},
     {"setTopModule", pySetTopModule, METH_VARARGS, "set the top level module"},
+    {"createRegion", pyCreateRegion, METH_VARARGS, "create a region on the floorplan"},
+    {"createRows", pyCreateRows, METH_VARARGS, "create a cell rows in a region"},
+    {"placeModule", pyPlaceModule, METH_VARARGS, "place a module in a region"},
+    {"placeInstance", pyPlaceInstance, METH_VARARGS, "place / set the position of an instance"},
     {nullptr}
 };
 

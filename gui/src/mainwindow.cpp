@@ -126,6 +126,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     );
 
     m_python->executeScript(R"(import sys; print("Python version"); print (sys.version); )");
+    m_python->executeScript(R"(from Luna import *; from LunaExtra import *;)");
 }
 
 MainWindow::~MainWindow()
