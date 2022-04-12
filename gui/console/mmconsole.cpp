@@ -125,6 +125,7 @@ void MMConsole::keyPressEvent(QKeyEvent *e)
             ++m_historyWriteIdx;
             m_historyReadIdx = m_historyWriteIdx;
 
+#if 0
             // if the command does not have any parentheses
             // add '()' at the end to allow parameter-less
             // commands to be entered without additional ().
@@ -133,7 +134,7 @@ void MMConsole::keyPressEvent(QKeyEvent *e)
             {
                 cmd.append("()");
             }
-
+#endif
             emit executeCommand(cmd);
             m_overlay->hide();
         }

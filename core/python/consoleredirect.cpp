@@ -13,14 +13,21 @@ PyObject* Scripting::PyConsoleRedirect::PyStdout::pyWrite(PyObject *self, PyObje
     {
         ssize_t strLen = 0;
         const char *str;
+
+        //static int counter = 0;
+
         if (PyArg_ParseTuple(args, "s#", &str, &strLen))
         {
+            //std::cout << (counter++) << " PyWrite pre\n";
+            //std::cout << "'" << str << "'" << "\n"; 
             pyStdout->writeFunc(str, strLen);
+            //std::cout << "PyWrite post\n";
             Py_RETURN_NONE;
         }
         else
         {
             // FIXME: handle conversion error
+            std::cerr << "Error in pyWrite!\n";
             return nullptr;
         }
     }

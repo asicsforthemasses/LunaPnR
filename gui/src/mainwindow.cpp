@@ -96,10 +96,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_python->setConsoleRedirect(
         [this](const char *txt, ssize_t strLen)
         {
-            if (strLen <= 0)
+            if ((txt == nullptr)  || (strLen <= 0))
             {
                 return;
-            }
+            }            
 
             std::string_view svTxt(txt, strLen);
 
@@ -114,10 +114,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         },
         [this](const char *txt, ssize_t strLen)
         {
-            if (txt == nullptr) 
+            if ((txt == nullptr)  || (strLen <= 0))
             {
                 return;
-            }
+            }            
 
             m_console->print(txt, GUI::MMConsole::PrintType::Error);
         }        
