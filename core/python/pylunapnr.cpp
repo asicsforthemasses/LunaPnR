@@ -197,6 +197,35 @@ static PyObject* pyCreateRegion(PyObject *self, PyObject *args)
     return PyErr_Format(PyExc_RuntimeError, "Wrong number or type of arguments");
 }
 
+///> removeRegion(regionname : string)
+static PyObject* pyRemoveRegion(PyObject *self, PyObject *args)
+{
+    auto designPtr = getDesign();
+    if (designPtr == nullptr)
+    {
+        return PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
+    }
+
+    if (!designPtr->m_floorplan)
+    {
+        return PyErr_Format(PyExc_RuntimeError, "Unable to access floorplan");
+    }
+
+    const char *regionName;
+    if (PyArg_ParseTuple(args, "s", &regionName))
+    {        
+        if (!designPtr->m_floorplan->removeRegion(regionName))
+        {
+            return PyErr_Format(PyExc_RuntimeError, "Could not remove region with name %s", regionName);
+        }
+
+        // Success!
+        Py_RETURN_NONE;        
+    }
+
+    return PyErr_Format(PyExc_RuntimeError, "Wrong number or type of arguments");
+}
+
 ///> createRows(regionname : string, startY : integer, rowHeight : integer, numberOfRows : integer)
 static PyObject* pyCreateRows(PyObject *self, PyObject *args)
 {
@@ -248,6 +277,44 @@ static PyObject* pyCreateRows(PyObject *self, PyObject *args)
             ll += ChipDB::Coord64{0, rowHeight};
             ur += ChipDB::Coord64{0, rowHeight};
         }
+
+        designPtr->m_floorplan->contentsChanged();
+
+        // Success!
+        Py_RETURN_NONE;        
+    }
+
+    return PyErr_Format(PyExc_RuntimeError, "Wrong number or type of arguments");
+}
+
+///> remove_rows(regionname : string)
+static PyObject* pyRemoveRows(PyObject *self, PyObject *args)
+{
+    auto designPtr = getDesign();
+    if (designPtr == nullptr)
+    {
+        return PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
+    }
+
+    if (!designPtr->m_floorplan)
+    {
+        return PyErr_Format(PyExc_RuntimeError, "Unable to access floorplan");
+    }
+
+    // check if the long int has the same range as ChipDB::CoordType
+    // if this fails, we have to change the PyArg_ParseTuple format string
+    static_assert(sizeof(long int) == sizeof(ChipDB::CoordType));
+
+    const char *regionName;
+    if (PyArg_ParseTuple(args, "s", &regionName))
+    {        
+        auto region = designPtr->m_floorplan->lookupRegion(regionName);
+        if (!region.isValid())
+        {
+            return PyErr_Format(PyExc_RuntimeError, "Region with name %s does not exists!", regionName);
+        }
+
+        region->m_rows.clear();
 
         designPtr->m_floorplan->contentsChanged();
 
@@ -378,7 +445,9 @@ static PyMethodDef LunaMethods[] =  // NOLINT(modernize-avoid-c-arrays)
     {"loadVerilog", pyLoadVerilog, METH_VARARGS, "load verlog netlist file"},
     {"setTopModule", pySetTopModule, METH_VARARGS, "set the top level module"},
     {"createRegion", pyCreateRegion, METH_VARARGS, "create a region on the floorplan"},
+    {"removeRegion", pyRemoveRegion, METH_VARARGS, "remove a region from the floorplan"},
     {"createRows", pyCreateRows, METH_VARARGS, "create a cell rows in a region"},
+    {"removeRows", pyRemoveRows, METH_VARARGS, "remove all rows from a region"},
     {"placeModule", pyPlaceModule, METH_VARARGS, "place a module in a region"},
     {"placeInstance", pyPlaceInstance, METH_VARARGS, "place / set the position of an instance"},
     {nullptr}
