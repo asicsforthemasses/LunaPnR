@@ -90,7 +90,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     //m_lua.reset(new GUI::LuaWrapper(m_console, m_db));
     //m_lua->run("print(\"Running \" .. _VERSION)\n");
 
-    m_python = std::make_unique<GUI::Python>(m_db.get());
+    m_python = std::make_unique<GUI::Python>(m_db.get(),
+        m_console);
     
     m_python->init();
 

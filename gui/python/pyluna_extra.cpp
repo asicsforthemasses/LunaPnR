@@ -1,5 +1,6 @@
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -11,6 +12,12 @@ static GUI::Database* getDatabase()
 {
     return reinterpret_cast<GUI::Database*>(PyCapsule_Import("LunaExtra.DatabasePtr", 0));
 }
+
+static GUI::MMConsole* getConsole()
+{
+    return reinterpret_cast<GUI::MMConsole*>(PyCapsule_Import("LunaExtra.ConsolePtr", 0));
+}
+
 
 ///> loadLayers(filename : string)
 static PyObject* pyLoadLayers(PyObject *self, PyObject *args)
@@ -51,8 +58,7 @@ static PyObject* pyAddHatch(PyObject *self, PyObject *args)
     auto databasePtr = getDatabase();
     if (databasePtr == nullptr)
     {
-        PyErr_Format(PyExc_RuntimeError, "Unable to access GUI database");
-        return nullptr;
+        return PyErr_Format(PyExc_RuntimeError, "Unable to access GUI database");
     }
 
     int width, height;
@@ -68,6 +74,59 @@ static PyObject* pyAddHatch(PyObject *self, PyObject *args)
     }
 
     return PyErr_Format(PyExc_RuntimeError, "Invalid arguments");
+}
+
+///> cls()
+static PyObject* pyCls(PyObject *self, PyObject *args)
+{
+    auto consolePtr = getConsole();
+    if (consolePtr == nullptr)
+    {
+        return PyErr_Format(PyExc_RuntimeError, "Unable to access GUI console");
+        return nullptr;
+    }
+
+    consolePtr->clear();
+
+    Py_RETURN_NONE;
+}
+
+///> ls()
+static PyObject* pyLs(PyObject *self, PyObject *args)
+{
+    auto consolePtr = getConsole();
+    if (consolePtr == nullptr)
+    {
+        return PyErr_Format(PyExc_RuntimeError, "Unable to access GUI console");
+        return nullptr;
+    }
+
+    namespace fs = std::filesystem;
+
+    std::stringstream ss;
+    ss << "Directory: " << fs::current_path() << "\n";
+    consolePtr->print(ss.str(), GUI::MMConsole::PrintType::Partial);
+
+    for (const auto &entry : fs::directory_iterator(fs::current_path()))
+    {        
+        ss.str("");
+
+        auto name = entry.path().filename();
+        if (entry.is_directory())
+        {            
+            ss << "[" << name << "]" << "\n";
+        }
+        else
+        {
+            ss << name << "\n";
+        }
+
+        consolePtr->print(ss.str(), GUI::MMConsole::PrintType::Partial);
+    }
+
+    consolePtr->print("", GUI::MMConsole::PrintType::Complete);
+
+    Py_RETURN_NONE;
 }
 
 /** function to add a type to the Python interpreter */
@@ -92,6 +151,8 @@ static PyMethodDef LunaExtraMethods[] =  // NOLINT(modernize-avoid-c-arrays)
 {
     {"loadLayers", pyLoadLayers, METH_VARARGS, "load the layer definitions for the GUI"},
     {"addHatch", pyAddHatch, METH_VARARGS, "add hatch to the hatch library"},
+    {"cls", pyCls, METH_NOARGS, "clear console screen"},
+    {"ls", pyLs, METH_NOARGS, "print current directory entries"},
     {nullptr}
 };
 
@@ -115,7 +176,8 @@ static PyObject* PyInit_LunaExtra()
     return m;
 }
 
-GUI::Python::Python(GUI::Database *db) : Scripting::Python(&db->design()), m_db(db)
+GUI::Python::Python(GUI::Database *db, GUI::MMConsole *console) 
+    : Scripting::Python(&db->design()), m_db(db), m_console(console)
 {
 }
 
@@ -144,7 +206,15 @@ bool GUI::Python::postInitHook()
     {
         std::cout << "PyModule_AddObject failed!\n";
         Py_XDECREF(capsule);
-    }    
+    }
+
+    capsule = PyCapsule_New(m_console, "LunaExtra.ConsolePtr", nullptr);
+    
+    if (PyModule_AddObject(lunaExtraModule, "ConsolePtr", capsule) < 0)
+    {
+        std::cout << "PyModule_AddObject failed!\n";
+        Py_XDECREF(capsule);
+    }
 
     return true;
 }
