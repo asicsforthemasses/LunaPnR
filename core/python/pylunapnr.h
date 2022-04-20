@@ -30,6 +30,7 @@ public:
         std::function<void(const char *, ssize_t)> stderrFunc);
 
 protected:
+    bool            m_initCalled = false;
     ChipDB::Design *m_design;
 };
 

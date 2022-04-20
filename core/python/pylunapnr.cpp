@@ -573,6 +573,11 @@ static PyObject* PyInit_Luna()
 
 void Scripting::Python::init()
 {
+    if (m_initCalled)
+    {
+        return;
+    }
+
     PyImport_AppendInittab("ConsoleRedirect", &PyInit_ConsoleRedirect);
     PyImport_AppendInittab("Luna", &PyInit_Luna);
 
@@ -605,6 +610,8 @@ void Scripting::Python::init()
     }
 
     postInitHook();
+
+    m_initCalled = true;
 }
 
 Scripting::Python::Python(ChipDB::Design *design) : m_design(design)
@@ -619,6 +626,11 @@ Scripting::Python::~Python()
 void Scripting::Python::setConsoleRedirect(std::function<void(const char *, ssize_t)> stdoutFunc,
     std::function<void(const char *, ssize_t)> stderrFunc)
 {
+    if (!m_initCalled)
+    {
+        init();
+    }
+
     auto pyStdout = reinterpret_cast<Scripting::PyConsoleRedirect::PyStdout*>(PySys_GetObject("stdout"));
     if (pyStdout != nullptr)
     {
@@ -634,6 +646,11 @@ void Scripting::Python::setConsoleRedirect(std::function<void(const char *, ssiz
 
 bool Scripting::Python::executeScript(const std::string &code)
 {
+    if (!m_initCalled)
+    {
+        init();
+    }
+
     const int PyResultOK = 0;
     if (PyRun_SimpleString(code.c_str()) == PyResultOK)
     {
