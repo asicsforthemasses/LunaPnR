@@ -19,7 +19,7 @@ add_custom_target(commandcompletion
     ${CMAKE_BINARY_DIR}/tools/doctool ${CMAKE_CURRENT_SOURCE_DIR}/python/pyluna_extra.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../core/python/pylunapnr.cpp ${CMAKE_CURRENT_SOURCE_DIR}/console/commandcompletion.inc
     BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/console/commandcompletion.inc
     VERBATIM
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/luafuncs/luafuncs.cpp
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/python/pyluna_extra.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../core/python/pylunapnr.cpp
     USES_TERMINAL
     )
 

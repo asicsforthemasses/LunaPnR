@@ -1,17 +1,21 @@
+/*  LunaPnR Source Code
+
+    SPDX-License-Identifier: GPL-3.0-only
+    SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
+*/  
+
 #include <cstdlib>
 #include <sstream>
 #include <fstream>
 #include "lunacore.h"
 
-
 int main(int argc, char *argv[])
 {
-    ChipDB::Design design;    
+    ChipDB::Design design;
     Scripting::Python p(&design);
 
     if (argc > 1)
     {
-        //td::fstream ifile(argv[1], std::ios::binary);
         std::fstream ifile(argv[1]);
         if (!ifile.good())
         {

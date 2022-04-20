@@ -1,3 +1,9 @@
+/*  LunaPnR Source Code
+ 
+    SPDX-License-Identifier: GPL-3.0-only
+    SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
+*/
+
 #include <fstream>
 #include <sstream>
 
@@ -18,6 +24,7 @@
 
 #include "common/logging.h"
 #include "cellplacer/qlaplacer.h"
+#include "export/verilog/verilogwriter.h"
 #include "import/verilog/verilogreader.h"
 #include "import/lef/lefreader.h"
 #include "import/liberty/libreader.h"
@@ -120,6 +127,44 @@ static PyObject* pyLoadVerilog(PyObject *self, PyObject *args)
 
     return PyErr_Format(PyExc_RuntimeError, "loadVerilog requires a filename argument");
 }
+
+///> writeVerilog(filename : string)
+static PyObject* pyWriteVerilog(PyObject *self, PyObject *args)
+{
+    const char *VerilogFileName = nullptr;
+    if (PyArg_ParseTuple(args, "s", &VerilogFileName))
+    {
+        std::ofstream Verilogfile(VerilogFileName);
+        if (!Verilogfile.good())
+        {
+            return PyErr_Format(PyExc_FileNotFoundError, "Cannot open file %s for writing", VerilogFileName);
+        }
+
+        auto designPtr = getDesign();
+        if (designPtr == nullptr)
+        {
+            return PyErr_Format(PyExc_RuntimeError, "Unable to access design database");
+        }
+
+        auto mod = designPtr->getTopModule();
+        if (!mod)
+        {
+            return PyErr_Format(PyExc_RuntimeError, "Top module not set");
+        }
+
+        if (LunaCore::Verilog::Writer::write(Verilogfile, mod))
+        {
+            // Success!
+            Py_RETURN_NONE;
+        }
+        
+        // load error
+        return PyErr_Format(PyExc_RuntimeError, "Unable write verilog netlist file %s", VerilogFileName);
+    }    
+
+    return PyErr_Format(PyExc_RuntimeError, "writeVerilog requires a filename argument");
+}
+
 
 ///> setTopModule(module name : string)
 static PyObject* pySetTopModule(PyObject *self, PyObject *args)
@@ -442,7 +487,8 @@ static PyMethodDef LunaMethods[] =  // NOLINT(modernize-avoid-c-arrays)
     {"clear", pyClear, METH_NOARGS, "clear the design database"},
     {"loadLef", pyLoadLEF, METH_VARARGS, "load LEF file"},
     {"loadLib", pyLoadLIB, METH_VARARGS, "load Liberty file"},
-    {"loadVerilog", pyLoadVerilog, METH_VARARGS, "load verlog netlist file"},
+    {"loadVerilog", pyLoadVerilog, METH_VARARGS, "load verolog netlist file"},
+    {"writeVerilog", pyWriteVerilog, METH_VARARGS, "write verilog netlist of top module to a file"},
     {"setTopModule", pySetTopModule, METH_VARARGS, "set the top level module"},
     {"createRegion", pyCreateRegion, METH_VARARGS, "create a region on the floorplan"},
     {"removeRegion", pyRemoveRegion, METH_VARARGS, "remove a region from the floorplan"},
