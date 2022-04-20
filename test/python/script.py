@@ -2,39 +2,44 @@ import unittest
 import Luna
 import sys
 
+def banner(txt : str):
+    print("\n==================================================")
+    print(" ",txt)
+    print("==================================================")
+
 class SimpleTestCases(unittest.TestCase):    
     
     # test the creation of the celllib
     def test_createCellLib(self):
-        print("test createCellLib")
+        banner("test createCellLib")
         cells = Luna.CellLib()
         self.assertTrue(str(cells) == "CellLib")
         print("Luna.CellLib prints as: ", cells)
 
     # test the creation of a cell
     def test_createCell(self):
-        print("test createCell")
+        banner("test createCell")
         myCell = Luna.Cell()
         self.assertTrue(str(myCell) == "Cell")
         print("Luna.Cell prints as: ", myCell)
 
     # test the creation of an instance
     def test_createInstance(self):
-        print("test createInstance")
+        banner("test createInstance")
         myInstance = Luna.Instance()
         self.assertTrue(str(myInstance) == "Instance")
         print("Luna.Instance prints as: ", myInstance)
 
     # test creation of pininfo
     def test_createPinInfo(self):
-        print("test createPinInfo")
+        banner("test createPinInfo")
         pininfo = Luna.PinInfo()
         self.assertTrue(str(pininfo) == "PinInfo")
         print("Luna.PinInfo prints as: ", pininfo)        
 
     # test creation of pininfo
     def test_createNetObject(self):
-        print("test createNetObject")
+        banner("test createNetObject")
         myNet = Luna.Net()
         print("Luna.Net prints as: ", myNet)
         self.assertTrue(str(myNet) == "Net")        
@@ -43,6 +48,7 @@ class IterationTest(unittest.TestCase):
 
     # test celllib and cell pin iteration
     def test_CellAndPinIteration(self):
+        banner("Iteration test")
         Luna.clear()
         cells = Luna.CellLib()
         for c in cells:
@@ -68,17 +74,17 @@ class IterationTest(unittest.TestCase):
 class TestImporters(unittest.TestCase):
     
     def test_LEF(self):
-        print("test LEF import")
+        banner("test LEF import")
         Luna.clear()
         Luna.loadLef("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef")
 
     def test_Lib(self):  
-        print("test Libery import")  
+        banner("test Libery import")  
         Luna.clear()
         Luna.loadLib("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib")
     
     def test_Verilog(self):
-        print("test Verilog import")  
+        banner("test Verilog import")  
         Luna.clear()
         Luna.loadLef("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef")
         Luna.loadLib("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib")
@@ -88,7 +94,7 @@ class TestImporters(unittest.TestCase):
 class CellLibLookupTests(unittest.TestCase):
 
     def test_CellLookups(self):
-        print("test CellLookups")
+        banner("test CellLookups")
         Luna.clear()
         Luna.loadLef("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef")
         Luna.loadLib("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib")
@@ -146,7 +152,7 @@ class CellLibLookupTests(unittest.TestCase):
 class TestNetlistAccess(unittest.TestCase):
 
     def test_(self):
-        print("test NetlistAccess")
+        banner("test NetlistAccess")
         Luna.clear()
         Luna.loadLef("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef")
         Luna.loadLib("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib")
@@ -203,6 +209,24 @@ class TestNetlistAccess(unittest.TestCase):
         fullAdderYCPin = Luna.Instances().getInstance("_26_").getPin("YC")
         self.assertTrue(fullAdderYCPin.getNetKey() == 35)
 
+
+class TestPythonNetlistIteration(unittest.TestCase):
+
+    def test_(self):
+        banner("test Python Netlist Iteration")
+        Luna.clear()
+        Luna.loadLef("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef")
+        Luna.loadLib("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib")
+        Luna.loadVerilog("test/files/verilog/multiplier.v")
+        Luna.setTopModule("multiplier")
+
+        # collect all the instances of type AOI*
+        print("  Found the following AOI cells:")
+        AOI_cells = [ins for ins in Luna.Instances() if ins.archetype.startswith("AOI")]
+        for cell in AOI_cells:
+            print("\t", cell.name)
+
+        self.assertTrue(len(AOI_cells) == 6)
 
 # ==============================================================================================================
 #   MAIN
