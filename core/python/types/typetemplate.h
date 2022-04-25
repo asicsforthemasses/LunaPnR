@@ -11,7 +11,12 @@
 namespace Python
 {
 
-/** non-owning raw pointer holder for use with TypeTemplate. */
+/** Container for use with Python::TypeTemplate to hold C++ data. 
+ *  ValueContainer hold a direct copy of the C++ data.
+ *  Use this when the data should not be modified from within Python.
+ *  I.e. any change Python makes to this data is not reflected back
+ *  to C++.
+*/
 template<typename MyType>
 class ValueContainer
 {
@@ -36,7 +41,11 @@ protected:
     MyType m_value;
 };
 
-/** non-owning raw pointer holder for use with TypeTemplate. */
+/** Container for use with Python::TypeTemplate to hold C++ data. 
+ *  The C++ data represented by a pointer. 
+ *  The Python subsystem does not manage/own the C++ data and will
+ *  not free it when the object gets destroyed.
+*/
 template<typename MyType>
 class RawPointer
 {
@@ -57,6 +66,12 @@ public:
 protected:
     MyType *m_ptr = nullptr;
 };
+
+/** Python::TypeTemplate is a wrapper that holds C++ data. 
+ *  The default ownership of the C++ data is a std::shared_ptr.
+ *  Specify a different TypeHolder to change this behaviour.
+ *  See: Python::RawPointer and Python::ValueContainer
+*/
 
 template<typename MyType, typename TypeHolder = typename std::shared_ptr<MyType> >
 struct TypeTemplate
