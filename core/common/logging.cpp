@@ -12,7 +12,7 @@
 #include <array>
 #include "logging.h"
 
-static uint32_t gs_loglevel = LOG_WARN;
+static Logging::LogType gs_loglevel = Logging::LogType::WARNING;
 
 #if 1
 static const char* FGRED     = "\033[38;5;9m";
@@ -36,22 +36,22 @@ static const char* FGWARN  = "";
 static const char* FGVERB  = "";
 #endif
 
-void setLogLevel(uint32_t level)
+void Logging::setLogLevel(LogType level)
 {
     gs_loglevel = level;
 }
 
-uint32_t getLogLevel()
+Logging::LogType Logging::getLogLevel()
 {
     return gs_loglevel;
 }
 
-void doLog(uint32_t t, const std::string &txt)
+void Logging::doLog(LogType t, const std::string &txt)
 {
-    doLog(t, txt.c_str());
+    Logging::doLog(t, txt.c_str());
 }
 
-void doLog(uint32_t t, const char *format, ...)
+void Logging::doLog(LogType t, const char *format, ...)
 {   
     if (t < gs_loglevel)
     {
@@ -61,21 +61,21 @@ void doLog(uint32_t t, const char *format, ...)
     std::stringstream ss;
     switch(t)
     {
-    case LOG_PRINT:
+    case LogType::PRINT:
         break;
-    case LOG_INFO:
+    case LogType::INFO:
         ss << FGINFO   << "[INFO] ";
         break;
-    case LOG_DEBUG:
+    case LogType::DEBUG:
         ss << FGDEBUG  << "[DBG ] ";
         break;
-    case LOG_WARN: 
+    case LogType::WARNING: 
         ss << FGWARN   << "[WARN] ";
         break;
-    case LOG_ERROR:
+    case LogType::ERROR:
         ss << FGERR    << "[ERR ] ";
         break;
-    case LOG_VERBOSE:
+    case LogType::VERBOSE:
         ss << FGVERB   << "[VERB] ";
         break;
     default:
@@ -92,7 +92,7 @@ void doLog(uint32_t t, const char *format, ...)
     std::cout << ss.str();
 }
 
-void doLog(uint32_t t, const std::stringstream &txt)
+void Logging::doLog(LogType t, const std::stringstream &txt)
 {
     if (t < gs_loglevel)
     {
@@ -102,21 +102,21 @@ void doLog(uint32_t t, const std::stringstream &txt)
     std::stringstream ss;
     switch(t)
     {
-    case LOG_PRINT:
+    case LogType::PRINT:
         break;
-    case LOG_INFO:
+    case LogType::INFO:
         ss << FGINFO   << "[INFO] ";
         break;
-    case LOG_DEBUG:
+    case LogType::DEBUG:
         ss << FGDEBUG  << "[DBG ] ";
         break;
-    case LOG_WARN: 
+    case LogType::WARNING:
         ss << FGWARN   << "[WARN] ";
         break;
-    case LOG_ERROR:
+    case LogType::ERROR:
         ss << FGERR    << "[ERR ] ";
         break;
-    case LOG_VERBOSE:
+    case LogType::VERBOSE:
         ss << FGVERB   << "[VERB] ";
         break;
     default:

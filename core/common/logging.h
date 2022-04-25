@@ -14,19 +14,32 @@
 #define BREAK_HERE raise(SIGINT)
 #endif
 
-typedef enum {LOG_VERBOSE = 1, LOG_DEBUG = 2, LOG_INFO = 3, LOG_WARN = 4, LOG_ERROR = 8, LOG_PRINT = 100} logtype_t;
+namespace Logging
+{
+
+enum class LogType : uint8_t
+{
+    VERBOSE = 1, 
+    DEBUG = 2, 
+    INFO = 3, 
+    WARNING = 4, 
+    ERROR = 8, 
+    PRINT = 100
+};
 
 /** log something using standard C printf format varargs - limit 2049 chars */
-void doLog(uint32_t t, const char *format, ...);
+void doLog(LogType t, const char *format, ...);
 
 /** log something using standard C++ std::string - limit 2049 chars */
-void doLog(uint32_t t, const std::string &txt);
+void doLog(LogType t, const std::string &txt);
 
 /** log something using standard C++ std::stringstream - no limit */
-void doLog(uint32_t t, const std::stringstream &txt);
+void doLog(LogType t, const std::stringstream &txt);
 
 /** set the log level ... */
-void setLogLevel(uint32_t level);
+void setLogLevel(LogType level);
 
 /** get the log level ... */
-uint32_t getLogLevel();
+LogType getLogLevel();
+
+};
