@@ -128,14 +128,7 @@ struct PyNet : public Python::TypeTemplate<PyNetConstIterator>
 
 // cppcheck-suppress "suppressed_error_id"
 static PyMemberDef PyNetMembers[] =    // NOLINT(modernize-avoid-c-arrays)
-{/*
-    {"first", T_OBJECT_EX, offsetof(Noddy, first), nullptr,
-    "first name"},
-    {"last", T_OBJECT_EX, offsetof(Noddy, last), nullptr,
-    "last name"},
-    {"number", T_INT, offsetof(Noddy, number), nullptr,
-    "noddy number"},
-*/
+{
     {nullptr}  /* Sentinel */
 };
 
@@ -147,8 +140,6 @@ static PyGetSetDef PyNetGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
 
 static PyMethodDef PyNetMethods[] =    // NOLINT(modernize-avoid-c-arrays)
 {
-    //{"getPin", (PyCFunction)PyNet::getPin, METH_VARARGS, "get pin by key"},
-    //{"getPinCount", (PyCFunction)PyNet::getPinCount, METH_NOARGS, "get number of pins"},
     {nullptr}  /* Sentinel */
 };
 

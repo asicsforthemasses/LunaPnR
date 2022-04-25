@@ -187,8 +187,6 @@ static PyMemberDef PyNetsMembers[] =    // NOLINT(modernize-avoid-c-arrays)
 
 static PyGetSetDef PyNetsGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
 {
-    //{"name", (getter)PyCell::getName, nullptr, "", nullptr /* closure */},
-    //{"number", (getter)PyCell::getNumber, (setter)PyCell::setNumber, "", nullptr /* closure */},
     {nullptr}
 };
 

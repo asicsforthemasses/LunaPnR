@@ -157,14 +157,7 @@ struct PyCell : public Python::TypeTemplate<ChipDB::Cell>
 
 // cppcheck-suppress "suppressed_error_id"
 static PyMemberDef PyCellMembers[] =    // NOLINT(modernize-avoid-c-arrays)
-{/*
-    {"first", T_OBJECT_EX, offsetof(Noddy, first), nullptr,
-    "first name"},
-    {"last", T_OBJECT_EX, offsetof(Noddy, last), nullptr,
-    "last name"},
-    {"number", T_INT, offsetof(Noddy, number), nullptr,
-    "noddy number"},
-*/
+{
     {nullptr}  /* Sentinel */
 };
 
@@ -183,11 +176,9 @@ static PyGetSetDef PyCellGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
     {nullptr}
 };
 
-//ChipDB::Cell::
 
 static PyMethodDef PyCellMethods[] =    // NOLINT(modernize-avoid-c-arrays)
 {
-//    {"name", (PyCFunction)PyCell::name, METH_NOARGS, "Return the cell name"},
     {nullptr}  /* Sentinel */
 };
 

@@ -42,27 +42,6 @@ struct PyPin : public Python::TypeTemplate<ChipDB::InstanceBase::Pin,
         return nullptr;
     }
 
-#if 0
-    static PyObject* setNetKey(PyPin *self, PyObject *args)
-    {
-        static_assert(sizeof(int) == sizeof(ChipDB::ObjectKey));
-
-        if (self->ok())
-        {
-            if (PyArg_ParseTuple(args, "i", &self->obj()->m_netKey) < 0)
-            {
-                PyErr_Format(PyExc_ValueError, "setNetKey expects an integer");
-                return nullptr;
-            }
-
-            Py_RETURN_NONE;
-        }
-        
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
-        return nullptr;
-    }
-#endif
-
     static PyObject* getPinKey(PyPin *self, PyObject *args)
     {
         if (self->ok())
@@ -73,28 +52,6 @@ struct PyPin : public Python::TypeTemplate<ChipDB::InstanceBase::Pin,
         PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
         return nullptr;        
     }
-
-#if 0
-    static PyObject* setPinKey(PyPin *self, PyObject *args)
-    {
-        static_assert(sizeof(int) == sizeof(ChipDB::ObjectKey));
-
-        if (self->ok())
-        {
-
-            if (PyArg_ParseTuple(args, "i", &self->obj()->m_pinKey) < 0)
-            {
-                PyErr_Format(PyExc_ValueError, "setPinKey expects an integer");
-                return nullptr;
-            }
-
-            Py_RETURN_NONE;
-        }
-        
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
-        return nullptr;
-    }
-#endif
 
     static PyObject* getPinInfo(PyPin *self, PyObject *args)
     {
@@ -140,9 +97,7 @@ static PyGetSetDef PyPinGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
 static PyMethodDef PyPinMethods[] =    // NOLINT(modernize-avoid-c-arrays)
 {
     {"getPinKey", (PyCFunction)PyPin::getPinKey, METH_NOARGS, "Return the access key for the pin"},
-    //{"setPinKey", (PyCFunction)PyPin::setPinKey, METH_VARARGS, "Set the access key for the pin"},
     {"getNetKey", (PyCFunction)PyPin::getNetKey, METH_NOARGS, "Return the access key for the connected net"},
-    //{"setNetKey", (PyCFunction)PyPin::setNetKey, METH_VARARGS, "Set the access key for the connected net"},
     {nullptr}  /* Sentinel */
 };
 

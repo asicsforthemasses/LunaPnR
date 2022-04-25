@@ -224,14 +224,7 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
 
 // cppcheck-suppress "suppressed_error_id"
 static PyMemberDef PyInstanceMembers[] =    // NOLINT(modernize-avoid-c-arrays)
-{/*
-    {"first", T_OBJECT_EX, offsetof(Noddy, first), nullptr,
-    "first name"},
-    {"last", T_OBJECT_EX, offsetof(Noddy, last), nullptr,
-    "last name"},
-    {"number", T_INT, offsetof(Noddy, number), nullptr,
-    "noddy number"},
-*/
+{
     {nullptr}  /* Sentinel */
 };
 

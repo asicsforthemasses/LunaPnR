@@ -186,8 +186,6 @@ static PyMemberDef PyInstancesMembers[] =    // NOLINT(modernize-avoid-c-arrays)
 
 static PyGetSetDef PyInstancesGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
 {
-    //{"name", (getter)PyCell::getName, nullptr, "", nullptr /* closure */},
-    //{"number", (getter)PyCell::getNumber, (setter)PyCell::setNumber, "", nullptr /* closure */},
     {nullptr}
 };
 
