@@ -51,7 +51,7 @@ std::optional<QPixmap> GUI::createPixmapFromString(const std::string &pixels, in
 
     if (pixels.size() < (width*height))
     {
-        //doLog(LOG_ERROR, "Cannot set texture from string: not enough characters\n");
+        //doLog(LogType::ERROR, "Cannot set texture from string: not enough characters\n");
         return std::nullopt;
     }
 

@@ -150,7 +150,7 @@ void NetlistSplitter::removeIfDegenerateNet(PlacerNetId netId)
     {
         std::stringstream ss;
         ss << "Net " << netId << " is degenerate\n";
-        doLog(LOG_VERBOSE, ss);
+        Logging::doLog(Logging::LogType::VERBOSE, ss);
 
         removePreviouslyAddedNode(netId);
 
@@ -161,7 +161,7 @@ void NetlistSplitter::removeIfDegenerateNet(PlacerNetId netId)
     {
         std::stringstream ss;
         ss << "Net " << netId << " is degenerate\n";
-        doLog(LOG_VERBOSE, ss);
+        Logging::doLog(Logging::LogType::VERBOSE, ss);
 
         // remove degenerate net
         m_newNetlist.m_nets.pop_back();

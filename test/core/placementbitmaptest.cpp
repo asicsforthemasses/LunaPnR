@@ -90,13 +90,13 @@ BOOST_AUTO_TEST_CASE(check_createdensitybitmap)
     BOOST_CHECK(bm->width() == 2);
     BOOST_CHECK(bm->height() == 2);
 
-    auto ll = getLogLevel();
-    //setLogLevel(LOG_VERBOSE);
+    auto ll = Logging::getLogLevel();
+    //setLogLevel(LogType::VERBOSE);
 
-    doLog(LOG_VERBOSE, "  bm(0,0) = %f\n", bm->at(0,0));
-    doLog(LOG_VERBOSE, "  bm(0,1) = %f\n", bm->at(0,1));
-    doLog(LOG_VERBOSE, "  bm(1,0) = %f\n", bm->at(1,0));
-    doLog(LOG_VERBOSE, "  bm(1,1) = %f\n", bm->at(1,1));
+    Logging::doLog(Logging::LogType::VERBOSE, "  bm(0,0) = %f\n", bm->at(0,0));
+    Logging::doLog(Logging::LogType::VERBOSE, "  bm(0,1) = %f\n", bm->at(0,1));
+    Logging::doLog(Logging::LogType::VERBOSE, "  bm(1,0) = %f\n", bm->at(1,0));
+    Logging::doLog(Logging::LogType::VERBOSE, "  bm(1,1) = %f\n", bm->at(1,1));
 
     setLogLevel(ll);
 
@@ -126,8 +126,8 @@ BOOST_AUTO_TEST_CASE(check_diffusion)
     auto cell = std::make_shared<ChipDB::Cell>("cell");
     cell->m_size = ChipDB::Coord64{500,500};
 
-    auto ll = getLogLevel();
-    setLogLevel(LOG_VERBOSE);
+    auto ll = Logging::getLogLevel();
+    Logging::setLogLevel(Logging::LogType::VERBOSE);
 
     for(int32_t ox=-1; ox<=1; ox++)
     {
@@ -140,7 +140,7 @@ BOOST_AUTO_TEST_CASE(check_diffusion)
             instance->m_pos  = ChipDB::Coord64{xsize/2 + ox*200 - cell->m_size.m_x/2, ysize/2 + oy*200 - cell->m_size.m_y/2};
             instance->m_placementInfo = ChipDB::PlacementInfo::PLACED;
 
-            doLog(LOG_VERBOSE,"  instance %s at %d,%d\n", ss.str().c_str(), instance->m_pos.m_x, instance->m_pos.m_y);
+            Logging::doLog(Logging::LogType::VERBOSE,"  instance %s at %d,%d\n", ss.str().c_str(), instance->m_pos.m_x, instance->m_pos.m_y);
 
             netlist.m_instances.add(instance);
         }
@@ -167,9 +167,9 @@ BOOST_AUTO_TEST_CASE(check_diffusion)
     BOOST_TEST(bm->at(2,1) == 0.958333, tt::tolerance(0.1));
     BOOST_TEST(bm->at(2,3) == 0.958333, tt::tolerance(0.1));
 
-    doLog(LOG_VERBOSE, "  bm(2,2) = %f\n", bm->at(2,2));
-    doLog(LOG_VERBOSE, "  bm(2,1) = %f\n", bm->at(2,1));
-    doLog(LOG_VERBOSE, "  bm(2,3) = %f\n", bm->at(2,3));
+    Logging::doLog(Logging::LogType::VERBOSE, "  bm(2,2) = %f\n", bm->at(2,2));
+    Logging::doLog(Logging::LogType::VERBOSE, "  bm(2,1) = %f\n", bm->at(2,1));
+    Logging::doLog(Logging::LogType::VERBOSE, "  bm(2,3) = %f\n", bm->at(2,3));
 
     BOOST_CHECK(totalDensity > 25.0f);
     BOOST_CHECK(totalDensity < 26.0f);
@@ -182,12 +182,12 @@ BOOST_AUTO_TEST_CASE(check_diffusion)
     BOOST_TEST((vm.at(2,1).m_dx == 0));
     BOOST_TEST((vm.at(2,1).m_dy < 0));
 
-    doLog(LOG_VERBOSE, "  vm(2,1) = %f,%f\n", vm.at(2,1).m_dx, vm.at(2,1).m_dy);
-    doLog(LOG_VERBOSE, "  vm(2,2) = %f,%f\n", vm.at(2,2).m_dx, vm.at(2,2).m_dy);
-    doLog(LOG_VERBOSE, "  vm(2,3) = %f,%f\n", vm.at(2,3).m_dx, vm.at(2,3).m_dy);
+    Logging::doLog(Logging::LogType::VERBOSE, "  vm(2,1) = %f,%f\n", vm.at(2,1).m_dx, vm.at(2,1).m_dy);
+    Logging::doLog(Logging::LogType::VERBOSE, "  vm(2,2) = %f,%f\n", vm.at(2,2).m_dx, vm.at(2,2).m_dy);
+    Logging::doLog(Logging::LogType::VERBOSE, "  vm(2,3) = %f,%f\n", vm.at(2,3).m_dx, vm.at(2,3).m_dy);
 
-    doLog(LOG_VERBOSE, "  vm(1,2) = %f,%f\n", vm.at(1,2).m_dx, vm.at(1,2).m_dy);
-    doLog(LOG_VERBOSE, "  vm(3,2) = %f,%f\n", vm.at(3,2).m_dx, vm.at(3,2).m_dy);
+    Logging::doLog(Logging::LogType::VERBOSE, "  vm(1,2) = %f,%f\n", vm.at(1,2).m_dx, vm.at(1,2).m_dy);
+    Logging::doLog(Logging::LogType::VERBOSE, "  vm(3,2) = %f,%f\n", vm.at(3,2).m_dx, vm.at(3,2).m_dy);
 
     // check the velocity interpolation
     // due to point symmetry, the velocity in the middle
@@ -210,12 +210,12 @@ BOOST_AUTO_TEST_CASE(check_diffusion)
     BOOST_CHECK(downVelocity.m_dy == (vm.at(2,1).m_dy / 2.0));
 
     // dump the old positions
-    doLog(LOG_VERBOSE, "  Old instance positions: \n");
+    Logging::doLog(Logging::LogType::VERBOSE, "  Old instance positions: \n");
     size_t idx = 0;
     for(auto insKeyObjPair : netlist.m_instances)
     {
         const auto insCenter = insKeyObjPair->getCenter();
-        doLog(LOG_VERBOSE, "    ins %d -> (%d,%d)\n", idx, insCenter.m_x, insCenter.m_y);
+        Logging::doLog(Logging::LogType::VERBOSE, "    ins %d -> (%d,%d)\n", idx, insCenter.m_x, insCenter.m_y);
         idx++;
     }
 
@@ -223,16 +223,16 @@ BOOST_AUTO_TEST_CASE(check_diffusion)
     LunaCore::QPlacer::updateMovableInstances(&netlist, &region, &vm, bitmapCellSize, bitmapCellSize);
 
     // dump the new positions
-    doLog(LOG_VERBOSE, "  New instance positions: \n");
+    Logging::doLog(Logging::LogType::VERBOSE, "  New instance positions: \n");
     idx = 0;
     for(auto insKeyObjPair : netlist.m_instances)
     {
         const auto insCenter = insKeyObjPair->getCenter();
-        doLog(LOG_VERBOSE, "    ins %d -> (%d,%d)\n", idx, insCenter.m_x, insCenter.m_y);
+        Logging::doLog(Logging::LogType::VERBOSE, "    ins %d -> (%d,%d)\n", idx, insCenter.m_x, insCenter.m_y);
         idx++;
     }
 
-    setLogLevel(ll);
+    Logging::setLogLevel(ll);
 }
 
 

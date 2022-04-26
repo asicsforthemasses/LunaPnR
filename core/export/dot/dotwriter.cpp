@@ -34,7 +34,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
 
     if (!m_module->m_netlist)
     {
-        doLog(LOG_ERROR, "Cannot write netlist of a black box");
+        Logging::doLog(Logging::LogType::ERROR, "Cannot write netlist of a black box");
         return false;
     }
 
@@ -91,7 +91,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
             }
             else
             {
-                doLog(LOG_ERROR,"Dot::Writer: pinInfo == nullptr on instance %s %s\n",
+                Logging::doLog(Logging::LogType::ERROR,"Dot::Writer: pinInfo == nullptr on instance %s %s\n",
                     ins->name().c_str(), ins->getArchetypeName().c_str());
                 return false;
             }
@@ -100,7 +100,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
 
         if (driverName.empty())
         {
-            doLog(LOG_WARN,"Dot::Writer: no driver name found for net %s\n", net->name().c_str());
+            Logging::doLog(Logging::LogType::WARNING,"Dot::Writer: no driver name found for net %s\n", net->name().c_str());
         }
 
         // write out all connections from net driver
@@ -154,13 +154,13 @@ bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Instance> mod
 {
     if (modInstance == nullptr)
     {
-        doLog(LOG_ERROR,"Dot::Writer module instance is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Dot::Writer module instance is nullptr\n");
         return false;        
     }
 
     if (!modInstance->isModule())
     {
-        doLog(LOG_ERROR,"Dot::Writer instance is not a module\n");
+        Logging::doLog(Logging::LogType::ERROR,"Dot::Writer instance is not a module\n");
         return false;                
     }
     
@@ -169,7 +169,7 @@ bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Instance> mod
 
     if (module == nullptr)
     {
-        doLog(LOG_ERROR,"Dot::Writer module is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Dot::Writer module is nullptr\n");
         return false;
     }
 
@@ -182,7 +182,7 @@ bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> modul
 {
     if (module == nullptr)
     {
-        doLog(LOG_ERROR,"Dot::Writer module is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Dot::Writer module is nullptr\n");
         return false;
     }
 

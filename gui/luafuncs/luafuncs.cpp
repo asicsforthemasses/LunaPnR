@@ -534,7 +534,7 @@ static int place_module(lua_State *L)
     }
 
     auto ll = getLogLevel();
-    setLogLevel(LOG_VERBOSE);
+    setLogLevel(LogType::VERBOSE);
 
     if (!LunaCore::QLAPlacer::place(*region, *mod->m_netlist.get(), nullptr))
     {

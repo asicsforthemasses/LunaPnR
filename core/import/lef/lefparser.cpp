@@ -93,7 +93,7 @@ float Parser::toMicrons(const std::string &value)
     }
     catch(const std::invalid_argument& ia)
     {        
-        doLog(LOG_ERROR,"Cannot convert %s into a float\n", value.c_str());
+        doLog(LogType::ERROR,"Cannot convert %s into a float\n", value.c_str());
         error(ia.what());
     }
     
@@ -365,7 +365,7 @@ bool Parser::parse(const std::string &lefstring)
         m_curtok = tokenize(m_tokstr);
         if (m_curtok == TOK_ERR)
         {
-            doLog(LOG_ERROR, "LEF parse error, current character = '%c' (0x%02X)\n", peek(), static_cast<uint32_t>(peek()));
+            Logging::doLog(Logging::LogType::ERROR, "LEF parse error, current character = '%c' (0x%02X)\n", peek(), static_cast<uint32_t>(peek()));
             error("");
             return false;
         }
@@ -422,7 +422,7 @@ void Parser::error(const char *errstr) const
 {
     std::stringstream ss;
     ss << "Line " << m_lineNum << " col " << m_col << " : " << errstr << "\n"; 
-    doLog(LOG_ERROR, ss.str());
+    Logging::doLog(Logging::LogType::ERROR, ss.str());
     throw std::runtime_error(ss.str());    
 }
 
@@ -430,7 +430,7 @@ void Parser::error(const std::string &errstr) const
 {
     std::stringstream ss;
     ss << "Line " << m_lineNum << " col " << m_col << " : " << errstr << "\n"; 
-    doLog(LOG_ERROR, ss.str());
+    Logging::doLog(Logging::LogType::ERROR, ss.str());
     throw std::runtime_error(ss.str());
 }
 
@@ -1552,7 +1552,7 @@ bool Parser::parseLayerItem()
     }
     ss << "\n";
 
-    doLog(LOG_INFO, ss.str());
+    Logging::doLog(Logging::LogType::INFO, ss.str());
     if (m_curtok == TOK_EOF)
     {
         error("Unexpected end of file");
@@ -1942,7 +1942,7 @@ bool Parser::parseSiteItem()
     }
     ss << "\n";
 
-    doLog(LOG_INFO, ss.str());
+    Logging::doLog(Logging::LogType::INFO, ss.str());
     if (m_curtok == TOK_EOF)
     {
         error("Unexpected end of file");
@@ -2445,7 +2445,7 @@ bool Parser::parseLayerSpacingTable()
         m_curtok = tokenize(m_tokstr);
     };
 
-    doLog(LOG_VERBOSE, "Skipping SPACINGTABLE in layer\n");
+    Logging::doLog(Logging::LogType::VERBOSE, "Skipping SPACINGTABLE in layer\n");
 
     // when we end up here,
     // we either have a TOK_SEMICOL or TOK_EOF

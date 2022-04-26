@@ -31,31 +31,31 @@ bool Reader::load(Design &design, std::istream &source)
             ReaderImpl parser(design);
             if (parser.execute(tokens))
             {
-                doLog(LOG_INFO,"Verilog netlist parsed.\n");
-                doLog(LOG_INFO,"  modules %d\n", design.m_moduleLib->size());
+                Logging::doLog(Logging::LogType::INFO,"Verilog netlist parsed.\n");
+                Logging::doLog(Logging::LogType::INFO,"  modules %d\n", design.m_moduleLib->size());
                 return true;
             }
         }
         else
         {
-            doLog(LOG_ERROR,"Verilog::Reader failed to load netlist.\n");
+            Logging::doLog(Logging::LogType::ERROR,"Verilog::Reader failed to load netlist.\n");
             return false;
         }
     }
     catch(std::runtime_error &e)
     {
-        doLog(LOG_ERROR,"%s\n", e.what());
+        Logging::doLog(Logging::LogType::ERROR,"%s\n", e.what());
     }
     catch(std::exception const& e)
     {
-        doLog(LOG_ERROR,"Unexpected exception %s\n", e.what());
+        Logging::doLog(Logging::LogType::ERROR,"Unexpected exception %s\n", e.what());
     }
     catch(...)
     {
-        doLog(LOG_ERROR,"Unexpected exception\n");
+        Logging::doLog(Logging::LogType::ERROR,"Unexpected exception\n");
     }
 
-    doLog(LOG_ERROR,"Verilog::Reader failed to load netlist.\n");
+    Logging::doLog(Logging::LogType::ERROR,"Verilog::Reader failed to load netlist.\n");
     return false;
 }
 
@@ -118,7 +118,7 @@ void ReaderImpl::onInstance(const std::string &modName, const std::string &insNa
         {            
             std::stringstream ss;
             ss << "Failed to create instance " << insName << "\n";
-            doLog(LOG_ERROR, ss.str());
+            Logging::doLog(Logging::LogType::ERROR, ss.str());
             return;
         }
 
@@ -135,7 +135,7 @@ void ReaderImpl::onInstance(const std::string &modName, const std::string &insNa
         {
             std::stringstream ss;
             ss << "Failed to create module instance " << insName << "\n";
-            doLog(LOG_ERROR, ss.str());            
+            Logging::doLog(Logging::LogType::ERROR, ss.str());            
         }
 
         m_currentInsKeyObjPair = insKeyObjPair;
@@ -143,7 +143,7 @@ void ReaderImpl::onInstance(const std::string &modName, const std::string &insNa
     }
 
     // neither a cell or a module could found -> error
-    doLog(LOG_ERROR,"Cannot find cell/module '%s' in cell database\n", modName.c_str());
+    Logging::doLog(Logging::LogType::ERROR,"Cannot find cell/module '%s' in cell database\n", modName.c_str());
     return;
 }
 
@@ -223,7 +223,7 @@ void ReaderImpl::onInput(const std::string &netname, uint32_t start, uint32_t st
         m_currentModule->connect(pinInsKeyObjPair.key(), 0, netPtr.key());        
     }
 
-    doLog(LOG_VERBOSE,"Expanded input net %s\n", netname.c_str());
+    Logging::doLog(Logging::LogType::VERBOSE,"Expanded input net %s\n", netname.c_str());
 }
 
 void ReaderImpl::onOutput(const std::string &netname)
@@ -245,7 +245,7 @@ void ReaderImpl::onOutput(const std::string &netname)
     pinInstance->setPinIOType(ChipDB::IOType::INPUT);    // output ports have input pins!
     if (!m_currentModule->connect(pinInsKeyObjPair.key(), 0, netKeyObjPair.key()))
     {
-        doLog(LOG_ERROR,"VerilogReader::ReaderImpl::onOutput: cannot connect to pin Instance!\n");        
+        Logging::doLog(Logging::LogType::ERROR,"VerilogReader::ReaderImpl::onOutput: cannot connect to pin Instance!\n");        
     }
 }
 
@@ -278,11 +278,11 @@ void ReaderImpl::onOutput(const std::string &netname, uint32_t start, uint32_t s
         pinInstance->setPinIOType(ChipDB::IOType::INPUT);    // output ports have input pins!
         if (!m_currentModule->connect(pinInsKeyObjPair.key(), 0, netKeyObjPair.key()))
         {
-            doLog(LOG_ERROR,"VerilogReader::ReaderImpl::onOutput: cannot connect to pin Instance!\n");        
+            Logging::doLog(Logging::LogType::ERROR,"VerilogReader::ReaderImpl::onOutput: cannot connect to pin Instance!\n");        
         }
     }
 
-    doLog(LOG_VERBOSE,"Expanded output net %s\n", netname.c_str());
+    Logging::doLog(Logging::LogType::VERBOSE,"Expanded output net %s\n", netname.c_str());
 }
 
 /** callback for each instance port in the netlist */
@@ -295,13 +295,13 @@ void ReaderImpl::onInstancePort(uint32_t pinIndex, const std::string &netName)
     {
         std::stringstream ss;
         ss << "Cannot find net " << netName << " in module " << m_currentModule->name() << "\n";
-        doLog(LOG_ERROR, ss.str());
+        Logging::doLog(Logging::LogType::ERROR, ss.str());
         return;
     }
 
     if (!m_currentModule->connect(m_currentInsKeyObjPair.key(), pinIndex, netKeyObjPair.key()))
     {
-        doLog(LOG_ERROR,"VerilogReader::ReaderImpl::onInstancePort: cannot connect to instance!\n");
+        Logging::doLog(Logging::LogType::ERROR,"VerilogReader::ReaderImpl::onInstancePort: cannot connect to instance!\n");
     }
 }
 
@@ -314,7 +314,7 @@ void ReaderImpl::onInstanceNamedPort(const std::string &pinName, const std::stri
     auto netKeyObjPair  = m_currentModule->m_netlist->m_nets.at(netName);    
     if (!netKeyObjPair.isValid())
     {
-        doLog(LOG_WARN,"Cannot connect %s:%s to net %s -- net not found\n", m_currentInsKeyObjPair->name().c_str(), 
+        Logging::doLog(Logging::LogType::WARNING,"Cannot connect %s:%s to net %s -- net not found\n", m_currentInsKeyObjPair->name().c_str(), 
             pinName.c_str(), netName.c_str());
         return;
     }
@@ -322,7 +322,7 @@ void ReaderImpl::onInstanceNamedPort(const std::string &pinName, const std::stri
     auto pin = m_currentInsKeyObjPair->getPin(pinName);
     if (!pin.isValid())
     {
-        doLog(LOG_WARN,"Cannot connect %s:%s to net %s -- pin not found\n", m_currentInsKeyObjPair->name().c_str(), 
+        Logging::doLog(Logging::LogType::WARNING,"Cannot connect %s:%s to net %s -- pin not found\n", m_currentInsKeyObjPair->name().c_str(), 
             pinName.c_str(), netName.c_str());
         return;
     }
@@ -344,7 +344,7 @@ void ReaderImpl::onAssign(const std::string &left, const std::string &right)
     auto cellKeyObjPair = m_design.m_cellLib->lookupCell("__NETCON");
     if (!cellKeyObjPair.isValid())
     {
-        doLog(LOG_ERROR,"Verilog reader: cannot find __NETCON cell in cell library\n");
+        Logging::doLog(Logging::LogType::ERROR,"Verilog reader: cannot find __NETCON cell in cell library\n");
         return;
     }
 
@@ -355,7 +355,7 @@ void ReaderImpl::onAssign(const std::string &left, const std::string &right)
     {            
         std::stringstream ss2;
         ss2 << "Verilog reader: failed to create instance " << ss.str() << "\n";
-        doLog(LOG_ERROR, ss2);
+        Logging::doLog(Logging::LogType::ERROR, ss2);
     }
 
     // **********************************************************************
@@ -365,14 +365,14 @@ void ReaderImpl::onAssign(const std::string &left, const std::string &right)
     auto pinY = insPtr->getPin("Y");
     if (!pinY.isValid())
     {
-        doLog(LOG_ERROR,"Verilog reader: __NETCON cell does not have a Y pin.\n");
+        Logging::doLog(Logging::LogType::ERROR,"Verilog reader: __NETCON cell does not have a Y pin.\n");
         return;
     }
 
     auto pinA = insPtr->getPin("A");
     if (!pinA.isValid())
     {
-        doLog(LOG_ERROR,"Verilog reader: __NETCON cell does not have a A pin.\n");
+        Logging::doLog(Logging::LogType::ERROR,"Verilog reader: __NETCON cell does not have a A pin.\n");
         return;
     }
 

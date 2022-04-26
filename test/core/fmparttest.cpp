@@ -357,7 +357,7 @@ BOOST_AUTO_TEST_CASE(can_partition_adder2)
 {
     uint32_t oldLogLevel = getLogLevel();
 
-    setLogLevel(LOG_VERBOSE);
+    setLogLevel(LogType::VERBOSE);
 
     std::cout << "--== FMPart (partitioning ADDER2) test ==--\n";
 
@@ -732,8 +732,8 @@ BOOST_AUTO_TEST_CASE(can_partition_multiplier)
         }
     }
 
-    auto prevLogLevel = getLogLevel();
-    setLogLevel(LOG_VERBOSE);
+    auto prevLogLevel = Logging::getLogLevel();
+    Logging::setLogLevel(Logging::LogType::VERBOSE);
 
     partitioner.doPartitioning(modKeyObjPair->m_netlist.get(), container);
 
@@ -744,7 +744,7 @@ BOOST_AUTO_TEST_CASE(can_partition_multiplier)
         partitioner.exportToDot(dotfile, container);
         dotfile.close();
     }
-    setLogLevel(prevLogLevel);
+    Logging::setLogLevel(prevLogLevel);
 }
 
 
@@ -798,12 +798,12 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv_concise)
         }
     }
 
-    auto prevLogLevel = getLogLevel();
-    setLogLevel(LOG_VERBOSE);
+    auto prevLogLevel = Logging::getLogLevel();
+    Logging::setLogLevel(Logging::LogType::VERBOSE);
 
     if (!partitioner.doPartitioning(modKeyObjPair->m_netlist.get(), container))
     {
-        doLog(LOG_ERROR, "Partitioning failed!\n");
+        Logging::doLog(Logging::LogType::ERROR, "Partitioning failed!\n");
         BOOST_CHECK(false);
     }
 

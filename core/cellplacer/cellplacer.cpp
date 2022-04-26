@@ -50,7 +50,7 @@ void SimpleCellPlacer::place(ChipDB::Netlist *nl, const ChipDB::Rect64 &regionRe
         std::stringstream ss;
         ss << "SimpleCellPlacer: not enough room in region for all instances\n";
         ss << "  need at least " << (curPos.m_y - regionRect.m_ur.m_y) << " nm more height\n";
-        doLog(LOG_ERROR, ss);
+        Logging::doLog(Logging::LogType::ERROR, ss);
     }
 }
 

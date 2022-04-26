@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     QCoreApplication::setOrganizationName("LunaPnR_Org");
     QCoreApplication::setApplicationName("LunaPnR");
 
-    setLogLevel(LOG_INFO);
+    Logging::setLogLevel(Logging::LogType::INFO);
     
     QCommandLineParser parser;
         
@@ -57,23 +57,23 @@ int main(int argc, char *argv[]) {
     if (!localeOptionString.isEmpty())
     {
         localeNameStr = localeOptionString.toStdString();
-        doLog(LOG_INFO,"Using locale %s\n", localeNameStr.c_str());
+        Logging::doLog(Logging::LogType::INFO,"Using locale %s\n", localeNameStr.c_str());
     }
     
     QTranslator lunapnrTranslator;
     auto langResourcePath = QString::asprintf(":/translations/lunapnr.%s.qm", localeNameStr.c_str());
     if (!lunapnrTranslator.load(langResourcePath))
     {
-        doLog(LOG_WARN,"Failed to load translator for locale: %s\n", localeNameStr.c_str());
+        Logging::doLog(Logging::LogType::WARNING,"Failed to load translator for locale: %s\n", localeNameStr.c_str());
     }
 
     if (!app.installTranslator(&lunapnrTranslator))
     {        
-        doLog(LOG_WARN,"Failed to install translator for locale: %s\n", localeNameStr.c_str());
+        Logging::doLog(Logging::LogType::WARNING,"Failed to install translator for locale: %s\n", localeNameStr.c_str());
     }
     else
     {
-        doLog(LOG_INFO,"Loaded translator for locale: %s\n", localeNameStr.c_str());
+        Logging::doLog(Logging::LogType::INFO,"Loaded translator for locale: %s\n", localeNameStr.c_str());
     }
 
     qApp->setStyle("fusion");

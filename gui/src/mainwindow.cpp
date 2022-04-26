@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_techLibDirty   = true;
     m_cellLibDirty   = true;
 
-    setLogLevel(LOG_VERBOSE);
+    Logging::setLogLevel(Logging::LogType::VERBOSE);
 
     //m_menuBar = new QMenuBar();
     //setMenuBar(m_menuBar);
@@ -215,7 +215,7 @@ void MainWindow::saveSettings()
 {
     QSettings settings;
 
-    doLog(LOG_VERBOSE, "Saving settings to %s\n", settings.fileName().toStdString().c_str());
+    Logging::doLog(Logging::LogType::VERBOSE, "Saving settings to %s\n", settings.fileName().toStdString().c_str());
 
     settings.setValue("application/size", size());
 
@@ -232,7 +232,7 @@ void MainWindow::loadSettings()
 {
     QSettings settings;
 
-    doLog(LOG_VERBOSE, "Loading settings from %s\n", settings.fileName().toStdString().c_str());
+    Logging::doLog(Logging::LogType::VERBOSE, "Loading settings from %s\n", settings.fileName().toStdString().c_str());
 
     m_console->setColours(
         QColor(settings.value("console/bkcolour", "#1d1f21").toString()),
@@ -271,14 +271,14 @@ void MainWindow::onImportLEF()
         std::ifstream leffile(fileName.toStdString());
         if (!leffile.good())
         {
-            doLog(LOG_ERROR,"LEF file '%s' cannot be opened for reading\n", fileName.toStdString().c_str());
+            Logging::doLog(Logging::LogType::ERROR,"LEF file '%s' cannot be opened for reading\n", fileName.toStdString().c_str());
             QMessageBox::critical(this, tr("Error"), tr("The LEF file could not be opened for reading"), QMessageBox::Close);
             return;
         }
 
         if (!ChipDB::LEF::Reader::load(m_db->design(), leffile))
         {
-            doLog(LOG_ERROR,"LEF file '%s' contains errors\n", fileName.toStdString().c_str());
+            Logging::doLog(Logging::LogType::ERROR,"LEF file '%s' contains errors\n", fileName.toStdString().c_str());
             QMessageBox::critical(this, tr("Error"), tr("The LEF file contains errors"), QMessageBox::Close);
         }
 
@@ -301,14 +301,14 @@ void MainWindow::onImportLIB()
         std::ifstream libfile(fileName.toStdString());
         if (!libfile.good())
         {
-            doLog(LOG_ERROR,"LIB file '%s' cannot be opened for reading\n", fileName.toStdString().c_str());
+            Logging::doLog(Logging::LogType::ERROR,"LIB file '%s' cannot be opened for reading\n", fileName.toStdString().c_str());
             QMessageBox::critical(this, tr("Error"), tr("The Liberty file could not be opened for reading"), QMessageBox::Close);
             return;
         }
 
         if (!ChipDB::Liberty::Reader::load(m_db->design(), libfile))
         {
-            doLog(LOG_ERROR,"LIB file '%s' contains errors\n", fileName.toStdString().c_str());
+            Logging::doLog(Logging::LogType::ERROR,"LIB file '%s' contains errors\n", fileName.toStdString().c_str());
             QMessageBox::critical(this, tr("Error"), tr("The LIB file contains errors"), QMessageBox::Close);
         }
 
@@ -336,12 +336,12 @@ void MainWindow::onImportLayers()
             if(!m_db->m_layerRenderInfoDB.readJson(buffer.str()))
             {
                 QMessageBox::critical(this, tr("Error"), tr("The Layer setup file contains errors"), QMessageBox::Close);
-                doLog(LOG_ERROR, "Cannot read/parse Layer setup file!\n");
+                Logging::doLog(Logging::LogType::ERROR, "Cannot read/parse Layer setup file!\n");
             }
         }
         else
         {
-            doLog(LOG_ERROR, "Cannot open Layer setup file!\n");
+            Logging::doLog(Logging::LogType::ERROR, "Cannot open Layer setup file!\n");
         }
     }
 
@@ -361,12 +361,12 @@ void MainWindow::onExportLayers()
         if (!ofile.is_open())
         {
             QMessageBox::critical(this, tr("Error"), tr("Cannot save Layer setup file"), QMessageBox::Close);
-            doLog(LOG_ERROR, "Cannot save Layer setup file!\n");
+            Logging::doLog(Logging::LogType::ERROR, "Cannot save Layer setup file!\n");
         }
         else
         {
             ofile << json << "\n";
-            doLog(LOG_VERBOSE, "Layer setup file saved!\n");
+            Logging::doLog(Logging::LogType::VERBOSE, "Layer setup file saved!\n");
         }
     }
 }
@@ -387,13 +387,13 @@ void MainWindow::onLoadVerilog()
             if (!ChipDB::Verilog::Reader::load(m_db->design(), verilogfile))
             {
                 QMessageBox::critical(this, tr("Error"), tr("Could not parse Verilog file"), QMessageBox::Close);
-                doLog(LOG_ERROR, "Cannot read/parse verilog file!\n");
+                Logging::doLog(Logging::LogType::ERROR, "Cannot read/parse verilog file!\n");
             }
         }
         else
         {
             QMessageBox::critical(this, tr("Error"), tr("Could not open Verilog file"), QMessageBox::Close);
-            doLog(LOG_ERROR, "Cannot open verilog file!\n");
+            Logging::doLog(Logging::LogType::ERROR, "Cannot open verilog file!\n");
         }
         m_designBrowser->refreshDatabase();
     }   
@@ -409,7 +409,7 @@ void MainWindow::onConsoleCommand(const QString &cmd)
     }
     else
     {
-        doLog(LOG_ERROR, "Python not available!\n");
+        Logging::doLog(Logging::LogType::ERROR, "Python not available!\n");
     }
 }
 
@@ -426,7 +426,7 @@ void MainWindow::onRunScript()
         std::ifstream pyFile(fileName.toStdString());
         if (!pyFile.good())
         {
-            doLog(LOG_ERROR,"Script file '%s' cannot be opened for reading\n", fileName.toStdString().c_str());
+            Logging::doLog(Logging::LogType::ERROR,"Script file '%s' cannot be opened for reading\n", fileName.toStdString().c_str());
             QMessageBox::critical(this, tr("Error"), tr("The Python script file could not be opened for reading"), QMessageBox::Close);
             return;
         }

@@ -26,11 +26,11 @@ bool LunaCore::QLAPlacer::place(
 
     if (region.m_rows.empty())
     {
-        doLog(LOG_ERROR,"Cannot place: region has now rows\n");
+        Logging::doLog(Logging::LogType::ERROR,"Cannot place: region has now rows\n");
         return false;
     }
 
-    doLog(LOG_INFO, "Placing netlist in rectangle (%d,%d)-(%d,%d).\n",
+    Logging::doLog(Logging::LogType::INFO, "Placing netlist in rectangle (%d,%d)-(%d,%d).\n",
         regionRect.left(), regionRect.bottom(), 
         regionRect.right(), regionRect.top());
 
@@ -44,7 +44,7 @@ bool LunaCore::QLAPlacer::place(
             {
                 std::stringstream ss;
                 ss << "Not all pins have been placed and fixed - for example: " << ins->name() << "\n";
-                doLog(LOG_ERROR, ss);
+                Logging::doLog(Logging::LogType::ERROR, ss);
                 return false;
             }
         }
@@ -58,18 +58,18 @@ bool LunaCore::QLAPlacer::place(
     {
         std::stringstream ss;
         ss << "The region area (" << regionArea << ") is smaller than the total instance area (" << area << ")\n";
-        doLog(LOG_ERROR, ss);
+        Logging::doLog(Logging::LogType::ERROR, ss);
         return false;
     }
 
-    doLog(LOG_INFO, "Utilization = %3.1f percent\n", 100.0* area / static_cast<double>(regionArea));
+    Logging::doLog(Logging::LogType::INFO, "Utilization = %3.1f percent\n", 100.0* area / static_cast<double>(regionArea));
 
     auto placerNetlist = Private::createPlacerNetlist(netlist);
     
     Private::doInitialPlacement(regionRect, placerNetlist);    
     Private::updatePositions(placerNetlist, netlist);
 
-    doLog(LOG_INFO, "Initial HPWL = %lf\n", Private::calcHPWL(placerNetlist));
+    Logging::doLog(Logging::LogType::INFO, "Initial HPWL = %lf\n", Private::calcHPWL(placerNetlist));
 
     double hpwlCost    = std::numeric_limits<double>::max();
     double oldHpwlCost = std::numeric_limits<double>::max();
@@ -85,7 +85,7 @@ bool LunaCore::QLAPlacer::place(
         }
 
         hpwlCost = Private::calcHPWL(placerNetlist);
-        doLog(LOG_INFO,"Iteration %d HPWL %f\n", iterCount, hpwlCost);
+        Logging::doLog(Logging::LogType::INFO,"Iteration %d HPWL %f\n", iterCount, hpwlCost);
 
         if (hpwlCost < oldHpwlCost)
         {
@@ -99,11 +99,11 @@ bool LunaCore::QLAPlacer::place(
         iterCount++;
     } 
 
-    doLog(LOG_VERBOSE, "Running final legalization.\n");
+    Logging::doLog(Logging::LogType::VERBOSE, "Running final legalization.\n");
     LunaCore::Legalizer::legalizeRegion(region, netlist, 800);
 
 
-    doLog(LOG_INFO, "Placement done.\n");
+    Logging::doLog(Logging::LogType::INFO, "Placement done.\n");
 
     return true;
 }

@@ -36,7 +36,7 @@ BOOST_AUTO_TEST_CASE(test_can_read_FemtoRV32_quark)
 
     uint32_t oldLogLevel = getLogLevel();
 
-    setLogLevel(LOG_VERBOSE);
+    setLogLevel(LogType::VERBOSE);
 
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_CHECK(leffile.good());

@@ -131,8 +131,8 @@ BOOST_AUTO_TEST_CASE(check_qla_netlist_generation)
 {
     std::cout << "--== CHECK QLAPLACER NETLIST GEN ==--\n";
 
-    auto ll = getLogLevel();
-    setLogLevel(LOG_VERBOSE);
+    auto ll = Logging::getLogLevel();
+    Logging::setLogLevel(Logging::LogType::VERBOSE);
 
     // create a ChipDB::Netlist of two terminals and
     // a string of 5 instances that connected the terminals.
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE(check_qla_netlist_generation)
     BOOST_CHECK(qlanetlist.m_nets.size() == mod->m_netlist->m_nets.size());
     BOOST_CHECK(qlanetlist.m_nodes.size() == mod->m_netlist->m_instances.size());
 
-    setLogLevel(ll);
+    Logging::setLogLevel(ll);
 }
 
 struct NetlistCallback
@@ -177,8 +177,8 @@ BOOST_AUTO_TEST_CASE(check_qla_netlist_placement)
 {
     std::cout << "--== CHECK QLAPLACER PLACEMENT ==--\n";
 
-    auto ll = getLogLevel();
-    setLogLevel(LOG_VERBOSE);
+    auto ll = Logging::getLogLevel();
+    Logging::setLogLevel(Logging::LogType::VERBOSE);
 
     // create a ChipDB::Netlist of two terminals and
     // a string of 5 instances that connected the terminals.
@@ -228,8 +228,7 @@ BOOST_AUTO_TEST_CASE(check_qla_netlist_placement)
         BOOST_CHECK(placed);
     }
 
-
-    setLogLevel(ll);
+    Logging::setLogLevel(ll);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

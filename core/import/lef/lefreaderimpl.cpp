@@ -36,12 +36,12 @@ void ReaderImpl::onMacro(const std::string &macroName)
     {
         std::stringstream ss;
         ss << "Cannot create LEF MACRO " << macroName << " - perhaps it already exists?\n";
-        doLog(LOG_ERROR, ss.str());
+        Logging::doLog(Logging::LogType::ERROR, ss.str());
         m_curCell = nullptr;
     }
     else
     {
-        doLog(LOG_VERBOSE,"LEF MACRO: %s\n", macroName.c_str());
+        Logging::doLog(Logging::LogType::VERBOSE,"LEF MACRO: %s\n", macroName.c_str());
         m_curCell = newCellKeyObj.ptr();
     }
 }
@@ -357,7 +357,7 @@ void ReaderImpl::onRect(int64_t x1, int64_t y1, int64_t x2, int64_t y2)
             }
             else
             {
-                doLog(LOG_ERROR,"LEF::Reader pin layout not found for pin %s\n", m_curPinInfo->m_name.c_str());
+                Logging::doLog(Logging::LogType::ERROR,"LEF::Reader pin layout not found for pin %s\n", m_curPinInfo->m_name.c_str());
             }
         }
         break;
@@ -417,7 +417,7 @@ void ReaderImpl::onObstructionLayer(const std::string &layerName)
 
 void ReaderImpl::onLayer(const std::string &layerName)
 {
-    doLog(LOG_VERBOSE,"LEF LAYER: %s\n", layerName.c_str());
+    Logging::doLog(Logging::LogType::VERBOSE,"LEF LAYER: %s\n", layerName.c_str());
 
     auto layerKeyObjPair = m_design.m_techLib->createLayer(layerName);
 
@@ -435,7 +435,7 @@ void ReaderImpl::onLayerType(const std::string &layerType)
 {
     if (!m_curLayerInfo)
     {
-        doLog(LOG_ERROR,"Layer is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Layer is nullptr\n");
         return;
     }
 
@@ -461,7 +461,7 @@ void ReaderImpl::onLayerType(const std::string &layerType)
 
     m_curLayerInfo->m_type = LAYER_UNDEFINED;
 
-    doLog(LOG_WARN, "Unknown layer type in LEF file: %s\n", layerType.c_str());
+    Logging::doLog(Logging::LogType::WARNING, "Unknown layer type in LEF file: %s\n", layerType.c_str());
 }
 
 void ReaderImpl::onPinUse(const std::string &use)
@@ -478,7 +478,7 @@ void ReaderImpl::onLayerPitch(int64_t pitchx, int64_t pitchy)
 {
     if (!m_curLayerInfo)
     {
-        doLog(LOG_ERROR,"Layer is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Layer is nullptr\n");
         return;
     }
 
@@ -489,7 +489,7 @@ void ReaderImpl::onLayerSpacing(int64_t spacing)
 {
     if (!m_curLayerInfo)
     {
-        doLog(LOG_ERROR,"Layer is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Layer is nullptr\n");
         return;
     }
 
@@ -501,7 +501,7 @@ void ReaderImpl::onLayerSpacingRange(int64_t value1, int64_t value2)
 {
     if (!m_curLayerInfo)
     {
-        doLog(LOG_ERROR,"Layer is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Layer is nullptr\n");
         return;
     }
 
@@ -512,7 +512,7 @@ void ReaderImpl::onLayerOffset(int64_t offsetx, int64_t offsety)
 {
     if (!m_curLayerInfo)
     {
-        doLog(LOG_ERROR,"Layer is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Layer is nullptr\n");
         return;
     }
 
@@ -523,7 +523,7 @@ void ReaderImpl::onLayerDirection(const std::string &direction)
 {
     if (!m_curLayerInfo)
     {
-        doLog(LOG_ERROR,"Layer is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Layer is nullptr\n");
         return;
     }
 
@@ -537,7 +537,7 @@ void ReaderImpl::onLayerDirection(const std::string &direction)
     }
     else
     {
-        doLog(LOG_WARN,"Layer direction undefined - got %s\n", direction.c_str());
+        Logging::doLog(Logging::LogType::WARNING,"Layer direction undefined - got %s\n", direction.c_str());
         m_curLayerInfo->m_dir = LAYERDIR_UNDEFINED;
     }
     
@@ -548,7 +548,7 @@ void ReaderImpl::onLayerWidth(int64_t width)
 {
     if (!m_curLayerInfo)
     {
-        doLog(LOG_ERROR,"Layer is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Layer is nullptr\n");
         return;
     }
 
@@ -559,7 +559,7 @@ void ReaderImpl::onLayerMaxWidth(int64_t maxWidth)
 {
     if (!m_curLayerInfo)
     {
-        doLog(LOG_ERROR,"Layer is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Layer is nullptr\n");
         return;
     }
 
@@ -576,7 +576,7 @@ void ReaderImpl::onLayerResistancePerSq(double ohms)
 {
     if (!m_curLayerInfo)
     {
-        doLog(LOG_ERROR,"Layer is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Layer is nullptr\n");
         return;
     }
 
@@ -587,7 +587,7 @@ void ReaderImpl::onLayerCapacitancePerSq(double farads)
 {
     if (!m_curLayerInfo)
     {
-        doLog(LOG_ERROR,"Layer is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Layer is nullptr\n");
         return;
     }
 
@@ -598,7 +598,7 @@ void ReaderImpl::onLayerEdgeCapacitance(double farads)
 {
     if (!m_curLayerInfo)
     {
-        doLog(LOG_ERROR,"Layer is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Layer is nullptr\n");
         return;
     }
 
@@ -609,7 +609,7 @@ void ReaderImpl::onLayerThickness(double thickness)
 {
     if (!m_curLayerInfo)
     {
-        doLog(LOG_ERROR,"Layer is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Layer is nullptr\n");
         return;
     }
 
@@ -620,7 +620,7 @@ void ReaderImpl::onLayerMinArea(double minArea)
 {
     if (m_curLayerInfo == nullptr)
     {
-        doLog(LOG_ERROR,"Layer is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Layer is nullptr\n");
         return;
     }
 
@@ -631,14 +631,14 @@ void ReaderImpl::onSite(const std::string &site)
 {
     auto siteKeyObjPair = m_design.m_techLib->createSiteInfo(site);
     m_curSiteInfo = siteKeyObjPair.ptr();
-    doLog(LOG_VERBOSE,"LEF SITE: %s\n", site.c_str());
+    Logging::doLog(Logging::LogType::VERBOSE,"LEF SITE: %s\n", site.c_str());
 }
 
 void ReaderImpl::onEndSite(const std::string &site)
 {
     if (!m_curSiteInfo)
     {
-        doLog(LOG_ERROR,"Site is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Site is nullptr\n");
         return;
     }
 
@@ -649,7 +649,7 @@ void ReaderImpl::onSiteSize(int64_t x, int64_t y)
 {
     if (!m_curSiteInfo)
     {
-        doLog(LOG_ERROR,"Site is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Site is nullptr\n");
         return;
     }
 
@@ -661,7 +661,7 @@ void ReaderImpl::onSiteSymmetry(const SymmetryFlags &symmetry)
 {
     if (!m_curSiteInfo)
     {
-        doLog(LOG_ERROR,"Site is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Site is nullptr\n");
         return;
     }
 
@@ -673,7 +673,7 @@ void ReaderImpl::onSiteClass(const std::string &siteClass)
 {
     if (!m_curSiteInfo)
     {
-        doLog(LOG_ERROR,"Site is nullptr\n");
+        Logging::doLog(Logging::LogType::ERROR,"Site is nullptr\n");
         return;
     }
 
@@ -689,6 +689,6 @@ void ReaderImpl::onSiteClass(const std::string &siteClass)
     {
         std::stringstream ss;
         ss << "Unrecognised site class '" << siteClass << "'in LEF\n";
-        doLog(LOG_WARN, ss);
+        Logging::doLog(Logging::LogType::WARNING, ss);
     }
 }

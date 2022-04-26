@@ -34,8 +34,8 @@ BOOST_AUTO_TEST_CASE(check_netlist_splitter)
 {
     std::cout << "--== CHECK NETLIST SPLITTER ==--\n";
 
-    auto ll = getLogLevel();
-    setLogLevel(LOG_VERBOSE);
+    auto ll = Logging::getLogLevel();
+    Logging::setLogLevel(Logging::LogType::VERBOSE);
 
     // use the analytical placer to 
     // place a string of cells
@@ -117,7 +117,7 @@ BOOST_AUTO_TEST_CASE(check_netlist_splitter)
 
         auto const& node = netlist.m_nodes.at(idx);
 
-        doLog(LOG_VERBOSE,"  Node %d placed at %lu,%lu\n",idx, node.left(), node.bottom());
+        Logging::doLog(Logging::LogType::VERBOSE,"  Node %d placed at %lu,%lu\n",idx, node.left(), node.bottom());
     }
 
     // split the netlist based on the vertical position
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(check_netlist_splitter)
         netlist, selector
     );
 
-    doLog(LOG_VERBOSE, "Netlist after selection:\n");
+    Logging::doLog(Logging::LogType::VERBOSE, "Netlist after selection:\n");
     splitNetlist.dump(std::cout);
 
     BOOST_CHECK(splitNetlist.numberOfNets() == 2);
@@ -172,8 +172,8 @@ BOOST_AUTO_TEST_CASE(check_netlist_splitter_with_external_nodes)
 {
     std::cout << "--== CHECK NETLIST SPLITTER WITH EXTERNAL NODES ==--\n";
 
-    auto ll = getLogLevel();
-    setLogLevel(LOG_VERBOSE);
+    auto ll = Logging::getLogLevel();
+    Logging::setLogLevel(Logging::LogType::VERBOSE);
 
     // use the analytical placer to 
     // place a string of cells
@@ -255,7 +255,7 @@ BOOST_AUTO_TEST_CASE(check_netlist_splitter_with_external_nodes)
 
         auto const& node = netlist.m_nodes.at(idx);
 
-        doLog(LOG_VERBOSE,"  Node %d placed at %lu,%lu\n",idx, node.left(), node.bottom());
+        Logging::doLog(Logging::LogType::VERBOSE,"  Node %d placed at %lu,%lu\n",idx, node.left(), node.bottom());
     }
 
     // split the netlist based on the vertical position
@@ -288,7 +288,7 @@ BOOST_AUTO_TEST_CASE(check_netlist_splitter_with_external_nodes)
     BOOST_CHECK(externalNodeHandler.m_externalNodesOnNetCount.at(1) == 0);
     BOOST_CHECK(externalNodeHandler.m_externalNodesOnNetCount.at(2) == 1);
 
-    setLogLevel(ll);
+    Logging::setLogLevel(ll);
 }
 
 

@@ -178,8 +178,8 @@ std::vector<bool> selectNodesByCenterOfMassPosition(const PlacerNetlist &netlist
         idx++;
     }
 
-    doLog(LOG_VERBOSE,"  Center of mass found at position %s=%lu\n", AxisAccessor::m_name, AxisAccessor::get(nodes.at(sortedNodesIdx.at(idx)).getCenterPos()));
-    doLog(LOG_VERBOSE,"  Number of nodes returned: %lu of %lu\n", idx, netlist.m_nodes.size());
+    Logging::doLog(Logging::LogType::VERBOSE,"  Center of mass found at position %s=%lu\n", AxisAccessor::m_name, AxisAccessor::get(nodes.at(sortedNodesIdx.at(idx)).getCenterPos()));
+    Logging::doLog(Logging::LogType::VERBOSE,"  Number of nodes returned: %lu of %lu\n", idx, netlist.m_nodes.size());
 
     // create the selection vector
     std::vector<bool> selectedNodes(netlist.m_nodes.size(), false);

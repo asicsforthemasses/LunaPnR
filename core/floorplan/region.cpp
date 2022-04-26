@@ -45,7 +45,7 @@ std::shared_ptr<ChipDB::Region> ChipDB::createRegion(
     region->m_rows.resize(rowCount);
     region->m_rect.setSize({rowWidth, (rowCount-1)*effectiveRowHeight + rowHeight});
 
-    doLog(LOG_VERBOSE, "createRegion: %ld x %ld - #rows %ld\n", region->m_rect.width(), region->m_rect.height(),
+    Logging::doLog(Logging::LogType::VERBOSE, "createRegion: %ld x %ld - #rows %ld\n", region->m_rect.width(), region->m_rect.height(),
         rowCount);
 
     // create rows inside region

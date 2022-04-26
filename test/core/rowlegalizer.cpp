@@ -18,6 +18,8 @@
 #include <algorithm>
 #include <boost/test/unit_test.hpp>
 
+using namespace Logging;
+
 BOOST_AUTO_TEST_SUITE(RowLegalizerTest)
 
 BOOST_AUTO_TEST_CASE(check_legal_positions)
@@ -80,12 +82,12 @@ BOOST_AUTO_TEST_CASE(check_legal_positions)
     {
         std::stringstream ss;
         ss << "Cell " << idx << "  start pos: " << cell.m_globalPos << "  legal pos: " << cell.m_legalPos << "\n";
-        doLog(LOG_INFO, ss);
+        doLog(LogType::INFO, ss);
         idx++;
     }
 
     auto cost = calcRowCost(cells, row);
-    doLog(LOG_INFO, "Placement cost: %lf\n", cost);
+    doLog(LogType::INFO, "Placement cost: %lf\n", cost);
 
     BOOST_TEST(cost == 25100.0);
     BOOST_CHECK((cells.at(0).m_legalPos == ChipDB::Coord64{9800,0}));

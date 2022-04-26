@@ -405,15 +405,15 @@ static PyObject* pyPlaceModule(PyObject *self, PyObject *args)
             return PyErr_Format(PyExc_RuntimeError, "Could not find module with name %s!", moduleName);
         }
 
-        auto ll = getLogLevel();
-        setLogLevel(LOG_VERBOSE);
+        auto ll = Logging::getLogLevel();
+        Logging::setLogLevel(Logging::LogType::VERBOSE);
 
         if (!LunaCore::QLAPlacer::place(*region, *mod->m_netlist.get(), nullptr))
         {
             return PyErr_Format(PyExc_RuntimeError, "Placement failed!");
         }
 
-        setLogLevel(ll);
+        Logging::setLogLevel(ll);
 
         designPtr->m_floorplan->contentsChanged();
 

@@ -14,7 +14,7 @@ bool LunaCore::DEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Module
 
     if (!mod->m_netlist)
     {
-        doLog(LOG_WARN, "DEF writer: module %s has no netlist\n", mod->name().c_str());
+        Logging::doLog(Logging::LogType::WARNING, "DEF writer: module %s has no netlist\n", mod->name().c_str());
         return false;
     }
 
@@ -23,7 +23,7 @@ bool LunaCore::DEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Module
     {
         if (!writer->write(ins.ptr()))
         {
-            doLog(LOG_ERROR,"DEF writer: failed to write file\n");
+            Logging::doLog(Logging::LogType::ERROR,"DEF writer: failed to write file\n");
             return false;
         }
     }
@@ -45,7 +45,7 @@ LunaCore::DEF::Private::WriterImpl::~WriterImpl()
 
     m_os << "END COMPONENTS\n";
     m_os << "END DESIGN\n";
-    doLog(LOG_VERBOSE, "DEF writer: exported %lu components\n", m_cellCount);
+    Logging::doLog(Logging::LogType::VERBOSE, "DEF writer: exported %lu components\n", m_cellCount);
 }
 
 
@@ -57,8 +57,8 @@ ChipDB::Coord64 LunaCore::DEF::Private::WriterImpl::toDEFCoordinates(const ChipD
     int64_t dbunits = m_databaseUnits;
     if (m_databaseUnits == 0)
     {
-        doLog(LOG_WARN, "DEF database units not set! does your imported LEF file specify it?\n");
-        doLog(LOG_WARN, "  Assuming the value is 100.0\n");
+        Logging::doLog(Logging::LogType::WARNING, "DEF database units not set! does your imported LEF file specify it?\n");
+        Logging::doLog(Logging::LogType::WARNING, "  Assuming the value is 100.0\n");
         dbunits = 100;
     }
 
@@ -117,7 +117,7 @@ bool LunaCore::DEF::Private::WriterImpl::write(const std::shared_ptr<ChipDB::Ins
             m_ss << " FN" << " ;\n";
             break;
         default:
-            doLog(LOG_WARN, "  defwriter: orientation %d not supported\n", static_cast<uint32_t>(instance->m_orientation));
+            Logging::doLog(Logging::LogType::WARNING, "  defwriter: orientation %d not supported\n", static_cast<uint32_t>(instance->m_orientation));
             break;
         }
 

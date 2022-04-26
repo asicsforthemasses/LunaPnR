@@ -79,12 +79,12 @@ bool LunaCore::QLAPlacer::Private::updatePositions(const LunaCore::QPlacer::Plac
 {
     if (nl.m_instances.size() != netlist.m_nodes.size())
     {
-        doLog(LOG_ERROR,"updatePositions: netlist mismatch!\n");
+        Logging::doLog(Logging::LogType::ERROR,"updatePositions: netlist mismatch!\n");
         return false;
     }
 
     //NOTE: this assumes the node order has not changed..
-    doLog(LOG_VERBOSE,"Updating instance positions: \n");
+    Logging::doLog(Logging::LogType::VERBOSE,"Updating instance positions: \n");
     LunaCore::QPlacer::PlacerNodeId nodeIdx = 0;
     for(auto ins : nl.m_instances)
     {
@@ -93,7 +93,7 @@ bool LunaCore::QLAPlacer::Private::updatePositions(const LunaCore::QPlacer::Plac
             auto const& node = netlist.m_nodes.at(nodeIdx);
             ins->m_pos = node.getLLPos();
             ins->m_placementInfo = ChipDB::PlacementInfo::PLACED;
-            doLog(LOG_VERBOSE,"  ins: %s -> %d,%d\n", ins->name().c_str(), ins->m_pos.m_x, ins->m_pos.m_y);
+            Logging::doLog(Logging::LogType::VERBOSE,"  ins: %s -> %d,%d\n", ins->name().c_str(), ins->m_pos.m_x, ins->m_pos.m_y);
         }
         nodeIdx++;
     }   
@@ -132,7 +132,7 @@ LunaCore::QPlacer::PlacerNetlist LunaCore::QLAPlacer::Private::createPlacerNetli
         auto& placerNet = netlist.getNet(placerNetId);
         placerNet.m_weight = 1.0;
 
-        doLog(LOG_VERBOSE, "NetId %d - Net name %s\n", netIdx, net->name().c_str());
+        Logging::doLog(Logging::LogType::VERBOSE, "NetId %d - Net name %s\n", netIdx, net->name().c_str());
 
         for(auto conn : *net.ptr())
         {
@@ -146,7 +146,7 @@ LunaCore::QPlacer::PlacerNetlist LunaCore::QLAPlacer::Private::createPlacerNetli
 
             if (iter == ins2nodeId.end())
             {
-                doLog(LOG_ERROR, "createPlacerNetlist: cannot find node\n");
+                Logging::doLog(Logging::LogType::ERROR, "createPlacerNetlist: cannot find node\n");
                 return LunaCore::QPlacer::PlacerNetlist();
             }
 
@@ -160,7 +160,7 @@ LunaCore::QPlacer::PlacerNetlist LunaCore::QLAPlacer::Private::createPlacerNetli
                 placerNet.m_weight = 1;
             }
 
-            doLog(LOG_VERBOSE, "  NodeId %d %s\n", placerNodeId, ins->name().c_str());
+            Logging::doLog(Logging::LogType::VERBOSE, "  NodeId %d %s\n", placerNodeId, ins->name().c_str());
         }    
 
         netIdx++;    
@@ -208,7 +208,7 @@ void updateWeights(
 
             //if (node2Id == 20)
             //{
-            //    doLog(LOG_VERBOSE,"Node20: axis=%s anchor pos=%d w=%f (fixed -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node1.getCenterPos()), fixedWeight, node1Id);
+            //    doLog(LogType::VERBOSE,"Node20: axis=%s anchor pos=%d w=%f (fixed -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node1.getCenterPos()), fixedWeight, node1Id);
             //}
         }
         else
@@ -218,7 +218,7 @@ void updateWeights(
 
             //if (node1Id == 20)
             //{
-            //    doLog(LOG_VERBOSE,"Node20: axis=%s anchor pos=%d w=%f (fixed -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node2.getCenterPos()), fixedWeight, node2Id);
+            //    doLog(LogType::VERBOSE,"Node20: axis=%s anchor pos=%d w=%f (fixed -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node2.getCenterPos()), fixedWeight, node2Id);
             //}            
         }
     }
@@ -232,11 +232,11 @@ void updateWeights(
 
         //if (node1Id == 20)
         //{
-        //    doLog(LOG_VERBOSE,"Node20: axis=%s dst pos=%d w=%f (movable -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node2.getCenterPos()), fixedWeight, node2Id);
+        //    doLog(LogType::VERBOSE,"Node20: axis=%s dst pos=%d w=%f (movable -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node2.getCenterPos()), fixedWeight, node2Id);
         //}            
         //if (node2Id == 20)
         //{
-        //    doLog(LOG_VERBOSE,"Node20: axis=%s dst pos=%d w=%f (movable -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node1.getCenterPos()), fixedWeight, node1Id);
+        //    doLog(LogType::VERBOSE,"Node20: axis=%s dst pos=%d w=%f (movable -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node1.getCenterPos()), fixedWeight, node1Id);
         //}
     }
 
@@ -300,7 +300,7 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
 
     size_t degenerateNets = 0;
 
-    doLog(LOG_INFO, "Building solver matrices\n");
+    Logging::doLog(Logging::LogType::INFO, "Building solver matrices\n");
 
     LunaCore::QLAPlacer::Private::SolverData XSolverData;
     LunaCore::QLAPlacer::Private::SolverData YSolverData;
@@ -316,7 +316,7 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
     ssize_t netIdx = 0;
     for(auto const& net : netlist.m_nets)
     {
-        //doLog(LOG_VERBOSE,"Net %d:\n", netIdx);
+        //doLog(LogType::VERBOSE,"Net %d:\n", netIdx);
         if (net.m_nodes.size() == 2)
         {
             updateWeights<ChipDB::XAxisAccessor>(XSolverData, 
@@ -338,18 +338,18 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
 #if 0
             if (netIdx == 55)
             {
-                doLog(LOG_VERBOSE, "xmin: %d nodeIdx %d\n", xResult.m_min, xResult.m_minNodeIdx);
-                doLog(LOG_VERBOSE, "xmax: %d nodeIdx %d\n", xResult.m_max, xResult.m_maxNodeIdx);
-                doLog(LOG_VERBOSE, "ymin: %d nodeIdx %d\n", yResult.m_min, yResult.m_minNodeIdx);
-                doLog(LOG_VERBOSE, "ymax: %d nodeIdx %d\n", yResult.m_max, yResult.m_maxNodeIdx);
+                doLog(LogType::VERBOSE, "xmin: %d nodeIdx %d\n", xResult.m_min, xResult.m_minNodeIdx);
+                doLog(LogType::VERBOSE, "xmax: %d nodeIdx %d\n", xResult.m_max, xResult.m_maxNodeIdx);
+                doLog(LogType::VERBOSE, "ymin: %d nodeIdx %d\n", yResult.m_min, yResult.m_minNodeIdx);
+                doLog(LogType::VERBOSE, "ymax: %d nodeIdx %d\n", yResult.m_max, yResult.m_maxNodeIdx);
             }
 #endif
 
 #if 0
-            doLog(LOG_VERBOSE, "xmin: %d nodeIdx %d\n", xResult.m_min, xResult.m_minNodeIdx);
-            doLog(LOG_VERBOSE, "xmax: %d nodeIdx %d\n", xResult.m_max, xResult.m_maxNodeIdx);
-            doLog(LOG_VERBOSE, "ymin: %d nodeIdx %d\n", yResult.m_min, yResult.m_minNodeIdx);
-            doLog(LOG_VERBOSE, "ymax: %d nodeIdx %d\n", yResult.m_max, yResult.m_maxNodeIdx);
+            doLog(LogType::VERBOSE, "xmin: %d nodeIdx %d\n", xResult.m_min, xResult.m_minNodeIdx);
+            doLog(LogType::VERBOSE, "xmax: %d nodeIdx %d\n", xResult.m_max, xResult.m_maxNodeIdx);
+            doLog(LogType::VERBOSE, "ymin: %d nodeIdx %d\n", yResult.m_min, yResult.m_minNodeIdx);
+            doLog(LogType::VERBOSE, "ymax: %d nodeIdx %d\n", yResult.m_max, yResult.m_maxNodeIdx);
 #endif
             // connect the extreme nodes together
             updateWeights<ChipDB::XAxisAccessor>(XSolverData,
@@ -400,7 +400,7 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
         netIdx++;
     }
 
-    doLog(LOG_VERBOSE,"  Number of degenerate nets: %ld\n", degenerateNets);
+    Logging::doLog(Logging::LogType::VERBOSE,"  Number of degenerate nets: %ld\n", degenerateNets);
 
 #if 1
     std::stringstream ss;
@@ -426,12 +426,12 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
     ss << "Y Bvec: \n" << YSolverData.m_Bvec << "\n";
 
 /*
-    doLog(LOG_VERBOSE,"  Solver matrices: \n");
-    doLog(LOG_VERBOSE, ss);
+    doLog(LogType::VERBOSE,"  Solver matrices: \n");
+    doLog(LogType::VERBOSE, ss);
 
-    doLog(LOG_INFO, "Number of degenerate nets: %ld\n", degenerateNets);
+    doLog(LogType::INFO, "Number of degenerate nets: %ld\n", degenerateNets);
 
-    doLog(LOG_INFO, "Running solver\n");
+    doLog(LogType::INFO, "Running solver\n");
 */
 #endif
 
@@ -445,7 +445,7 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
 
     if (xpos_info != Eigen::ComputationInfo::Success)
     {
-        doLog(LOG_WARN,"  Eigen reports error code %s for x axis\n", toString(xpos_info).c_str());
+        Logging::doLog(Logging::LogType::WARNING,"  Eigen reports error code %s for x axis\n", toString(xpos_info).c_str());
     }
 
     YSolverData.m_Amat.makeCompressed();
@@ -456,7 +456,7 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
 
     if (ypos_info != Eigen::ComputationInfo::Success)
     {
-        doLog(LOG_WARN,"  Eigen reports error code %s for y axis\n", toString(ypos_info).c_str());
+        Logging::doLog(Logging::LogType::WARNING,"  Eigen reports error code %s for y axis\n", toString(ypos_info).c_str());
     }
 
     ssize_t fixedNodes = 0;
@@ -493,7 +493,7 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
 
     ofile << ss.str() << "\n\n";
 
-    doLog(LOG_INFO, "Number of fixed nodes: %ld\n", fixedNodes);
+    Logging::doLog(Logging::LogType::INFO, "Number of fixed nodes: %ld\n", fixedNodes);
 
     return true;
 }

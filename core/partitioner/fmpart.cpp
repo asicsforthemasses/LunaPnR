@@ -136,7 +136,7 @@ bool FMPart::init(FMContainer &container)
 
         if (node.m_instance == nullptr)
         {
-            doLog(LOG_WARN, "FMPart::init encountered nullptr instance (ID=%d) in node list\n", node.m_self);
+            Logging::doLog(Logging::LogType::WARNING, "FMPart::init encountered nullptr instance (ID=%d) in node list\n", node.m_self);
             return false;
         }
 
@@ -150,12 +150,12 @@ bool FMPart::init(FMContainer &container)
             auto distanceToPartition1 = distanceToPartition(container.m_partitions[1], insPtr->m_pos);
             if (distanceToPartition0 < distanceToPartition1)
             {
-                doLog(LOG_VERBOSE, "  Add pin %s (%lld, %lld) to partition %d\n", insPtr->name().c_str(), insPtr->m_pos.m_x, insPtr->m_pos.m_y, 0);
+                Logging::doLog(Logging::LogType::VERBOSE, "  Add pin %s (%lld, %lld) to partition %d\n", insPtr->name().c_str(), insPtr->m_pos.m_x, insPtr->m_pos.m_y, 0);
                 node.m_partitionId = 0;
             }
             else
             {
-                doLog(LOG_VERBOSE, "  Add pin %s (%lld, %lld) to partition %d\n", insPtr->name().c_str(), insPtr->m_pos.m_x, insPtr->m_pos.m_y, 1);
+                Logging::doLog(Logging::LogType::VERBOSE, "  Add pin %s (%lld, %lld) to partition %d\n", insPtr->name().c_str(), insPtr->m_pos.m_x, insPtr->m_pos.m_y, 1);
                 node.m_partitionId = 1;
             }
             node.fix();
@@ -392,7 +392,7 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId, FMContainer &container)
             // check: count should be 1 or 0
             if (count > 1)     
             {
-                doLog(LOG_ERROR,"FMPart::moveNodeAndUpdateNeightbours internal error: count != 1\n");
+                Logging::doLog(Logging::LogType::ERROR,"FMPart::moveNodeAndUpdateNeightbours internal error: count != 1\n");
             }
         }
 
@@ -438,7 +438,7 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId, FMContainer &container)
             // check: count should be 1 or 0
             if (count > 1)
             {
-                doLog(LOG_ERROR,"FMPart::moveNodeAndUpdateNeightbours internal error: count != 1\n");
+                Logging::doLog(Logging::LogType::ERROR,"FMPart::moveNodeAndUpdateNeightbours internal error: count != 1\n");
             }                                      
         }
     }
@@ -475,7 +475,7 @@ void FMPart::exportToDot(std::ostream &dotFile, FMContainer &container)
             auto const& pin = node.m_instance->getPin(0);
             if (!pin.isValid())
             {
-                doLog(LOG_ERROR, "FMPart:: cannot find pinInfo\n");
+                Logging::doLog(Logging::LogType::ERROR, "FMPart:: cannot find pinInfo\n");
                 continue;
             }
 
@@ -666,11 +666,11 @@ bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
 
     if (!init(container))
     {
-        doLog(LOG_ERROR,"FMPart::init failed\n");
+        Logging::doLog(Logging::LogType::ERROR,"FMPart::init failed\n");
         return false;
     }
 
-    doLog(LOG_VERBOSE, "  Pre-partitioning cost: %lld\n", calculateNetCutCost(container));
+    Logging::doLog(Logging::LogType::VERBOSE, "  Pre-partitioning cost: %lld\n", calculateNetCutCost(container));
 
     int64_t minCost = std::numeric_limits<int64_t>::max();
     size_t  cyclesSinceMinCostSeen = 0;
@@ -680,7 +680,7 @@ bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
         auto cost = cycle(container);
         cycleCount++;
 
-        doLog(LOG_VERBOSE,"  Cost of cycle %d = %lld\n", cycleCount, cost);
+        Logging::doLog(Logging::LogType::VERBOSE,"  Cost of cycle %d = %lld\n", cycleCount, cost);
         if (cost < minCost)
         {
             cyclesSinceMinCostSeen = 0;
@@ -689,7 +689,7 @@ bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
         }
         cyclesSinceMinCostSeen++;
     }
-    doLog(LOG_VERBOSE, "  Post-partitioning cost: %lld\n",minCost);
+    Logging::doLog(Logging::LogType::VERBOSE, "  Post-partitioning cost: %lld\n",minCost);
 
     return true;
 }

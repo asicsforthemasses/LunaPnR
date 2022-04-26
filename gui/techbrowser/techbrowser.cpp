@@ -219,7 +219,7 @@ void TechBrowser::onLayerSelectionChanged(const QItemSelection &cur, const QItem
             }
 
             update();
-            doLog(LOG_VERBOSE, "Selected layer %s\n", layer->name().c_str());
+            Logging::doLog(Logging::LogType::VERBOSE, "Selected layer %s\n", layer->name().c_str());
         }
     }
 }

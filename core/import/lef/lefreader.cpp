@@ -21,7 +21,7 @@ bool Reader::load(Design &design, std::istream &source)
         ReaderImpl readerimpl(design);
         if (!readerimpl.parse(src.str()))
         {
-            doLog(LOG_ERROR,"LEF::Reader failed to load file.\n");
+            Logging::doLog(Logging::LogType::ERROR,"LEF::Reader failed to load file.\n");
             return false;
         }
         
@@ -29,7 +29,7 @@ bool Reader::load(Design &design, std::istream &source)
     }
     catch(std::runtime_error &e)
     {
-        doLog(LOG_ERROR,"%s\n", e.what());
+        Logging::doLog(Logging::LogType::ERROR,"%s\n", e.what());
     }
     
     return false;    

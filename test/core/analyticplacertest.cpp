@@ -24,8 +24,8 @@ BOOST_AUTO_TEST_CASE(check_analytic_placer)
 {
     std::cout << "--== CHECK ANALYTIC PLACER ==--\n";
 
-    auto ll = getLogLevel();
-    setLogLevel(LOG_VERBOSE);
+    auto ll = Logging::getLogLevel();
+    Logging::setLogLevel(Logging::LogType::VERBOSE);
 
     LunaCore::QPlacer::Placer placer;
 
@@ -89,7 +89,7 @@ BOOST_AUTO_TEST_CASE(check_analytic_placer)
     // check locations of movable nodes
     for(size_t idx = 0; idx < checkPos.size(); idx++)
     {
-        doLog(LOG_VERBOSE,"  Node %d placed at %.2f,%.2f\n",idx, xpos[idx], ypos[idx]);
+        Logging::doLog(Logging::LogType::VERBOSE,"  Node %d placed at %.2f,%.2f\n",idx, xpos[idx], ypos[idx]);
 
         if (!nodes.at(idx).isFixed())
         {
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(check_analytic_placer)
         }
     }
 
-    setLogLevel(ll);
+    Logging::setLogLevel(ll);
 }
 
 BOOST_AUTO_TEST_CASE(place_multiplier)
@@ -162,8 +162,8 @@ BOOST_AUTO_TEST_CASE(place_multiplier)
     region->m_rect.setSize( {65000+20000,65000+20000} );
     region->m_halo = ChipDB::Margins64{10000,10000,10000,10000};
 
-    auto ll = getLogLevel();
-    setLogLevel(LOG_VERBOSE);
+    auto ll = Logging::getLogLevel();
+    Logging::setLogLevel(Logging::LogType::VERBOSE);
 
     //FIXME: 
 #if 0  
@@ -173,13 +173,13 @@ BOOST_AUTO_TEST_CASE(place_multiplier)
     {
         if (!nodes.at(idx).isFixed())
         {
-            doLog(LOG_VERBOSE,"  Node %d placed at %.2f,%.2f\n",idx, xpos[idx], ypos[idx]);
+            doLog(LogType::VERBOSE,"  Node %d placed at %.2f,%.2f\n",idx, xpos[idx], ypos[idx]);
         }
     }
     
 #endif
 
-    setLogLevel(ll);
+    Logging::setLogLevel(ll);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

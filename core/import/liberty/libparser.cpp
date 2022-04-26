@@ -377,7 +377,7 @@ bool Parser::parse(const std::string &libertyString)
         advanceToken();
         if (peekToken() == TOK_ERR)
         {
-            doLog(LOG_ERROR, "Liberty parse error, current character = '%c' (0x%02X)\n", peek(), static_cast<uint32_t>(peek()));
+            Logging::doLog(Logging::LogType::ERROR, "Liberty parse error, current character = '%c' (0x%02X)\n", peek(), static_cast<uint32_t>(peek()));
             error("");
             return false;
         }
@@ -399,7 +399,7 @@ void Parser::error(const std::string &errstr)
     std::stringstream ss;
     ss << "Line " << m_lineNum << " col " << m_col << " : " << errstr << "\n"; 
     ss << "      tok = " << m_tokstr << " id=" << m_curtok << "\n";
-    doLog(LOG_ERROR, ss.str());
+    Logging::doLog(Logging::LogType::ERROR, ss.str());
 }
 
 bool Parser::acceptToken(const token_t tok)

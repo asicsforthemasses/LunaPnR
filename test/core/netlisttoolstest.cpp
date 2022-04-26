@@ -39,19 +39,19 @@ BOOST_AUTO_TEST_CASE(check_histogram)
 
     auto histogram = LunaCore::NetlistTools::calcNetlistHistogram(mod->m_netlist.get());
 
-    auto ll = getLogLevel();
+    auto ll = Logging::getLogLevel();
 
-    setLogLevel(LOG_VERBOSE);
+    Logging::setLogLevel(Logging::LogType::VERBOSE);
 
     for(auto pair : histogram)
     {
-        doLog(LOG_VERBOSE, "  size %d -> %d occurences\n", pair.first, pair.second);
+        Logging::doLog(Logging::LogType::VERBOSE, "  size %d -> %d occurences\n", pair.first, pair.second);
     }
 
     BOOST_CHECK(histogram[2] == 17);
     BOOST_CHECK(histogram[3] == 12);
 
-    setLogLevel(ll);
+    Logging::setLogLevel(ll);
 }
 
 BOOST_AUTO_TEST_CASE(check_histogram_2)
@@ -79,13 +79,13 @@ BOOST_AUTO_TEST_CASE(check_histogram_2)
 
     auto histogram = LunaCore::NetlistTools::calcNetlistHistogram(mod->m_netlist.get());
 
-    auto ll = getLogLevel();
+    auto ll = Logging::getLogLevel();
 
-    setLogLevel(LOG_VERBOSE);
+    Logging::setLogLevel(Logging::LogType::VERBOSE);
 
     for(auto pair : histogram)
     {
-        doLog(LOG_VERBOSE, "  size %d -> %d occurences\n", pair.first, pair.second);
+        Logging::doLog(Logging::LogType::VERBOSE, "  size %d -> %d occurences\n", pair.first, pair.second);
     }
 
     BOOST_CHECK(histogram[2] == 5979);
@@ -97,12 +97,12 @@ BOOST_AUTO_TEST_CASE(check_histogram_2)
     {
         if (net->numberOfConnections() == 1)
         {
-            doLog(LOG_INFO, "  Degenerate net: %s\n", net->name().c_str());
+            Logging::doLog(Logging::LogType::INFO, "  Degenerate net: %s\n", net->name().c_str());
             degenerateCount++;
         }
         if (degenerateCount == 10)
         {
-            doLog(LOG_INFO, "  skipping other nets..\n");
+            Logging::doLog(Logging::LogType::INFO, "  skipping other nets..\n");
             break;
         }
     }
@@ -124,13 +124,13 @@ BOOST_AUTO_TEST_CASE(remove_netcons)
     BOOST_CHECK(mod.isValid());
     BOOST_CHECK(mod->m_netlist);    
 
-    auto ll = getLogLevel();
+    auto ll = Logging::getLogLevel();
 
-    setLogLevel(LOG_VERBOSE);
+    Logging::setLogLevel(Logging::LogType::VERBOSE);
 
     //FIXME:
     //LunaCore::NetlistTools::removeNetconInstances(*mod->m_netlist.get());
-    setLogLevel(ll);
+    Logging::setLogLevel(ll);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

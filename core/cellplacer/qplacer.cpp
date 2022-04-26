@@ -160,7 +160,7 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
             {
                 std::stringstream ss;
                 ss << "Not all pins have been placed and fixed - for example: " << ins->name() << "\n";
-                doLog(LOG_ERROR, ss);
+                Logging::doLog(Logging::LogType::ERROR, ss);
                 return false;
             }
         }
@@ -172,16 +172,16 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
 
     if (regionArea < area)
     {
-        doLog(LOG_WARN, "Region area is smaller than the total instance area\n");
+        Logging::doLog(Logging::LogType::WARNING, "Region area is smaller than the total instance area\n");
     }
     
     if (regionArea <= 0)
     {
-        doLog(LOG_ERROR, "Cannot place a module in a region that has no area\n");
+        Logging::doLog(Logging::LogType::ERROR, "Cannot place a module in a region that has no area\n");
         return false;
     }
 
-    doLog(LOG_INFO, "Utilization = %3.1f percent\n", 100.0* area / static_cast<double>(regionArea));
+    Logging::doLog(Logging::LogType::INFO, "Utilization = %3.1f percent\n", 100.0* area / static_cast<double>(regionArea));
 
     // generate QPlacer netlist
     PlacerNetlist placerNetlist;
@@ -220,7 +220,7 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
 
             if (iter == ins2nodeId.end())
             {
-                doLog(LOG_ERROR, "Cannot find node\n");
+                Logging::doLog(Logging::LogType::ERROR, "Cannot find node\n");
                 return false;
             }
 
@@ -273,10 +273,10 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
         idx++;
     }
 
-    doLog(LOG_VERBOSE,"Quadratic placement done.\n");
+    Logging::doLog(Logging::LogType::VERBOSE,"Quadratic placement done.\n");
 
 #if 0    
-    doLog(LOG_VERBOSE,"Starting diffusion..\n");
+    doLog(LogType::VERBOSE,"Starting diffusion..\n");
 
     float maxDensity      = 2.0f;
     const auto bitmapCellWidth  = 50000;
@@ -312,7 +312,7 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
             break;
         }
         
-        doLog(LOG_VERBOSE,"  Iter: %d\t density:%f\n", iterationCount, maxDensity);
+        doLog(LogType::VERBOSE,"  Iter: %d\t density:%f\n", iterationCount, maxDensity);
     }
 
 #if 0
@@ -320,7 +320,7 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
     updateMovableInstances(mod->m_netlist.get(), region, velocityBitmap.get(), 
         bitmapCellWidth, bitmapCellHeight);
 #endif
-    doLog(LOG_VERBOSE,"Diffusion done (iterations = %ld).\n", iterationCount);
+    doLog(LogType::VERBOSE,"Diffusion done (iterations = %ld).\n", iterationCount);
 
 #endif    
     return true;

@@ -61,7 +61,7 @@ bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod)
             
             if (!pinInfo.isValid())
             {
-                doLog(LOG_ERROR,"Port net cannot be resolved to module pin!\n");
+                Logging::doLog(Logging::LogType::ERROR,"Port net cannot be resolved to module pin!\n");
                 return false;
             }
 
@@ -77,7 +77,7 @@ bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod)
                 os << "inout ";
                 break;
             default:
-                doLog(LOG_ERROR, "Verilog writer: unsupported pin type %s\n", toString(pinInfo->m_iotype).c_str());
+                Logging::doLog(Logging::LogType::ERROR, "Verilog writer: unsupported pin type %s\n", toString(pinInfo->m_iotype).c_str());
                 return false;            
             }            
             os << escapeVerilogName(netPtr->name()) << ";\n";
@@ -130,7 +130,7 @@ namespace LunaCore::Verilog
 
         void visit(const ChipDB::InstanceBase *instance) override 
         {
-            doLog(LOG_ERROR,"Verilog writer: cannot write InstanceBase to netlist\n");
+            Logging::doLog(Logging::LogType::ERROR,"Verilog writer: cannot write InstanceBase to netlist\n");
             m_ok = false;
         };
 
@@ -145,7 +145,7 @@ namespace LunaCore::Verilog
             if (instance->m_insType != ChipDB::InstanceType::CELL)
             {
                 m_ok = false;
-                doLog(LOG_ERROR, "Verilog writer: expected a Cell instance but got %s\n", instance->name().c_str());
+                Logging::doLog(Logging::LogType::ERROR, "Verilog writer: expected a Cell instance but got %s\n", instance->name().c_str());
                 return;
             }
 
@@ -169,7 +169,7 @@ namespace LunaCore::Verilog
                 else
                 {
                     m_ok = false;
-                    doLog(LOG_ERROR, "Verilog writer: can't write instance %s without a cell name!\n", instance->name().c_str());
+                    Logging::doLog(Logging::LogType::ERROR, "Verilog writer: can't write instance %s without a cell name!\n", instance->name().c_str());
                     return;
                 }
                 
@@ -206,13 +206,13 @@ namespace LunaCore::Verilog
         
         void visit(const ChipDB::Cell *cell) override
         {
-            doLog(LOG_ERROR,"Verilog writer: cannot write Cell to netlist\n");
+            Logging::doLog(Logging::LogType::ERROR,"Verilog writer: cannot write Cell to netlist\n");
             m_ok = false;
         }
 
         void visit(const ChipDB::Module *module) override
         {
-            doLog(LOG_ERROR,"Verilog writer: cannot write sub-module %s to netlist\n", module->name().c_str());
+            Logging::doLog(Logging::LogType::ERROR,"Verilog writer: cannot write sub-module %s to netlist\n", module->name().c_str());
             m_ok = false;
         }
 

@@ -95,7 +95,7 @@ bool LunaCore::NetlistTools::removeNetconInstances(ChipDB::Netlist &netlist)
     }
     std::stringstream ss;
     ss << "Removed " << netsRemoved << " netcon nets (found " << degenerateNets << " degerate nets)\n";
-    doLog(LOG_VERBOSE, ss);
+    doLog(LogType::VERBOSE, ss);
 #endif    
     return true;
 }
