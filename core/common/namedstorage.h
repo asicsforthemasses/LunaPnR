@@ -17,6 +17,7 @@
 #include <memory>
 #include <unordered_map>
 #include <iterator>
+#include <optional>
 
 #include "dbtypes.h"
 

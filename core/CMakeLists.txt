@@ -42,6 +42,18 @@ endif()
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 find_package (PythonLibs 3.8 REQUIRED COMPONENTS Interpreter Development)
 
+if (WIN32)
+    set(PLATFORMSRC
+        common/subprocess_win.cpp
+    )
+endif (WIN32)
+
+if (UNIX)
+    set(PLATFORMSRC
+        common/subprocess_unix.cpp
+    )
+endif (UNIX)
+
 add_library(lunacore 
     common/logging.cpp
     common/dbtypes.cpp
@@ -92,6 +104,7 @@ add_library(lunacore
     python/types/pypininfolist.cpp
     python/types/pyinstance.cpp
     python/types/pyinstances.cpp
+    ${PLATFORMSRC}
     )
 
 target_include_directories(lunacore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
