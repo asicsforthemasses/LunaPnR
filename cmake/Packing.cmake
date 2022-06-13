@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021-2022 Niels Moseley, <n.a.moseley@moseleyinstruments.com>, et al.
+#
+# SPDX-License-Identifier: GPL-3.0-only
+
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS YES)
 
 # these are cache variables, so they could be overwritten with -D,

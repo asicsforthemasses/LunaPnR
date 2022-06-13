@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# SPDX-FileCopyrightText: 2021-2022 Niels Moseley, <n.a.moseley@moseleyinstruments.com>, et al.
+#
+# SPDX-License-Identifier: GPL-3.0-only
+
 sudo apt install -y python3-pip python3-setuptools patchelf desktop-file-utils libgtk-pixbuf2.0-dev fakeroot strace
 sudo wget https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage -O /usr/local/bin/appimagetool
 sudo chmod +x /usr/local/bin/appimagetool
