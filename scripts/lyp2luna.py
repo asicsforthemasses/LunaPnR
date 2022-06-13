@@ -1,5 +1,9 @@
 #!/usr/bin/python3
 
+# SPDX-FileCopyrightText: 2021-2022 Niels Moseley, <n.a.moseley@moseleyinstruments.com>, et al.
+#
+# SPDX-License-Identifier: GPL-3.0-only
+
 import xml.etree.ElementTree as ET
 
 tree = ET.parse('sky130.lyp')

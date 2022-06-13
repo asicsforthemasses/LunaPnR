@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: 2021-2022 Niels Moseley, <n.a.moseley@moseleyinstruments.com>, et al.
+#
+# SPDX-License-Identifier: GPL-3.0-only
 
 createRegion("core", 10000, 10000, 60000, 40000)
 createRows("core", 0, 10000, 8)

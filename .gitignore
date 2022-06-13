@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021-2022 Niels Moseley, <n.a.moseley@moseleyinstruments.com>, et al.
+#
+# SPDX-License-Identifier: CC0-1.0
+
 .vscode
 AppDir
 appimage-builder-cache

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley, <n.a.moseley@moseleyinstruments.com>, et al.
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="nl_NL">

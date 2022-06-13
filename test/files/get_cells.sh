@@ -1,5 +1,9 @@
 #!/bin/sh
 
+# SPDX-FileCopyrightText: 2021-2022 Niels Moseley, <n.a.moseley@moseleyinstruments.com>, et al.
+#
+# SPDX-License-Identifier: GPL-3.0-only
+
 wget -nc https://vlsiarch.ecen.okstate.edu/flows/MOSIS_SCMOS/iit_stdcells_v2.3beta/iitcells_lib_2.3.tar.gz
 tar -xzf iitcells_lib_2.3.tar.gz
 # rm iitcells_lib_2.3.tar.gz
