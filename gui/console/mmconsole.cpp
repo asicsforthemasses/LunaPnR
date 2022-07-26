@@ -19,6 +19,7 @@
 #include <QDesktopWidget>
 #include <QApplication>
 #include <QSettings>
+#include <QScreen>
 
 #include "mmconsole.h"
 
@@ -429,7 +430,10 @@ int PopupCompleter::exec(QTextEdit *parent)
     QRect cursorRect = parent->cursorRect();
     QPoint globalPt = parent->mapToGlobal(cursorRect.bottomRight());
     QDesktopWidget *dsk = QApplication::desktop();
-    QRect screenGeom = dsk->screenGeometry(dsk->screenNumber(this));
+
+    auto screenList = QGuiApplication::screens();
+    auto currentScreen = screenList.at(dsk->screenNumber(this));
+    QRect screenGeom = currentScreen->availableGeometry();
     
     if (globalPt.y() + popupSizeHint.height() > screenGeom.height()) {
         globalPt = parent->mapToGlobal(cursorRect.topRight());

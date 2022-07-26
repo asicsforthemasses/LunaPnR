@@ -10,7 +10,9 @@
 #pragma once 
 
 #include <vector>
+#include <QPixmap>
 #include <QPaintEvent>
+#include <QResizeEvent>
 #include <QAbstractButton>
 
 namespace GUI 
@@ -25,10 +27,13 @@ public:
     QSize sizeHint() const;
 
 protected:
+    bool eventFilter(QObject * watched, QEvent * event) override;
+    void resizeEvent(QResizeEvent *e) override;
     void paintEvent(QPaintEvent* e) override;
 
     std::unique_ptr<QPixmap> m_onPixmap;
     std::unique_ptr<QPixmap> m_offPixmap;
+    bool m_hover = false;
 };
 
 };
