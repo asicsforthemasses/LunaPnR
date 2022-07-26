@@ -27,7 +27,6 @@
 #include "../floorplanview/floorplanview.h"
 #include "../projectmanager/projectmanager.h"
 
-
 #include "lunacore.h"
 #include "../common/database.h"
 #include "../common/projectsetup.h"
@@ -63,7 +62,7 @@ public slots:
     void onGUIUpdateTimer();
     
 protected:
-    GUI::ProjectManager* createProjectManager();
+    //GUI::ProjectManager* createProjectManager();
     void createMenus();
     void createActions();
     void saveSettings();
@@ -81,7 +80,8 @@ protected:
     QAction *m_consoleFontAct;
 
     //QMenuBar    *m_menuBar;
-    QSplitter   *m_splitter;
+    QSplitter   *m_projectSplitter;
+    QSplitter   *m_consoleSplitter;
     QTabWidget  *m_mainTabWidget;
     
     GUI::MMConsole      *m_console;

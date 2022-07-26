@@ -21,9 +21,6 @@
 
 #include <fstream>
 
-#include "../widgets/blockcontainer.h"
-#include "../widgets/flatimagebutton.h"
-#include "../projectmanager/filesetupmanager.h"
 #include "mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
@@ -39,13 +36,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     //m_menuBar = new QMenuBar();
     //setMenuBar(m_menuBar);
 
-    m_projectManager = createProjectManager();
-
     createActions();
     createMenus();
-    
+
     auto hMainLayout = new QHBoxLayout();
-    hMainLayout->addWidget(m_projectManager, 1);
+
+    m_projectManager = new GUI::ProjectManager(&m_projectSetup);
+    m_projectSplitter = new QSplitter(Qt::Horizontal, this);
 
     // create tabs
     m_mainTabWidget = new QTabWidget(this);
@@ -70,16 +67,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     connect(m_console, &GUI::MMConsole::executeCommand, this, &MainWindow::onConsoleCommand);
 
-    m_splitter = new QSplitter(Qt::Vertical, this);
-    m_splitter->addWidget(m_mainTabWidget);
-    m_splitter->addWidget(m_console);
-    m_splitter->setStretchFactor(0,4);
-    m_splitter->setStretchFactor(1,1);
+    m_consoleSplitter = new QSplitter(Qt::Vertical, this);
+    m_consoleSplitter->addWidget(m_mainTabWidget);
+    m_consoleSplitter->addWidget(m_console);
+    m_consoleSplitter->setStretchFactor(0,4);
+    m_consoleSplitter->setStretchFactor(1,1);
 
-    auto vLayout = new QVBoxLayout;
-    vLayout->addWidget(m_splitter);
+    m_projectSplitter->addWidget(m_projectManager);
+    m_projectSplitter->addWidget(m_consoleSplitter);
+    m_projectSplitter->setStretchFactor(0,1);
+    m_projectSplitter->setStretchFactor(1,4);
 
-    hMainLayout->addLayout(vLayout,4);
+    hMainLayout->addWidget(m_projectSplitter);
+    //hMainLayout->addWidget(m_consoleSplitter);
 
     QWidget *container = new QWidget();
     container->setLayout(hMainLayout);
@@ -220,104 +220,6 @@ void MainWindow::createActions()
 
     m_exportLayers = new QAction(tr("Export layers"), this);
     connect(m_exportLayers, &QAction::triggered, this, &MainWindow::onExportLayers);
-}
-
-GUI::ProjectManager* MainWindow::createProjectManager()
-{
-    auto projectManager = new GUI::ProjectManager();
-
-    auto managerLayout = new QVBoxLayout();
-
-    // ******************************************************************************************
-    // BLOCK 1
-    // ******************************************************************************************
-    auto block = new GUI::BlockContainer();
-    block->setBlockName("Design Setup");
-    block->header()->setStyleSheet("background-color: #e8e7e8; ");
-
-    auto buttonForHeader = new GUI::FlatImageButton("://images/remove.png");
-    block->header()->addWidget(buttonForHeader);
-    buttonForHeader = new GUI::FlatImageButton("://images/add.png");
-    block->header()->addWidget(buttonForHeader);
-
-    auto fileSetupManager = new GUI::FileSetupManager();
-    fileSetupManager->header()->hide();
-    fileSetupManager->addCategory("LEF", ".lef", &m_projectSetup.m_lefFiles);
-    fileSetupManager->addCategory("LIB", ".lib", &m_projectSetup.m_libFiles);
-    fileSetupManager->addCategory("Verilog", ".v", &m_projectSetup.m_verilogFiles);
-    //m_projectmanager->addCategory("Layers", ".layers", &m_projectSetup.m_layerFiles);
-    fileSetupManager->addCategory("Timing constraints", ".sdc", &m_projectSetup.m_timingConstraintFiles);
-
-    block->addWidget(fileSetupManager,1);
-    managerLayout->addWidget(block);
-
-// ******************************************************************************************
-    // BLOCK 2
-    // ******************************************************************************************
-    block = new GUI::BlockContainer();
-    block->setBlockName("Initial Placement");
-    block->header()->setStyleSheet("background-color: #e8e7e8; ");
-
-    managerLayout->addWidget(block);
-
-    // ******************************************************************************************
-    // BLOCK 3
-    // ******************************************************************************************
-    block = new GUI::BlockContainer();
-    block->setBlockName("Clock tree synthesis");
-    block->header()->setStyleSheet("background-color: #e8e7e8; ");
-
-    managerLayout->addWidget(block);
-
-    // ******************************************************************************************
-    // BLOCK 4
-    // ******************************************************************************************
-    block = new GUI::BlockContainer();
-    block->setBlockName("Check timing");
-    block->header()->setStyleSheet("background-color: #e8e7e8; ");
-
-    managerLayout->addWidget(block);
-
-    // ******************************************************************************************
-    // BLOCK 5
-    // ******************************************************************************************
-    block = new GUI::BlockContainer();
-    block->setBlockName("Global routing");
-    block->header()->setStyleSheet("background-color: #e8e7e8; ");
-
-    managerLayout->addWidget(block);
-
-    // ******************************************************************************************
-    // BLOCK 6
-    // ******************************************************************************************
-    block = new GUI::BlockContainer();
-    block->setBlockName("Detail routing");
-    block->header()->setStyleSheet("background-color: #e8e7e8; ");
-
-    managerLayout->addWidget(block);
-
-    // ******************************************************************************************
-    // BLOCK 7
-    // ******************************************************************************************
-    block = new GUI::BlockContainer();
-    block->setBlockName("Check design");
-    block->header()->setStyleSheet("background-color: #e8e7e8; ");
-
-    managerLayout->addWidget(block);
-
-    // ******************************************************************************************
-    // BLOCK 8
-    // ******************************************************************************************
-    block = new GUI::BlockContainer();
-    block->setBlockName("Tape out");
-    block->header()->setStyleSheet("background-color: #e8e7e8; ");
-
-    managerLayout->addWidget(block);
-    managerLayout->addStretch(1);
-
-    projectManager->setLayout(managerLayout);
-
-    return projectManager;
 }
 
 void MainWindow::saveSettings()
