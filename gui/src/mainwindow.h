@@ -25,9 +25,12 @@
 #include "../cellbrowser/cellbrowser.h"
 #include "../designbrowser/designbrowser.h"
 #include "../floorplanview/floorplanview.h"
+#include "../projectmanager/projectmanager.h"
+
 
 #include "lunacore.h"
 #include "../common/database.h"
+#include "../common/projectsetup.h"
 #include "../python/pyluna_extra.h"
 
 class MainWindow : public QMainWindow, public ChipDB::INamedStorageListener
@@ -60,6 +63,7 @@ public slots:
     void onGUIUpdateTimer();
     
 protected:
+    GUI::ProjectManager* createProjectManager();
     void createMenus();
     void createActions();
     void saveSettings();
@@ -85,6 +89,9 @@ protected:
     GUI::TechBrowser    *m_techBrowser;
     GUI::DesignBrowser  *m_designBrowser;
     GUI::FloorplanView  *m_floorplanView;
+    GUI::ProjectManager *m_projectManager;
+
+    GUI::ProjectSetup   m_projectSetup;
 
     std::shared_ptr<GUI::Database> m_db;
 

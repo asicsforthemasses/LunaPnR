@@ -19,7 +19,7 @@ LunaPnR can read the [SKY130](https://github.com/asicsforthemasses/sky130_testin
 * GCC 9.3 or higher
 * CMake 3.16 or higher
 * Ninja-build
-* Qt 5.12 or higher
+* Qt 5.12 or higher (qttools5-dev-tools)
 * Python 3.8 or higher
 * wget
 * tar

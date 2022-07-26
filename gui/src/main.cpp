@@ -39,7 +39,8 @@ int main(int argc, char *argv[]) {
 
     parser.process(app);
 
-    if (parser.isSet(showResourcesOption))
+    //if (parser.isSet(showResourcesOption))
+    if (true)
     {
         std::cout << "Resources:\n";
         QDirIterator it(":", QDirIterator::Subdirectories);

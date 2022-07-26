@@ -48,7 +48,7 @@ MMConsole::MMConsole(QWidget *parent) : QTextEdit("", parent)
 void MMConsole::setColours(const QColor &bkCol, const QColor &promptCol, const QColor &errorCol) noexcept
 {
     QPalette pal = palette();
-    pal.setColor(QPalette::Background, bkCol);
+    pal.setColor(QPalette::Window, bkCol);
     pal.setColor(QPalette::Base, bkCol);
     setPalette(pal);
     setAutoFillBackground(true);

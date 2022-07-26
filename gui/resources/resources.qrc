@@ -1,10 +1,21 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
 <qresource>
-    <file>pinicon.png</file>
+    <file>./images/pinicon.png</file>
+    <file>./images/folder.png</file>
+    <file>./images/file.png</file>
+    <file>./images/folded.png</file>
+    <file>./images/add.png</file>
+    <file>./images/remove.png</file>
+    <file>./images/folded.png</file>
+    <file>./images/unfolded.png</file>
 </qresource>
+
+<!--
 <qresource prefix="/translations">
     <file alias="lunapnr.en_US.qm">../../build/gui/lunapnr.en_US.qm</file>
     <file alias="lunapnr.nl_NL.qm">../../build/gui/lunapnr.nl_NL.qm</file>
 </qresource>
+-->
+
 </RCC>

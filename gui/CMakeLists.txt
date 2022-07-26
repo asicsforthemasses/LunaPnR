@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 3.20)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 
-find_package(Qt5 5.12 REQUIRED QUIET COMPONENTS Core Widgets LinguistTools)
+#find_package(Qt5 5.12 REQUIRED QUIET COMPONENTS Core Widgets LinguistTools)
+find_package(Qt5 5.12 REQUIRED QUIET COMPONENTS Core Widgets)
 find_package(PythonLibs 3.8 REQUIRED COMPONENTS Interpreter Development)
 
 # The qm files are generated in the build tree, but the qrc file is inside the
@@ -31,21 +32,28 @@ set (LUNA_SRC_FILES
     models/cellinfomodel.cpp
     models/layerappearancetablemodel.cpp
     models/techlibinfomodel.cpp
+    models/filesetupmodel.cpp
     common/guihelpers.cpp
     common/hatchlibrary.cpp
     common/layerrenderinfo.cpp
     common/database.cpp
+    common/projectsetup.cpp
     widgets/colorbutton.cpp
     widgets/hatchbutton.cpp
     widgets/hatchdialog.cpp
     widgets/hatchdisplay.cpp
     widgets/txtoverlay.cpp
+    widgets/flattogglebutton.cpp
+    widgets/flatimagebutton.cpp
+    widgets/blockcontainer.cpp
     floorplanview/floorplanview.cpp
     techbrowser/techbrowser.cpp
     designbrowser/designbrowser.cpp
     cellbrowser/cellbrowser.cpp
     cellbrowser/celllayoutview.cpp
     propertyview/propertyview.cpp
+    projectmanager/filesetupmanager.cpp
+    projectmanager/projectmanager.cpp
     console/mmconsole.cpp
     python/pyluna_extra.cpp
     src/mainwindow.cpp
@@ -55,20 +63,20 @@ set (LUNA_SRC_FILES
 #set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/translations/lunapnr.en_US.ts
 #    PROPERTIES OUTPUT_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/resources/translations")
 
-qt5_create_translation(QM_FILES ${LUNA_SRC_FILES}
-    ${CMAKE_CURRENT_SOURCE_DIR}/translations/lunapnr.en_US.ts
-    ${CMAKE_CURRENT_SOURCE_DIR}/translations/lunapnr.nl_NL.ts
-)
+#qt5_create_translation(QM_FILES ${LUNA_SRC_FILES}
+#    ${CMAKE_CURRENT_SOURCE_DIR}/translations/lunapnr.en_US.ts
+#    ${CMAKE_CURRENT_SOURCE_DIR}/translations/lunapnr.nl_NL.ts
+#)
 
 #configure_file(${CMAKE_CURRENT_SOURCE_DIR}/resources/resources.qrc ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
 
-message(${QM_FILES})
+#message(${QM_FILES})
 
 add_executable(lunapnr
     ${LUNA_SRC_FILES}
     resources/resources.qrc
     #${CMAKE_CURRENT_BINARY_DIR}/english.qm
-    ${QM_FILES}
+    #${QM_FILES}
     )
 
 add_dependencies(lunapnr commandcompletion)
