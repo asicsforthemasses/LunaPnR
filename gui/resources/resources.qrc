@@ -1,14 +1,16 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
 <qresource>
+    <file>./images/add.png</file>
     <file>./images/pinicon.png</file>
     <file>./images/folder.png</file>
     <file>./images/file.png</file>
     <file>./images/folded.png</file>
-    <file>./images/add.png</file>
     <file>./images/remove.png</file>
-    <file>./images/folded.png</file>
     <file>./images/unfolded.png</file>
+    <file>./images/properties.png</file>
+    <file>./images/floorplan.png</file>
+    <file>./images/go.png</file>
 </qresource>
 
 <!--

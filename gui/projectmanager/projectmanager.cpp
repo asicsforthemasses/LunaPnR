@@ -4,6 +4,8 @@
 #include "projectmanager.h"
 #include "../widgets/blockcontainer.h"
 #include "../widgets/flatimagebutton.h"
+#include "../widgets/flatactiontile.h"
+#include "../widgets/blockframe.h"
 #include "../projectmanager/filesetupmanager.h"
 
 using namespace GUI;
@@ -48,6 +50,16 @@ void ProjectManager::create()
     block->setBlockName("Initial Placement");
     block->header()->setStyleSheet("background-color: #e8e7e8; ");
 
+    auto blockFrame = new GUI::BlockFrame();
+    
+    auto actionTile = new GUI::FlatActionTile("Floorplan setup", "://images/floorplan.png", "://images/properties.png");
+    blockFrame->addWidget(actionTile);
+
+    actionTile = new GUI::FlatActionTile("Place", "://images/floorplan.png", "://images/go.png");
+    blockFrame->addWidget(actionTile);
+
+    block->addWidget(blockFrame);
+
     m_managerLayout->addWidget(block);
 
     // ******************************************************************************************
@@ -56,6 +68,16 @@ void ProjectManager::create()
     block = new GUI::BlockContainer();
     block->setBlockName("Clock tree synthesis");
     block->header()->setStyleSheet("background-color: #e8e7e8; ");
+
+    blockFrame = new GUI::BlockFrame();
+    
+    actionTile = new GUI::FlatActionTile("CTS setup", "://images/floorplan.png", "://images/properties.png");
+    blockFrame->addWidget(actionTile);
+
+    actionTile = new GUI::FlatActionTile("Create tree", "://images/floorplan.png", "://images/go.png");
+    blockFrame->addWidget(actionTile);
+
+    block->addWidget(blockFrame);
 
     m_managerLayout->addWidget(block);
 
