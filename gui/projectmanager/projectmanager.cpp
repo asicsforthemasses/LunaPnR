@@ -1,5 +1,6 @@
 #include <cassert>
 #include <QHeaderView>
+#include <QMessageBox>
 
 #include "projectmanager.h"
 #include "../widgets/blockcontainer.h"
@@ -53,6 +54,7 @@ void ProjectManager::create()
     auto blockFrame = new GUI::BlockFrame();
     
     auto actionTile = new GUI::FlatActionTile("Floorplan setup", "://images/floorplan.png", "://images/properties.png");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onFloorplanSetup);
     blockFrame->addWidget(actionTile);
 
     actionTile = new GUI::FlatActionTile("Place", "://images/floorplan.png", "://images/go.png");
@@ -72,6 +74,7 @@ void ProjectManager::create()
     blockFrame = new GUI::BlockFrame();
     
     actionTile = new GUI::FlatActionTile("CTS setup", "://images/floorplan.png", "://images/properties.png");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onCTSSetup);
     blockFrame->addWidget(actionTile);
 
     actionTile = new GUI::FlatActionTile("Create tree", "://images/floorplan.png", "://images/go.png");
@@ -128,4 +131,18 @@ void ProjectManager::create()
     m_managerLayout->addStretch(1);
 
     setLayout(m_managerLayout);
+}
+
+void ProjectManager::onFloorplanSetup()
+{
+    QMessageBox msgBox;
+    msgBox.setText("Floorplanning setup clicked");
+    msgBox.exec();
+}
+
+void ProjectManager::onCTSSetup()
+{
+    QMessageBox msgBox;
+    msgBox.setText("CTS setup clicked");
+    msgBox.exec();
 }

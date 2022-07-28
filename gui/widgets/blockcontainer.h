@@ -6,6 +6,7 @@
 #include <QLabel>
 
 #include "flattogglebutton.h"
+#include "clickablelabel.h"
 
 namespace GUI
 {
@@ -27,12 +28,13 @@ public:
 
 protected slots:
     void onFoldButtonToggled();
+    void onLabelClicked();
 
 protected:
     BlockContainer      *m_owner = nullptr;
     QHBoxLayout         *m_hlayout = nullptr;
     FlatToggleButton    *m_foldButton = nullptr;
-    QLabel              *m_name = nullptr;
+    ClickableLabel      *m_name = nullptr;
 };
 
 class BlockContainer : public QWidget

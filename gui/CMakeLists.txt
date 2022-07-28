@@ -43,6 +43,7 @@ set (LUNA_SRC_FILES
     widgets/hatchdialog.cpp
     widgets/hatchdisplay.cpp
     widgets/txtoverlay.cpp
+    widgets/clickablelabel.cpp
     widgets/blockframe.cpp
     widgets/flattogglebutton.cpp
     widgets/flatimage.cpp

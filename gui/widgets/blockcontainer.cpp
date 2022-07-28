@@ -21,12 +21,13 @@ BlockContainerHeader::BlockContainerHeader(const QString &name, BlockContainer *
     m_hlayout->addWidget(m_foldButton);
 
     // create name label
-    m_name = new QLabel(name);
+    m_name = new ClickableLabel(name);
     m_hlayout->addWidget(m_name, 1);
     
     setLayout(m_hlayout);
 
     connect(m_foldButton, &FlatToggleButton::toggled, this, &BlockContainerHeader::onFoldButtonToggled);
+    connect(m_name, &ClickableLabel::clicked, this, &BlockContainerHeader::onLabelClicked);
 }
 
 void BlockContainerHeader::onFoldButtonToggled()
@@ -35,6 +36,11 @@ void BlockContainerHeader::onFoldButtonToggled()
     {
         m_owner->setFolded(isFolded());
     }
+}
+
+void BlockContainerHeader::onLabelClicked()
+{
+    m_foldButton->toggle();
 }
 
 bool BlockContainerHeader::isFolded() const

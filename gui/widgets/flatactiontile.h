@@ -9,7 +9,7 @@
 namespace GUI
 {
 
-class FlatActionTile : public QWidget
+class FlatActionTile : public QFrame
 {
     Q_OBJECT
 public:

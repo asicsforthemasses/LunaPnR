@@ -12,8 +12,12 @@ class ProjectManager : public QWidget
 public:
     ProjectManager(ProjectSetup *projectSetup, QWidget *parent = nullptr);
 
+protected slots:
+    void onFloorplanSetup();
+    void onCTSSetup();
+
 protected:
-    void create();
+    void create();    
 
     QVBoxLayout *m_managerLayout = nullptr;
     ProjectSetup *m_projectSetup = nullptr;

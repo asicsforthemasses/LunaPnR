@@ -6,7 +6,7 @@ using namespace GUI;
 FlatActionTile::FlatActionTile(const QString &actionTitle, 
     const QString &iconUrl,     
     const QString &actionIconUrl,     
-    QWidget *parent) : QWidget(parent)
+    QWidget *parent) : QFrame(parent)
 {
     auto hlayout = new QHBoxLayout();
     hlayout->setContentsMargins(2,2,2,2);
@@ -20,6 +20,14 @@ FlatActionTile::FlatActionTile(const QString &actionTitle,
     hlayout->addWidget(m_actionButton);
     hlayout->setAlignment(Qt::AlignVCenter);
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+
+#if 0
+    QPalette pal = QPalette();
+    //pal.setColor(QPalette::Window, Qt::white);
+
+    setAutoFillBackground(true); 
+    setPalette(pal);
+#endif
 
     connect(m_actionButton, &FlatImageButton::pressed, this, &FlatActionTile::onAction);
 

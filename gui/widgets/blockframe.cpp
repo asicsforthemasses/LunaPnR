@@ -7,6 +7,12 @@ BlockFrame::BlockFrame(QWidget *parent) : QFrame(parent)
     m_layout = new QVBoxLayout();
     setFrameStyle(QFrame::Box);
 
+    QPalette pal = QPalette();
+    pal.setColor(QPalette::Window, Qt::white);
+
+    setAutoFillBackground(true); 
+    setPalette(pal);
+
     setLayout(m_layout);
 }
 
