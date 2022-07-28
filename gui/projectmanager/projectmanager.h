@@ -2,6 +2,7 @@
 #include <QWidget>
 #include <QBoxLayout>
 #include "../common/projectsetup.h"
+#include "filesetupmanager.h"
 
 namespace GUI
 {
@@ -12,15 +13,22 @@ class ProjectManager : public QWidget
 public:
     ProjectManager(ProjectSetup *projectSetup, QWidget *parent = nullptr);
 
+    void repopulate();
+
 protected slots:
     void onFloorplanSetup();
     void onCTSSetup();
+
+signals:
+    void onPlace();
 
 protected:
     void create();    
 
     QVBoxLayout *m_managerLayout = nullptr;
     ProjectSetup *m_projectSetup = nullptr;
+    
+    GUI::FileSetupManager *m_fileSetupManager = nullptr;
 };
 
 }

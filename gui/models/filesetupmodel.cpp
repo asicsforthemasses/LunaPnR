@@ -19,6 +19,12 @@ FileSetupModel::~FileSetupModel()
 {
 }
 
+void FileSetupModel::repopulate()
+{
+    beginResetModel();
+    endResetModel();
+}
+
 void FileSetupModel::addCategory(const QString &name, const QString &fileExt, std::vector<std::string > *data)
 {
     beginInsertRows(QModelIndex(), m_categories.size(), m_categories.size());

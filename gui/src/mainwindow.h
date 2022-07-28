@@ -50,10 +50,11 @@ public:
 public slots:
     void onQuit();
     void onAbout();
-    void onLoadVerilog();
-    void onImportLEF();
-    void onImportLIB();
-    void onImportLayers();
+
+    void onLoadProject();
+    void onSaveProject();
+    void onSaveProjectAs();
+
     void onExportLayers();
     void onRunScript();
     void onClearDatabase();
@@ -61,6 +62,8 @@ public slots:
     void onConsoleFontDialog();
     void onGUIUpdateTimer();
     
+    void onPlace();
+
 protected:
     //GUI::ProjectManager* createProjectManager();
     void createMenus();
@@ -71,10 +74,11 @@ protected:
     QAction *m_clearAct;
     QAction *m_quitAct;    
     QAction *m_aboutAct;
-    QAction *m_loadVerilog;
-    QAction *m_importLEF;
-    QAction *m_importLIB;
-    QAction *m_importLayers;
+
+    QAction *m_loadProject;
+    QAction *m_saveProject;
+    QAction *m_saveProjectAs;
+
     QAction *m_exportLayers;
     QAction *m_runScriptAct;
     QAction *m_consoleFontAct;
@@ -91,6 +95,7 @@ protected:
     GUI::FloorplanView  *m_floorplanView;
     GUI::ProjectManager *m_projectManager;
 
+    QString m_projectFileName;
     GUI::ProjectSetup   m_projectSetup;
 
     std::shared_ptr<GUI::Database> m_db;

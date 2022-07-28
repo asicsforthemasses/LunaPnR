@@ -85,3 +85,8 @@ void FileSetupManager::onRemoveResource()
     auto itemRow = m_itemModelIndex.row();
     m_model.removeRow(itemRow, m_itemModelIndex.parent());
 }
+
+void FileSetupManager::repopulate()
+{
+    m_model.repopulate();
+}

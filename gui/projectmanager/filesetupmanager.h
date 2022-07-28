@@ -18,6 +18,8 @@ public:
 
     void addCategoryItem(size_t categoryIndex, const QString &name);
 
+    void repopulate();
+
 protected:
     FileSetupModel m_model;
     void onContextMenuRequested(const QPoint &point);

@@ -33,15 +33,15 @@ void ProjectManager::create()
     buttonForHeader = new GUI::FlatImageButton("://images/add.png");
     block->header()->addWidget(buttonForHeader);
 
-    auto fileSetupManager = new GUI::FileSetupManager();
-    fileSetupManager->header()->hide();
-    fileSetupManager->addCategory("LEF", ".lef", &m_projectSetup->m_lefFiles);
-    fileSetupManager->addCategory("LIB", ".lib", &m_projectSetup->m_libFiles);
-    fileSetupManager->addCategory("Verilog", ".v", &m_projectSetup->m_verilogFiles);
+    m_fileSetupManager = new GUI::FileSetupManager();
+    m_fileSetupManager->header()->hide();
+    m_fileSetupManager->addCategory("LEF", ".lef", &m_projectSetup->m_lefFiles);
+    m_fileSetupManager->addCategory("LIB", ".lib", &m_projectSetup->m_libFiles);
+    m_fileSetupManager->addCategory("Verilog", ".v", &m_projectSetup->m_verilogFiles);
     //m_projectmanager->addCategory("Layers", ".layers", &m_projectSetup.m_layerFiles);
-    fileSetupManager->addCategory("Timing constraints", ".sdc", &m_projectSetup->m_timingConstraintFiles);
+    m_fileSetupManager->addCategory("Timing constraints", ".sdc", &m_projectSetup->m_timingConstraintFiles);
 
-    block->addWidget(fileSetupManager,1);
+    block->addWidget(m_fileSetupManager,1);
     m_managerLayout->addWidget(block);
 
     // ******************************************************************************************
@@ -58,6 +58,7 @@ void ProjectManager::create()
     blockFrame->addWidget(actionTile);
 
     actionTile = new GUI::FlatActionTile("Place", "://images/floorplan.png", "://images/go.png");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onPlace);
     blockFrame->addWidget(actionTile);
 
     block->addWidget(blockFrame);
@@ -175,6 +176,14 @@ void ProjectManager::create()
     m_managerLayout->addStretch(1);
 
     setLayout(m_managerLayout);
+}
+
+void ProjectManager::repopulate()
+{
+    if (m_fileSetupManager != nullptr)
+    {
+        m_fileSetupManager->repopulate();
+    }
 }
 
 void ProjectManager::onFloorplanSetup()

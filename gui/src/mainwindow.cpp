@@ -33,9 +33,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     Logging::setLogLevel(Logging::LogType::VERBOSE);
 
-    //m_menuBar = new QMenuBar();
-    //setMenuBar(m_menuBar);
-
     createActions();
     createMenus();
 
@@ -98,9 +95,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     loadSettings();
 
-    //m_lua.reset(new GUI::LuaWrapper(m_console, m_db));
-    //m_lua->run("print(\"Running \" .. _VERSION)\n");
-
     m_python = std::make_unique<GUI::Python>(m_db.get(),
         m_console);
     
@@ -139,6 +133,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     m_python->executeScript(R"(import sys; print("Python version"); print (sys.version); )");
     m_python->executeScript(R"(from Luna import *; from LunaExtra import *;)");
+
+    connect(m_projectManager, &GUI::ProjectManager::onPlace, this, &MainWindow::onPlace);
 }
 
 MainWindow::~MainWindow()
@@ -170,20 +166,18 @@ void MainWindow::notify(ChipDB::ObjectKey index, NotificationType t)
 void MainWindow::createMenus()
 {
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));    
+    fileMenu->addAction(m_loadProject);
+    fileMenu->addAction(m_saveProject);
+    fileMenu->addAction(m_saveProjectAs);
+
+    fileMenu->addSeparator();
     fileMenu->addAction(m_runScriptAct);
     fileMenu->addAction(m_clearAct);
     fileMenu->addAction(m_consoleFontAct);
     fileMenu->addSeparator();
+    fileMenu->addAction(m_exportLayers);
+    fileMenu->addSeparator();
     fileMenu->addAction(m_quitAct);
-
-    QMenu *designMenu = menuBar()->addMenu(tr("&Design"));
-    designMenu->addAction(m_loadVerilog);
-
-    QMenu *techMenu = menuBar()->addMenu(tr("&Technology"));
-    techMenu->addAction(m_importLEF);
-    techMenu->addAction(m_importLIB);
-    techMenu->addAction(m_importLayers);
-    techMenu->addAction(m_exportLayers);
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(m_aboutAct);
@@ -201,22 +195,23 @@ void MainWindow::createActions()
     connect(m_consoleFontAct, &QAction::triggered, this, &MainWindow::onConsoleFontDialog);
 
     m_quitAct = new QAction(tr("&Quit"), this);
+    m_quitAct->setShortcut(QKeySequence::Quit);
     connect(m_quitAct, &QAction::triggered, this, &MainWindow::onQuit);
 
-    m_aboutAct = new QAction(tr("&About"), this);
+    m_aboutAct = new QAction(tr("&About"), this);    
     connect(m_aboutAct, &QAction::triggered, this, &MainWindow::onAbout);
 
-    m_loadVerilog = new QAction(tr("&Load Verilog"), this);
-    connect(m_loadVerilog, &QAction::triggered, this, &MainWindow::onLoadVerilog);
+    m_loadProject = new QAction(tr("&Open Project"), this);
+    m_loadProject->setShortcut(QKeySequence::Open);
+    connect(m_loadProject, &QAction::triggered, this, &MainWindow::onLoadProject);
 
-    m_importLEF = new QAction(tr("Import LEF"), this);
-    connect(m_importLEF, &QAction::triggered, this, &MainWindow::onImportLEF);
-    
-    m_importLIB = new QAction(tr("Import LIB"), this);
-    connect(m_importLIB, &QAction::triggered, this, &MainWindow::onImportLIB);
-    
-    m_importLayers = new QAction(tr("Import Layers"), this);
-    connect(m_importLayers, &QAction::triggered, this, &MainWindow::onImportLayers);
+    m_saveProject = new QAction(tr("&Save Project"), this);
+    m_saveProject->setShortcut(QKeySequence::Save);
+    connect(m_saveProject, &QAction::triggered, this, &MainWindow::onSaveProject);
+
+    m_saveProjectAs = new QAction(tr("&Save Project As ..."), this);
+    m_saveProjectAs->setShortcut(QKeySequence::SaveAs);
+    connect(m_saveProjectAs, &QAction::triggered, this, &MainWindow::onSaveProjectAs);
 
     m_exportLayers = new QAction(tr("Export layers"), this);
     connect(m_exportLayers, &QAction::triggered, this, &MainWindow::onExportLayers);
@@ -269,6 +264,66 @@ void MainWindow::onAbout()
     QMessageBox::aboutQt(this, "Luna place and route version " __DATE__ " " __TIME__ );
 }
 
+void MainWindow::onLoadProject()
+{
+    QString directory("");
+    
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Load project file"), directory,
+            tr("Luna project file (*.lpr)"));
+
+    if (!fileName.isEmpty())
+    {
+        std::ifstream pfile(fileName.toStdString());
+        if (!pfile.good() || (!m_projectSetup.readFromJSON(pfile)))
+        {
+            Logging::doLog(Logging::LogType::ERROR,"Project file '%s' cannot be opened for reading\n", fileName.toStdString().c_str());
+            QMessageBox::critical(this, tr("Error"), tr("The project file could not be opened for reading"), QMessageBox::Close);
+            return;
+        }
+
+        m_projectFileName = fileName;
+        m_projectManager->repopulate();
+    }
+}
+
+void MainWindow::onSaveProject()
+{
+    if (m_projectFileName.isEmpty())
+    {
+        onSaveProjectAs();
+    }
+    else
+    {
+        std::ofstream pfile(m_projectFileName.toStdString());
+        if (!pfile.good() || (!m_projectSetup.writeToJSON(pfile)))
+        {
+            Logging::doLog(Logging::LogType::ERROR,"Project file '%s' cannot be saved\n", m_projectFileName.toStdString().c_str());
+            QMessageBox::critical(this, tr("Error"), tr("The project file could not be saved"), QMessageBox::Close);
+            return;
+        }
+    }
+}
+
+void MainWindow::onSaveProjectAs()
+{
+    auto fileName = QFileDialog::getSaveFileName(this, tr("Save project file"),
+        "luna.lpr",
+        tr("Luna project file (*.lpr)"));
+
+    if (!fileName.isEmpty())
+    {
+        std::ofstream pfile(fileName.toStdString());
+        if (!pfile.good() || (!m_projectSetup.writeToJSON(pfile)))
+        {
+            Logging::doLog(Logging::LogType::ERROR,"Project file '%s' cannot be saved\n", m_projectFileName.toStdString().c_str());
+            QMessageBox::critical(this, tr("Error"), tr("The project file could not be saved"), QMessageBox::Close);
+            return;
+        }        
+        m_projectFileName = fileName;
+    }
+}
+
+#if 0
 void MainWindow::onImportLEF()
 {
     QString directory("");
@@ -358,6 +413,7 @@ void MainWindow::onImportLayers()
 
     m_techBrowser->refreshDatabase();
 }
+#endif
 
 void MainWindow::onExportLayers()
 {
@@ -382,6 +438,7 @@ void MainWindow::onExportLayers()
     }
 }
 
+#if 0
 void MainWindow::onLoadVerilog()
 {
     // Fixme: remember the last directory
@@ -409,6 +466,7 @@ void MainWindow::onLoadVerilog()
         m_designBrowser->refreshDatabase();
     }   
 }
+#endif
 
 void MainWindow::onConsoleCommand(const QString &cmd)
 {
@@ -484,3 +542,9 @@ void MainWindow::onConsoleFontDialog()
     m_console->setFont(QFontDialog::getFont(0, m_console->font()));
 }
 
+void MainWindow::onPlace()
+{
+    m_console->print("Starting placement", GUI::MMConsole::PrintType::Complete);
+
+    m_console->print("Placement done", GUI::MMConsole::PrintType::Complete);
+}

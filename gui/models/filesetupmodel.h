@@ -45,6 +45,9 @@ public:
         return m_categories;
     }
 
+    /** reset the model to update the views */
+    void repopulate();
+
 protected:
 
     struct Category
