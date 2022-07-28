@@ -80,6 +80,9 @@ void ProjectManager::create()
     actionTile = new GUI::FlatActionTile("Create tree", "://images/floorplan.png", "://images/go.png");
     blockFrame->addWidget(actionTile);
 
+    actionTile = new GUI::FlatActionTile("Timing Report", "://images/floorplan.png", "://images/go.png");
+    blockFrame->addWidget(actionTile);
+
     block->addWidget(blockFrame);
 
     m_managerLayout->addWidget(block);
@@ -88,8 +91,19 @@ void ProjectManager::create()
     // BLOCK 4
     // ******************************************************************************************
     block = new GUI::BlockContainer();
-    block->setBlockName("Check timing");
+    block->setBlockName("Global routing");
     block->header()->setStyleSheet("background-color: #e8e7e8; ");
+
+    blockFrame = new GUI::BlockFrame();
+    
+    //actionTile = new GUI::FlatActionTile("CTS setup", "://images/floorplan.png", "://images/properties.png");
+    //connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onCTSSetup);
+    //blockFrame->addWidget(actionTile);
+
+    //actionTile = new GUI::FlatActionTile("Create tree", "://images/floorplan.png", "://images/go.png");
+    //blockFrame->addWidget(actionTile);
+
+    block->addWidget(blockFrame);
 
     m_managerLayout->addWidget(block);
 
@@ -97,8 +111,19 @@ void ProjectManager::create()
     // BLOCK 5
     // ******************************************************************************************
     block = new GUI::BlockContainer();
-    block->setBlockName("Global routing");
+    block->setBlockName("Detail routing");
     block->header()->setStyleSheet("background-color: #e8e7e8; ");
+
+    blockFrame = new GUI::BlockFrame();
+    
+    //actionTile = new GUI::FlatActionTile("CTS setup", "://images/floorplan.png", "://images/properties.png");
+    //connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onCTSSetup);
+    //blockFrame->addWidget(actionTile);
+
+    //actionTile = new GUI::FlatActionTile("Create tree", "://images/floorplan.png", "://images/go.png");
+    //blockFrame->addWidget(actionTile);
+
+    block->addWidget(blockFrame);
 
     m_managerLayout->addWidget(block);
 
@@ -106,8 +131,25 @@ void ProjectManager::create()
     // BLOCK 6
     // ******************************************************************************************
     block = new GUI::BlockContainer();
-    block->setBlockName("Detail routing");
+    block->setBlockName("Check design");
     block->header()->setStyleSheet("background-color: #e8e7e8; ");
+
+    blockFrame = new GUI::BlockFrame();
+    
+    //actionTile = new GUI::FlatActionTile("CTS setup", "://images/floorplan.png", "://images/properties.png");
+    //connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onCTSSetup);
+    //blockFrame->addWidget(actionTile);
+
+    actionTile = new GUI::FlatActionTile("Timing Report", "://images/floorplan.png", "://images/go.png");
+    blockFrame->addWidget(actionTile);
+
+    actionTile = new GUI::FlatActionTile("DRC", "://images/floorplan.png", "://images/go.png");
+    blockFrame->addWidget(actionTile);
+
+    //actionTile = new GUI::FlatActionTile("Create tree", "://images/floorplan.png", "://images/go.png");
+    //blockFrame->addWidget(actionTile);
+
+    block->addWidget(blockFrame);
 
     m_managerLayout->addWidget(block);
 
@@ -115,17 +157,19 @@ void ProjectManager::create()
     // BLOCK 7
     // ******************************************************************************************
     block = new GUI::BlockContainer();
-    block->setBlockName("Check design");
-    block->header()->setStyleSheet("background-color: #e8e7e8; ");
-
-    m_managerLayout->addWidget(block);
-
-    // ******************************************************************************************
-    // BLOCK 8
-    // ******************************************************************************************
-    block = new GUI::BlockContainer();
     block->setBlockName("Tape out");
     block->header()->setStyleSheet("background-color: #e8e7e8; ");
+
+    blockFrame = new GUI::BlockFrame();
+    
+    //actionTile = new GUI::FlatActionTile("CTS setup", "://images/floorplan.png", "://images/properties.png");
+    //connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onCTSSetup);
+    //blockFrame->addWidget(actionTile);
+
+    actionTile = new GUI::FlatActionTile("Create GDS2", "://images/floorplan.png", "://images/go.png");
+    blockFrame->addWidget(actionTile);
+
+    block->addWidget(blockFrame);
 
     m_managerLayout->addWidget(block);
     m_managerLayout->addStretch(1);
