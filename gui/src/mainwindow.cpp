@@ -14,6 +14,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QFontDialog>
+#include <QThreadPool>
 
 #include <QJsonDocument>
 #include <QFile>
@@ -387,7 +388,22 @@ void MainWindow::onRunScript()
         std::stringstream message;
         message << "\nRunning script " << fileName.toStdString() << "\n";
         m_console->print(message, GUI::MMConsole::PrintType::Complete);        
+
+#if 0        
+        auto pythonPtr = m_python.get();
+        auto lambda = [this, pythonPtr, &ss]()
+        { 
+            if (pythonPtr != nullptr)
+            {
+                pythonPtr->executeScript(ss.str());
+            }
+        };
+
+        QThreadPool::globalInstance()->start(lambda);
+#else
         m_python->executeScript(ss.str());
+#endif
+
         m_console->enablePrompt();
     }
 }
@@ -425,9 +441,6 @@ void MainWindow::onConsoleFontDialog()
 void MainWindow::onPlace()
 {
     m_console->print("Starting placement", GUI::MMConsole::PrintType::Complete);
-
-    
-
     m_console->print("Placement done", GUI::MMConsole::PrintType::Complete);
 }
 

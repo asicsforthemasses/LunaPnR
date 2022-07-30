@@ -5,11 +5,6 @@
 #include <fstream>
 #include <sstream>
 
-/* TODO: arse 
-
-  shit
-*/
-
 const std::string fileTemplate = R"(
 struct HelpTxt
 {
