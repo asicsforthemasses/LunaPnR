@@ -163,11 +163,12 @@ void ProjectManager::create()
 
     blockFrame = new GUI::BlockFrame();
     
-    //actionTile = new GUI::FlatActionTile("CTS setup", "://images/floorplan.png", "://images/properties.png");
-    //connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onCTSSetup);
-    //blockFrame->addWidget(actionTile);
+    actionTile = new GUI::FlatActionTile("Write GDS2", "://images/floorplan.png", "://images/go.png");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onWriteGDS2);
+    blockFrame->addWidget(actionTile);
 
-    actionTile = new GUI::FlatActionTile("Create GDS2", "://images/floorplan.png", "://images/go.png");
+    actionTile = new GUI::FlatActionTile("Write DEF", "://images/floorplan.png", "://images/go.png");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onWriteDEF);
     blockFrame->addWidget(actionTile);
 
     block->addWidget(blockFrame);

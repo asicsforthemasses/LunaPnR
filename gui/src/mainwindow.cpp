@@ -38,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     auto hMainLayout = new QHBoxLayout();
 
-    m_projectManager = new GUI::ProjectManager(&m_projectSetup);
+    m_projectManager = new GUI::ProjectManager(&m_db->m_projectSetup);
     m_projectSplitter = new QSplitter(Qt::Horizontal, this);
 
     // create tabs
@@ -135,6 +135,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_python->executeScript(R"(from Luna import *; from LunaExtra import *;)");
 
     connect(m_projectManager, &GUI::ProjectManager::onPlace, this, &MainWindow::onPlace);
+    connect(m_projectManager, &GUI::ProjectManager::onWriteDEF, this, &MainWindow::onWriteDEF);
+    connect(m_projectManager, &GUI::ProjectManager::onWriteGDS2, this, &MainWindow::onWriteGDS2);
 }
 
 MainWindow::~MainWindow()
@@ -270,11 +272,11 @@ void MainWindow::onLoadProject()
     
     QString fileName = QFileDialog::getOpenFileName(this, tr("Load project file"), directory,
             tr("Luna project file (*.lpr)"));
-
+    
     if (!fileName.isEmpty())
     {
         std::ifstream pfile(fileName.toStdString());
-        if (!pfile.good() || (!m_projectSetup.readFromJSON(pfile)))
+        if (!pfile.good() || (!m_db->m_projectSetup.readFromJSON(pfile)))
         {
             Logging::doLog(Logging::LogType::ERROR,"Project file '%s' cannot be opened for reading\n", fileName.toStdString().c_str());
             QMessageBox::critical(this, tr("Error"), tr("The project file could not be opened for reading"), QMessageBox::Close);
@@ -295,7 +297,7 @@ void MainWindow::onSaveProject()
     else
     {
         std::ofstream pfile(m_projectFileName.toStdString());
-        if (!pfile.good() || (!m_projectSetup.writeToJSON(pfile)))
+        if (!pfile.good() || (!m_db->m_projectSetup.writeToJSON(pfile)))
         {
             Logging::doLog(Logging::LogType::ERROR,"Project file '%s' cannot be saved\n", m_projectFileName.toStdString().c_str());
             QMessageBox::critical(this, tr("Error"), tr("The project file could not be saved"), QMessageBox::Close);
@@ -313,7 +315,7 @@ void MainWindow::onSaveProjectAs()
     if (!fileName.isEmpty())
     {
         std::ofstream pfile(fileName.toStdString());
-        if (!pfile.good() || (!m_projectSetup.writeToJSON(pfile)))
+        if (!pfile.good() || (!m_db->m_projectSetup.writeToJSON(pfile)))
         {
             Logging::doLog(Logging::LogType::ERROR,"Project file '%s' cannot be saved\n", m_projectFileName.toStdString().c_str());
             QMessageBox::critical(this, tr("Error"), tr("The project file could not be saved"), QMessageBox::Close);
@@ -322,98 +324,6 @@ void MainWindow::onSaveProjectAs()
         m_projectFileName = fileName;
     }
 }
-
-#if 0
-void MainWindow::onImportLEF()
-{
-    QString directory("");
-
-    // Fixme: remember the last directory
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Import LEF file"), directory,
-            tr("LEF file (*.lef *.tlef)"));
-    
-    if (!fileName.isEmpty())
-    {
-        std::ifstream leffile(fileName.toStdString());
-        if (!leffile.good())
-        {
-            Logging::doLog(Logging::LogType::ERROR,"LEF file '%s' cannot be opened for reading\n", fileName.toStdString().c_str());
-            QMessageBox::critical(this, tr("Error"), tr("The LEF file could not be opened for reading"), QMessageBox::Close);
-            return;
-        }
-
-        if (!ChipDB::LEF::Reader::load(m_db->design(), leffile))
-        {
-            Logging::doLog(Logging::LogType::ERROR,"LEF file '%s' contains errors\n", fileName.toStdString().c_str());
-            QMessageBox::critical(this, tr("Error"), tr("The LEF file contains errors"), QMessageBox::Close);
-        }
-
-        m_techBrowser->refreshDatabase();
-        m_cellBrowser->refreshDatabase();
-    }
-}
-
-void MainWindow::onImportLIB()
-{
-    // Fixme: remember the last directory
-    QString directory("");
-
-    // Fixme: remember the last directory
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Import Liberty timing file"), directory,
-            tr("LIB file (*.lib)"));
-    
-    if (!fileName.isEmpty())
-    {
-        std::ifstream libfile(fileName.toStdString());
-        if (!libfile.good())
-        {
-            Logging::doLog(Logging::LogType::ERROR,"LIB file '%s' cannot be opened for reading\n", fileName.toStdString().c_str());
-            QMessageBox::critical(this, tr("Error"), tr("The Liberty file could not be opened for reading"), QMessageBox::Close);
-            return;
-        }
-
-        if (!ChipDB::Liberty::Reader::load(m_db->design(), libfile))
-        {
-            Logging::doLog(Logging::LogType::ERROR,"LIB file '%s' contains errors\n", fileName.toStdString().c_str());
-            QMessageBox::critical(this, tr("Error"), tr("The LIB file contains errors"), QMessageBox::Close);
-        }
-
-        m_techBrowser->refreshDatabase();
-        m_cellBrowser->refreshDatabase();
-    }    
-}
-
-void MainWindow::onImportLayers()
-{
-    // Fixme: remember the last directory
-    QString directory("");
-
-    // Fixme: remember the last directory
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Import layer setup"), directory,
-            tr("JSON file (*.json)"));
-    
-    if (!fileName.isEmpty())
-    {
-        std::ifstream ifile(fileName.toStdString(), std::ios::in);
-        if (ifile.is_open())
-        {
-            std::stringstream buffer;
-            buffer << ifile.rdbuf();
-            if(!m_db->m_layerRenderInfoDB.readJson(buffer.str()))
-            {
-                QMessageBox::critical(this, tr("Error"), tr("The Layer setup file contains errors"), QMessageBox::Close);
-                Logging::doLog(Logging::LogType::ERROR, "Cannot read/parse Layer setup file!\n");
-            }
-        }
-        else
-        {
-            Logging::doLog(Logging::LogType::ERROR, "Cannot open Layer setup file!\n");
-        }
-    }
-
-    m_techBrowser->refreshDatabase();
-}
-#endif
 
 void MainWindow::onExportLayers()
 {
@@ -437,36 +347,6 @@ void MainWindow::onExportLayers()
         }
     }
 }
-
-#if 0
-void MainWindow::onLoadVerilog()
-{
-    // Fixme: remember the last directory
-    QString directory("");
-
-    QString fileName = QFileDialog::getOpenFileName(this, tr("load Verilog netlist"), directory,
-            tr("Verilog file (*.v)"));
-    
-    if (!fileName.isEmpty())
-    {
-        std::ifstream verilogfile(fileName.toStdString(), std::ios::in);
-        if (verilogfile.is_open())
-        {
-            if (!ChipDB::Verilog::Reader::load(m_db->design(), verilogfile))
-            {
-                QMessageBox::critical(this, tr("Error"), tr("Could not parse Verilog file"), QMessageBox::Close);
-                Logging::doLog(Logging::LogType::ERROR, "Cannot read/parse verilog file!\n");
-            }
-        }
-        else
-        {
-            QMessageBox::critical(this, tr("Error"), tr("Could not open Verilog file"), QMessageBox::Close);
-            Logging::doLog(Logging::LogType::ERROR, "Cannot open verilog file!\n");
-        }
-        m_designBrowser->refreshDatabase();
-    }   
-}
-#endif
 
 void MainWindow::onConsoleCommand(const QString &cmd)
 {
@@ -546,5 +426,17 @@ void MainWindow::onPlace()
 {
     m_console->print("Starting placement", GUI::MMConsole::PrintType::Complete);
 
+    
+
     m_console->print("Placement done", GUI::MMConsole::PrintType::Complete);
+}
+
+void MainWindow::onWriteDEF()
+{
+
+}
+
+void MainWindow::onWriteGDS2()
+{
+
 }

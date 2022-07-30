@@ -11,6 +11,7 @@
 #include "lunacore.h"
 #include "layerrenderinfo.h"
 #include "hatchlibrary.h"
+#include "projectsetup.h"
 
 namespace GUI
 {
@@ -55,6 +56,7 @@ public:
 
     LayerRenderInfoDB m_layerRenderInfoDB;
     HatchLibrary      m_hatchLib;
+    ProjectSetup      m_projectSetup;
 
 protected:    
     ChipDB::Design  m_design;

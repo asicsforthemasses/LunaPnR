@@ -14,6 +14,7 @@
 
 #include "pyluna_extra.h"
 #include "common/guihelpers.h"
+#include "types/pyproject.h"
 
 static GUI::Database* getDatabase()
 {
@@ -174,11 +175,25 @@ static PyModuleDef LunaExtraModule = {
 static PyObject* PyInit_LunaExtra()
 {
     std::cout << "PyInit_LunaExtra called\n";
+
+    if (PyType_Ready(&PyProjectLefFilesType) < 0)
+        return nullptr;
+
+    if (PyType_Ready(&PyProjectLibFilesType) < 0)
+        return nullptr;
+
+    if (PyType_Ready(&PyProjectVerilogFilesType) < 0)
+        return nullptr;
+
     auto m = PyModule_Create(&LunaExtraModule);
     if (m == nullptr)
     {
         return nullptr;
     }
+
+    incRefAndAddObject(m, &PyProjectLefFilesType);
+    incRefAndAddObject(m, &PyProjectLibFilesType);
+    incRefAndAddObject(m, &PyProjectVerilogFilesType);
 
     return m;
 }
@@ -222,6 +237,6 @@ bool GUI::Python::postInitHook()
         std::cout << "PyModule_AddObject failed!\n";
         Py_XDECREF(capsule);
     }
-
+    
     return true;
 }

@@ -21,6 +21,8 @@ protected slots:
 
 signals:
     void onPlace();
+    void onWriteDEF();
+    void onWriteGDS2();
 
 protected:
     void create();    

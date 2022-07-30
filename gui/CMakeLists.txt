@@ -59,6 +59,9 @@ set (LUNA_SRC_FILES
     projectmanager/filesetupmanager.cpp
     projectmanager/projectmanager.cpp
     console/mmconsole.cpp
+    python/types/pyprojectlef.cpp
+    python/types/pyprojectlib.cpp
+    python/types/pyprojectverilog.cpp
     python/pyluna_extra.cpp
     src/mainwindow.cpp
     src/main.cpp

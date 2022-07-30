@@ -72,6 +72,12 @@ bool Parser::execute(const std::vector<Lexer::token> &tokens)
         {
             onAttribute(previous().m_value);
         }
+        else
+        {
+            // error?
+            error("???\n");
+            return false;
+        }
     }
 
     return true;

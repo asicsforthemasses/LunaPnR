@@ -172,7 +172,7 @@ void FloorplanView::wheelEvent(QWheelEvent *event)
     QPoint numDegrees = event->angleDelta() / 8;
 
     //FIXME: for 5.14 it is called position()
-    const auto mousePos = event->pos();
+    const auto mousePos = event->position();
     auto mousePosInViewport = m_viewPort.toViewport(mousePos);
 
     auto tmpViewPortRect = m_viewPort.getViewportRect();
@@ -591,13 +591,12 @@ void FloorplanView::drawLeftRuler(QPainter &p)
 
     QFontMetrics fm(font());
 
-    const auto textWidth  = fm.width("X") + 4;
+    const auto textWidth  = fm.horizontalAdvance("X") + 4;
     const int  tickLength = 10;
     const auto rulerWidth = textWidth + tickLength;
     const int  bottomRulerHeight = fm.height() + 4 + 10;
     p.setClipRect(0, 0, rulerWidth+1, height() - bottomRulerHeight);
     p.setClipping(true);
-
 
     divisions++;
     auto y = static_cast<ChipDB::CoordType>(ceilf(viewrect.bottom() / unit) * unit);

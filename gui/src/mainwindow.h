@@ -63,9 +63,10 @@ public slots:
     void onGUIUpdateTimer();
     
     void onPlace();
+    void onWriteDEF();
+    void onWriteGDS2();
 
 protected:
-    //GUI::ProjectManager* createProjectManager();
     void createMenus();
     void createActions();
     void saveSettings();
@@ -83,7 +84,6 @@ protected:
     QAction *m_runScriptAct;
     QAction *m_consoleFontAct;
 
-    //QMenuBar    *m_menuBar;
     QSplitter   *m_projectSplitter;
     QSplitter   *m_consoleSplitter;
     QTabWidget  *m_mainTabWidget;
@@ -96,8 +96,6 @@ protected:
     GUI::ProjectManager *m_projectManager;
 
     QString m_projectFileName;
-    GUI::ProjectSetup   m_projectSetup;
-
     std::shared_ptr<GUI::Database> m_db;
 
     bool m_floorplanDirty;
