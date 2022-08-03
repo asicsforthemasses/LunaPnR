@@ -472,11 +472,6 @@ void MainWindow::onPlace()
         cmdFileContents << "read_verilog " << verilog << "\n";
     }
 
-    for(auto const& sdc : m_db->m_projectSetup.m_timingConstraintFiles)
-    {
-        cmdFileContents << "read_sdc " << sdc << "\n";
-    }
-
     auto modulePtr = m_db->design().getTopModule();
     if (!modulePtr)
     {
@@ -485,8 +480,19 @@ void MainWindow::onPlace()
     }
 
     cmdFileContents << "link_design " << modulePtr->name() << "\n";
+
+    for(auto const& sdc : m_db->m_projectSetup.m_timingConstraintFiles)
+    {
+        cmdFileContents << "read_sdc " << sdc << "\n";
+    }    
+
+    cmdFileContents << "check_setup\n";
     cmdFileContents << "report_checks\n";
 
+    m_console->print("Using module: ", GUI::MMConsole::PrintType::Partial);
+    m_console->print(modulePtr->name(), GUI::MMConsole::PrintType::Partial);
+    m_console->print("\n", GUI::MMConsole::PrintType::Complete);
+    
     auto cmdFileDescriptor = ChipDB::Subprocess::createTempFile();
 
     if (!cmdFileDescriptor->good())
@@ -497,6 +503,9 @@ void MainWindow::onPlace()
 
     cmdFileDescriptor->m_stream << cmdFileContents.rdbuf();
     cmdFileDescriptor->close();
+
+    m_console->print("OpenSTA script:\n", GUI::MMConsole::PrintType::Complete);
+    m_console->print(cmdFileContents.str(), GUI::MMConsole::PrintType::Complete);
 
     std::stringstream cmd;
     cmd << "/usr/local/bin/sta -no_splash -exit " << cmdFileDescriptor->m_name << "\n";
