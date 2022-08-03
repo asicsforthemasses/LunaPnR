@@ -644,6 +644,19 @@ void Scripting::Python::setConsoleRedirect(std::function<void(const char *, ssiz
     }        
 }
 
+bool Scripting::Python::executeScriptFile(const std::string &fileName)
+{
+    std::ifstream script(fileName);
+    if (!script.good())
+    {
+        return false;
+    }
+    std::stringstream buffer;
+    buffer << script.rdbuf();
+
+    return executeScript(buffer.str());
+}
+
 bool Scripting::Python::executeScript(const std::string &code)
 {
     if (!m_initCalled)

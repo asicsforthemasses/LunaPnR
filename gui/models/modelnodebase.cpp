@@ -222,7 +222,7 @@ QVariant ModelBase::data(const QModelIndex &index, int role) const
 
     switch(role)
     {
-    case Qt::BackgroundColorRole:
+    case Qt::BackgroundRole:
         return node->getBackgroundColor(index.column());
     case Qt::DisplayRole:
         return node->data(index.column());

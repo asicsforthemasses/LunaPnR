@@ -25,6 +25,7 @@ public:
     virtual bool postInitHook() { return true; };
 
     bool executeScript(const std::string &code);
+    bool executeScriptFile(const std::string &fileName);
 
     void setConsoleRedirect(std::function<void(const char *, ssize_t)> stdoutFunc,
         std::function<void(const char *, ssize_t)> stderrFunc);

@@ -20,9 +20,11 @@
 #include <QFile>
 #include <QHeaderView>
 
+#include <sstream>
 #include <fstream>
 
 #include "mainwindow.h"
+#include "common/subprocess.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -286,6 +288,9 @@ void MainWindow::onLoadProject()
 
         m_projectFileName = fileName;
         m_projectManager->repopulate();
+
+        m_python->executeScriptFile("scripts/loadall.py");
+
     }
 }
 
@@ -442,6 +447,72 @@ void MainWindow::onPlace()
 {
     m_console->print("Starting placement", GUI::MMConsole::PrintType::Complete);
     m_console->print("Placement done", GUI::MMConsole::PrintType::Complete);
+
+    if (!m_db)
+    {
+        m_console->print("Error: no database", GUI::MMConsole::PrintType::Complete);
+    }
+
+    //m_db->clear();
+
+    // do Timing check
+    auto lineCallback = [this](const std::string& str)
+    {
+        m_console->print(str, GUI::MMConsole::PrintType::Complete);
+    };
+
+    std::stringstream cmdFileContents;
+    for(auto const& lib : m_db->m_projectSetup.m_libFiles)
+    {
+        cmdFileContents << "read_liberty " << lib << "\n";
+    }
+
+    for(auto const& verilog : m_db->m_projectSetup.m_verilogFiles)
+    {
+        cmdFileContents << "read_verilog " << verilog << "\n";
+    }
+
+    for(auto const& sdc : m_db->m_projectSetup.m_timingConstraintFiles)
+    {
+        cmdFileContents << "read_sdc " << sdc << "\n";
+    }
+
+    auto modulePtr = m_db->design().getTopModule();
+    if (!modulePtr)
+    {
+        m_console->print("Error: no top module selected\n", GUI::MMConsole::PrintType::Complete);
+        return;
+    }
+
+    cmdFileContents << "link_design " << modulePtr->name() << "\n";
+    cmdFileContents << "report_checks\n";
+
+    auto cmdFileDescriptor = ChipDB::Subprocess::createTempFile();
+
+    if (!cmdFileDescriptor->good())
+    {
+        m_console->print("Cannot create temporary file\n", GUI::MMConsole::PrintType::Complete);
+        return;
+    }
+
+    cmdFileDescriptor->m_stream << cmdFileContents.rdbuf();
+    cmdFileDescriptor->close();
+
+    std::stringstream cmd;
+    cmd << "/usr/local/bin/sta -no_splash -exit " << cmdFileDescriptor->m_name << "\n";
+
+    std::string consoleStr = "Running: ";
+    consoleStr.append(cmd.str());
+
+    m_console->print(consoleStr, GUI::MMConsole::PrintType::Complete);
+    if (!ChipDB::Subprocess::run(cmd.str(), lineCallback))
+    {
+        std::cout << "Call failed!!\n";        
+    }
+    else
+    {
+        std::cout << "Call okay!!\n";
+    }
 }
 
 void MainWindow::onWriteDEF()

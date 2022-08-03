@@ -179,7 +179,7 @@ QVariant LayerTableModel::data(const QModelIndex &index, int role) const
                 return QString("(null)");
         }
         break;
-    case Qt::BackgroundColorRole:        
+    case Qt::BackgroundRole:        
         if (index.row() % 2)
             return m_darkColor;
         else
