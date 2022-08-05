@@ -121,7 +121,7 @@ namespace LunaCore::Verilog
     class ExportConstVisitor : public ChipDB::ConstVisitor
     {
     public:
-        ExportConstVisitor(std::ostream &os, const ChipDB::Netlist &netlist) : m_netlist(netlist), m_os(os), m_ok(true) {}
+        ExportConstVisitor(std::ostream &os, const ChipDB::Netlist &netlist) : m_netlist(netlist), m_os(os) {}
 
         [[nodiscard]] bool isOk() const
         {
@@ -224,7 +224,7 @@ namespace LunaCore::Verilog
 
     protected:
         const ChipDB::Netlist &m_netlist;
-        bool m_ok;
+        bool m_ok = true;
         std::ostream &m_os;
     };
 

@@ -348,17 +348,11 @@ void ReaderImpl::onRect(int64_t x1, int64_t y1, int64_t x2, int64_t y2)
         {             
             if (!m_curPinInfo)
             {
+                Logging::doLog(Logging::LogType::ERROR,"LEF::ReaderImpl::onRect m_curPinInfo is null\n");
                 return;
             }
 
-            if (m_curPinInfo  != nullptr)
-            {
-                m_curPinInfo->m_pinLayout[m_activePinLayerName].push_back(rect);
-            }
-            else
-            {
-                Logging::doLog(Logging::LogType::ERROR,"LEF::Reader pin layout not found for pin %s\n", m_curPinInfo->m_name.c_str());
-            }
+            m_curPinInfo->m_pinLayout[m_activePinLayerName].push_back(rect);
         }
         break;
     case CONTEXT_OBS:
