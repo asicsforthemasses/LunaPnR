@@ -26,6 +26,8 @@
 #include "mainwindow.h"
 #include "common/subprocess.h"
 
+#include "tasks/readallfiles.h"
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     m_db = std::make_shared<GUI::Database>();
@@ -66,6 +68,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_console = new GUI::MMConsole(this);
 
     connect(m_console, &GUI::MMConsole::executeCommand, this, &MainWindow::onConsoleCommand);
+
+    m_consoleHandler = std::make_unique<ConsoleLogOutputHandler>(m_console);
+    Logging::setOutputHandler(m_consoleHandler.get());
 
     m_consoleSplitter = new QSplitter(Qt::Vertical, this);
     m_consoleSplitter->addWidget(m_mainTabWidget);
@@ -261,6 +266,7 @@ void MainWindow::loadSettings()
 void MainWindow::onQuit()
 {
     saveSettings();
+    Logging::setOutputHandler(nullptr);
     QApplication::quit();
 }
 
@@ -453,7 +459,18 @@ void MainWindow::onPlace()
         m_console->print("Error: no database", GUI::MMConsole::PrintType::Complete);
     }
 
-    //m_db->clear();
+    m_db->clear();
+
+    // read all file into the database
+    Tasks::ReadAllFiles readAllFiles;
+    readAllFiles.run(*m_db.get());
+    readAllFiles.wait();
+
+    if ((m_db->design().m_moduleLib->size() == 1) && (!m_db->design().getTopModule()))
+    {
+        auto moduleIter = m_db->design().m_moduleLib->begin();
+        m_db->design().setTopModule(moduleIter->name());
+    }
 
     // do Timing check
     auto lineCallback = [this](const std::string& str)
@@ -532,4 +549,33 @@ void MainWindow::onWriteDEF()
 void MainWindow::onWriteGDS2()
 {
 
+}
+
+ConsoleLogOutputHandler::ConsoleLogOutputHandler(GUI::MMConsole *console) : m_console(console)
+{
+
+}
+
+void ConsoleLogOutputHandler::print(Logging::LogType t, const std::string &txt)
+{
+    if (m_console != nullptr)
+    {
+        m_console->mtPrint(txt);
+    }
+    else
+    {
+        std::cout << txt;
+    }
+}
+
+void ConsoleLogOutputHandler::print(Logging::LogType t, const std::string_view &txt)
+{
+    if (m_console != nullptr)
+    {
+        m_console->mtPrint(txt);
+    }
+    else
+    {
+        std::cout << txt;
+    }
 }

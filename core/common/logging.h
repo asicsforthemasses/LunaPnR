@@ -1,13 +1,14 @@
 /*
-  LunaPnR Source Code
+    LunaPnR Source Code
   
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
+    SPDX-License-Identifier: GPL-3.0-only
+    SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
 */
 
 #pragma once
 #include <string>
 #include <sstream>
+#include <string_view>
 
 #ifdef __GNUC__
 #include <signal.h>
@@ -27,6 +28,15 @@ enum class LogType : uint8_t
     PRINT = 100
 };
 
+/** subclass LogOutputHandler to provide your own output processing 
+ *  you must provide multi-threading support yourself.
+*/
+struct LogOutputHandler
+{
+    virtual void print(LogType level, const std::string &txt) = 0;
+    virtual void print(LogType level, const std::string_view &txt) = 0;
+};
+
 /** log something using standard C printf format varargs - limit 2049 chars */
 void doLog(LogType t, const char *format, ...);
 
@@ -41,5 +51,8 @@ void setLogLevel(LogType level);
 
 /** get the log level ... */
 LogType getLogLevel();
+
+/** set new log output handler */
+void setOutputHandler(LogOutputHandler *handler);
 
 };

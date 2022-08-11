@@ -13,6 +13,7 @@
 #include "logging.h"
 
 static Logging::LogType gs_loglevel = Logging::LogType::WARNING;
+static Logging::LogOutputHandler *gs_logOutputHandler = nullptr;
 
 #if 1
 static const char* FGRED     = "\033[38;5;9m";
@@ -35,6 +36,11 @@ static const char* FGINFO  = "";
 static const char* FGWARN  = "";
 static const char* FGVERB  = "";
 #endif
+
+void Logging::setOutputHandler(Logging::LogOutputHandler *handler)
+{
+    gs_logOutputHandler = handler;
+}
 
 void Logging::setLogLevel(LogType level)
 {
@@ -88,8 +94,16 @@ void Logging::doLog(LogType t, const char *format, ...)
     va_start(argptr, format);
     vsnprintf(&buffer[0], buffer.size(), format, argptr);
     va_end(argptr);
-    ss << &buffer[0] << FGDEFAULT;
-    std::cout << ss.str();
+    
+    if (gs_logOutputHandler == nullptr)
+    {
+        ss << &buffer[0] << FGDEFAULT;
+        std::cout << ss.str();
+    }
+    else
+    {
+        gs_logOutputHandler->print(t, std::string_view(&buffer[0]));
+    }
 }
 
 void Logging::doLog(LogType t, const std::stringstream &txt)
@@ -123,5 +137,12 @@ void Logging::doLog(LogType t, const std::stringstream &txt)
         break;
     }
 
-    std::cout << ss.str() << txt.str() << FGDEFAULT;
+    if (gs_logOutputHandler == nullptr)
+    {
+        std::cout << ss.str() << txt.str() << FGDEFAULT;
+    }
+    else
+    {
+        gs_logOutputHandler->print(t, txt.str());
+    }
 }

@@ -32,6 +32,18 @@
 #include "../common/projectsetup.h"
 #include "../python/pyluna_extra.h"
 
+class ConsoleLogOutputHandler : public Logging::LogOutputHandler
+{
+public:
+    ConsoleLogOutputHandler(GUI::MMConsole *console);
+
+    void print(Logging::LogType t, const std::string &txt);
+    void print(Logging::LogType t, const std::string_view &txt);
+
+protected:
+    GUI::MMConsole *m_console = nullptr;
+};
+
 class MainWindow : public QMainWindow, public ChipDB::INamedStorageListener
 {
     Q_OBJECT
@@ -104,5 +116,6 @@ protected:
 
     QTimer m_guiUpdateTimer;
 
+    std::unique_ptr<ConsoleLogOutputHandler> m_consoleHandler;
     std::unique_ptr<GUI::Python> m_python;
 };

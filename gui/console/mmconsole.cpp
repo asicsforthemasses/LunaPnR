@@ -12,6 +12,7 @@
 #include <memory>
 #include <array>
 
+
 #include <QDebug>
 #include <QFont>
 #include <QScrollBar>
@@ -20,12 +21,56 @@
 #include <QApplication>
 #include <QSettings>
 #include <QScreen>
+#include <QApplication>
 
 #include "mmconsole.h"
 
 using namespace GUI;
 
 #include "commandcompletion.inc"
+
+
+MTStringBuffer::MTStringBuffer(QObject *eventReceiver) : m_eventReceiver(eventReceiver)
+{
+}
+
+void MTStringBuffer::print(const std::string &txt)
+{
+    std::lock_guard<std::mutex> guard(m_mutex);
+    m_buffer.push_back(txt);
+
+    if (m_eventReceiver != nullptr)
+    {
+        auto event = new QEvent(QEvent::User);
+        QApplication::postEvent(m_eventReceiver, event);
+    }
+}
+
+void MTStringBuffer::print(const std::string_view &txt)
+{
+    std::lock_guard<std::mutex> guard(m_mutex);
+    m_buffer.push_back(std::string(txt));
+
+    if (m_eventReceiver != nullptr)
+    {
+        auto event = new QEvent(QEvent::User);
+        QApplication::postEvent(m_eventReceiver, event);
+    }    
+}
+
+std::string MTStringBuffer::pop()
+{
+    std::lock_guard<std::mutex> guard(m_mutex);
+    auto str = m_buffer.front();
+    m_buffer.pop_front();
+    return str;
+}
+
+bool MTStringBuffer::containsString()
+{
+    std::lock_guard<std::mutex> guard(m_mutex);
+    return !m_buffer.empty();
+}
 
 MMConsole::MMConsole(QWidget *parent) : QTextEdit("", parent)
 {
@@ -44,6 +89,8 @@ MMConsole::MMConsole(QWidget *parent) : QTextEdit("", parent)
     m_overlay = new TxtOverlay(this);
     m_overlay->hide();
     m_overlay->setText("load_verilog(filename)");
+
+    m_mtStringBuffer = std::make_unique<MTStringBuffer>(this);
 }
 
 void MMConsole::setColours(const QColor &bkCol, const QColor &promptCol, const QColor &errorCol) noexcept
@@ -57,6 +104,23 @@ void MMConsole::setColours(const QColor &bkCol, const QColor &promptCol, const Q
     m_colours.m_bkCol     = bkCol;
     m_colours.m_promptCol = promptCol;
     m_colours.m_errorCol  = errorCol;
+}
+
+bool MMConsole::event(QEvent *event)
+{
+    if (event->type() == QEvent::User)
+    {
+        if (m_mtStringBuffer)
+        {
+            while(m_mtStringBuffer->containsString())
+            {
+                print(m_mtStringBuffer->pop(), PrintType::Complete);
+            }
+            return true;
+        }
+        return false;        
+    }
+    return QTextEdit::event(event);
 }
 
 MMConsole::ConsoleColours MMConsole::getColours() const noexcept
@@ -335,6 +399,22 @@ void MMConsole::print(const QString &txt, PrintType pt)
         {
             displayPrompt();
         }
+    }
+}
+
+void MMConsole::mtPrint(const std::string &txt)
+{
+    if (m_mtStringBuffer)
+    {
+        m_mtStringBuffer->print(txt);
+    }
+}
+
+void MMConsole::mtPrint(const std::string_view &txt)
+{
+    if (m_mtStringBuffer)
+    {
+        m_mtStringBuffer->print(txt);
     }
 }
 

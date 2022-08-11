@@ -13,7 +13,9 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <list>
 #include <sstream>
+#include <mutex>
 
 #include <QWidget>
 #include <QListWidget>
@@ -29,6 +31,25 @@
 
 namespace GUI
 {
+
+/** multi-threaded string buffer */
+class MTStringBuffer
+{
+public:
+    MTStringBuffer(QObject *eventReceiver);
+
+    void print(const std::string &txt);
+    void print(const std::string_view &txt);
+
+    std::string pop();
+    bool containsString();
+
+protected:
+    QObject *m_eventReceiver = nullptr;
+    std::mutex m_mutex;
+    std::list<std::string> m_buffer;
+};
+
 
 class PopupListWidget : public QListWidget
 {
@@ -99,6 +120,12 @@ public:
     void print(const std::stringstream &ss, PrintType pt);
     void print(const char *txt, PrintType pt);
 
+    /** multi-threaded safe print */
+    void mtPrint(const std::string &txt);
+
+    /** multi-threaded safe print */
+    void mtPrint(const std::string_view &txt);
+
     struct ConsoleColours
     {
         QColor  m_bkCol;
@@ -140,6 +167,9 @@ protected:
     void updateHelpOverlay();
     bool canShowHelp(const QString &cmd) const;
     QString getHelpString(const QString &cmd) const;
+
+    bool event(QEvent *event) override;
+    std::unique_ptr<MTStringBuffer> m_mtStringBuffer;
 
     ssize_t m_historyWriteIdx;
     ssize_t m_historyReadIdx;

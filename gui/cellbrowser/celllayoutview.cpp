@@ -5,8 +5,6 @@
   SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
 */
 
-
-
 #include <QFontMetricsF>
 #include <QPainter>
 #include <QWheelEvent>
@@ -142,7 +140,7 @@ void CellLayoutView::wheelEvent(QWheelEvent *event)
     //QPoint numPixels = event->pixelDelta();
     QPoint numDegrees = event->angleDelta() / 8;
 
-    auto mouseChipPos = toChip(event->pos());
+    auto mouseChipPos = toChip(event->position());
     std::cout << mouseChipPos << "\n";
 
     if (numDegrees.y() > 0)
