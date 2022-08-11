@@ -1,0 +1,10 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: https://www.github.com/asicsforthemasses/lunapnr
+
+Files: *
+Copyright: 2022, asicsforthemasses <info@asicsforthemasses.com>
+License: GPL-3
+
+Files: /contrib/lua-5.4.3
+Copyright: 1994-2022 Lua.org, PUC-Rio.
+License: MIT

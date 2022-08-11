@@ -6,6 +6,8 @@
 
 cmake_minimum_required(VERSION 3.20)
 
+OPTION(ENABLE_PACKAGING "ENABLE_PACKAGING Option" OFF)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -21,7 +23,10 @@ project(luna_pnr VERSION 0.1 HOMEPAGE_URL https://www.asicsforthemasses.com)
 if(UNIX)
     set(LUNA_INSTALL_PREFIX "/opt/lunapnr-${CMAKE_PROJECT_VERSION}")
     set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-    include(Packing)
+
+    if(ENABLE_PACKAGING)
+        include(Packing)
+    endif(ENABLE_PACKAGING)
 endif(UNIX)
 
 ############################################################
