@@ -9,13 +9,37 @@ branches:
 addons:
   apt:
     packages:
+      - wget
       - cmake
-      - g++-9
       - build-essential
       - ninja-build
-      - qt5-default 
+      - qtbase5-dev
+      - qttools5-dev-tools
       - libboost-test-dev
       - libboost-filesystem-dev
+      - libeigen3-dev
+
+install:
+  # https://riptutorial.com/cmake/example/4723/configure-travis-ci-with-newest-cmake
+  # first we create a directory for the CMake binaries
+  - DEPS_DIR="${TRAVIS_BUILD_DIR}/deps"
+  - mkdir ${DEPS_DIR} && cd ${DEPS_DIR}
+  # we use wget to fetch the cmake binaries
+  - travis_retry wget --no-check-certificate https://cmake.org/files/v3.20/cmake-3.20.6-linux-x86_64.tar.gz
+  # this is optional, but useful:
+  # do a quick md5 check to ensure that the archive we downloaded did not get compromised
+  - echo "458777097903b0f35a0452266b923f0a2f5b62fe331e636e2dcc4b636b768e36 *cmake-3.20.6-linux-x86_64.tar.gz" > cmake_sha256.txt
+  - sha256sum -c cmake_sha256.txt
+  # extract the binaries; the output here is quite lengthy,
+  # so we swallow it to not clutter up the travis console
+  - tar -xvf cmake-3.20.6-linux-x86_64.tar.gz > /dev/null
+  - mv cmake-3.20.6-linux-x86_64 cmake-install
+  # add both the top-level directory and the bin directory from the archive
+  # to the system PATH. By adding it to the front of the path we hide the
+  # preinstalled CMake with our own.
+  - PATH=${DEPS_DIR}/cmake-install:${DEPS_DIR}/cmake-install/bin:$PATH
+  # don't forget to switch back to the main build directory once you are done
+  - cd ${TRAVIS_BUILD_DIR}
 
 script:
   - cmake --version
@@ -24,4 +48,5 @@ script:
   - cd build
   - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUseCPPCHECK=OFF ..
   - ninja
-  - ctest -V
+  - cd ..
+  - ./build/test/core/core_test
