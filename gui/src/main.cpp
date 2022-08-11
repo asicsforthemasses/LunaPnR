@@ -10,7 +10,7 @@
 #include <QApplication>
 #include <QTranslator>
 #include <QObject>
-#include <QDesktopWidget>
+#include <QScreen>
 #include <QDirIterator>
 #include <QDebug>
 
@@ -39,8 +39,7 @@ int main(int argc, char *argv[]) {
 
     parser.process(app);
 
-    //if (parser.isSet(showResourcesOption))
-    if (true)
+    if (parser.isSet(showResourcesOption))
     {
         std::cout << "Resources:\n";
         QDirIterator it(":", QDirIterator::Subdirectories);
@@ -93,8 +92,7 @@ int main(int argc, char *argv[]) {
     auto lastWindowSize = settings.value("application/size", QSize(0,0)).toSize();
 
     MainWindow window;
-    QDesktopWidget widget;
-    QRect screenGeometry = widget.screenGeometry();
+    QRect screenGeometry = QApplication::primaryScreen()->availableGeometry();
 
     int height = screenGeometry.height();
     int width = screenGeometry.width();
