@@ -32,7 +32,9 @@
 namespace GUI
 {
 
-/** multi-threaded string buffer */
+/** multi-threaded string buffer 
+ *  used by MMConsole to store log messages coming in from other threads.
+*/
 class MTStringBuffer
 {
 public:
@@ -50,7 +52,7 @@ protected:
     std::list<std::string> m_buffer;
 };
 
-
+/** A list widget that is used for code completion */
 class PopupListWidget : public QListWidget
 {
     Q_OBJECT
@@ -69,7 +71,7 @@ protected:
     virtual void keyPressEvent(QKeyEvent *e);
 };
 
-
+/** a QDialog that shows the code completion list */
 class PopupCompleter : public QDialog
 {
     Q_OBJECT
