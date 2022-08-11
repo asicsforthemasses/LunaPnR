@@ -16,6 +16,7 @@ addons:
       - qttools5-dev-tools
       - libboost-test-dev
       - libboost-filesystem-dev
+      - libeigen3-dev
 
 install:
   # https://riptutorial.com/cmake/example/4723/configure-travis-ci-with-newest-cmake
