@@ -10,7 +10,6 @@ cmake_minimum_required(VERSION 3.20)
 set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 
 project(test_suite)
-enable_testing()
 
 find_package(Boost QUIET COMPONENTS filesystem system unit_test_framework REQUIRED)
 

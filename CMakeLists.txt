@@ -14,8 +14,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ## Make Debian/Ubuntu happy: this way the executable is not detected as a shared lib :-/
 set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 
-project(luna_pnr VERSION 0.1 HOMEPAGE_URL https://www.asicsforthemasses.com)
+enable_testing()
 
+project(luna_pnr VERSION 0.1 HOMEPAGE_URL https://www.asicsforthemasses.com)
 
 ############################################################
 ## UNIX specific options
@@ -48,8 +49,6 @@ endif(MSVC)
 ############################################################
 ## Main project
 ############################################################
-
-enable_testing()
 
 add_subdirectory(tools)
 add_subdirectory(core)

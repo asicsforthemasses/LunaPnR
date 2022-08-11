@@ -48,4 +48,5 @@ script:
   - cd build
   - cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DUseCPPCHECK=OFF ..
   - ninja
-  - ctest -V
+  - cd ..
+  - ./build/test/core/core_test
