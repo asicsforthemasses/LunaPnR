@@ -119,14 +119,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
             std::string_view svTxt(txt, strLen);
 
-            if (svTxt.back() != '\n')
-            {   
-                m_console->print(svTxt, GUI::MMConsole::PrintType::Partial);
-            }
-            else
-            {
-                m_console->print(svTxt, GUI::MMConsole::PrintType::Complete);
-            }
+            m_console->print(svTxt);
         },
         [this](const char *txt, ssize_t strLen)
         {
@@ -135,7 +128,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
                 return;
             }            
 
-            m_console->print(txt, GUI::MMConsole::PrintType::Error);
+            m_console->print(txt);
         }        
     );
 
@@ -398,7 +391,7 @@ void MainWindow::onRunScript()
         m_console->disablePrompt();
         std::stringstream message;
         message << "\nRunning script " << fileName.toStdString() << "\n";
-        m_console->print(message, GUI::MMConsole::PrintType::Complete);        
+        m_console->print(message);
 
 #if 0        
         auto pythonPtr = m_python.get();
@@ -441,7 +434,7 @@ void MainWindow::onGUIUpdateTimer()
 void MainWindow::onClearDatabase()
 {
     m_db->clear();
-    m_console->print("Database cleared", GUI::MMConsole::PrintType::Complete);
+    m_console->print("Database cleared");
 }
 
 void MainWindow::onConsoleFontDialog()
@@ -451,12 +444,12 @@ void MainWindow::onConsoleFontDialog()
 
 void MainWindow::onPlace()
 {
-    m_console->print("Starting placement", GUI::MMConsole::PrintType::Complete);
-    m_console->print("Placement done", GUI::MMConsole::PrintType::Complete);
+    m_console->print("Starting placement");
+    m_console->print("Placement done");
 
     if (!m_db)
     {
-        m_console->print("Error: no database", GUI::MMConsole::PrintType::Complete);
+        m_console->print("Error: no database");
     }
 
     m_db->clear();
@@ -475,7 +468,7 @@ void MainWindow::onPlace()
     // do Timing check
     auto lineCallback = [this](const std::string& str)
     {
-        m_console->print(str, GUI::MMConsole::PrintType::Complete);
+        m_console->print(str);
     };
 
     std::stringstream cmdFileContents;
@@ -492,7 +485,7 @@ void MainWindow::onPlace()
     auto modulePtr = m_db->design().getTopModule();
     if (!modulePtr)
     {
-        m_console->print("Error: no top module selected\n", GUI::MMConsole::PrintType::Complete);
+        m_console->print("Error: no top module selected\n");
         return;
     }
 
@@ -506,23 +499,23 @@ void MainWindow::onPlace()
     cmdFileContents << "check_setup\n";
     cmdFileContents << "report_checks\n";
 
-    m_console->print("Using module: ", GUI::MMConsole::PrintType::Partial);
-    m_console->print(modulePtr->name(), GUI::MMConsole::PrintType::Partial);
-    m_console->print("\n", GUI::MMConsole::PrintType::Complete);
+    m_console->print("Using module: ");
+    m_console->print(modulePtr->name());
+    m_console->print("\n");
     
     auto cmdFileDescriptor = ChipDB::Subprocess::createTempFile();
 
     if (!cmdFileDescriptor->good())
     {
-        m_console->print("Cannot create temporary file\n", GUI::MMConsole::PrintType::Complete);
+        m_console->print("Cannot create temporary file\n");
         return;
     }
 
     cmdFileDescriptor->m_stream << cmdFileContents.rdbuf();
     cmdFileDescriptor->close();
 
-    m_console->print("OpenSTA script:\n", GUI::MMConsole::PrintType::Complete);
-    m_console->print(cmdFileContents.str(), GUI::MMConsole::PrintType::Complete);
+    m_console->print("OpenSTA script:\n");
+    m_console->print(cmdFileContents.str());
 
     std::stringstream cmd;
     cmd << "/usr/local/bin/sta -no_splash -exit " << cmdFileDescriptor->m_name << "\n";
@@ -530,7 +523,7 @@ void MainWindow::onPlace()
     std::string consoleStr = "Running: ";
     consoleStr.append(cmd.str());
 
-    m_console->print(consoleStr, GUI::MMConsole::PrintType::Complete);
+    m_console->print(consoleStr);
     if (!ChipDB::Subprocess::run(cmd.str(), lineCallback))
     {
         std::cout << "Call failed!!\n";        

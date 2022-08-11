@@ -25,81 +25,17 @@
 #include <QByteArray>
 #include <QKeyEvent>
 #include <QHBoxLayout>
+#include <QFrame>
 
+#include "mtstringbuffer.h"
+#include "singlelineedit.h"
 #include "../common/msvcfix.h"
-#include "widgets/txtoverlay.h"
 
 namespace GUI
 {
 
-/** multi-threaded string buffer 
- *  used by MMConsole to store log messages coming in from other threads.
-*/
-class MTStringBuffer
-{
-public:
-    MTStringBuffer(QObject *eventReceiver);
 
-    void print(const std::string &txt);
-    void print(const std::string_view &txt);
-
-    std::string pop();
-    bool containsString();
-
-protected:
-    QObject *m_eventReceiver = nullptr;
-    std::mutex m_mutex;
-    std::list<std::string> m_buffer;
-};
-
-/** A list widget that is used for code completion */
-class PopupListWidget : public QListWidget
-{
-    Q_OBJECT
-
-public:
-    PopupListWidget(QWidget *parent = 0): QListWidget(parent) 
-    {
-        setUniformItemSizes(true);
-        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    }
-
-    virtual ~PopupListWidget() {}
-
-protected:
-    virtual QSize sizeHint() const;
-    virtual void keyPressEvent(QKeyEvent *e);
-};
-
-/** a QDialog that shows the code completion list */
-class PopupCompleter : public QDialog
-{
-    Q_OBJECT
-
-public:
-    PopupCompleter(const QStringList&, QWidget *parent = 0);
-    virtual ~PopupCompleter();
-
-public:
-    QString selected() 
-    { 
-        return m_selected; 
-    }
-
-    int exec(QTextEdit*);
-
-protected:
-    virtual void showEvent(QShowEvent*);
-
-private slots:
-    void onItemActivated(QListWidgetItem*);
-
-public:
-    QListWidget *m_listWidget;
-    QString m_selected;
-};
-
-class MMConsole : public QTextEdit
+class MMConsole : public QFrame
 {
     Q_OBJECT
 public:
@@ -109,18 +45,11 @@ public:
     void clear();
     void reset();
 
-    enum class PrintType
-    {
-        Error,
-        Partial,
-        Complete
-    };
-
-    void print(const QString &txt, PrintType pt);
-    void print(const std::string &txt, PrintType pt);
-    void print(const std::string_view txt, PrintType pt);
-    void print(const std::stringstream &ss, PrintType pt);
-    void print(const char *txt, PrintType pt);
+    void print(const QString &txt);
+    void print(const std::string &txt);
+    void print(const std::string_view txt);
+    void print(const std::stringstream &ss);
+    void print(const char *txt);
 
     /** multi-threaded safe print */
     void mtPrint(const std::string &txt);
@@ -142,48 +71,30 @@ public:
 
     void disablePrompt()
     {
-        m_promptEnabled = false;
+        m_commandLine->setEnabled(false);
+        //m_promptEnabled = false;
     }
 
     void enablePrompt()
     {
-        m_promptEnabled = true;
-        displayPrompt();
+        m_commandLine->setEnabled(true);
+        //m_promptEnabled = true;
+        //displayPrompt();
     }
 
 signals:
     void executeCommand(const QString &command);
 
 protected:
-    virtual void keyPressEvent(QKeyEvent *e) override;
-
     void    displayPrompt();
-    QString getCurrentCommand();
-    void    replaceCurrentCommand(const QString &cmd);
-    void    handleTabKeypress();
-
     void    appendWithoutNewline(const QString &txt);
-
-    QStringList suggestCommand(QString partialCommand);
-
-    void updateHelpOverlay();
-    bool canShowHelp(const QString &cmd) const;
-    QString getHelpString(const QString &cmd) const;
-
+    
     bool event(QEvent *event) override;
     std::unique_ptr<MTStringBuffer> m_mtStringBuffer;
-
-    ssize_t m_historyWriteIdx;
-    ssize_t m_historyReadIdx;
-    std::vector<std::string> m_history;
-
-    QString m_prompt;
-    int     m_promptBlock;
-    bool    m_promptEnabled;
     
-    TxtOverlay *m_overlay;
-
-    ConsoleColours m_colours;
+    QTextEdit       *m_textDisplay;   ///< widget to display all console messages
+    SingleLineEdit  *m_commandLine;   ///< single line text edit.
+    ConsoleColours  m_colours;
 };
 
 };
