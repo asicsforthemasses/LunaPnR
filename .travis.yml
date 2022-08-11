@@ -13,6 +13,7 @@ addons:
       - cmake
       - build-essential
       - ninja-build
+      - qtbase5-dev
       - qttools5-dev-tools
       - libboost-test-dev
       - libboost-filesystem-dev
