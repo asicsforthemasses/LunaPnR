@@ -40,7 +40,6 @@ install:
   - cd ${TRAVIS_BUILD_DIR}
 
 script:
-  - wget 
   - cmake --version
   - ninja --version
   - mkdir -p build
