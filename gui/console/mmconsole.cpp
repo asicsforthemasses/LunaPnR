@@ -47,8 +47,6 @@ MMConsole::MMConsole(QWidget *parent) : QFrame(parent)
     // default colours
     setColours(QColor("#1d1f21"), QColor("#c5c8c6"), QColor("#a54242"));
 
-    //m_prompt = "> ";
-
     m_mtStringBuffer = std::make_unique<MTStringBuffer>(this);
 
     setLayout(vlayout);
@@ -169,7 +167,7 @@ void MMConsole::displayPrompt()
 
     setUndoRedoEnabled(true);
 #else
-    m_commandLine->setTextColor(m_colours.m_promptCol);
+    //m_commandLine->setTextColor(m_colours.m_promptCol);
     m_commandLine->setEnabled(true);
 #endif
 }

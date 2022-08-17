@@ -12,6 +12,7 @@
 #include "../common/dbtypes.h"
 #include "../common/visitor.h"
 #include "../common/geometry.h"
+#include "../common/fileutils.h"
 #include "../celllib/celllib.h"
 #include "../celllib/pin.h"
 #include "../techlib/techlib.h"
