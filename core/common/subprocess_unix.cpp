@@ -42,21 +42,3 @@ bool ChipDB::Subprocess::run(const std::string &command, std::function<void(cons
 
     return true;
 };
-
-ChipDB::Subprocess::TempFileDescriptor::~TempFileDescriptor()
-{
-    close();
-    remove(m_name.c_str());
-}
-
-std::unique_ptr<ChipDB::Subprocess::TempFileDescriptor> ChipDB::Subprocess::createTempFile()
-{
-    auto descriptor = std::make_unique<ChipDB::Subprocess::TempFileDescriptor>();
-    descriptor->m_name = "/tmp/luna_XXXXXX.tcl";
-    int result = mkstemps(&descriptor->m_name.at(0), 4);
-    close(result);
-
-    descriptor->m_stream.open(descriptor->m_name);
-
-    return descriptor;
-}

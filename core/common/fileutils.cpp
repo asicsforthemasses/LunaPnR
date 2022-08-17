@@ -5,6 +5,32 @@
 #include <cstdlib>
 #include <regex>
 
+#ifdef __unix__
+#include <unistd.h>
+
+std::unique_ptr<ChipDB::TempFileDescriptor> ChipDB::createTempFile(const std::string &extension)
+{
+    auto descriptor = std::make_unique<ChipDB::TempFileDescriptor>();
+    descriptor->m_name = "/tmp/luna_XXXXXX.";
+    descriptor->m_name.append(extension);
+    int result = mkstemps(&descriptor->m_name.at(0), extension.size()+1);
+    close(result);
+
+    descriptor->m_stream.open(descriptor->m_name);
+
+    return descriptor;
+}
+
+
+ChipDB::TempFileDescriptor::~TempFileDescriptor()
+{
+    close();
+    remove(m_name.c_str());
+}
+#else
+#error Windows or OSX not implemented yet
+#endif
+
 std::string ChipDB::expandEnvironmentVars(const std::string &path)
 {
     std::regex envmatcher(R"(\{(.*?)\})");    // matches everything within {}
@@ -76,4 +102,14 @@ std::string ChipDB::findAndReplace(const std::string &str, const std::string &fi
 
     result << str.substr(prevPos);
     return result.str();
+}
+
+bool ChipDB::deleteFile(const std::string &path) noexcept
+{
+    return remove(path.c_str()) == 0;
+}
+
+bool ChipDB::renameFile(const std::string &oldName, const std::string &newName) noexcept
+{
+    return rename(oldName.c_str(), newName.c_str()) == 0;
 }

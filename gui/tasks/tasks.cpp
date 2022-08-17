@@ -1,6 +1,11 @@
 #include "tasks.h"
+#include "common/logging.h"
 
 using namespace Tasks;
+
+Task::Task(const std::string &taskName) : m_name(taskName)
+{   
+}
 
 bool Task::run(GUI::Database &db)
 {
@@ -12,8 +17,13 @@ bool Task::run(GUI::Database &db)
 
 void Task::error(const std::string &txt)
 {
-    std::cerr << txt;
+    Logging::doLog(Logging::LogType::ERROR, txt);
     m_status.store(Status::DONE_ERROR);
+}
+
+void Task::info(const std::string &txt)
+{
+    Logging::doLog(Logging::LogType::INFO, txt);
 }
 
 void Task::done()

@@ -12,30 +12,63 @@
 #include <array>
 #include "logging.h"
 
+class DefaultLogOutputHandler : public Logging::LogOutputHandler
+{
+public:
+    void print(Logging::LogType level, const std::string &txt) override
+    {
+        print(level, std::string_view(txt));
+    }
+
+    void print(Logging::LogType level, const std::string_view &txt) override
+    {
+        std::stringstream ss;
+        switch(level)
+        {
+        case Logging::LogType::PRINT:
+            break;
+        case Logging::LogType::INFO:
+            ss << FGINFO   << "[INFO] ";
+            break;
+        case Logging::LogType::DEBUG:
+            ss << FGDEBUG  << "[DBG ] ";
+            break;
+        case Logging::LogType::WARNING: 
+            ss << FGWARN   << "[WARN] ";
+            break;
+        case Logging::LogType::ERROR:
+            ss << FGERR    << "[ERR ] ";
+            break;
+        case Logging::LogType::VERBOSE:
+            ss << FGVERB   << "[VERB] ";
+            break;
+        default:
+            break;
+        }
+        ss << txt;
+        std::cout << ss.str() << FGDEFAULT;
+    }
+
+protected:
+
+    static constexpr const char* FGRED     = "\033[38;5;9m";
+    static constexpr const char* FGGREEN   = "\033[38;5;2m";
+    static constexpr const char* FGYELLOW  = "\033[38;5;11m";
+    static constexpr const char* FGNAVY    = "\033[38;5;6m";
+    static constexpr const char* FGWHITE   = "\033[38;5;15m";
+    static constexpr const char* FGDEFAULT = "\033[m";
+
+    static constexpr const char* FGDEBUG = FGNAVY;
+    static constexpr const char* FGERR   = FGRED;
+    static constexpr const char* FGWARN  = FGYELLOW;
+    static constexpr const char* FGINFO  = FGGREEN;
+    static constexpr const char* FGVERB  = FGWHITE;
+
+};
+
+static DefaultLogOutputHandler gs_defaultLogHandler;
 static Logging::LogType gs_loglevel = Logging::LogType::WARNING;
 static Logging::LogOutputHandler *gs_logOutputHandler = nullptr;
-
-#if 1
-static const char* FGRED     = "\033[38;5;9m";
-static const char* FGGREEN   = "\033[38;5;2m";
-static const char* FGYELLOW  = "\033[38;5;11m";
-static const char* FGNAVY    = "\033[38;5;6m";
-static const char* FGWHITE   = "\033[38;5;15m";
-static const char* FGDEFAULT = "\033[m";
-
-static const char* FGDEBUG = FGNAVY;
-static const char* FGERR   = FGRED;
-static const char* FGWARN  = FGYELLOW;
-static const char* FGINFO  = FGGREEN;
-static const char* FGVERB  = FGWHITE;
-
-#else
-static const char* FGDEBUG = "";
-static const char* FGERR   = "";
-static const char* FGINFO  = "";
-static const char* FGWARN  = "";
-static const char* FGVERB  = "";
-#endif
 
 void Logging::setOutputHandler(Logging::LogOutputHandler *handler)
 {
@@ -64,31 +97,8 @@ void Logging::doLog(LogType t, const char *format, ...)
         return;
     }
 
-    std::stringstream ss;
-    switch(t)
-    {
-    case LogType::PRINT:
-        break;
-    case LogType::INFO:
-        ss << FGINFO   << "[INFO] ";
-        break;
-    case LogType::DEBUG:
-        ss << FGDEBUG  << "[DBG ] ";
-        break;
-    case LogType::WARNING: 
-        ss << FGWARN   << "[WARN] ";
-        break;
-    case LogType::ERROR:
-        ss << FGERR    << "[ERR ] ";
-        break;
-    case LogType::VERBOSE:
-        ss << FGVERB   << "[VERB] ";
-        break;
-    default:
-        break;
-    }
-
     std::array<char, 2048> buffer;
+    buffer.at(0) = 0;
 
     va_list argptr;
     va_start(argptr, format);
@@ -97,8 +107,7 @@ void Logging::doLog(LogType t, const char *format, ...)
     
     if (gs_logOutputHandler == nullptr)
     {
-        ss << &buffer[0] << FGDEFAULT;
-        std::cout << ss.str();
+        gs_defaultLogHandler.print(t, std::string_view(&buffer[0]));
     }
     else
     {
@@ -113,36 +122,25 @@ void Logging::doLog(LogType t, const std::stringstream &txt)
         return;
     }
 
-    std::stringstream ss;
-    switch(t)
-    {
-    case LogType::PRINT:
-        break;
-    case LogType::INFO:
-        ss << FGINFO   << "[INFO] ";
-        break;
-    case LogType::DEBUG:
-        ss << FGDEBUG  << "[DBG ] ";
-        break;
-    case LogType::WARNING:
-        ss << FGWARN   << "[WARN] ";
-        break;
-    case LogType::ERROR:
-        ss << FGERR    << "[ERR ] ";
-        break;
-    case LogType::VERBOSE:
-        ss << FGVERB   << "[VERB] ";
-        break;
-    default:
-        break;
-    }
-
     if (gs_logOutputHandler == nullptr)
     {
-        std::cout << ss.str() << txt.str() << FGDEFAULT;
+        gs_defaultLogHandler.print(t, txt.str());
     }
     else
     {
         gs_logOutputHandler->print(t, txt.str());
     }
+}
+
+std::string Logging::fmt(const char *format, ...)
+{
+    std::array<char, 2048> buffer;
+    buffer.at(0) = 0;
+
+    va_list argptr;
+    va_start(argptr, format);
+    vsnprintf(&buffer[0], buffer.size(), format, argptr);
+    va_end(argptr);
+   
+    return &buffer[0];
 }

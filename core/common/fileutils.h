@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fstream>
+#include <memory>
 #include <string>
 
 namespace ChipDB
@@ -13,9 +15,25 @@ namespace ChipDB
 
     std::string findAndReplace(const std::string &str, const std::string &findMe, const std::string &replaceWithMe);
 
-#if 0
+    struct TempFileDescriptor
+    {
+        virtual ~TempFileDescriptor();
+        std::string   m_name;
+        std::ofstream m_stream;
+
+        bool good() const
+        {
+            return m_stream.good();
+        }
+
+        void close()
+        {
+            if (m_stream.is_open()) m_stream.close();
+        }
+    };
+
     bool deleteFile(const std::string &path) noexcept;
     bool renameFile(const std::string &oldName, const std::string &newName) noexcept;
-    std::string generateTempFilename();
-#endif
+    std::unique_ptr<TempFileDescriptor> createTempFile(const std::string &extension);
+
 };

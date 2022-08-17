@@ -27,6 +27,7 @@
 #include "common/subprocess.h"
 
 #include "tasks/readallfiles.h"
+#include "tasks/checktiming.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -459,79 +460,9 @@ void MainWindow::onPlace()
     readAllFiles.run(*m_db.get());
     readAllFiles.wait();
 
-    if ((m_db->design().m_moduleLib->size() == 1) && (!m_db->design().getTopModule()))
-    {
-        auto moduleIter = m_db->design().m_moduleLib->begin();
-        m_db->design().setTopModule(moduleIter->name());
-    }
-
-    // do Timing check
-    auto lineCallback = [this](const std::string& str)
-    {
-        m_console->print(str);
-    };
-
-    std::stringstream cmdFileContents;
-    for(auto const& lib : m_db->m_projectSetup.m_libFiles)
-    {
-        cmdFileContents << "read_liberty " << lib << "\n";
-    }
-
-    for(auto const& verilog : m_db->m_projectSetup.m_verilogFiles)
-    {
-        cmdFileContents << "read_verilog " << verilog << "\n";
-    }
-
-    auto modulePtr = m_db->design().getTopModule();
-    if (!modulePtr)
-    {
-        m_console->print("Error: no top module selected\n");
-        return;
-    }
-
-    cmdFileContents << "link_design " << modulePtr->name() << "\n";
-
-    for(auto const& sdc : m_db->m_projectSetup.m_timingConstraintFiles)
-    {
-        cmdFileContents << "read_sdc " << sdc << "\n";
-    }    
-
-    cmdFileContents << "check_setup\n";
-    cmdFileContents << "report_checks\n";
-
-    m_console->print("Using module: ");
-    m_console->print(modulePtr->name());
-    m_console->print("\n");
-    
-    auto cmdFileDescriptor = ChipDB::Subprocess::createTempFile();
-
-    if (!cmdFileDescriptor->good())
-    {
-        m_console->print("Cannot create temporary file\n");
-        return;
-    }
-
-    cmdFileDescriptor->m_stream << cmdFileContents.rdbuf();
-    cmdFileDescriptor->close();
-
-    m_console->print("OpenSTA script:\n");
-    m_console->print(cmdFileContents.str());
-
-    std::stringstream cmd;
-    cmd << "/usr/local/bin/sta -no_splash -exit " << cmdFileDescriptor->m_name << "\n";
-
-    std::string consoleStr = "Running: ";
-    consoleStr.append(cmd.str());
-
-    m_console->print(consoleStr);
-    if (!ChipDB::Subprocess::run(cmd.str(), lineCallback))
-    {
-        std::cout << "Call failed!!\n";        
-    }
-    else
-    {
-        std::cout << "Call okay!!\n";
-    }
+    Tasks::CheckTiming checkTiming;
+    checkTiming.run(*m_db.get());
+    checkTiming.wait();
 }
 
 void MainWindow::onWriteDEF()
