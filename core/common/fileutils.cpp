@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <regex>
+#include <filesystem>
 
 #ifdef __unix__
 #include <unistd.h>
@@ -104,12 +105,38 @@ std::string ChipDB::findAndReplace(const std::string &str, const std::string &fi
     return result.str();
 }
 
-bool ChipDB::deleteFile(const std::string &path) noexcept
+bool ChipDB::deleteFile(const std::string &filename) noexcept
 {
-    return remove(path.c_str()) == 0;
+    std::filesystem::path path(filename);
+    std::error_code ec;
+
+    std::filesystem::remove(path, ec);
+    if (!ec)
+    {
+        return false;
+    }
+
+    return true;
 }
 
 bool ChipDB::renameFile(const std::string &oldName, const std::string &newName) noexcept
 {
-    return rename(oldName.c_str(), newName.c_str()) == 0;
+    std::filesystem::path from(oldName);
+    std::filesystem::path to(oldName);
+    std::error_code ec;
+
+    std::filesystem::rename(from, to, ec);
+
+    if (!ec)
+    {
+        return false;
+    }
+
+    return false;
+}
+
+bool ChipDB::fileExists(const std::string &filename) noexcept
+{
+    std::filesystem::path path(filename);
+    return std::filesystem::exists(filename);    
 }

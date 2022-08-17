@@ -32,8 +32,9 @@ namespace ChipDB
         }
     };
 
-    bool deleteFile(const std::string &path) noexcept;
+    bool deleteFile(const std::string &filename) noexcept;
     bool renameFile(const std::string &oldName, const std::string &newName) noexcept;
+    bool fileExists(const std::string &filename) noexcept;
     std::unique_ptr<TempFileDescriptor> createTempFile(const std::string &extension);
 
 };

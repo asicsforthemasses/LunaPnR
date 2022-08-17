@@ -30,6 +30,7 @@
 #include "lunacore.h"
 #include "../common/database.h"
 #include "../common/projectsetup.h"
+#include "../common/tasklist.h"
 #include "../python/pyluna_extra.h"
 
 class ConsoleLogOutputHandler : public Logging::LogOutputHandler
@@ -106,7 +107,9 @@ protected:
     GUI::DesignBrowser  *m_designBrowser;
     GUI::FloorplanView  *m_floorplanView;
     GUI::ProjectManager *m_projectManager;
-
+    
+    GUI::TaskList m_taskList;
+    
     QString m_projectFileName;
     std::shared_ptr<GUI::Database> m_db;
 

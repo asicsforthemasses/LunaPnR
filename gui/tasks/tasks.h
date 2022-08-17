@@ -14,46 +14,51 @@ class Task
 public:
     Task(const std::string &taskName);
 
-    /** run the task in a thread */
-    bool run(GUI::Database &db);
+    virtual ~Task() = default;
 
-    /** hard abort the thread */
-    void abort();
+    /** revert the task to the reset state */
+    virtual void reset();
 
-    /** block/wait until the task is done */
-    void wait();
+    using ProgressCallback = std::function<void(int)>;
+
+    /** run the task */
+    bool run(GUI::Database &db, ProgressCallback callback);
 
     enum class Status : int
     {
         INVALID = 0,
+        RESET,
         RUNNING,
+        PROGRESS,
         DONE_OK,
         DONE_ERROR
     };
 
+    /** returns the task status. Thread safe */
     Status status() const
     {
         return m_status.load();
     }
 
-    int progress() const
-    {
-        return m_progress.load();
-    }
-
     /** returns true if the task is done */
-    bool isDone() const noexcept
+    bool isFinished() const noexcept
     {
         return (m_status == Status::DONE_OK) || (m_status == Status::DONE_ERROR);
     }
 
+    bool isDone() const noexcept
+    {
+        return (m_status == Status::DONE_OK);
+    }
+
+    /** returns the task name, Thread safe */
     const std::string& name() const noexcept
     {
         return m_name;
     }
 
 protected:
-    virtual void execute(GUI::Database &db) = 0;
+    virtual void execute(GUI::Database &db, ProgressCallback callback) = 0;
 
     void error(const std::string &txt);
     void info(const std::string &txt);
@@ -61,8 +66,6 @@ protected:
 
     std::string             m_name;             ///< task name
     std::atomic<Status>     m_status = {Status::INVALID};
-    std::thread             *m_thread = nullptr;
-    std::atomic<int>        m_progress = 0;     ///< task progress from 0 .. 100
 };
 
 };

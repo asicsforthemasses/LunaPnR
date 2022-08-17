@@ -7,12 +7,10 @@ Task::Task(const std::string &taskName) : m_name(taskName)
 {   
 }
 
-bool Task::run(GUI::Database &db)
+bool Task::run(GUI::Database &db, ProgressCallback callback)
 {
-    if (m_thread != nullptr) return false;
-    m_thread = new std::thread([this, &db] {this->execute(db); } );
-
-    return true;
+    execute(db, callback);
+    return m_status.load() == Status::DONE_OK;
 }
 
 void Task::error(const std::string &txt)
@@ -31,27 +29,7 @@ void Task::done()
     m_status.store(Status::DONE_OK);
 }
 
-void Task::wait()
+void Task::reset()
 {
-    if (m_thread == nullptr)
-    {
-        return;
-    }
-
-    if (m_thread->joinable())
-    {
-        m_thread->join();
-    }
-
-    delete m_thread;
-
-    m_thread = nullptr;
-}
-
-void Task::abort()
-{
-    if (m_thread != nullptr)
-    {
-        delete m_thread;
-    }
+    m_status.store(Status::RESET);
 }

@@ -12,7 +12,7 @@ public:
 
 protected:
     std::string createTCL(const GUI::Database &database, const std::string &topModuleName) const;
-    void execute(GUI::Database &database) override;
+    void execute(GUI::Database &database, ProgressCallback callback) override;
 };
 
 };

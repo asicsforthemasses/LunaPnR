@@ -2,13 +2,13 @@
 #include <fstream>
 #include "readallfiles.h"
 
-void Tasks::ReadAllFiles::execute(GUI::Database &database)
+void Tasks::ReadAllFiles::execute(GUI::Database &database, ProgressCallback callback)
 {
     m_status.store(Status::RUNNING);
         
     for(auto const& lef : database.m_projectSetup.m_lefFiles)
     {
-        std::ifstream lefFile(lef);
+        std::ifstream lefFile(ChipDB::expandEnvironmentVars(lef));
         if (!lefFile.good())
         {
             std::stringstream ss;
@@ -28,7 +28,7 @@ void Tasks::ReadAllFiles::execute(GUI::Database &database)
 
     for(auto const& lib : database.m_projectSetup.m_libFiles)
     {
-        std::ifstream libFile(lib);
+        std::ifstream libFile(ChipDB::expandEnvironmentVars(lib));
         if (!libFile.good())
         {
             std::stringstream ss;
@@ -48,7 +48,7 @@ void Tasks::ReadAllFiles::execute(GUI::Database &database)
 
     for(auto const& verilog : database.m_projectSetup.m_verilogFiles)
     {
-        std::ifstream verilogFile(verilog);
+        std::ifstream verilogFile(ChipDB::expandEnvironmentVars(verilog));
         if (!verilogFile.good())
         {
             std::stringstream ss;

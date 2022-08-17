@@ -24,7 +24,7 @@ struct ProjectSetup
     std::vector<std::string> m_verilogFiles;
     std::vector<std::string> m_timingConstraintFiles;
 
-    std::string m_openSTALocation;
+    std::string m_openSTALocation{"/usr/local/bin/sta"};
 
     bool readFromJSON(std::istream &is);
     bool writeToJSON(std::ostream &os) const;

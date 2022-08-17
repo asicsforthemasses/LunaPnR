@@ -26,8 +26,7 @@
 #include "mainwindow.h"
 #include "common/subprocess.h"
 
-#include "tasks/readallfiles.h"
-#include "tasks/checktiming.h"
+#include "common/tasklist.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -445,16 +444,19 @@ void MainWindow::onConsoleFontDialog()
 
 void MainWindow::onPlace()
 {
-    m_console->print("Starting placement");
-    m_console->print("Placement done");
-
     if (!m_db)
     {
         m_console->print("Error: no database");
     }
 
-    m_db->clear();
+    auto taskCallback = [this](GUI::TaskList::CallbackInfo info)
+    {        
+        m_console->mtPrint(Logging::fmt("Task %u callback\n", info.m_taskIdx));
+    };
 
+    m_taskList.executeToTask(*m_db.get(), "CheckTiming", taskCallback);
+
+#if 0
     // read all file into the database
     Tasks::ReadAllFiles readAllFiles;
     readAllFiles.run(*m_db.get());
@@ -463,6 +465,8 @@ void MainWindow::onPlace()
     Tasks::CheckTiming checkTiming;
     checkTiming.run(*m_db.get());
     checkTiming.wait();
+#endif
+
 }
 
 void MainWindow::onWriteDEF()

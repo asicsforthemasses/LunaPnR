@@ -2,32 +2,13 @@
 #include "common/logging.h"
 #include "common/subprocess.h"
 
-void Tasks::CheckTiming::execute(GUI::Database &database)
+void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callback)
 {
     // check if the is a top module set. If so, use that
     // otherwise check if there is just one module
     // and use that.
 
     auto topModule = database.design().getTopModule();
-
-    if (!topModule)
-    {
-        if (database.design().m_moduleLib->size() == 1)
-        {
-            auto moduleIter = database.design().m_moduleLib->begin();
-            if (!database.design().setTopModule(moduleIter->name()))
-            {
-                error("Cannot set top module\n");
-                return;
-            }
-            topModule = database.design().getTopModule();
-        }
-        else
-        {
-            error("Cannot deduce top module\n");
-            return;
-        }
-    }
 
     if (!topModule)
     {
@@ -52,7 +33,8 @@ void Tasks::CheckTiming::execute(GUI::Database &database)
     tclFileDescriptor->close(); // closes but doesn't delete the file.
 
     std::stringstream cmd;
-    cmd << "/usr/local/bin/sta -no_splash -exit " << tclFileDescriptor->m_name << "\n";
+    cmd << database.m_projectSetup.m_openSTALocation;
+    cmd << " -no_splash -exit " << tclFileDescriptor->m_name << "\n";
 
     info(Logging::fmt("Running %s\n", cmd.str().c_str()));
 
