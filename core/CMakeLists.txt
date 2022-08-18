@@ -57,6 +57,7 @@ endif (UNIX)
 add_library(lunacore 
     common/logging.cpp
     common/dbtypes.cpp
+    common/fileutils.cpp
     netlist/net.cpp
     netlist/instance.cpp
     netlist/netlist.cpp

@@ -38,6 +38,7 @@ set (LUNA_SRC_FILES
     common/layerrenderinfo.cpp
     common/database.cpp
     common/projectsetup.cpp
+    common/tasklist.cpp
     widgets/colorbutton.cpp
     widgets/hatchbutton.cpp
     widgets/hatchdialog.cpp
@@ -59,8 +60,13 @@ set (LUNA_SRC_FILES
     projectmanager/filesetupmanager.cpp
     projectmanager/projectmanager.cpp
     console/mmconsole.cpp
+    console/mtstringbuffer.cpp
+    console/singlelineedit.cpp
+    opensta/openstaparser.cpp
     tasks/tasks.cpp
     tasks/readallfiles.cpp
+    tasks/checktiming.cpp
+    tasks/preflightchecks.cpp
     python/types/pyprojectlef.cpp
     python/types/pyprojectlib.cpp
     python/types/pyprojectverilog.cpp

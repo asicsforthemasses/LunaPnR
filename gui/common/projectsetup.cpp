@@ -33,7 +33,8 @@ bool ProjectSetup::writeToJSON(std::ostream &os) const
     json["LEF"] = toJson(m_lefFiles);
     json["LIB"] = toJson(m_libFiles);
     json["Timing"] = toJson(m_timingConstraintFiles);
-    json["Verilog"] = toJson(m_verilogFiles);    
+    json["Verilog"] = toJson(m_verilogFiles);
+    json["Layers"] = toJson(m_layerFiles);
 
     QJsonDocument doc(json);
 
@@ -80,6 +81,7 @@ bool ProjectSetup::readFromJSON(std::istream &is)
     if (json.contains("LIB")) m_libFiles = fromJson(json["LIB"].toArray());
     if (json.contains("Verilog")) m_verilogFiles = fromJson(json["Verilog"].toArray());
     if (json.contains("Timing")) m_timingConstraintFiles = fromJson(json["Timing"].toArray());
+    if (json.contains("Layers")) m_layerFiles = fromJson(json["Layers"].toArray());
 
     return true;
 }

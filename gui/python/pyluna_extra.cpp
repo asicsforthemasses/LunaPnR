@@ -113,7 +113,7 @@ static PyObject* pyLs(PyObject *self, PyObject *args)
 
     std::stringstream ss;
     ss << "Directory: " << fs::current_path() << "\n";
-    consolePtr->print(ss.str(), GUI::MMConsole::PrintType::Partial);
+    consolePtr->mtPrint(ss.str());
 
     for (const auto &entry : fs::directory_iterator(fs::current_path()))
     {        
@@ -129,10 +129,10 @@ static PyObject* pyLs(PyObject *self, PyObject *args)
             ss << name << "\n";
         }
 
-        consolePtr->print(ss.str(), GUI::MMConsole::PrintType::Partial);
+        consolePtr->mtPrint(ss.str());
     }
 
-    consolePtr->print("", GUI::MMConsole::PrintType::Complete);
+    consolePtr->mtPrint(std::string(""));
 
     Py_RETURN_NONE;
 }

@@ -46,6 +46,8 @@ void doLog(LogType t, const std::string &txt);
 /** log something using standard C++ std::stringstream - no limit */
 void doLog(LogType t, const std::stringstream &txt);
 
+std::string fmt(const char *format, ...);
+
 /** set the log level ... */
 void setLogLevel(LogType level);
 

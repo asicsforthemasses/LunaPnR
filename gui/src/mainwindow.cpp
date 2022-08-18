@@ -26,7 +26,7 @@
 #include "mainwindow.h"
 #include "common/subprocess.h"
 
-#include "tasks/readallfiles.h"
+#include "common/tasklist.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -119,14 +119,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
             std::string_view svTxt(txt, strLen);
 
-            if (svTxt.back() != '\n')
-            {   
-                m_console->print(svTxt, GUI::MMConsole::PrintType::Partial);
-            }
-            else
-            {
-                m_console->print(svTxt, GUI::MMConsole::PrintType::Complete);
-            }
+            m_console->print(svTxt);
         },
         [this](const char *txt, ssize_t strLen)
         {
@@ -135,7 +128,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
                 return;
             }            
 
-            m_console->print(txt, GUI::MMConsole::PrintType::Error);
+            m_console->print(txt);
         }        
     );
 
@@ -295,8 +288,7 @@ void MainWindow::onLoadProject()
         m_projectFileName = fileName;
         m_projectManager->repopulate();
 
-        m_python->executeScriptFile("scripts/loadall.py");
-
+        m_taskList.executeToTask(*m_db.get(), "ReadAllFiles", nullptr);
     }
 }
 
@@ -339,9 +331,9 @@ void MainWindow::onSaveProjectAs()
 
 void MainWindow::onExportLayers()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Layer setup File"),
-                           "layers.json",
-                           tr("Layer file (*.json)"));
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Layer setup file"),
+                           "tech.layers",
+                           tr("Layer file (*.layers)"));
 
     if (!fileName.isEmpty())
     {
@@ -398,7 +390,7 @@ void MainWindow::onRunScript()
         m_console->disablePrompt();
         std::stringstream message;
         message << "\nRunning script " << fileName.toStdString() << "\n";
-        m_console->print(message, GUI::MMConsole::PrintType::Complete);        
+        m_console->print(message);
 
 #if 0        
         auto pythonPtr = m_python.get();
@@ -441,7 +433,7 @@ void MainWindow::onGUIUpdateTimer()
 void MainWindow::onClearDatabase()
 {
     m_db->clear();
-    m_console->print("Database cleared", GUI::MMConsole::PrintType::Complete);
+    m_console->print("Database cleared");
 }
 
 void MainWindow::onConsoleFontDialog()
@@ -451,94 +443,17 @@ void MainWindow::onConsoleFontDialog()
 
 void MainWindow::onPlace()
 {
-    m_console->print("Starting placement", GUI::MMConsole::PrintType::Complete);
-    m_console->print("Placement done", GUI::MMConsole::PrintType::Complete);
-
     if (!m_db)
     {
-        m_console->print("Error: no database", GUI::MMConsole::PrintType::Complete);
+        m_console->print("Error: no database");
     }
 
-    m_db->clear();
-
-    // read all file into the database
-    Tasks::ReadAllFiles readAllFiles;
-    readAllFiles.run(*m_db.get());
-    readAllFiles.wait();
-
-    if ((m_db->design().m_moduleLib->size() == 1) && (!m_db->design().getTopModule()))
-    {
-        auto moduleIter = m_db->design().m_moduleLib->begin();
-        m_db->design().setTopModule(moduleIter->name());
-    }
-
-    // do Timing check
-    auto lineCallback = [this](const std::string& str)
-    {
-        m_console->print(str, GUI::MMConsole::PrintType::Complete);
+    auto taskCallback = [this](GUI::TaskList::CallbackInfo info)
+    {        
+        m_console->mtPrint(Logging::fmt("Task %u callback\n", info.m_taskIdx));
     };
 
-    std::stringstream cmdFileContents;
-    for(auto const& lib : m_db->m_projectSetup.m_libFiles)
-    {
-        cmdFileContents << "read_liberty " << lib << "\n";
-    }
-
-    for(auto const& verilog : m_db->m_projectSetup.m_verilogFiles)
-    {
-        cmdFileContents << "read_verilog " << verilog << "\n";
-    }
-
-    auto modulePtr = m_db->design().getTopModule();
-    if (!modulePtr)
-    {
-        m_console->print("Error: no top module selected\n", GUI::MMConsole::PrintType::Complete);
-        return;
-    }
-
-    cmdFileContents << "link_design " << modulePtr->name() << "\n";
-
-    for(auto const& sdc : m_db->m_projectSetup.m_timingConstraintFiles)
-    {
-        cmdFileContents << "read_sdc " << sdc << "\n";
-    }    
-
-    cmdFileContents << "check_setup\n";
-    cmdFileContents << "report_checks\n";
-
-    m_console->print("Using module: ", GUI::MMConsole::PrintType::Partial);
-    m_console->print(modulePtr->name(), GUI::MMConsole::PrintType::Partial);
-    m_console->print("\n", GUI::MMConsole::PrintType::Complete);
-    
-    auto cmdFileDescriptor = ChipDB::Subprocess::createTempFile();
-
-    if (!cmdFileDescriptor->good())
-    {
-        m_console->print("Cannot create temporary file\n", GUI::MMConsole::PrintType::Complete);
-        return;
-    }
-
-    cmdFileDescriptor->m_stream << cmdFileContents.rdbuf();
-    cmdFileDescriptor->close();
-
-    m_console->print("OpenSTA script:\n", GUI::MMConsole::PrintType::Complete);
-    m_console->print(cmdFileContents.str(), GUI::MMConsole::PrintType::Complete);
-
-    std::stringstream cmd;
-    cmd << "/usr/local/bin/sta -no_splash -exit " << cmdFileDescriptor->m_name << "\n";
-
-    std::string consoleStr = "Running: ";
-    consoleStr.append(cmd.str());
-
-    m_console->print(consoleStr, GUI::MMConsole::PrintType::Complete);
-    if (!ChipDB::Subprocess::run(cmd.str(), lineCallback))
-    {
-        std::cout << "Call failed!!\n";        
-    }
-    else
-    {
-        std::cout << "Call okay!!\n";
-    }
+    m_taskList.executeToTask(*m_db.get(), "CheckTiming", taskCallback);
 }
 
 void MainWindow::onWriteDEF()

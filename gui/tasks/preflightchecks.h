@@ -5,10 +5,10 @@
 namespace Tasks
 {
 
-class ReadAllFiles : public Task
+class PreflightChecks : public Task
 {
 public:
-    ReadAllFiles() : Task("ReadAllFiles") {}
+    PreflightChecks() : Task("PreflightChecks") {}
 
 protected:
     void execute(GUI::Database &database, ProgressCallback callback) override;
