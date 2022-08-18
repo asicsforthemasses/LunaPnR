@@ -1,6 +1,7 @@
 #include "checktiming.h"
 #include "common/logging.h"
 #include "common/subprocess.h"
+#include "opensta/openstaparser.h"
 
 void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callback)
 {
@@ -38,9 +39,15 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
 
     info(Logging::fmt("Running %s\n", cmd.str().c_str()));
 
-    auto lineCallback = [this](const std::string& str)
+    GUI::OpenSTAParser parser;
+
+    auto lineCallback = [this, &parser](const std::string& line)
     {
-        info(str);
+        if (!parser.submitLine(line))
+        {
+            error("OpenSTA parser error:\n");
+        }
+        info(line);
     };
 
     if (!ChipDB::Subprocess::run(cmd.str(), lineCallback))
@@ -52,9 +59,32 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
     {   
         info("OpenSTA ok\n");
     }
+
+    // report the paths
+    bool timingErrors = false;
+    for(auto iter = parser.beginPaths(); iter != parser.endPaths(); ++iter)
+    {
+        if (iter->m_slack >= 0.0)
+        {
+            info(Logging::fmt("From %s to %s -> slack %f\n", 
+                iter->m_source.c_str(), iter->m_destination.c_str(), iter->m_slack));
+        }
+        else
+        {
+            error(Logging::fmt("From %s to %s -> slack %f\n", 
+                iter->m_source.c_str(), iter->m_destination.c_str(), iter->m_slack));
+            timingErrors = true;
+        }
+    }
+
+    if (timingErrors) 
+    {
+        error("Timing checks failed\n");
+        return;
+    }
+
     done();
 }
-
 
 std::string Tasks::CheckTiming::createTCL(const GUI::Database &database, const std::string &topModuleName) const
 {
@@ -77,7 +107,11 @@ std::string Tasks::CheckTiming::createTCL(const GUI::Database &database, const s
         tcl << "read_sdc " << sdc << "\n";
     }    
 
+    tcl << R"(puts "#UNITS")" "\n";
+    tcl << "report_units\n";
+    tcl << R"(puts "#CHECKSETUP")" "\n";
     tcl << "check_setup\n";
+    tcl << R"(puts "#REPORTCHECKS")" "\n";
     tcl << "report_checks\n";
 
     return tcl.str();

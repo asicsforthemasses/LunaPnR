@@ -288,7 +288,7 @@ void MainWindow::onLoadProject()
         m_projectFileName = fileName;
         m_projectManager->repopulate();
 
-        m_python->executeScriptFile("scripts/loadall.py");
+        //m_python->executeScriptFile("scripts/loadall.py");
 
     }
 }

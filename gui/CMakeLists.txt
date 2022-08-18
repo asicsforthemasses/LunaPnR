@@ -62,6 +62,7 @@ set (LUNA_SRC_FILES
     console/mmconsole.cpp
     console/mtstringbuffer.cpp
     console/singlelineedit.cpp
+    opensta/openstaparser.cpp
     tasks/tasks.cpp
     tasks/readallfiles.cpp
     tasks/checktiming.cpp
