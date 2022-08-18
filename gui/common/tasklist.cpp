@@ -93,7 +93,7 @@ void TaskList::taskThread(Database &db, TaskIndex firstTask, TaskIndex lastTask,
                 info.m_progress = progress;
                 info.m_taskIdx  = idx;
                 info.m_taskStatus = Tasks::Task::Status::PROGRESS;
-                callback(info);
+                if (callback) callback(info);
             };
 
             if (!m_tasks.at(idx))
@@ -107,21 +107,21 @@ void TaskList::taskThread(Database &db, TaskIndex firstTask, TaskIndex lastTask,
             CallbackInfo info;
             info.m_taskIdx    = idx;
             info.m_taskStatus = Tasks::Task::Status::RUNNING;
-            callback(info);
+            if (callback) callback(info);
 
             if (!m_tasks.at(idx)->run(db, progressCallback))
             {
                 // signal failure
                 info.m_taskIdx    = idx;
                 info.m_taskStatus = Tasks::Task::Status::DONE_ERROR;
-                callback(info);
+                if (callback) callback(info);
                 return;
             }
 
             // signal end of task
             info.m_taskIdx    = idx;
             info.m_taskStatus = Tasks::Task::Status::DONE_OK;
-            callback(info);            
+            if (callback) callback(info);
         }
         else
         {

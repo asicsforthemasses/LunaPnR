@@ -23,6 +23,7 @@ struct ProjectSetup
     std::vector<std::string> m_libFiles;
     std::vector<std::string> m_verilogFiles;
     std::vector<std::string> m_timingConstraintFiles;
+    std::vector<std::string> m_layerFiles;
 
     std::string m_openSTALocation{"/usr/local/bin/sta"};
 

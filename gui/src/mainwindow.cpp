@@ -288,8 +288,7 @@ void MainWindow::onLoadProject()
         m_projectFileName = fileName;
         m_projectManager->repopulate();
 
-        //m_python->executeScriptFile("scripts/loadall.py");
-
+        m_taskList.executeToTask(*m_db.get(), "ReadAllFiles", nullptr);
     }
 }
 
@@ -332,9 +331,9 @@ void MainWindow::onSaveProjectAs()
 
 void MainWindow::onExportLayers()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Layer setup File"),
-                           "layers.json",
-                           tr("Layer file (*.json)"));
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save Layer setup file"),
+                           "tech.layers",
+                           tr("Layer file (*.layers)"));
 
     if (!fileName.isEmpty())
     {
@@ -455,18 +454,6 @@ void MainWindow::onPlace()
     };
 
     m_taskList.executeToTask(*m_db.get(), "CheckTiming", taskCallback);
-
-#if 0
-    // read all file into the database
-    Tasks::ReadAllFiles readAllFiles;
-    readAllFiles.run(*m_db.get());
-    readAllFiles.wait();
-
-    Tasks::CheckTiming checkTiming;
-    checkTiming.run(*m_db.get());
-    checkTiming.wait();
-#endif
-
 }
 
 void MainWindow::onWriteDEF()

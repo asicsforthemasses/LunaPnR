@@ -6,6 +6,8 @@ void Tasks::ReadAllFiles::execute(GUI::Database &database, ProgressCallback call
 {
     m_status.store(Status::RUNNING);
         
+    database.clear();
+
     for(auto const& lef : database.m_projectSetup.m_lefFiles)
     {
         std::ifstream lefFile(ChipDB::expandEnvironmentVars(lef));
@@ -44,6 +46,27 @@ void Tasks::ReadAllFiles::execute(GUI::Database &database, ProgressCallback call
             error("Could not parse LIB file");
             return;
         }
+    }
+
+    for(auto const& layerFileName : database.m_projectSetup.m_layerFiles)
+    {
+        std::ifstream layerFile(ChipDB::expandEnvironmentVars(layerFileName));
+        if (!layerFile.good())
+        {
+            std::stringstream ss;
+            ss << "Could not open Layer file " << layerFileName << "\n";
+            error(ss.str());
+            return;
+        }
+
+        std::stringstream ss;
+        ss << layerFile.rdbuf();
+                
+        if (!database.m_layerRenderInfoDB.readJson(ss.str()))
+        {
+            error("Could not parse Layer file");
+            return;
+        }        
     }
 
     for(auto const& verilog : database.m_projectSetup.m_verilogFiles)

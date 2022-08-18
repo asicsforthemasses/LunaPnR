@@ -37,9 +37,9 @@ void ProjectManager::create()
     m_fileSetupManager->header()->hide();
     m_fileSetupManager->addCategory("LEF", ".lef", &m_projectSetup->m_lefFiles);
     m_fileSetupManager->addCategory("LIB", ".lib", &m_projectSetup->m_libFiles);
-    m_fileSetupManager->addCategory("Verilog", ".v", &m_projectSetup->m_verilogFiles);
-    //m_projectmanager->addCategory("Layers", ".layers", &m_projectSetup.m_layerFiles);
+    m_fileSetupManager->addCategory("Verilog", ".v", &m_projectSetup->m_verilogFiles);    
     m_fileSetupManager->addCategory("Timing constraints", ".sdc", &m_projectSetup->m_timingConstraintFiles);
+    m_fileSetupManager->addCategory("Layers", ".layers", &m_projectSetup->m_layerFiles);
 
     block->addWidget(m_fileSetupManager,1);
     m_managerLayout->addWidget(block);
