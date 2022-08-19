@@ -34,6 +34,16 @@ public:
     void setIcon(const QString &iconUrl);
     void setActionIcon(const QString &iconUrl);
 
+    enum class Status
+    {
+        NONE,
+        RUNNING,
+        OK,
+        ERROR
+    };
+
+    void setStatus(Status s);
+
 signals:
     void onAction(QString actionName);
 
@@ -41,10 +51,12 @@ private slots:
     void onActionPrivate();
 
 protected:
+    Status           m_status{Status::NONE};
     QString          m_actionName;
-    QLabel          *m_actionTitle;
-    FlatImage       *m_icon;
-    FlatImageButton *m_actionButton;
+    QLabel          *m_actionTitle = nullptr;
+    FlatImage       *m_icon = nullptr;
+    FlatImage       *m_statusIndicator = nullptr;
+    FlatImageButton *m_actionButton = nullptr;
 };
 
 };

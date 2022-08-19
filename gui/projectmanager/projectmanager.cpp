@@ -225,7 +225,25 @@ bool ProjectManager::event(QEvent * event)
         }
         else
         {
-            std::cout << "ProjectManager event: tile " << (*iter)->actionTitle().toStdString() << " with action name " << actionName.toStdString() << " update!\n";
+            //std::cout << "ProjectManager event: tile " << (*iter)->actionTitle().toStdString() << " with action name " << actionName.toStdString() << " update!\n";
+            switch(e->status())
+            {
+            case Tasks::Task::Status::RESET:
+                (*iter)->setStatus(GUI::FlatActionTile::Status::NONE);
+                break;
+            case Tasks::Task::Status::DONE_OK:
+                (*iter)->setStatus(GUI::FlatActionTile::Status::OK);
+                break;
+            case Tasks::Task::Status::DONE_ERROR:
+                (*iter)->setStatus(GUI::FlatActionTile::Status::ERROR);
+                break;
+            case Tasks::Task::Status::RUNNING:
+                (*iter)->setStatus(GUI::FlatActionTile::Status::RUNNING);
+                break;
+            default:
+                //FIXME: handle progress!
+                break;
+            }
         }
 
         return true;

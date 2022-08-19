@@ -12,10 +12,12 @@ FlatActionTile::FlatActionTile(const QString &actionTitle,
     auto hlayout = new QHBoxLayout();
     hlayout->setContentsMargins(2,2,2,2);
 
+    m_statusIndicator = new FlatImage("://images/status_empty.png");
     m_icon  = new FlatImage(iconUrl);
     m_actionTitle = new QLabel(actionTitle);
     m_actionButton = new FlatImageButton(actionIconUrl);
 
+    hlayout->addWidget(m_statusIndicator);
     hlayout->addWidget(m_icon);
     hlayout->addWidget(m_actionTitle, 1);
     hlayout->addWidget(m_actionButton);
@@ -72,3 +74,27 @@ void FlatActionTile::setActionName(const QString &actionName)
     m_actionName = actionName;
 }
 
+void FlatActionTile::setStatus(Status s)
+{
+    m_status = s;
+
+    switch(s)
+    {
+    case Status::NONE:
+        m_statusIndicator->setPixmap("://images/status_empty.png");
+        break;
+    case Status::RUNNING:
+        m_statusIndicator->setPixmap("://images/status_running.png");
+        break;        
+    case Status::ERROR:
+        m_statusIndicator->setPixmap("://images/status_error.png");
+        break;
+    case Status::OK:
+        m_statusIndicator->setPixmap("://images/status_ok.png");
+        break;        
+    default:
+        break;
+    }
+
+    m_statusIndicator->update();
+}

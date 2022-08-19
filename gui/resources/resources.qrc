@@ -11,6 +11,10 @@
     <file>./images/properties.png</file>
     <file>./images/floorplan.png</file>
     <file>./images/go.png</file>
+    <file>./images/status_ok.png</file>
+    <file>./images/status_error.png</file>
+    <file>./images/status_empty.png</file>
+    <file>./images/status_running.png</file>
 </qresource>
 
 <!--
