@@ -1,8 +1,11 @@
 #include <cassert>
+#include <algorithm>
+
 #include <QHeaderView>
 #include <QMessageBox>
 
 #include "projectmanager.h"
+#include "../common/customevents.h"
 #include "../widgets/blockcontainer.h"
 #include "../widgets/flatimagebutton.h"
 #include "../widgets/flatactiontile.h"
@@ -53,12 +56,14 @@ void ProjectManager::create()
 
     auto blockFrame = new GUI::BlockFrame();
     
-    auto actionTile = new GUI::FlatActionTile("Floorplan setup", "://images/floorplan.png", "://images/properties.png");
-    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onFloorplanSetup);
+    auto actionTile = new GUI::FlatActionTile("Floorplan setup", "://images/floorplan.png", "://images/properties.png", "FLOORPLANSETUP");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    m_actionTiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
-    actionTile = new GUI::FlatActionTile("Place", "://images/floorplan.png", "://images/go.png");
-    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onPlace);
+    actionTile = new GUI::FlatActionTile("Place", "://images/floorplan.png", "://images/go.png", "PLACE");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    m_actionTiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
     block->addWidget(blockFrame);
@@ -74,14 +79,19 @@ void ProjectManager::create()
 
     blockFrame = new GUI::BlockFrame();
     
-    actionTile = new GUI::FlatActionTile("CTS setup", "://images/floorplan.png", "://images/properties.png");
-    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onCTSSetup);
+    actionTile = new GUI::FlatActionTile("CTS setup", "://images/floorplan.png", "://images/properties.png", "CTSSETUP");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    m_actionTiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
-    actionTile = new GUI::FlatActionTile("Create tree", "://images/floorplan.png", "://images/go.png");
+    actionTile = new GUI::FlatActionTile("Create tree", "://images/floorplan.png", "://images/go.png", "CREATECTSTREE");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    m_actionTiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
-    actionTile = new GUI::FlatActionTile("Timing Report", "://images/floorplan.png", "://images/go.png");
+    actionTile = new GUI::FlatActionTile("Timing Report", "://images/floorplan.png", "://images/go.png", "TIMINGREPORT1");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    m_actionTiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
     block->addWidget(blockFrame);
@@ -141,10 +151,14 @@ void ProjectManager::create()
     //connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onCTSSetup);
     //blockFrame->addWidget(actionTile);
 
-    actionTile = new GUI::FlatActionTile("Timing Report", "://images/floorplan.png", "://images/go.png");
+    actionTile = new GUI::FlatActionTile("Timing Report", "://images/floorplan.png", "://images/go.png", "TIMINGREPORT2");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    m_actionTiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
-    actionTile = new GUI::FlatActionTile("DRC", "://images/floorplan.png", "://images/go.png");
+    actionTile = new GUI::FlatActionTile("DRC", "://images/floorplan.png", "://images/go.png", "DRC");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    m_actionTiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
     //actionTile = new GUI::FlatActionTile("Create tree", "://images/floorplan.png", "://images/go.png");
@@ -163,12 +177,14 @@ void ProjectManager::create()
 
     blockFrame = new GUI::BlockFrame();
     
-    actionTile = new GUI::FlatActionTile("Write GDS2", "://images/floorplan.png", "://images/go.png");
-    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onWriteGDS2);
+    actionTile = new GUI::FlatActionTile("Write GDS2", "://images/floorplan.png", "://images/go.png", "WRITEGDS2");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    m_actionTiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
-    actionTile = new GUI::FlatActionTile("Write DEF", "://images/floorplan.png", "://images/go.png");
-    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onWriteDEF);
+    actionTile = new GUI::FlatActionTile("Write DEF", "://images/floorplan.png", "://images/go.png", "WRITEDEF");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    m_actionTiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
     block->addWidget(blockFrame);
@@ -187,16 +203,33 @@ void ProjectManager::repopulate()
     }
 }
 
-void ProjectManager::onFloorplanSetup()
+bool ProjectManager::event(QEvent * event)
 {
-    QMessageBox msgBox;
-    msgBox.setText("Floorplanning setup clicked");
-    msgBox.exec();
-}
+    if (event->type() == GUI::TaskListEvent::EventType)
+    {
+        auto e = static_cast<GUI::TaskListEvent*>(event);
 
-void ProjectManager::onCTSSetup()
-{
-    QMessageBox msgBox;
-    msgBox.setText("CTS setup clicked");
-    msgBox.exec();
+        // search through action tiles and set the status accordingly
+        const QString actionName = e->name();
+
+        auto iter = std::find_if(m_actionTiles.begin(), m_actionTiles.end(), [&actionName]
+            (const FlatActionTile *tile)
+            {
+                return tile->actionName() == actionName;
+            }
+        );
+
+        if (iter == m_actionTiles.end())
+        {
+            std::cout << "ProjectManager event: tile with action name " << actionName.toStdString() << " not found!\n";
+        }
+        else
+        {
+            std::cout << "ProjectManager event: tile " << (*iter)->actionTitle().toStdString() << " with action name " << actionName.toStdString() << " update!\n";
+        }
+
+        return true;
+    }
+    
+    return QWidget::event(event);
 }

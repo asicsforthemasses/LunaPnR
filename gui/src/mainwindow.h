@@ -74,10 +74,14 @@ public slots:
     void onConsoleCommand(const QString &cmd);
     void onConsoleFontDialog();
     void onGUIUpdateTimer();
-    
+
+    void onProjectManagerAction(QString action);
+
+#if 0
     void onPlace();
     void onWriteDEF();
     void onWriteGDS2();
+#endif
 
 protected:
     void createMenus();
@@ -108,7 +112,7 @@ protected:
     GUI::FloorplanView  *m_floorplanView;
     GUI::ProjectManager *m_projectManager;
     
-    GUI::TaskList m_taskList;
+    std::unique_ptr<GUI::TaskList> m_taskList;
     
     QString m_projectFileName;
     std::shared_ptr<GUI::Database> m_db;

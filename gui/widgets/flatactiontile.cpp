@@ -5,8 +5,9 @@ using namespace GUI;
 
 FlatActionTile::FlatActionTile(const QString &actionTitle, 
     const QString &iconUrl,     
-    const QString &actionIconUrl,     
-    QWidget *parent) : QFrame(parent)
+    const QString &actionIconUrl, 
+    const QString &actionName,
+    QWidget *parent) : QFrame(parent), m_actionName(actionName)
 {
     auto hlayout = new QHBoxLayout();
     hlayout->setContentsMargins(2,2,2,2);
@@ -29,9 +30,14 @@ FlatActionTile::FlatActionTile(const QString &actionTitle,
     setPalette(pal);
 #endif
 
-    connect(m_actionButton, &FlatImageButton::pressed, this, &FlatActionTile::onAction);
+    connect(m_actionButton, &FlatImageButton::pressed, this, &FlatActionTile::onActionPrivate);
 
     setLayout(hlayout);
+}
+
+void FlatActionTile::onActionPrivate()
+{
+    emit onAction(m_actionName);
 }
 
 void FlatActionTile::setIcon(const QString &iconUrl)
@@ -53,3 +59,16 @@ void FlatActionTile::setActionTitle(const QString &name)
 {
     m_actionTitle->setText(name);
 }
+
+/** get action name -- used for action events */
+QString FlatActionTile::actionName() const
+{
+    return m_actionName;
+}
+
+/** set action name -- used for action events */
+void FlatActionTile::setActionName(const QString &actionName)
+{
+    m_actionName = actionName;
+}
+

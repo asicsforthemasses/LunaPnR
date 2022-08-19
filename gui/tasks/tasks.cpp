@@ -3,8 +3,13 @@
 
 using namespace Tasks;
 
-Task::Task(const std::string &taskName) : m_name(taskName)
+Task::Task()
 {   
+}
+
+void Task::setName(const std::string &taskName)
+{
+    m_name = taskName;
 }
 
 bool Task::run(GUI::Database &db, ProgressCallback callback)

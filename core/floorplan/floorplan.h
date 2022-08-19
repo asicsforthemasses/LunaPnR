@@ -44,6 +44,11 @@ public:
         return m_regions.end();
     }
 
+    size_t regionCount() const noexcept
+    {
+        return m_regions.size();
+    }
+
 protected:
     NamedStorage<Region> m_regions;
 };

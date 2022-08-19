@@ -1,10 +1,11 @@
 /*
-  LunaPnR Source Code
+    LunaPnR Source Code
   
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
+    SPDX-License-Identifier: GPL-3.0-only
+    SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
 */
 
+#include <QEvent>
 #include <QAction>
 #include <QTimer>
 #include <QTabWidget>
@@ -135,9 +136,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_python->executeScript(R"(import sys; print("Python version"); print (sys.version); )");
     m_python->executeScript(R"(from Luna import *; from LunaExtra import *;)");
 
-    connect(m_projectManager, &GUI::ProjectManager::onPlace, this, &MainWindow::onPlace);
-    connect(m_projectManager, &GUI::ProjectManager::onWriteDEF, this, &MainWindow::onWriteDEF);
-    connect(m_projectManager, &GUI::ProjectManager::onWriteGDS2, this, &MainWindow::onWriteGDS2);
+    connect(m_projectManager, &GUI::ProjectManager::onAction, this, &MainWindow::onProjectManagerAction);
+
+    m_taskList = std::make_unique<GUI::TaskList>(m_projectManager);
 }
 
 MainWindow::~MainWindow()
@@ -288,7 +289,10 @@ void MainWindow::onLoadProject()
         m_projectFileName = fileName;
         m_projectManager->repopulate();
 
-        m_taskList.executeToTask(*m_db.get(), "ReadAllFiles", nullptr);
+        if (m_taskList)
+        {
+            m_taskList->executeToTask(*m_db.get(), "ReadAllFiles");
+        }
     }
 }
 
@@ -392,20 +396,7 @@ void MainWindow::onRunScript()
         message << "\nRunning script " << fileName.toStdString() << "\n";
         m_console->print(message);
 
-#if 0        
-        auto pythonPtr = m_python.get();
-        auto lambda = [this, pythonPtr, &ss]()
-        { 
-            if (pythonPtr != nullptr)
-            {
-                pythonPtr->executeScript(ss.str());
-            }
-        };
-
-        QThreadPool::globalInstance()->start(lambda);
-#else
         m_python->executeScript(ss.str());
-#endif
 
         m_console->enablePrompt();
     }
@@ -441,34 +432,33 @@ void MainWindow::onConsoleFontDialog()
     m_console->setFont(QFontDialog::getFont(0, m_console->font()));
 }
 
-void MainWindow::onPlace()
+void MainWindow::onProjectManagerAction(QString actionName)
 {
     if (!m_db)
     {
         m_console->print("Error: no database");
     }
 
-    auto taskCallback = [this](GUI::TaskList::CallbackInfo info)
-    {        
-        m_console->mtPrint(Logging::fmt("Task %u callback\n", info.m_taskIdx));
-    };
-
-    m_taskList.executeToTask(*m_db.get(), "CheckTiming", taskCallback);
-}
-
-void MainWindow::onWriteDEF()
-{
-
-}
-
-void MainWindow::onWriteGDS2()
-{
-
+    if (actionName != "NONE")
+    {
+#if 0        
+        auto taskCallback = [this, &actionName](GUI::TaskList::CallbackInfo info)
+        {   
+            auto taskPtr = m_taskList.at(info.m_taskIdx);
+            m_console->mtPrint(Logging::fmt("Task %u:%s callback\n", info.m_taskIdx, taskPtr->name().c_str()));
+            auto event = new GUI::ProjectManagerEvent(QString::fromStdString(taskPtr->name()));
+            QApplication::postEvent(m_projectManager, event);
+        };
+#endif
+        if (m_taskList)
+        {
+            m_taskList->executeToTask(*m_db.get(), actionName.toStdString());
+        }
+    }
 }
 
 ConsoleLogOutputHandler::ConsoleLogOutputHandler(GUI::MMConsole *console) : m_console(console)
 {
-
 }
 
 void ConsoleLogOutputHandler::print(Logging::LogType t, const std::string &txt)

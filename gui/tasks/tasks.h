@@ -12,9 +12,10 @@ namespace Tasks
 class Task
 {
 public:
-    Task(const std::string &taskName);
-
+    Task();
     virtual ~Task() = default;
+
+    void setName(const std::string &taskName);
 
     /** revert the task to the reset state */
     virtual void reset();
@@ -64,7 +65,7 @@ protected:
     void info(const std::string &txt);
     void done();
 
-    std::string             m_name;             ///< task name
+    std::string             m_name = {"UNDEFINED"};         ///< task name
     std::atomic<Status>     m_status = {Status::INVALID};
 };
 
