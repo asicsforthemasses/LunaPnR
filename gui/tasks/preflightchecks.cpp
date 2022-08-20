@@ -64,6 +64,7 @@ void Tasks::PreflightChecks::execute(GUI::Database &database, ProgressCallback c
     }    
 
     // TODO: check that all pins and pads are placed
-    //       there is a valid floorplan
+    //       check there is a valid floorplan
+    //       check we have filler/decap cells
     done();
 }

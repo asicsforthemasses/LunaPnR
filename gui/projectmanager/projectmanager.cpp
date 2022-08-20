@@ -61,7 +61,7 @@ void ProjectManager::create()
     m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
-    auto statusTile = new GUI::FlatStatusTile("Checks", "://images/floorplan.png", "PreflightChecks");
+    auto statusTile = new GUI::FlatStatusTile("Pre-place checks", "://images/floorplan.png", "PreflightChecks");
     m_tiles.push_back(statusTile);
     blockFrame->addWidget(statusTile);
 
