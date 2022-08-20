@@ -63,8 +63,15 @@ void Tasks::PreflightChecks::execute(GUI::Database &database, ProgressCallback c
         }
     }    
 
+    // check there is a valid floorplan
+    if (database.floorplan()->regionCount() == 0)
+    {
+        error("No regions defined in floorplan!\n");
+        return;
+    }
+    
     // TODO: check that all pins and pads are placed
-    //       check there is a valid floorplan
+    
     //       check we have filler/decap cells
     done();
 }

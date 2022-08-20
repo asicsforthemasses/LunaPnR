@@ -20,6 +20,7 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
     }
 
     // FIXME: for now use the first region to place the top module
+    //        later on, add support for multiple regions
     auto regionIter = database.floorplan()->begin();
     if (regionIter == database.floorplan()->end())
     {
