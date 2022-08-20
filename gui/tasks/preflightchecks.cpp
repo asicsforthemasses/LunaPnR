@@ -70,10 +70,13 @@ void Tasks::PreflightChecks::execute(GUI::Database &database, ProgressCallback c
         return;
     }
 
+#if 0
+
     if (database.floorplan()->regionCount() != 0)
     {
         database.floorplan()->clear();
     }
+
 
     //FIXME: temporary hack
     auto tempRegion = database.floorplan()->createRegion("DefaultRegion");
@@ -111,8 +114,6 @@ void Tasks::PreflightChecks::execute(GUI::Database &database, ProgressCallback c
         ur += ChipDB::Coord64{0, rowHeight};
     }
 
-    //designPtr->m_floorplan->contentsChanged();
-
     // check there is a valid floorplan
     if (database.floorplan()->regionCount() == 0)
     {
@@ -134,6 +135,8 @@ void Tasks::PreflightChecks::execute(GUI::Database &database, ProgressCallback c
             return;
         }
     }
+
+#endif
 
     // TODO: check that all pins and pads are placed
     

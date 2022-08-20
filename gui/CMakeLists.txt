@@ -68,6 +68,7 @@ set (LUNA_SRC_FILES
     tasks/readallfiles.cpp
     tasks/checktiming.cpp
     tasks/preflightchecks.cpp
+    tasks/createfloorplan.cpp
     tasks/place.cpp
     python/types/pyprojectlef.cpp
     python/types/pyprojectlib.cpp

@@ -20,15 +20,29 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
     }
 
     // FIXME: for now use the first region to place the top module
-    //        later on, add support for multiple regions
-    auto regionIter = database.floorplan()->begin();
-    if (regionIter == database.floorplan()->end())
+    // check there is a valid floorplan
+    if (database.floorplan()->regionCount() == 0)
     {
-        error("No regions defined\n");
+        error("No regions defined in floorplan!\n");
         return;
     }
 
-    auto regionKeyPair = *regionIter;
+    for(auto pin : topModule->m_pins)
+    {
+        auto pinInstance = topModule->m_netlist->lookupInstance(pin->m_name);
+        if (!pinInstance.isValid())
+        {
+            error(Logging::fmt("Module %s does not have a pin instance corresponding to pin %s!\n", topModule->name().c_str(), pin->m_name.c_str()));
+            return;            
+        }
+        if (!pinInstance->isPlaced())
+        {
+            error(Logging::fmt("Pin %s of module %s has not been placed!\n", pin->m_name.c_str(), topModule->name().c_str()));
+            return;
+        }
+    }
+
+    auto regionKeyPair = *(database.floorplan()->begin());
 
     bool ok = LunaCore::QLAPlacer::place(*regionKeyPair.rawPtr(), 
         *topModule->m_netlist.get(), nullptr);

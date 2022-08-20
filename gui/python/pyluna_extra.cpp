@@ -230,13 +230,16 @@ bool GUI::Python::postInitHook()
         Py_XDECREF(capsule);
     }
 
-    capsule = PyCapsule_New(m_console, "LunaExtra.ConsolePtr", nullptr);
-    
-    if (PyModule_AddObject(lunaExtraModule, "ConsolePtr", capsule) < 0)
+    if (m_console != nullptr)
     {
-        std::cout << "PyModule_AddObject failed!\n";
-        Py_XDECREF(capsule);
+        capsule = PyCapsule_New(m_console, "LunaExtra.ConsolePtr", nullptr);
+        
+        if (PyModule_AddObject(lunaExtraModule, "ConsolePtr", capsule) < 0)
+        {
+            std::cout << "PyModule_AddObject failed!\n";
+            Py_XDECREF(capsule);
+        }
     }
-    
+        
     return true;
 }
