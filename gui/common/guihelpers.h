@@ -117,4 +117,8 @@ protected:
     bool  m_valid;
 };
 
+QString toQString(const std::string &str) noexcept;
+QString toQString(const ChipDB::Rect64 &rect) noexcept;
+QString toQString(const ChipDB::Margins64 &margins) noexcept;
+
 };

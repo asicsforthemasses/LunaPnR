@@ -10,9 +10,18 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include "lunacore.h"
 
 namespace GUI
 {
+
+struct RegionSetup
+{
+    std::string         m_regionName;   ///< region name
+    ChipDB::Rect64      m_regionSize;   ///< region size including halo
+    ChipDB::Margins64   m_regionHalo;   ///< region halo margins
+    std::string         m_site;
+};
 
 /** LunaPnR project information, used by the project browser.
     This should hold only project persistent data
@@ -24,6 +33,8 @@ struct ProjectSetup
     std::vector<std::string> m_verilogFiles;
     std::vector<std::string> m_timingConstraintFiles;
     std::vector<std::string> m_layerFiles;
+
+    std::vector<RegionSetup> m_regions;
 
     std::string m_openSTALocation{"/usr/local/bin/sta"};
 

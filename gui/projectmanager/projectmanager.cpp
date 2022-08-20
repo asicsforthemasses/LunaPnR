@@ -11,12 +11,12 @@
 #include "../widgets/flatactiontile.h"
 #include "../widgets/blockframe.h"
 #include "../projectmanager/filesetupmanager.h"
+#include "../floorplandialog/floorplandialog.h"
 
 using namespace GUI;
 
-ProjectManager::ProjectManager(ProjectSetup *projectSetup, QWidget *parent) : QWidget(parent), m_projectSetup(projectSetup)
+ProjectManager::ProjectManager(Database &db, QWidget *parent) : QWidget(parent), m_db(db), m_projectSetup(db.m_projectSetup)
 {
-    assert(projectSetup != nullptr);
     create();
 }
 
@@ -38,11 +38,11 @@ void ProjectManager::create()
 
     m_fileSetupManager = new GUI::FileSetupManager();
     m_fileSetupManager->header()->hide();
-    m_fileSetupManager->addCategory("LEF", ".lef", &m_projectSetup->m_lefFiles);
-    m_fileSetupManager->addCategory("LIB", ".lib", &m_projectSetup->m_libFiles);
-    m_fileSetupManager->addCategory("Verilog", ".v", &m_projectSetup->m_verilogFiles);    
-    m_fileSetupManager->addCategory("Timing constraints", ".sdc", &m_projectSetup->m_timingConstraintFiles);
-    m_fileSetupManager->addCategory("Layers", ".layers", &m_projectSetup->m_layerFiles);
+    m_fileSetupManager->addCategory("LEF", ".lef", &m_projectSetup.m_lefFiles);
+    m_fileSetupManager->addCategory("LIB", ".lib", &m_projectSetup.m_libFiles);
+    m_fileSetupManager->addCategory("Verilog", ".v", &m_projectSetup.m_verilogFiles);    
+    m_fileSetupManager->addCategory("Timing constraints", ".sdc", &m_projectSetup.m_timingConstraintFiles);
+    m_fileSetupManager->addCategory("Layers", ".layers", &m_projectSetup.m_layerFiles);
 
     block->addWidget(m_fileSetupManager,1);
     m_managerLayout->addWidget(block);
@@ -57,7 +57,7 @@ void ProjectManager::create()
     auto blockFrame = new GUI::BlockFrame();
     
     auto actionTile = new GUI::FlatActionTile("Floorplan setup", "://images/floorplan.png", "://images/properties.png", "FLOORPLANSETUP");
-    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onFloorplanSetup);
     m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
@@ -254,4 +254,10 @@ bool ProjectManager::event(QEvent * event)
     }
     
     return QWidget::event(event);
+}
+
+void ProjectManager::onFloorplanSetup(QString actionName)
+{
+    FloorplanDialog dialog(m_db);
+    dialog.exec();
 }

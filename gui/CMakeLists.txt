@@ -52,6 +52,7 @@ set (LUNA_SRC_FILES
     widgets/flattilebase.cpp
     widgets/flatactiontile.cpp
     widgets/blockcontainer.cpp
+    widgets/rectdelegate.cpp
     floorplanview/floorplanview.cpp
     techbrowser/techbrowser.cpp
     designbrowser/designbrowser.cpp
@@ -60,6 +61,7 @@ set (LUNA_SRC_FILES
     propertyview/propertyview.cpp
     projectmanager/filesetupmanager.cpp
     projectmanager/projectmanager.cpp
+    floorplandialog/floorplandialog.cpp
     console/mmconsole.cpp
     console/mtstringbuffer.cpp
     console/singlelineedit.cpp

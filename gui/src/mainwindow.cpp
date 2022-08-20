@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     auto hMainLayout = new QHBoxLayout();
 
-    m_projectManager = new GUI::ProjectManager(&m_db->m_projectSetup);
+    m_projectManager = new GUI::ProjectManager(*m_db.get());
     m_projectSplitter = new QSplitter(Qt::Horizontal, this);
 
     // create tabs

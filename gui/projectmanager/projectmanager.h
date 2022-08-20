@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QBoxLayout>
 #include <vector>
-#include "../common/projectsetup.h"
+#include "../common/database.h"
 #include "../widgets/flatactiontile.h"
 #include "filesetupmanager.h"
 
@@ -15,19 +15,24 @@ class ProjectManager : public QWidget
 {
     Q_OBJECT
 public:
-    ProjectManager(ProjectSetup *projectSetup, QWidget *parent = nullptr);
+    ProjectManager(Database &db, QWidget *parent = nullptr);
 
     void repopulate();
 
 signals:
     void onAction(QString actionName);
+    
+protected slots:
+    void onFloorplanSetup(QString actionName);
 
 protected:
     bool event(QEvent * event) override;
     void create();    
     
+    Database &m_db;
+    ProjectSetup &m_projectSetup;
+
     QVBoxLayout *m_managerLayout = nullptr;
-    ProjectSetup *m_projectSetup = nullptr;
     
     GUI::FileSetupManager *m_fileSetupManager = nullptr;
     std::vector<FlatTileBase*> m_tiles;

@@ -245,3 +245,20 @@ ChipDB::Coord64 GUI::Viewport::toViewport(const QPoint &point) const noexcept
         return ChipDB::Coord64{0,0};
     }    
 }
+
+QString GUI::toQString(const ChipDB::Rect64 &rect) noexcept
+{
+    return QString::asprintf("(%ld,%ld)-(%ld,%ld)", rect.m_ll.m_x, rect.m_ll.m_y, 
+        rect.m_ur.m_x, rect.m_ur.m_y);
+}
+
+QString GUI::toQString(const ChipDB::Margins64 &margins) noexcept
+{
+    return QString::asprintf("L %ld, B %ld, T %ld, R %ld", margins.m_left, margins.m_bottom, 
+        margins.m_right, margins.m_top);
+}
+
+QString GUI::toQString(const std::string &str) noexcept
+{
+    return QString::fromStdString(str);
+}
