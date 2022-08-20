@@ -259,5 +259,14 @@ bool ProjectManager::event(QEvent * event)
 void ProjectManager::onFloorplanSetup(QString actionName)
 {
     FloorplanDialog dialog(m_db);
-    dialog.exec();
+    int result = dialog.exec();
+    if (result == QDialog::Accepted)
+    {
+        std::cout << "FloorplanDialog was excepted\n";
+    }
+    else
+    {
+        std::cout << "FloorplanDialog was rejected\n";
+    }
 }
+

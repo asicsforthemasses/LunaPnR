@@ -1,5 +1,6 @@
 #include <sstream>
 #include <QHeaderView>
+#include <QDialogButtonBox>
 
 #include "floorplandialog.h"
 #include "common/guihelpers.h"
@@ -45,6 +46,14 @@ FloorplanDialog::FloorplanDialog(Database &db, QWidget *parent) : QDialog(parent
         createTableRow(row, region);
         row++;
     }
+
+    auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                     | QDialogButtonBox::Cancel);
+
+    layout->addWidget(buttonBox, 2,0);
+
+    connect(buttonBox, &QDialogButtonBox::accepted, this, &FloorplanDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, this, &FloorplanDialog::reject);
 
     setLayout(layout);
 
