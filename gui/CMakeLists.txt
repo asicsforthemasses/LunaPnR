@@ -49,6 +49,7 @@ set (LUNA_SRC_FILES
     widgets/flattogglebutton.cpp
     widgets/flatimage.cpp
     widgets/flatimagebutton.cpp
+    widgets/flattilebase.cpp
     widgets/flatactiontile.cpp
     widgets/blockcontainer.cpp
     floorplanview/floorplanview.cpp

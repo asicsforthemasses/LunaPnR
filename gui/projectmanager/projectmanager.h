@@ -30,7 +30,7 @@ protected:
     ProjectSetup *m_projectSetup = nullptr;
     
     GUI::FileSetupManager *m_fileSetupManager = nullptr;
-    std::vector<FlatActionTile*> m_actionTiles;
+    std::vector<FlatTileBase*> m_tiles;
 };
 
 }

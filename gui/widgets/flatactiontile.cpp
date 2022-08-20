@@ -7,34 +7,15 @@ FlatActionTile::FlatActionTile(const QString &actionTitle,
     const QString &iconUrl,     
     const QString &actionIconUrl, 
     const QString &actionName,
-    QWidget *parent) : QFrame(parent), m_actionName(actionName)
+    QWidget *parent) : FlatTileBase(actionTitle, iconUrl, actionName, parent), m_actionName(actionName)
 {
-    auto hlayout = new QHBoxLayout();
-    hlayout->setContentsMargins(2,2,2,2);
-
-    m_statusIndicator = new FlatImage("://images/status_empty.png");
-    m_icon  = new FlatImage(iconUrl);
-    m_actionTitle = new QLabel(actionTitle);
     m_actionButton = new FlatImageButton(actionIconUrl);
 
-    hlayout->addWidget(m_statusIndicator);
-    hlayout->addWidget(m_icon);
-    hlayout->addWidget(m_actionTitle, 1);
-    hlayout->addWidget(m_actionButton);
-    hlayout->setAlignment(Qt::AlignVCenter);
-    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
-
-#if 0
-    QPalette pal = QPalette();
-    //pal.setColor(QPalette::Window, Qt::white);
-
-    setAutoFillBackground(true); 
-    setPalette(pal);
-#endif
+    m_hlayout->addWidget(m_actionButton);
 
     connect(m_actionButton, &FlatImageButton::pressed, this, &FlatActionTile::onActionPrivate);
 
-    setLayout(hlayout);
+    setLayout(m_hlayout);
 }
 
 void FlatActionTile::onActionPrivate()
@@ -42,59 +23,7 @@ void FlatActionTile::onActionPrivate()
     emit onAction(m_actionName);
 }
 
-void FlatActionTile::setIcon(const QString &iconUrl)
-{
-    m_icon->setPixmap(iconUrl);
-}
-
 void FlatActionTile::setActionIcon(const QString &iconUrl)
 {
     m_actionButton->setPixmap(iconUrl);
-}
-
-QString FlatActionTile::actionTitle() const
-{
-    return m_actionTitle->text();
-}
-
-void FlatActionTile::setActionTitle(const QString &name)
-{
-    m_actionTitle->setText(name);
-}
-
-/** get action name -- used for action events */
-QString FlatActionTile::actionName() const
-{
-    return m_actionName;
-}
-
-/** set action name -- used for action events */
-void FlatActionTile::setActionName(const QString &actionName)
-{
-    m_actionName = actionName;
-}
-
-void FlatActionTile::setStatus(Status s)
-{
-    m_status = s;
-
-    switch(s)
-    {
-    case Status::NONE:
-        m_statusIndicator->setPixmap("://images/status_empty.png");
-        break;
-    case Status::RUNNING:
-        m_statusIndicator->setPixmap("://images/status_running.png");
-        break;        
-    case Status::ERROR:
-        m_statusIndicator->setPixmap("://images/status_error.png");
-        break;
-    case Status::OK:
-        m_statusIndicator->setPixmap("://images/status_ok.png");
-        break;        
-    default:
-        break;
-    }
-
-    m_statusIndicator->update();
 }

@@ -2,6 +2,7 @@
 
 void Tasks::PreflightChecks::execute(GUI::Database &database, ProgressCallback callback)
 {
+    bool haveErrors = false;
     m_status.store(Status::RUNNING);
 
     // TODO: check that we have a valid work dir
@@ -11,32 +12,36 @@ void Tasks::PreflightChecks::execute(GUI::Database &database, ProgressCallback c
     if (!ChipDB::fileExists(opensta))
     {
         error("OpenSTA binary cannot be found: configure path in setup\n");
-        return;
+        haveErrors = true;
     }
 
     // TODO: check that we have a valid technology setup
     if (database.techLib()->getNumberOfLayers() == 0)
     {
         error("No technology layers loaded: add a technology LEF to the project\n");
-        return;
+        haveErrors = true;
     }
 
-    // TODO: check that we have a valid cell lib
-    if (database.cellLib()->size() == 0)
+    // check that we have a valid cell lib
+    if (database.cellLib()->size() <= 1)
     {
         error("No cells loaded: add LIB and/or LEF files to the project\n");
-        return;
+        haveErrors = true;
     }
 
     // TODO: check that we have a valid modules
     if (database.moduleLib()->size() == 0)
     {
         error("No modules loaded: add verilog files to the project\n");
+        haveErrors = true;
+    }
+
+    if (haveErrors)
+    {
         return;
     }
 
     // check that we have a top module selected
-
     auto topModule = database.design().getTopModule();
 
     if (!topModule)
@@ -58,5 +63,7 @@ void Tasks::PreflightChecks::execute(GUI::Database &database, ProgressCallback c
         }
     }    
 
+    // TODO: check that all pins and pads are placed
+    //       there is a valid floorplan
     done();
 }

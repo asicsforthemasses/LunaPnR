@@ -58,12 +58,16 @@ void ProjectManager::create()
     
     auto actionTile = new GUI::FlatActionTile("Floorplan setup", "://images/floorplan.png", "://images/properties.png", "FLOORPLANSETUP");
     connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
-    m_actionTiles.push_back(actionTile);
+    m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
+
+    auto statusTile = new GUI::FlatStatusTile("Checks", "://images/floorplan.png", "PreflightChecks");
+    m_tiles.push_back(statusTile);
+    blockFrame->addWidget(statusTile);
 
     actionTile = new GUI::FlatActionTile("Place", "://images/floorplan.png", "://images/go.png", "PLACE");
     connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
-    m_actionTiles.push_back(actionTile);
+    m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
     block->addWidget(blockFrame);
@@ -81,17 +85,17 @@ void ProjectManager::create()
     
     actionTile = new GUI::FlatActionTile("CTS setup", "://images/floorplan.png", "://images/properties.png", "CTSSETUP");
     connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
-    m_actionTiles.push_back(actionTile);
+    m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
     actionTile = new GUI::FlatActionTile("Create tree", "://images/floorplan.png", "://images/go.png", "CREATECTSTREE");
     connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
-    m_actionTiles.push_back(actionTile);
+    m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
     actionTile = new GUI::FlatActionTile("Timing Report", "://images/floorplan.png", "://images/go.png", "TIMINGREPORT1");
     connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
-    m_actionTiles.push_back(actionTile);
+    m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
     block->addWidget(blockFrame);
@@ -153,12 +157,12 @@ void ProjectManager::create()
 
     actionTile = new GUI::FlatActionTile("Timing Report", "://images/floorplan.png", "://images/go.png", "TIMINGREPORT2");
     connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
-    m_actionTiles.push_back(actionTile);
+    m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
     actionTile = new GUI::FlatActionTile("DRC", "://images/floorplan.png", "://images/go.png", "DRC");
     connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
-    m_actionTiles.push_back(actionTile);
+    m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
     //actionTile = new GUI::FlatActionTile("Create tree", "://images/floorplan.png", "://images/go.png");
@@ -179,12 +183,12 @@ void ProjectManager::create()
     
     actionTile = new GUI::FlatActionTile("Write GDS2", "://images/floorplan.png", "://images/go.png", "WRITEGDS2");
     connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
-    m_actionTiles.push_back(actionTile);
+    m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
     actionTile = new GUI::FlatActionTile("Write DEF", "://images/floorplan.png", "://images/go.png", "WRITEDEF");
     connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
-    m_actionTiles.push_back(actionTile);
+    m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
     block->addWidget(blockFrame);
@@ -212,14 +216,14 @@ bool ProjectManager::event(QEvent * event)
         // search through action tiles and set the status accordingly
         const QString actionName = e->name();
 
-        auto iter = std::find_if(m_actionTiles.begin(), m_actionTiles.end(), [&actionName]
-            (const FlatActionTile *tile)
+        auto iter = std::find_if(m_tiles.begin(), m_tiles.end(), [&actionName]
+            (const FlatTileBase *tile)
             {
                 return tile->actionName() == actionName;
             }
         );
 
-        if (iter == m_actionTiles.end())
+        if (iter == m_tiles.end())
         {
             std::cout << "ProjectManager event: tile with action name " << actionName.toStdString() << " not found!\n";
         }
