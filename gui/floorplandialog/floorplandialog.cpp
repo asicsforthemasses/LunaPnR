@@ -1,4 +1,6 @@
 #include <sstream>
+#include <QHeaderView>
+
 #include "floorplandialog.h"
 #include "common/guihelpers.h"
 #include "widgets/rectdelegate.h"
@@ -13,8 +15,11 @@ FloorplanDialog::FloorplanDialog(Database &db, QWidget *parent) : QDialog(parent
     setWindowTitle(tr("Floorplan Setup"));
 
     auto layout = new QGridLayout();
+    layout->setSizeConstraint(QLayout::SetMinimumSize);
 
-    m_regionTable = new QTableWidget();
+    m_regionTable = new QTableWidget();    
+    m_regionTable->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+    m_regionTable->setSizeAdjustPolicy(QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents);
 
     auto addRowButton = new FlatImageButton("://images/add.png");
 
@@ -26,6 +31,10 @@ FloorplanDialog::FloorplanDialog(Database &db, QWidget *parent) : QDialog(parent
     m_regionTable->setRowCount(db.m_projectSetup.m_regions.size());
     m_regionTable->setColumnCount(4);
     m_regionTable->setHorizontalHeaderLabels(headerLabels);
+    
+    // dunno why this fails:
+    // the dialog will be almost infinitely wide.. ?
+    //m_regionTable->horizontalHeader()->setStretchLastSection(true);
 
     auto rectDelegate = new RectDelegate();
     m_regionTable->setItemDelegateForColumn(2, rectDelegate);
