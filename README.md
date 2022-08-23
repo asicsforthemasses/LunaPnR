@@ -1,3 +1,7 @@
+<!--
+SPDX-FileCopyrightText: 2021-2022 Niels Moseley, <asicsforthemasses@gmail.com>
+SPDX-License-Identifier: GPL-3.0-only
+-->
 # Luna Place and Route
 
 [![Build Status](https://www.travis-ci.com/asicsforthemasses/LunaPnR.svg?branch=stable)](https://www.travis-ci.com/asicsforthemasses/LunaPnR)

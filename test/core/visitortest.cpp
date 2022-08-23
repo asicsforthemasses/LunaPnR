@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
 //
-// SPDX-License-Identifier: GPL-3.0-only#include "lunacore.h"
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "testhelpers.h"
+#include "lunacore.h"
 
 #include <string>
 #include <sstream>

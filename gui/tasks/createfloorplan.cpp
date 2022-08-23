@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include "createfloorplan.h"
 #include "../python/pyluna_extra.h"
 

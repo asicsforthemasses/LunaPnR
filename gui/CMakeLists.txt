@@ -1,3 +1,7 @@
+## SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+##
+## SPDX-License-Identifier: GPL-3.0-only
+
 cmake_minimum_required(VERSION 3.20)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
