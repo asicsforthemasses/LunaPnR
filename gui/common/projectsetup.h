@@ -20,12 +20,10 @@ struct RegionSetup
     std::string         m_regionName;   ///< region name
     ChipDB::Rect64      m_regionSize;   ///< region size including halo
     ChipDB::Margins64   m_regionHalo;   ///< region halo margins
-    std::string         m_site;
+    std::string         m_site;         ///< site name, corresponding to LEF file.
 };
 
-/** LunaPnR project information, used by the project browser.
-    This should hold only project persistent data
-*/
+/** LunaPnR project information, used by the project browser/manager. */
 struct ProjectSetup
 {
     std::vector<std::string> m_lefFiles;
@@ -36,7 +34,7 @@ struct ProjectSetup
 
     std::vector<RegionSetup> m_regions;
 
-    std::string m_openSTALocation{"/usr/local/bin/sta"};
+    std::string m_openSTALocation{"/usr/local/bin/sta"};    ///< this comes from the Luna config file, not the project file.
 
     bool readFromJSON(std::istream &is);
     bool writeToJSON(std::ostream &os) const;

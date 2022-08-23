@@ -76,6 +76,7 @@ set (LUNA_SRC_FILES
     python/types/pyprojectlib.cpp
     python/types/pyprojectverilog.cpp
     python/pyluna_extra.cpp
+    src/configurationdialog.cpp
     src/mainwindow.cpp
     src/main.cpp
 )

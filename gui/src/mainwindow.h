@@ -68,6 +68,8 @@ public slots:
     void onSaveProject();
     void onSaveProjectAs();
 
+    void onLunaConfig();
+
     void onExportLayers();
     void onRunScript();
     void onClearDatabase();
@@ -92,6 +94,8 @@ protected:
     QAction *m_clearAct;
     QAction *m_quitAct;    
     QAction *m_aboutAct;
+
+    QAction *m_configAct;
 
     QAction *m_loadProject;
     QAction *m_saveProject;

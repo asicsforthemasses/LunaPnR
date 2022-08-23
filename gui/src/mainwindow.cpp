@@ -29,6 +29,8 @@
 
 #include "common/tasklist.h"
 
+#include "configurationdialog.h"
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     m_db = std::make_shared<GUI::Database>();
@@ -169,7 +171,7 @@ void MainWindow::notify(ChipDB::ObjectKey index, NotificationType t)
 
 void MainWindow::createMenus()
 {
-    QMenu *fileMenu = menuBar()->addMenu(tr("&File"));    
+    QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(m_loadProject);
     fileMenu->addAction(m_saveProject);
     fileMenu->addAction(m_saveProjectAs);
@@ -180,6 +182,8 @@ void MainWindow::createMenus()
     fileMenu->addAction(m_consoleFontAct);
     fileMenu->addSeparator();
     fileMenu->addAction(m_exportLayers);
+    fileMenu->addSeparator();
+    fileMenu->addAction(m_configAct);
     fileMenu->addSeparator();
     fileMenu->addAction(m_quitAct);
 
@@ -219,6 +223,9 @@ void MainWindow::createActions()
 
     m_exportLayers = new QAction(tr("Export layers"), this);
     connect(m_exportLayers, &QAction::triggered, this, &MainWindow::onExportLayers);
+
+    m_configAct = new QAction(tr("Luna Configuration"), this);
+    connect(m_configAct, &QAction::triggered, this, &MainWindow::onLunaConfig);
 }
 
 void MainWindow::saveSettings()
@@ -236,6 +243,8 @@ void MainWindow::saveSettings()
 
     settings.setValue("console/font", m_console->font().family());
     settings.setValue("console/fontsize", m_console->font().pointSize());
+
+    settings.setValue("opensta_location", QString::fromStdString(m_db->m_projectSetup.m_openSTALocation));
 }
 
 void MainWindow::loadSettings()
@@ -255,6 +264,8 @@ void MainWindow::loadSettings()
     font.setPointSize(settings.value("console/fontsize", "11").toInt());
     m_console->setFont(font);
 
+    auto openStaLocation = settings.value("opensta_location", "/usr/local/bin/sta").toString();
+    m_db->m_projectSetup.m_openSTALocation = openStaLocation.toStdString();
 }
 
 void MainWindow::onQuit()
@@ -455,6 +466,12 @@ void MainWindow::onProjectManagerAction(QString actionName)
             m_taskList->executeToTask(*m_db.get(), actionName.toStdString());
         }
     }
+}
+
+void MainWindow::onLunaConfig()
+{
+    GUI::ConfigurationDialog dialog(*m_db.get());
+    dialog.exec();
 }
 
 ConsoleLogOutputHandler::ConsoleLogOutputHandler(GUI::MMConsole *console) : m_console(console)
