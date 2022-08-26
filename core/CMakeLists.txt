@@ -62,6 +62,7 @@ add_library(lunacore
     netlist/instance.cpp
     netlist/netlist.cpp
     netlist/netlisttools.cpp
+    cellplacer2/cellplacer2.cpp
     cellplacer/qplacertypes.cpp
     cellplacer/qplacer.cpp
     cellplacer/cellplacer.cpp
