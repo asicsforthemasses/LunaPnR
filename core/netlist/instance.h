@@ -21,7 +21,8 @@ enum class InstanceType
     ABSTRACT,
     CELL,
     MODULE,
-    PIN
+    PIN,
+    NETCON
 };
 
 std::string toString(const InstanceType &t);
@@ -29,7 +30,7 @@ std::string toString(const InstanceType &t);
 class Instance
 {
 public:
-    Instance() = default;
+    Instance() : m_cell(nullptr) {}
     
     Instance(const std::string &name, InstanceType instype, const std::shared_ptr<Cell> cell) 
         : m_name(name), m_insType(instype), m_cell(cell) {}
@@ -132,10 +133,10 @@ public:
         }
     };
 
-    virtual Pin getPin(PinObjectKey pinKey) const = 0;
-    virtual Pin getPin(const std::string &pinName) const = 0;
-    virtual bool setPinNet(PinObjectKey pinKey, NetObjectKey netKey) = 0;
-    virtual size_t getNumberOfPins() const = 0;
+    virtual Pin getPin(PinObjectKey pinKey) const;
+    virtual Pin getPin(const std::string &pinName) const;
+    virtual bool setPinNet(PinObjectKey pinKey, NetObjectKey netKey);
+    virtual size_t getNumberOfPins() const;
 
     class ConnectionIterators
     {

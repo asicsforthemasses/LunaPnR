@@ -14,11 +14,11 @@ std::string ChipDB::toString(const InstanceType &t)
     auto index = static_cast<size_t>(t);
     if (index < names.size())
     {
-        return std::string(names[index]);
+        return names[index];
     }
     else
     {
-        return std::string("UNKNOWN");
+        return "UNKNOWN";
     }
 };
 

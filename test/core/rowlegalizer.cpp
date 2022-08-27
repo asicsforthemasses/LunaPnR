@@ -25,10 +25,10 @@ BOOST_AUTO_TEST_CASE(check_legal_positions)
     auto mycell = std::make_shared<ChipDB::Cell>("myCell");
     mycell->m_size = ChipDB::Coord64{800, 10000};
 
-    auto ins1 = std::make_shared<ChipDB::Instance>("ins1", mycell);
-    auto ins2 = std::make_shared<ChipDB::Instance>("ins2", mycell);
-    auto ins3 = std::make_shared<ChipDB::Instance>("ins3", mycell);
-    auto ins4 = std::make_shared<ChipDB::Instance>("ins4", mycell);
+    auto ins1 = std::make_shared<ChipDB::Instance>("ins1", ChipDB::InstanceType::CELL, mycell);
+    auto ins2 = std::make_shared<ChipDB::Instance>("ins2", ChipDB::InstanceType::CELL, mycell);
+    auto ins3 = std::make_shared<ChipDB::Instance>("ins3", ChipDB::InstanceType::CELL, mycell);
+    auto ins4 = std::make_shared<ChipDB::Instance>("ins4", ChipDB::InstanceType::CELL, mycell);
 
     netlist->m_instances.add(ins1);
     netlist->m_instances.add(ins2);

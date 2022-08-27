@@ -489,7 +489,7 @@ void FloorplanView::drawInstances(QPainter &p)
     {
         if (ins.isValid() && (ins->m_placementInfo != ChipDB::PlacementInfo::UNPLACED) && (ins->m_placementInfo != ChipDB::PlacementInfo::IGNORE))
         {
-            switch(ins->m_insType)
+            switch(ins->insType())
             {
             case ChipDB::InstanceType::ABSTRACT:
                 break;

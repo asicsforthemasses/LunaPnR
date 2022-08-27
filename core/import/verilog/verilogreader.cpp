@@ -183,7 +183,7 @@ void ReaderImpl::onInput(const std::string &netname)
     pin->m_iotype = ChipDB::IOType::INPUT;
 
     auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN, 
-        m_design.m_cellLib->lookupCell("__INPIN"));
+        m_design.m_cellLib->lookupCell("__INPIN").ptr());
 
     auto pinInsKeyObjPair = m_currentModule->addInstance(pinInstance);
     m_currentModule->connect(netname, "Y", netname);    // output on the inner level
@@ -214,7 +214,7 @@ void ReaderImpl::onInput(const std::string &netname, uint32_t start, uint32_t st
 
         // add a PinInstance for each pin to the netlist
         auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN, 
-        m_design.m_cellLib->lookupCell("__INPIN"));
+        m_design.m_cellLib->lookupCell("__INPIN").ptr());
 
         auto pinInsKeyObjPair = m_currentModule->addInstance(pinInstance);
         m_currentModule->connect(netname, "Y", netname);    // output on the inner level
@@ -237,7 +237,7 @@ void ReaderImpl::onOutput(const std::string &netname)
 
     // add a PinInstance for each pin to the netlist
     auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN, 
-        m_design.m_cellLib->lookupCell("__OUTPIN"));
+        m_design.m_cellLib->lookupCell("__OUTPIN").ptr());
 
     auto pinInsKeyObjPair = m_currentModule->addInstance(pinInstance);
 
@@ -272,7 +272,7 @@ void ReaderImpl::onOutput(const std::string &netname, uint32_t start, uint32_t s
         // add a PinInstance for each pin to the netlist
         // add a PinInstance for each pin to the netlist
         auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN, 
-            m_design.m_cellLib->lookupCell("__OUTPIN"));
+            m_design.m_cellLib->lookupCell("__OUTPIN").ptr());
 
         auto pinInsKeyObjPair = m_currentModule->addInstance(pinInstance);
 
@@ -348,7 +348,7 @@ void ReaderImpl::onAssign(const std::string &left, const std::string &right)
         return;
     }
 
-    auto insPtr = std::make_shared<Instance>(ss.str(), cellKeyObjPair.ptr());
+    auto insPtr = std::make_shared<Instance>(ss.str(), ChipDB::InstanceType::CELL, cellKeyObjPair.ptr());
     auto insKeyObjPair = m_currentModule->addInstance(insPtr);
 
     if (!insKeyObjPair.isValid())

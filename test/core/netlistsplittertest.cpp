@@ -26,6 +26,7 @@ struct VerticalSelector : LunaCore::QPlacer::Selector
     ChipDB::CoordType m_verticalCutline;
 };
 
+#if 0
 BOOST_AUTO_TEST_CASE(check_netlist_splitter)
 {
     std::cout << "--== CHECK NETLIST SPLITTER ==--\n";
@@ -142,7 +143,7 @@ BOOST_AUTO_TEST_CASE(check_netlist_splitter)
 
     setLogLevel(ll);
 }
-
+#endif
 struct ExternalNodeHandler : LunaCore::QPlacer::ExternalNodeOnNetHandler
 {
     void operator()(LunaCore::QPlacer::PlacerNodeId id,
@@ -164,6 +165,7 @@ struct ExternalNodeHandler : LunaCore::QPlacer::ExternalNodeOnNetHandler
 };
 
 
+#if 0
 BOOST_AUTO_TEST_CASE(check_netlist_splitter_with_external_nodes)
 {
     std::cout << "--== CHECK NETLIST SPLITTER WITH EXTERNAL NODES ==--\n";
@@ -286,6 +288,6 @@ BOOST_AUTO_TEST_CASE(check_netlist_splitter_with_external_nodes)
 
     Logging::setLogLevel(ll);
 }
-
+#endif
 
 BOOST_AUTO_TEST_SUITE_END()

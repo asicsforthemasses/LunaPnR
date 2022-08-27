@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_CASE(various_instance_tests)
     auto cell = std::make_shared<ChipDB::Cell>("henk");
     cell->createPin("A");
 
-    auto insPtr = std::make_shared<ChipDB::Instance>("frans", cell);
+    auto insPtr = std::make_shared<ChipDB::Instance>("frans", ChipDB::InstanceType::CELL, cell);
 
     BOOST_CHECK(insPtr);
     BOOST_CHECK(insPtr->cell() != nullptr);
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(various_instance_tests)
     auto modPtr = std::make_shared<ChipDB::Module>("MyModule");
     modPtr->createPin("Z");
 
-    auto insPtr2 = std::make_shared<ChipDB::Instance>("diederik", modPtr);
+    auto insPtr2 = std::make_shared<ChipDB::Instance>("diederik", ChipDB::InstanceType::MODULE, modPtr);
     BOOST_CHECK(insPtr2->isModule());
 
     // Regression: test that the net key is correct when looking a pin up by name

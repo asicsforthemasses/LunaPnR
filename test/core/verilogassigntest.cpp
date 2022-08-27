@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(can_read_assign_statements)
 
     for(auto ins : mod->m_netlist->m_instances)
     {
-        switch(ins->m_insType)
+        switch(ins->insType())
         {
         case ChipDB::InstanceType::MODULE:
             std::cout << "    module " << ins->name() << "\n";

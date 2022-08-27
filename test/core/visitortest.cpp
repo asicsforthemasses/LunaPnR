@@ -20,7 +20,6 @@ public:
     NetLoadVisitor(ChipDB::Netlist &netlist) : m_netlist(netlist), m_capacitance(0), m_inputCount(0) {};
 
     virtual void visit(const ChipDB::Instance *instance) override {};
-    virtual void visit(const ChipDB::PinInstance *instance) override {};
     virtual void visit(const ChipDB::Module *mod) override {};
     virtual void visit(const ChipDB::Cell *cell) override {};
     virtual void visit(const ChipDB::PinInfo *pinfo) override {};
