@@ -26,7 +26,7 @@ namespace LunaCore::DEF::Private
 
         ChipDB::Coord64 toDEFCoordinates(const ChipDB::Coord64 &pos) const noexcept;
 
-        bool write(const std::shared_ptr<ChipDB::InstanceBase> instance);
+        bool write(const std::shared_ptr<ChipDB::Instance> instance);
 
         size_t  m_cellCount     = 0;
         int64_t m_databaseUnits = 100;  /** NOTE: default, actual should come from from LEF file */

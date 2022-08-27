@@ -65,7 +65,7 @@ protected:
 
     Design                      &m_design;
     std::shared_ptr<Module>     m_currentModule;
-    KeyObjPair<InstanceBase>    m_currentInsKeyObjPair;
+    KeyObjPair<Instance>        m_currentInsKeyObjPair;
 };
 
 /// \endcond

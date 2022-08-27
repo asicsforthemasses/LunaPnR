@@ -108,7 +108,7 @@ void ReaderImpl::onInstance(const std::string &modName, const std::string &insNa
     auto const cellKeyObjPtr = m_design.m_cellLib->lookupCell(modName);
     if (cellKeyObjPtr.isValid())
     {           
-        auto insPtr = std::make_shared<Instance>(insName, cellKeyObjPtr.ptr());
+        auto insPtr = std::make_shared<Instance>(insName, ChipDB::InstanceType::CELL, cellKeyObjPtr.ptr());
         auto insKeyObjPair = m_currentModule->addInstance(insPtr);
 
         if (!insKeyObjPair.isValid())
@@ -126,7 +126,7 @@ void ReaderImpl::onInstance(const std::string &modName, const std::string &insNa
     auto moduleKeyObjPair = m_design.m_moduleLib->lookupModule(modName);
     if (moduleKeyObjPair.isValid())
     {
-        auto insPtr = std::make_shared<Instance>(modName, moduleKeyObjPair.ptr());
+        auto insPtr = std::make_shared<Instance>(modName, ChipDB::InstanceType::MODULE, moduleKeyObjPair.ptr());
         auto insKeyObjPair = m_currentModule->addInstance(insPtr);
         if (!insKeyObjPair.isValid())
         {
@@ -182,11 +182,11 @@ void ReaderImpl::onInput(const std::string &netname)
     auto pin = m_currentModule->createPin(netname);
     pin->m_iotype = ChipDB::IOType::INPUT;
 
-    auto pinInstance = std::make_shared<PinInstance>(netname);
-    pinInstance->setPinIOType(ChipDB::IOType::OUTPUT);    // input ports have output pins!
+    auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN, 
+        m_design.m_cellLib->lookupCell("__INPIN"));
 
     auto pinInsKeyObjPair = m_currentModule->addInstance(pinInstance);
-    m_currentModule->connect(pinInsKeyObjPair.key(), 0, netPtr.key());
+    m_currentModule->connect(netname, "Y", netname);    // output on the inner level
 }
 
 void ReaderImpl::onInput(const std::string &netname, uint32_t start, uint32_t stop)
@@ -213,11 +213,11 @@ void ReaderImpl::onInput(const std::string &netname, uint32_t start, uint32_t st
         pin->m_iotype = ChipDB::IOType::INPUT;
 
         // add a PinInstance for each pin to the netlist
-        auto pinInstance = std::make_shared<PinInstance>(netname);
-        pinInstance->setPinIOType(ChipDB::IOType::OUTPUT);    // input ports have output pins!
+        auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN, 
+        m_design.m_cellLib->lookupCell("__INPIN"));
 
         auto pinInsKeyObjPair = m_currentModule->addInstance(pinInstance);
-        m_currentModule->connect(pinInsKeyObjPair.key(), 0, netPtr.key());        
+        m_currentModule->connect(netname, "Y", netname);    // output on the inner level
     }
 
     Logging::doLog(Logging::LogType::VERBOSE,"Expanded input net %s\n", netname.c_str());
@@ -236,11 +236,12 @@ void ReaderImpl::onOutput(const std::string &netname)
     pin->m_iotype = ChipDB::IOType::OUTPUT;
 
     // add a PinInstance for each pin to the netlist
-    auto pinInstance = std::make_shared<PinInstance>(netname);
+    auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN, 
+        m_design.m_cellLib->lookupCell("__OUTPIN"));
+
     auto pinInsKeyObjPair = m_currentModule->addInstance(pinInstance);
 
-    pinInstance->setPinIOType(ChipDB::IOType::INPUT);    // output ports have input pins!
-    if (!m_currentModule->connect(pinInsKeyObjPair.key(), 0, netKeyObjPair.key()))
+    if (!m_currentModule->connect(netname, "A", netname))    // input on the inner level
     {
         Logging::doLog(Logging::LogType::ERROR,"VerilogReader::ReaderImpl::onOutput: cannot connect to pin Instance!\n");        
     }
@@ -269,11 +270,13 @@ void ReaderImpl::onOutput(const std::string &netname, uint32_t start, uint32_t s
         pin->m_iotype = ChipDB::IOType::OUTPUT;
 
         // add a PinInstance for each pin to the netlist
-        auto pinInstance = std::make_shared<PinInstance>(ss.str());
+        // add a PinInstance for each pin to the netlist
+        auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN, 
+            m_design.m_cellLib->lookupCell("__OUTPIN"));
+
         auto pinInsKeyObjPair = m_currentModule->addInstance(pinInstance);
 
-        pinInstance->setPinIOType(ChipDB::IOType::INPUT);    // output ports have input pins!
-        if (!m_currentModule->connect(pinInsKeyObjPair.key(), 0, netKeyObjPair.key()))
+        if (!m_currentModule->connect(netname, "A", netname))    // input on the inner level
         {
             Logging::doLog(Logging::LogType::ERROR,"VerilogReader::ReaderImpl::onOutput: cannot connect to pin Instance!\n");        
         }

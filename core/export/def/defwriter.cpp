@@ -62,7 +62,7 @@ ChipDB::Coord64 LunaCore::DEF::Private::WriterImpl::toDEFCoordinates(const ChipD
     return ChipDB::Coord64(pos.m_x * dbunits / 1000, pos.m_y * dbunits / 1000);
 }
 
-bool LunaCore::DEF::Private::WriterImpl::write(const std::shared_ptr<ChipDB::InstanceBase> instance)
+bool LunaCore::DEF::Private::WriterImpl::write(const std::shared_ptr<ChipDB::Instance> instance)
 {
     if (!instance)
     {

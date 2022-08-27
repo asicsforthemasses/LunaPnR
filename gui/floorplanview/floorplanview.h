@@ -54,8 +54,8 @@ protected:
     void drawNets(QPainter &p);
     void drawRows(QPainter &p, const std::shared_ptr<ChipDB::Region> region);
 
-    void drawCell(QPainter &p, const std::shared_ptr<ChipDB::InstanceBase> ins);
-    void drawPin(QPainter &p, const std::shared_ptr<ChipDB::InstanceBase> ins);
+    void drawCell(QPainter &p, const std::shared_ptr<ChipDB::Instance> ins);
+    void drawPin(QPainter &p, const std::shared_ptr<ChipDB::Instance> ins);
 
     void drawBottomRuler(QPainter &p);
     void drawLeftRuler(QPainter &p);

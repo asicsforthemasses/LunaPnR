@@ -16,7 +16,7 @@
 namespace LunaCore::QPlacer
 {
 
-class TerminationInstance : public ChipDB::InstanceBase
+class TerminationInstance : public ChipDB::Instance
 {
 public:
     /** get area in um² */

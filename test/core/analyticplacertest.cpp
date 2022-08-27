@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(place_multiplier)
     int64_t right_y = 0;
     for(auto insKeyObjPair : modKeyObjPair->m_netlist->m_instances)
     {
-        if (insKeyObjPair->m_insType == ChipDB::InstanceType::PIN)
+        if (insKeyObjPair->isPin())
         {
             auto pin = insKeyObjPair->getPin(0);
             if (pin.m_pinInfo->isInput())

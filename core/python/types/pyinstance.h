@@ -10,5 +10,5 @@ extern PyTypeObject PyInstanceType;
 
 namespace Python
 {
-    PyObject* toPython(std::shared_ptr<ChipDB::InstanceBase> instancePtr);
+    PyObject* toPython(std::shared_ptr<ChipDB::Instance> instancePtr);
 };

@@ -330,7 +330,7 @@ void FloorplanView::drawRows(QPainter &p, const std::shared_ptr<ChipDB::Region> 
     }
 }
 
-void FloorplanView::drawCell(QPainter &p, const std::shared_ptr<ChipDB::InstanceBase> ins)
+void FloorplanView::drawCell(QPainter &p, const std::shared_ptr<ChipDB::Instance> ins)
 {    
     QRectF cellRect;
     cellRect.setBottomLeft(m_viewPort.toScreen(ins->m_pos));
@@ -385,7 +385,7 @@ void FloorplanView::drawCell(QPainter &p, const std::shared_ptr<ChipDB::Instance
     }
 }
 
-void FloorplanView::drawPin(QPainter &p, const std::shared_ptr<ChipDB::InstanceBase> ins)
+void FloorplanView::drawPin(QPainter &p, const std::shared_ptr<ChipDB::Instance> ins)
 {
     QRectF cellRect;
     cellRect.setBottomLeft(m_viewPort.toScreen(ins->m_pos));

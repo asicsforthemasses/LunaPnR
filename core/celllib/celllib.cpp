@@ -15,6 +15,9 @@ void CellLib::clear()
 {
     m_cells.clear();
     createNetConCell();
+    createInputPinCell();
+    createOutputPinCell();
+    createIOPinCell();
 }
 
 KeyObjPair<Cell> CellLib::createCell(const std::string &name)
@@ -65,6 +68,42 @@ void CellLib::createNetConCell()
     auto outPin = netConCell->m_pins.createPin("Y");
     inPin->m_iotype  = IOType::INPUT;
     outPin->m_iotype = IOType::OUTPUT;
+}
+
+void CellLib::createOutputPinCell()
+{
+    auto outPinCell = createCell("__OUTPIN");
+    outPinCell->m_size = {0,0};
+    outPinCell->m_area = 0;
+    outPinCell->m_leakagePower = 0;
+    auto inPin  = outPinCell->m_pins.createPin("A");    // inner connection first
+    auto outPin = outPinCell->m_pins.createPin("Y");    // outer connection second
+    inPin->m_iotype  = IOType::INPUT;
+    outPin->m_iotype = IOType::OUTPUT;
+}
+
+void CellLib::createInputPinCell()
+{
+    auto outPinCell = createCell("__INPIN");
+    outPinCell->m_size = {0,0};
+    outPinCell->m_area = 0;
+    outPinCell->m_leakagePower = 0;
+    auto outPin = outPinCell->m_pins.createPin("Y");    // inner connection first
+    auto inPin  = outPinCell->m_pins.createPin("A");    // outer connection second
+    inPin->m_iotype  = IOType::INPUT;
+    outPin->m_iotype = IOType::OUTPUT;
+}
+
+void CellLib::createIOPinCell()
+{
+    auto ioPinCell = createCell("__IOPIN");
+    ioPinCell->m_size = {0,0};
+    ioPinCell->m_area = 0;
+    ioPinCell->m_leakagePower = 0;
+    auto inPin  = ioPinCell->m_pins.createPin("A");     // inner connection first
+    auto outPin = ioPinCell->m_pins.createPin("Y");     // outer connection second
+    inPin->m_iotype  = IOType::IO;
+    outPin->m_iotype = IOType::IO;
 }
 
 void CellLib::addListener(INamedStorageListener *listener)

@@ -10,5 +10,5 @@ extern PyTypeObject PyPinType;
 
 namespace Python
 {
-    PyObject* toPython(const ChipDB::InstanceBase::Pin &pin);
+    PyObject* toPython(const ChipDB::Instance::Pin &pin);
 };

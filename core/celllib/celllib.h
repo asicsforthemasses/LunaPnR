@@ -77,6 +77,15 @@ protected:
     /** create a special net connection cell so we can connect nets */
     void createNetConCell();
 
+    /** create a special output pin cell so we can place pins */
+    void createOutputPinCell();
+
+    /** create a special input pin cell so we can place pins */
+    void createInputPinCell();
+
+    /** create a special io pin cell so we can place pins */
+    void createIOPinCell();
+
     NamedStorage<Cell> m_cells;
 };
 

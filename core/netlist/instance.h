@@ -26,51 +26,77 @@ enum class InstanceType
 
 std::string toString(const InstanceType &t);
 
-class InstanceBase
+class Instance
 {
 public:
-    InstanceType m_insType = InstanceType::UNKNOWN;
-
-    InstanceBase() : m_insType(InstanceType::UNKNOWN), m_orientation(Orientation::R0), 
-        m_placementInfo(PlacementInfo::UNPLACED), m_flags(0) {}
+    Instance() = default;
     
-    InstanceBase(const std::string &name) : m_name(name), m_insType(InstanceType::UNKNOWN), m_orientation(Orientation::R0), 
-        m_placementInfo(PlacementInfo::UNPLACED), m_flags(0) {}
+    Instance(const std::string &name, InstanceType instype, const std::shared_ptr<Cell> cell) 
+        : m_name(name), m_insType(instype), m_cell(cell) {}
 
-    virtual ~InstanceBase() = default;
+    virtual ~Instance() = default;
 
-    IMPLEMENT_ACCEPT
+    IMPLEMENT_ACCEPT    
+
+    [[nodiscard]] constexpr auto insType() const noexcept
+    {
+        return m_insType;
+    }
 
     /** returns true if the instance is a module */
-    bool isModule() const noexcept
+    [[nodiscard]] constexpr bool isModule() const noexcept
     {
         return m_insType == InstanceType::MODULE;
     }
 
+    [[nodiscard]] constexpr bool isCell() const noexcept
+    {
+        return m_insType == InstanceType::CELL;
+    }
+
+    [[nodiscard]] constexpr bool isAbstract() const noexcept
+    {
+        return m_insType == InstanceType::ABSTRACT;
+    }
+
+    [[nodiscard]] constexpr bool isPin() const noexcept
+    {
+        return m_insType == InstanceType::PIN;
+    }
+
     /** returns true if the instance is placed or placed and fixed */
-    constexpr bool isPlaced() const
+    [[nodiscard]] constexpr bool isPlaced() const
     {
         return ((m_placementInfo == PlacementInfo::PLACED) || 
             (m_placementInfo == PlacementInfo::PLACEDANDFIXED));
     }
 
+    /** returns true if the instance is placed and fixed */
+    [[nodiscard]] constexpr bool isFixed() const
+    {
+        return (m_placementInfo == PlacementInfo::PLACEDANDFIXED);
+    }
+
     /** get area in um² */
-    virtual double getArea() const noexcept = 0;
+    [[nodiscard]] double getArea() const noexcept;
 
     /** return the underlying cell/module name */
-    virtual std::string getArchetypeName() const = 0;
+    [[nodiscard]] std::string getArchetypeName() const noexcept;
     
-    /** access the pin information */
-    //virtual PinInfoList& pinInfo() const = 0;
-
     /** return the size of the instance in nm */
-    virtual const Coord64 instanceSize() const = 0;
+    [[nodiscard]] const Coord64 instanceSize() const;
+
+    /** get access to the cell/module, if there is one */
+    [[nodiscard]] const std::shared_ptr<Cell> cell() const
+    {
+        return m_cell;
+    }
 
     /** return the center position of the instance */
-    virtual Coord64 getCenter() const = 0;
+    [[nodiscard]] Coord64 getCenter();
 
     /** get the name of the instance */
-    std::string name() const noexcept
+    [[nodiscard]] std::string name() const noexcept
     {
         return m_name;
     }
@@ -111,15 +137,58 @@ public:
     virtual bool setPinNet(PinObjectKey pinKey, NetObjectKey netKey) = 0;
     virtual size_t getNumberOfPins() const = 0;
 
-    Coord64         m_pos;              ///< lower-left position of the instance
-    Orientation     m_orientation;      ///< orientation of the cell instance
-    PlacementInfo   m_placementInfo;    ///< placement status
-    uint32_t        m_flags;            ///< non-persistent generic flags that can be used by algorithms
+    class ConnectionIterators
+    {
+    public:
+        ConnectionIterators(const Instance *ins) : m_instance(ins) {}
 
+        auto begin()
+        {
+            return m_instance->m_pinToNet.begin();
+        }
+
+        auto end()
+        {
+            return m_instance->m_pinToNet.end();
+        }
+
+        auto begin() const
+        {
+            return m_instance->m_pinToNet.begin();
+        }
+
+        auto end() const
+        {
+            return m_instance->m_pinToNet.end();
+        }
+
+    protected:
+        const Instance *m_instance;
+    };
+
+    auto connections()
+    {
+        return ConnectionIterators(this);
+    }
+
+    auto connections() const
+    {
+        return ConnectionIterators(this);
+    }
+
+    Coord64         m_pos{0,0};                                     ///< lower-left position of the instance
+    Orientation     m_orientation{Orientation::R0};                 ///< orientation of the cell instance
+    PlacementInfo   m_placementInfo{PlacementInfo::UNPLACED};       ///< placement status
+    uint32_t        m_flags{0};                                     ///< non-persistent generic flags that can be used by algorithms
+    
 protected:
-    std::string m_name;     ///< name of the instance
+    const std::shared_ptr<Cell> m_cell;                 ///< access to pins of cell
+    std::vector<NetObjectKey>   m_pinToNet;             ///< connections from pin to net
+    std::string     m_name;                             ///< name of the instance
+    InstanceType    m_insType{InstanceType::UNKNOWN};
 };
 
+#if 0
 class Instance : public InstanceBase
 {
 public:
@@ -175,8 +244,6 @@ public:
     size_t getNumberOfPins() const override;
 
 protected:
-
-    std::vector<NetObjectKey>   m_pinToNet;  ///< connections from pin to net
     const std::shared_ptr<Cell> m_cell;
 };
 
@@ -226,8 +293,9 @@ public:
     size_t getNumberOfPins() const override;
 
 protected:
-    PinInfo         m_pinInfo;
+    PinInfo         m_pinInfo;    
     NetObjectKey    m_connectedNet = ObjectNotFound;  ///< connection from pin to net
 };
+#endif
 
 };

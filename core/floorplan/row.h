@@ -13,7 +13,7 @@ namespace ChipDB
 
 // predeclarations
 struct Region;
-class InstanceBase;
+//class Instance;
 
 enum class RowType
 {

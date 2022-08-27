@@ -16,7 +16,7 @@
 #include "pypininfolist.h"
 
 /** container for LunaCore::Cell */
-struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
+struct PyInstance : public Python::TypeTemplate<ChipDB::Instance>
 {
     static PyObject* getName(PyInstance *self, void *closure)
     {
@@ -289,7 +289,7 @@ PyTypeObject PyInstanceType = {
     PyInstance::pyNewCall
 };
 
-PyObject* Python::toPython(std::shared_ptr<ChipDB::InstanceBase> instancePtr)
+PyObject* Python::toPython(std::shared_ptr<ChipDB::Instance> instancePtr)
 {
     // create a new PyInstance oject
     auto instanceObject = reinterpret_cast<PyInstance*>(PyObject_CallObject((PyObject*)&PyInstanceType, nullptr));

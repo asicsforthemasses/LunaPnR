@@ -17,8 +17,8 @@
 
 struct PyInstancesIterator
 {
-    using iterator   = ChipDB::NamedStorage<ChipDB::InstanceBase>::iterator;
-    using value_type = std::shared_ptr<ChipDB::InstanceBase>;
+    using iterator   = ChipDB::NamedStorage<ChipDB::Instance>::iterator;
+    using value_type = std::shared_ptr<ChipDB::Instance>;
 
     std::shared_ptr<ChipDB::Netlist> m_netlist;
     iterator m_iter;

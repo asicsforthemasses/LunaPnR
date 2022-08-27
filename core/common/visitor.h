@@ -11,9 +11,7 @@ namespace ChipDB
 // pre-declarations
 class Cell;
 class Module;
-class InstanceBase;
 class Instance;
-class PinInstance;
 class PinInfo;
 class Netlist;
 class Net;
@@ -22,9 +20,7 @@ class LayerInfo;
 class Visitor
 {
 public:
-    virtual void visit(InstanceBase *instance) {};
     virtual void visit(Instance *instance) = 0;
-    virtual void visit(PinInstance *instance) = 0;
     virtual void visit(Cell    *cell) = 0;
     virtual void visit(Module  *module) = 0;
     virtual void visit(PinInfo *pin) = 0;
@@ -36,9 +32,7 @@ public:
 class ConstVisitor
 {
 public:
-    virtual void visit(const InstanceBase *instance) {};
     virtual void visit(const Instance *instance) = 0;
-    virtual void visit(const PinInstance *instance) = 0;
     virtual void visit(const Cell    *cell) = 0;
     virtual void visit(const Module  *module) = 0;
     virtual void visit(const PinInfo *pin) = 0;

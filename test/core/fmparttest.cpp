@@ -707,7 +707,7 @@ BOOST_AUTO_TEST_CASE(can_partition_multiplier)
     int64_t right_y = 0;
     for(auto insKeyObjPair : modKeyObjPair->m_netlist->m_instances)
     {
-        if (insKeyObjPair->m_insType == ChipDB::InstanceType::PIN)
+        if (insKeyObjPair->isPin())
         {
             auto const& pin = insKeyObjPair->getPin(0);
 
@@ -774,7 +774,7 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv_concise)
     int64_t right_y = 0;
     for(auto insKeyObjPair : modKeyObjPair->m_netlist->m_instances)
     {
-        if (insKeyObjPair->m_insType == ChipDB::InstanceType::PIN)
+        if (insKeyObjPair->isPin())
         {
             auto const& pin = insKeyObjPair->getPin(0);
             BOOST_CHECK(pin.isValid());

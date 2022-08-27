@@ -21,7 +21,7 @@ public:
         return true;
     }
 
-    KeyObjPair<InstanceBase> addInstance(std::shared_ptr<InstanceBase> insPtr);
+    KeyObjPair<Instance> addInstance(std::shared_ptr<Instance> insPtr);
     KeyObjPair<Net> createNet(const std::string &netName);
 
     bool connect(const std::string &insName, const std::string &pinName, const std::string &netName);

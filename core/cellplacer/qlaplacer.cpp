@@ -34,7 +34,7 @@ bool LunaCore::QLAPlacer::place(
     // and calculate total area
     for(auto ins : netlist.m_instances)
     {
-        if (ins->m_insType == ChipDB::InstanceType::PIN)
+        if (ins->isPin())
         {
             if (ins->m_placementInfo != ChipDB::PlacementInfo::PLACEDANDFIXED)
             {

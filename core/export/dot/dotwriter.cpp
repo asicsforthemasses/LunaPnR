@@ -38,7 +38,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
     // write all instances as nodes
     for(auto const insKeyObjPair : m_module->m_netlist->m_instances)
     {
-        if (insKeyObjPair->m_insType == ChipDB::InstanceType::PIN)
+        if (insKeyObjPair->isPin())
         {
             os << "  " << escapeString(insKeyObjPair->name()) << R"( [shape="circle", label = ")"  << insKeyObjPair->name() << "\"];\n";
         }
@@ -82,7 +82,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
                     // net driver pin
                     driverPinName = pin.m_pinInfo->name();
                     driverName    = ins->name();
-                    driverInsType = ins->m_insType;
+                    driverInsType = ins->insType();
                     driverIdx  = idx;
                 }
             }
@@ -121,7 +121,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
                         os << "  " << escapeString(driverPinName) << "->";
                     }
 
-                    if (ins->m_insType != ChipDB::InstanceType::PIN)
+                    if (!ins->isPin())
                         os << escapeString(ins->name()) << ":" << escapeString(dstPin.name()) << ";\n";
                     else
                         os << escapeString(ins->name()) << ";\n";
@@ -187,7 +187,7 @@ bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> modul
     return writer->execute(os, decorator);
 }
 
-void Writer::writeInputs(std::ostream &os, const std::shared_ptr<ChipDB::InstanceBase> ins)
+void Writer::writeInputs(std::ostream &os, const std::shared_ptr<ChipDB::Instance> ins)
 {
     if (ins == nullptr)
         return;
@@ -215,7 +215,7 @@ void Writer::writeInputs(std::ostream &os, const std::shared_ptr<ChipDB::Instanc
     }
 }
 
-void Writer::writeOutputs(std::ostream &os, const std::shared_ptr<ChipDB::InstanceBase> ins)
+void Writer::writeOutputs(std::ostream &os, const std::shared_ptr<ChipDB::Instance> ins)
 {
     if (!ins)
         return;

@@ -17,7 +17,7 @@ void SimpleCellPlacer::place(ChipDB::Netlist *nl, const ChipDB::Rect64 &regionRe
     for(auto ins : nl->m_instances)
     {
         // do not place pins
-        if (ins->m_insType == ChipDB::InstanceType::PIN)
+        if (ins->isPin())
             continue;
             
         auto cellSize = ins->instanceSize();

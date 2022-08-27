@@ -125,12 +125,6 @@ namespace LunaCore::Verilog
             return m_ok;
         }
 
-        void visit(const ChipDB::InstanceBase *instance) override 
-        {
-            Logging::doLog(Logging::LogType::ERROR,"Verilog writer: cannot write InstanceBase to netlist\n");
-            m_ok = false;
-        };
-
         void visit(const ChipDB::Instance *instance) override
         {
             if (instance == nullptr)
@@ -139,7 +133,7 @@ namespace LunaCore::Verilog
                 return;
             }
 
-            if (instance->m_insType != ChipDB::InstanceType::CELL)
+            if (!instance->isCell())
             {
                 m_ok = false;
                 Logging::doLog(Logging::LogType::ERROR, "Verilog writer: expected a Cell instance but got %s\n", instance->name().c_str());
@@ -213,7 +207,6 @@ namespace LunaCore::Verilog
             m_ok = false;
         }
 
-        void visit(const ChipDB::PinInstance *instance) override {};
         void visit(const ChipDB::PinInfo *pin) override {};
         void visit(const ChipDB::Netlist *nl) override {};
         void visit(const ChipDB::Net *net) override {};

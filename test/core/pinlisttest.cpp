@@ -18,7 +18,7 @@ BOOST_AUTO_TEST_CASE(check_pin)
 {
     std::cout << "--== CHECK PIN ==--\n";
 
-    ChipDB::InstanceBase::Pin pin;    
+    ChipDB::Instance::Pin pin;
 
     // check defaults
     BOOST_CHECK(!pin.isValid());

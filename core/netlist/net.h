@@ -13,7 +13,7 @@
 namespace ChipDB
 {
 
-class InstanceBase; // pre-declaration
+//class Instance; // pre-declaration
 
 class Net
 {

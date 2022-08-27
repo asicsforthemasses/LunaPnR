@@ -69,7 +69,7 @@ DensityBitmap* LunaCore::QPlacer::createDensityBitmap(const ChipDB::Netlist *net
     // active: instances that are active.
 
     // make local copy of instance keys
-    std::deque<std::shared_ptr<ChipDB::InstanceBase> > queue;
+    std::deque<std::shared_ptr<ChipDB::Instance> > queue;
     for(auto ins : netlist->m_instances)
     {
         if (ins.isValid())
@@ -94,7 +94,7 @@ DensityBitmap* LunaCore::QPlacer::createDensityBitmap(const ChipDB::Netlist *net
     terminationInstance->m_pos = {regionSize.m_x+1, regionSize.m_y/2};
     queue.push_back(terminationInstance);
 
-    std::deque<std::shared_ptr<ChipDB::InstanceBase> > active;
+    std::deque<std::shared_ptr<ChipDB::Instance> > active;
 
     int64_t x = 0;  // sweep position    
     int64_t nextGridx = bitmapCellWidth;
