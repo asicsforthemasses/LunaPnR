@@ -118,7 +118,8 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
                     }
                     else
                     {
-                        os << "  " << escapeString(driverPinName) << "->";
+                        os << "  " << escapeString(driverName) << "->";
+                        //os << "  " << escapeString(driverPinName) << "->";
                     }
 
                     if (!ins->isPin())

@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
+#include <cassert>
 #include "common/logging.h"
 
 #include "celllib/celllib.h"
@@ -133,10 +134,76 @@ namespace LunaCore::Verilog
                 return;
             }
 
+            switch(instance->insType())
+            {
+            case ChipDB::InstanceType::CELL:
+                {
+                    m_os << instance->getArchetypeName() << " " << instance->name() << " (";
+                    bool firstPin = true;
+                    for(ChipDB::PinObjectKey pinKey=0; pinKey < instance->getNumberOfPins(); pinKey++)
+                    {
+                        auto const& pin = instance->getPin(pinKey);
+
+                        if (pin.isValid() && (pin.m_netKey != ChipDB::ObjectNotFound))
+                        {
+                            auto netPtr = m_netlist.m_nets.at(pin.m_netKey);
+                            if (!firstPin)
+                            {
+                                m_os << ",";
+                            }
+
+                            m_os << "\n  ." << escapeVerilogName(pin.name()) << "(" << escapeVerilogName(netPtr->name()) << ")";
+                            firstPin = false;
+                        }
+                    }
+
+                    if (!firstPin)
+                    {
+                        m_os << "\n";
+                    }
+
+                    m_os << ");\n";                    
+                }
+                break;
+            case ChipDB::InstanceType::PIN:
+                break;
+            case ChipDB::InstanceType::MODULE:
+                Logging::doLog(Logging::LogType::ERROR, "Verilog writer: does not support embedded modules\n");
+                return;            
+            case ChipDB::InstanceType::NETCON:
+                {
+                    auto inPin  = instance->getPin("A");
+                    auto outPin = instance->getPin("Y");
+                    assert(inPin.isValid());
+                    assert(outPin.isValid());
+                    auto outputNetKey = outPin.m_netKey;
+                    auto inputNetKey  = inPin.m_netKey;
+                    auto inputNetPtr  = m_netlist.m_nets.at(inputNetKey);
+                    auto outputNetPtr = m_netlist.m_nets.at(outputNetKey);
+                    m_os << "assign " << escapeVerilogName(outputNetPtr->name()) << "=" << escapeVerilogName(inputNetPtr->name()) << ";\n";
+                }
+                break;
+            case ChipDB::InstanceType::UNKNOWN:
+                Logging::doLog(Logging::LogType::ERROR, "Verilog writer: unexpected instance type 'UNKNOWN'\n");
+                return;
+            default:
+
+                break;
+            }
+
+#if 0
             if (!instance->isCell())
             {
                 m_ok = false;
-                Logging::doLog(Logging::LogType::ERROR, "Verilog writer: expected a Cell instance but got %s\n", instance->name().c_str());
+                auto cellPtr = instance->cell().get();
+                std::string cellName = "UNKNOWN (nullptr)";
+                if (cellPtr == nullptr)
+                {
+                    cellName = cellPtr->name();
+                }
+                
+                Logging::doLog(Logging::LogType::ERROR, "Verilog writer: expected a Cell instance but got instance: %s cell: %s\n", 
+                    instance->name().c_str(), cellName.c_str());                
                 return;
             }
 
@@ -193,6 +260,7 @@ namespace LunaCore::Verilog
 
                 m_os << ");\n";
             }
+#endif            
         }
         
         void visit(const ChipDB::Cell *cell) override

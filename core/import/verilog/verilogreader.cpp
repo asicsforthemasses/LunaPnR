@@ -186,7 +186,10 @@ void ReaderImpl::onInput(const std::string &netname)
         m_design.m_cellLib->lookupCell("__INPIN").ptr());
 
     auto pinInsKeyObjPair = m_currentModule->addInstance(pinInstance);
-    m_currentModule->connect(netname, "Y", netname);    // output on the inner level
+    if (!m_currentModule->connect(netname, "Y", netname))   // output on the inner level
+    {
+        Logging::doLog(Logging::LogType::ERROR,"VerilogReader::ReaderImpl::onInput: cannot connect to pin Instance!\n");
+    }
 }
 
 void ReaderImpl::onInput(const std::string &netname, uint32_t start, uint32_t stop)
@@ -217,7 +220,10 @@ void ReaderImpl::onInput(const std::string &netname, uint32_t start, uint32_t st
         m_design.m_cellLib->lookupCell("__INPIN").ptr());
 
         auto pinInsKeyObjPair = m_currentModule->addInstance(pinInstance);
-        m_currentModule->connect(netname, "Y", netname);    // output on the inner level
+        if (!m_currentModule->connect(netname, "Y", netname))    // output on the inner level
+        {
+            Logging::doLog(Logging::LogType::ERROR,"VerilogReader::ReaderImpl::onInput: cannot connect to pin Instance!\n");
+        }
     }
 
     Logging::doLog(Logging::LogType::VERBOSE,"Expanded input net %s\n", netname.c_str());

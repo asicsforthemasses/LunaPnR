@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty)
     BOOST_CHECK(ChipDB::Liberty::Reader::load(design, libertyfile));
 
     std::cout << "  Found " << design.m_cellLib->size() << " cells:\n";
-    BOOST_CHECK(design.m_cellLib->size() == 33);
+    BOOST_CHECK(design.m_cellLib->size() == 36);
 
     for(auto cell : *design.m_cellLib)
     {
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty2)
     BOOST_CHECK(ChipDB::Liberty::Reader::load(design, libertyfile));
 
     std::cout << "  Found " << design.m_cellLib->size() << " cells:\n";
-    BOOST_CHECK(design.m_cellLib->size() == 37);
+    BOOST_CHECK(design.m_cellLib->size() == 40);
 
 #if 0
     for(auto cell : design.m_cellLib)
@@ -86,7 +86,7 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty3)
     BOOST_CHECK(ChipDB::Liberty::Reader::load(design, libertyfile));
 
     std::cout << "  Found " << design.m_cellLib->size() << " cells:\n";
-    BOOST_CHECK(design.m_cellLib->size() == 135);
+    BOOST_CHECK(design.m_cellLib->size() == 138);
 
 #if 0
     for(auto cell : design.m_cellLib)

@@ -54,7 +54,7 @@ Instance::Pin Instance::getPin(PinObjectKey key) const
     Instance::Pin pin;
     if (!m_cell)
     {
-        return Instance::Pin();
+        return Instance::Pin{};
     }
 
     pin.m_pinInfo = m_cell->m_pins[key];
@@ -78,7 +78,7 @@ Instance::Pin Instance::getPin(const std::string &pinName) const
     Instance::Pin pin;
     if (!m_cell)
     {
-        return Instance::Pin();
+        return Instance::Pin{};
     }
 
     auto pinKeyObjPair = m_cell->m_pins[pinName];

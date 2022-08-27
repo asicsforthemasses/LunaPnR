@@ -84,17 +84,29 @@ public:
     /** return the underlying cell/module name */
     [[nodiscard]] std::string getArchetypeName() const noexcept;
     
-    /** return the size of the instance in nm */
-    [[nodiscard]] const Coord64 instanceSize() const;
+    /** return the cell size of the instance */
+    [[nodiscard]] const Coord64 instanceSize() const noexcept
+    {
+        if (m_cell == nullptr)
+            return Coord64{0,0};
+            
+        return m_cell->m_size;
+    }
 
     /** get access to the cell/module, if there is one */
-    [[nodiscard]] const std::shared_ptr<Cell> cell() const
+    [[nodiscard]] const std::shared_ptr<Cell> cell() const noexcept
     {
         return m_cell;
     }
 
     /** return the center position of the instance */
-    [[nodiscard]] Coord64 getCenter();
+    [[nodiscard]] Coord64 getCenter() const noexcept
+    {
+        if (m_cell != nullptr)
+            return Coord64{m_pos.m_x + m_cell->m_size.m_x/2, m_pos.m_y + m_cell->m_size.m_y/2};
+        else
+            return m_pos;
+    }
 
     /** get the name of the instance */
     [[nodiscard]] std::string name() const noexcept

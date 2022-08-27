@@ -119,13 +119,12 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
 
         // check that module pins have a __pin instance in the netlist
         for(auto modPin : mod->m_pins)
-        {
-            BOOST_CHECK(mod->m_netlist->m_instances.at(modPin->m_name).isValid());
-            
-            if (mod->m_netlist->m_instances.at(modPin->m_name).isValid())
+        {            
+            if (!mod->m_netlist->m_instances.at(modPin->m_name).isValid())
             {
                 std::cout << "  missing pin instance for pin '" << modPin->name() << "'\n";
             }
+            BOOST_CHECK(mod->m_netlist->m_instances.at(modPin->m_name).isValid());
         }
 
         // determine cell area

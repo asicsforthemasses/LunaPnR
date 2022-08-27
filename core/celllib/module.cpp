@@ -19,12 +19,12 @@ KeyObjPair<Instance> Module::addInstance(std::shared_ptr<Instance> insPtr)
 {
     if (!insPtr)
     {
-        return KeyObjPair<Instance>();
+        return KeyObjPair<Instance>{};
     }
 
     if (insPtr->name().empty())
     {
-        return KeyObjPair<Instance>();
+        return KeyObjPair<Instance>{};
     }
 
     if (m_netlist)
@@ -33,14 +33,14 @@ KeyObjPair<Instance> Module::addInstance(std::shared_ptr<Instance> insPtr)
         return result.value();
     }
 
-    return KeyObjPair<Instance>();   // cannot add instances to a black box
+    return KeyObjPair<Instance>{};   // cannot add instances to a black box
 }
 
 KeyObjPair<Net> Module::createNet(const std::string &netName)
 {
     if (!m_netlist)
     {
-        return KeyObjPair<Net>();
+        return KeyObjPair<Net>{};
     }
 
     return m_netlist->createNet(netName);
