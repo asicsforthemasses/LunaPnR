@@ -5,6 +5,7 @@
 #include <cassert>
 
 #include <thread>
+#include "common/logging.h"
 #include "cellplacer2.h"
 
 using namespace LunaCore::CellPlacer2;
@@ -69,6 +70,12 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
 
         for(auto netId : srcGate.connections())
         {            
+            if (netId == ChipDB::ObjectNotFound)
+            {
+                doLog(Logging::LogType::WARNING, Logging::fmt("Net left unconnected on instance %s\n", srcGate.name().c_str()));
+                continue;
+            }
+
             auto const& net = netlist.m_nets.atRef(netId);
 
             for(auto const& netConnect : net)
@@ -297,8 +304,11 @@ void Placer::cycle(ChipDB::Netlist &netlist, std::deque<std::unique_ptr<Placemen
             Direction cutDir = ((region.m_level % 2) == 0) ? Direction::VERTICAL : Direction::HORIZONTAL;
 
             // create new regions
-            auto &r1 = *regions.emplace_back().get();
-            auto &r2 = *regions.emplace_back().get();
+            regions.emplace_back(std::make_unique<PlacementRegion>());
+            auto &r1 = *(regions.back().get());
+            regions.emplace_back(std::make_unique<PlacementRegion>());
+            auto &r2 = *(regions.back().get());
+
             r1.m_level = region.m_level + 1;
             r2.m_level = region.m_level + 1;
 
