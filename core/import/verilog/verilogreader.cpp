@@ -276,7 +276,6 @@ void ReaderImpl::onOutput(const std::string &netname, uint32_t start, uint32_t s
         pin->m_iotype = ChipDB::IOType::OUTPUT;
 
         // add a PinInstance for each pin to the netlist
-        // add a PinInstance for each pin to the netlist
         auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN, 
             m_design.m_cellLib->lookupCell("__OUTPIN").ptr());
 
@@ -333,7 +332,11 @@ void ReaderImpl::onInstanceNamedPort(const std::string &pinName, const std::stri
         return;
     }
 
-    m_currentModule->connect(m_currentInsKeyObjPair.key(), pin.m_pinKey, netKeyObjPair.key());
+    if (!m_currentModule->connect(m_currentInsKeyObjPair.key(), pin.m_pinKey, netKeyObjPair.key()))
+    {
+        Logging::doLog(Logging::LogType::WARNING,"Cannot connect %s:%s to net %s -- Module->connect returned false\n", m_currentInsKeyObjPair->name().c_str(), 
+            pinName.c_str(), netName.c_str());
+    }
 }
 
 void ReaderImpl::onAssign(const std::string &left, const std::string &right)

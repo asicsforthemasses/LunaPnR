@@ -136,6 +136,28 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
 
         std::cout << "  module area " << area << " um²\n";
     }
+
+    // check if all instances have all pins connected
+    std::size_t unconnectedPins = 0;
+    auto const& netlist = mod->m_netlist;
+    for(auto ins : netlist->m_instances)
+    {
+        int pinIndex = 0; 
+        for(auto connection : ins->connections())
+        {   
+            auto checkPin = ins->getPin(pinIndex);
+            if ((checkPin.m_pinInfo) && (checkPin.m_pinInfo->isPGPin())) continue;    // skip power and ground pins.
+            
+            if (connection == ChipDB::ObjectNotFound)
+            {
+                unconnectedPins++;
+                Logging::doLog(Logging::LogType::ERROR, Logging::fmt("Pin with index %d (name is %s) on instance %s is unconnected\n",
+                    pinIndex, checkPin.name().c_str(), ins->name().c_str()));
+            }
+            pinIndex++;
+        }
+    }
+    BOOST_CHECK(unconnectedPins == 0);
 }
 
 BOOST_AUTO_TEST_CASE(can_read_nerv32)

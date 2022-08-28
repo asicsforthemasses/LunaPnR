@@ -70,6 +70,14 @@ BOOST_AUTO_TEST_CASE(various_instance_tests)
     BOOST_CHECK(insPtr->setPinNet(0 /* pin A */, 123));
     BOOST_CHECK(insPtr->getPin("A").netKey() == 123);   // lookup by name
     BOOST_CHECK(insPtr->getPin(0).netKey() == 123);   // lookup by id for good measure
+
+    BOOST_CHECK(insPtr->setPinNet(1 /* pin B */, 456));
+    BOOST_CHECK(insPtr->getPin("B").netKey() == 456);   // lookup by name
+    BOOST_CHECK(insPtr->getPin(1).netKey() == 456);   // lookup by id for good measure
+
+    // test pin A gain to see if we haven't overwritten anything
+    BOOST_CHECK(insPtr->getPin("A").netKey() == 123);   // lookup by name
+    BOOST_CHECK(insPtr->getPin(0).netKey() == 123);   // lookup by id for good measure    
 }
 
 BOOST_AUTO_TEST_SUITE_END()

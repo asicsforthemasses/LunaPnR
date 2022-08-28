@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include "instance.h"
+#include "common/logging.h"
 
 using namespace ChipDB;
 
@@ -105,6 +106,7 @@ bool Instance::setPinNet(PinObjectKey pinKey, NetObjectKey netKey)
 {
     if (!m_cell)
     {
+        Logging::doLog(Logging::LogType::WARNING, "Instance::setPinNet failed for pin id %d and net id %d\n", pinKey, netKey);
         return false;
     }
 

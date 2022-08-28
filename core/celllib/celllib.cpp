@@ -76,10 +76,8 @@ void CellLib::createOutputPinCell()
     outPinCell->m_size = {0,0};
     outPinCell->m_area = 0;
     outPinCell->m_leakagePower = 0;
-    auto inPin  = outPinCell->m_pins.createPin("A");    // inner connection first
-    auto outPin = outPinCell->m_pins.createPin("Y");    // outer connection second
+    auto inPin  = outPinCell->m_pins.createPin("A");    // inner connection
     inPin->m_iotype  = IOType::INPUT;
-    outPin->m_iotype = IOType::OUTPUT;
 }
 
 void CellLib::createInputPinCell()
@@ -89,8 +87,6 @@ void CellLib::createInputPinCell()
     outPinCell->m_area = 0;
     outPinCell->m_leakagePower = 0;
     auto outPin = outPinCell->m_pins.createPin("Y");    // inner connection first
-    auto inPin  = outPinCell->m_pins.createPin("A");    // outer connection second
-    inPin->m_iotype  = IOType::INPUT;
     outPin->m_iotype = IOType::OUTPUT;
 }
 
@@ -100,10 +96,8 @@ void CellLib::createIOPinCell()
     ioPinCell->m_size = {0,0};
     ioPinCell->m_area = 0;
     ioPinCell->m_leakagePower = 0;
-    auto inPin  = ioPinCell->m_pins.createPin("A");     // inner connection first
-    auto outPin = ioPinCell->m_pins.createPin("Y");     // outer connection second
-    inPin->m_iotype  = IOType::IO;
-    outPin->m_iotype = IOType::IO;
+    auto ioPin  = ioPinCell->m_pins.createPin("IO");    // inner connection first
+    ioPin->m_iotype  = IOType::IO;
 }
 
 void CellLib::addListener(INamedStorageListener *listener)
