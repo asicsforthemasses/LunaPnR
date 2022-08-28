@@ -13,7 +13,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 
 project(luna_pnr VERSION 0.1.1 HOMEPAGE_URL https://www.asicsforthemasses.com)
+set(LUNAVERSION "\"LunaPnR version ${CMAKE_PROJECT_VERSION}\"")
 
+message(${LUNAVERSION})
+
+add_definitions(-DLUNAVERSIONSTRING=${LUNAVERSION})
 
 ############################################################
 ## UNIX specific options

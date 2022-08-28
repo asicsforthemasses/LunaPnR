@@ -33,7 +33,7 @@ KeyObjPair<Net> Netlist::createNet(const std::string &netName)
         return result.value();
     }
     
-    return KeyObjPair<Net>();
+    return KeyObjPair<Net>{};
 }
 
 std::shared_ptr<Instance> Netlist::lookupInstance(InstanceObjectKey key)

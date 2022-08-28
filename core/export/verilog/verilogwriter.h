@@ -10,7 +10,6 @@
 
 #pragma once
 #include <iostream>
-#include "lunapnr_version.h"
 #include "netlist/netlist.h"
 
 namespace LunaCore::Verilog

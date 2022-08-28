@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include "place.h"
+#include "lunacore.h"
 
 void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
 {
@@ -23,6 +24,8 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
         return;        
     }
 
+    auto netlist = topModule->m_netlist;
+
     // FIXME: for now use the first region to place the top module
     // check there is a valid floorplan
     if (database.floorplan()->regionCount() == 0)
@@ -33,7 +36,7 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
 
     for(auto pin : topModule->m_pins)
     {
-        auto pinInstance = topModule->m_netlist->lookupInstance(pin->m_name);
+        auto pinInstance = netlist->lookupInstance(pin->m_name);
         if (!pinInstance.isValid())
         {
             error(Logging::fmt("Module %s does not have a pin instance corresponding to pin %s!\n", topModule->name().c_str(), pin->m_name.c_str()));
@@ -46,11 +49,29 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
         }
     }
 
-    auto regionKeyPair = *(database.floorplan()->begin());
+    auto regionIter = database.floorplan()->begin();
+    if (regionIter == database.floorplan()->end())
+    {
+        error("No regions defined in floorplan!\n");
+        return;
+    }
+    
+    auto firstRegion = *regionIter;
+    if (!firstRegion.isValid())
+    {
+        error("First region in floorplan is invalid!\n");
+        return;
+    }
 
+#if 0
     bool ok = LunaCore::QLAPlacer::place(*regionKeyPair.rawPtr(), 
         *topModule->m_netlist.get(), nullptr);
-
+#else
+    LunaCore::CellPlacer2::Placer placer;
+    placer.place(*netlist, *firstRegion, 20, 1);
+    bool ok = true;
+    //bool ok = LunaCore::CellPlacer2::place(database, )
+#endif
     if (!ok)
     {
         error("Placement failed!\n");

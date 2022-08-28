@@ -28,7 +28,7 @@ struct PyNetsIterator
     {
         if (!m_netlist)
         {
-            return iterator();
+            return iterator{};
         }
         return m_netlist->m_nets.end();
     }
@@ -37,7 +37,7 @@ struct PyNetsIterator
     {
         if (!m_netlist)
         {
-            return iterator();
+            return iterator{};
         }        
         return m_netlist->m_nets.begin();
     }

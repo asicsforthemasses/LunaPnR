@@ -26,6 +26,7 @@
 //#include "../cellplacer/densitybitmap.h"
 #include "../cellplacer/netlistsplitter.h"
 #include "../cellplacer/rowlegalizer.h"
+#include "../cellplacer2/cellplacer2.h"
 #include "../partitioner/fmpart.h"
 #include "../import/liberty/libparser.h"
 #include "../import/liberty/libreaderimpl.h"

@@ -33,7 +33,10 @@ public:
     Instance() : m_cell(nullptr) {}
     
     Instance(const std::string &name, InstanceType instype, const std::shared_ptr<Cell> cell) 
-        : m_name(name), m_insType(instype), m_cell(cell) {}
+        : m_name(name), m_insType(instype), m_cell(cell) 
+    {
+        m_pinToNet.resize(cell->getNumberOfPins(), ChipDB::ObjectNotFound);
+    }
 
     virtual ~Instance() = default;
 
@@ -106,6 +109,19 @@ public:
             return Coord64{m_pos.m_x + m_cell->m_size.m_x/2, m_pos.m_y + m_cell->m_size.m_y/2};
         else
             return m_pos;
+    }
+
+    /** set the center position of the instance */
+    void setCenter(const ChipDB::Coord64 &p) noexcept
+    {
+        if (m_cell != nullptr)
+        {
+            m_pos = Coord64{p.m_x - m_cell->m_size.m_x/2, p.m_y - m_cell->m_size.m_y/2};
+        }
+        else
+        {
+            m_pos = p;
+        }
     }
 
     /** get the name of the instance */

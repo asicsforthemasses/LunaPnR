@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     QCoreApplication::setOrganizationName("LunaPnR_Org");
-    QCoreApplication::setApplicationName("LunaPnR");
+    QCoreApplication::setApplicationName(LUNAVERSIONSTRING);
 
     Logging::setLogLevel(Logging::LogType::INFO);
     
@@ -107,7 +107,9 @@ int main(int argc, char *argv[]) {
     window.move((width - window.width()) / 2.0,
                     (height - window.height()) / 2.0);        
 
-    window.setWindowTitle(QObject::tr("LunaPnR - a moonshot ASIC place&route tool"));
+    QString title = LUNAVERSIONSTRING;
+    title.append(QObject::tr(" - a moonshot ASIC place&route tool"));
+    window.setWindowTitle(title);
     window.show();
 
     // run application

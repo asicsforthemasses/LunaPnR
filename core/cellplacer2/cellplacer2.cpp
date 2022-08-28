@@ -1,18 +1,13 @@
-#include <cassert>
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
-#include <Eigen/IterativeLinearSolvers>
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
+#include <cassert>
+
+#include <thread>
 #include "cellplacer2.h"
 
 using namespace LunaCore::CellPlacer2;
-
-bool LunaCore::CellPlacer2::place(ChipDB::Design &design)
-{
-    // convert topmodule netlist to 
-    return false;
-}
 
 /** assign each instance/gate a row in the quadratic placement matrix */
 void Placer::mapGatesToMatrixRows(const ChipDB::Netlist &netlist,
@@ -43,7 +38,7 @@ Matrix::RowIndex Placer::findRowOfGate(const GateToRowContainer &gate2Row,
     return iter->second;
 }
 
-void Placer::place(const ChipDB::Netlist &netlist, PlacementRegion &region)
+void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
 {
     GateToRowContainer gates2Row;
 
@@ -62,33 +57,35 @@ void Placer::place(const ChipDB::Netlist &netlist, PlacementRegion &region)
     Bvec_x.setZero();
     Bvec_y.setZero();
 
-#if 0
     std::size_t fixups = 0;
     const double weight = 1;    // FIXME: use net weight
+
     for(auto row : gates2Row)
     {
         auto srcGateId = row.first;        
         auto rowIndex  = row.second;
 
-        auto srcGate = gates.atRaw(srcGateId);
+        auto &srcGate = gates.atRef(srcGateId);
 
-        for(auto netId : srcGate->)
+        for(auto netId : srcGate.connections())
         {            
-            auto const& net = inspec.m_nets.at(netId);
+            auto const& net = netlist.m_nets.atRef(netId);
 
-            for(auto dstGateId : net.m_gateIDs)
+            for(auto const& netConnect : net)
             {
+                auto dstGateId = netConnect.m_instanceKey;
                 if (dstGateId == srcGateId) continue;   // skip self references.
 
                 Amat(rowIndex,rowIndex) += weight;   // A(row,row) += net weight
 
-                auto const& dstGate = inspec.m_gates.at(dstGateId);
-                if (dstGate.m_isFixed)
+                auto const& dstGate = netlist.m_instances.atRef(dstGateId);
+                auto const dstGatePos = m_gatePositions.at(dstGateId);
+                if (dstGate.isFixed())
                 {
                     // destination gate isn't movable -> change bvector only
                     // if the gate isn't inside the region, propagate it to 
                     // the nearest region edge.
-                    auto newLocation = propagate(region, dstGate.m_location);
+                    auto newLocation = propagate(region, dstGatePos);
                     Bvec_x[rowIndex] += weight*newLocation.m_x;
                     Bvec_y[rowIndex] += weight*newLocation.m_y;
                 }
@@ -97,9 +94,9 @@ void Placer::place(const ChipDB::Netlist &netlist, PlacementRegion &region)
                     // if the destination gate is outside the region
                     // propagate the position and treat it as a fixed
                     // gate
-                    if (region.contains(dstGate.m_location))
+                    if (region.contains(dstGatePos))
                     {
-                        auto colIndex = findRow(gates2Row, dstGateId);
+                        auto const colIndex = findRowOfGate(gates2Row, dstGateId);
 
                         // due to round-off errors, region.contains might return 'true'
                         // even if the gate isn't actually in the region.
@@ -107,7 +104,7 @@ void Placer::place(const ChipDB::Netlist &netlist, PlacementRegion &region)
                         // gate as external.
                         if (colIndex == -1)
                         {
-                            auto newLocation = propagate(region, dstGate.m_location);
+                            auto newLocation = propagate(region, dstGatePos);
                             Bvec_x[rowIndex] += weight*newLocation.m_x;
                             Bvec_y[rowIndex] += weight*newLocation.m_y;                            
                         }
@@ -119,7 +116,7 @@ void Placer::place(const ChipDB::Netlist &netlist, PlacementRegion &region)
                     }
                     else
                     {
-                        auto newLocation = propagate(region, dstGate.m_location);
+                        auto newLocation = propagate(region, dstGatePos);
                         
                         // destination gate isn't movable -> change bvector only
                         Bvec_x[rowIndex] += weight*newLocation.m_x;
@@ -176,14 +173,16 @@ void Placer::place(const ChipDB::Netlist &netlist, PlacementRegion &region)
     for(auto row : gates2Row)
     {
         auto gateId = row.first;
-        auto const& Gate = inspec.m_gates.at(gateId);
         auto rowId  = row.second;
+        auto const& Gate = netlist.m_instances.atRef(gateId);
+        
+        auto const oldGateLocation = m_gatePositions.at(gateId);
 
-        const Point newGateLocation = Point{static_cast<float>(xvec[rowId]), static_cast<float>(yvec[rowId])};
+        auto const newGateLocation = PointF{static_cast<float>(xvec[rowId]), static_cast<float>(yvec[rowId])};
 
         if (!region.contains(newGateLocation, absTol))
         {
-            std::cout << "Gate: (id=" << gateId << ") old pos: " << Gate.m_location << " new pos: " << newGateLocation << " Region: " << region << "\n";
+            std::cout << "Gate: (id=" << gateId << ") old pos: " << oldGateLocation << " new pos: " << newGateLocation << " Region: " << region << "\n";
             std::cout << "A matrix row: " << eigenAmat.row(rowId);
             std::cout << "B vec x     : " << Bvec_x[rowId] << "\n";
             std::cout << "B vec y     : " << Bvec_y[rowId] << "\n";
@@ -194,32 +193,211 @@ void Placer::place(const ChipDB::Netlist &netlist, PlacementRegion &region)
             std::cout << "B vec y :     " << Bvec_y << "\n";
 #endif            
         }
-        assert(!Gate.m_isFixed);   
+        assert(!Gate.isFixed());
     }
 
+    // update gate/instance locations
     for(auto row : gates2Row)
     {
         auto gateId = row.first;
         auto rowId  = row.second;
+        auto &Gate = netlist.m_instances.atRef(gateId);
 
-        auto& Gate = inspec.m_gates.at(gateId);
-
-        const Point newGateLocation = Point{static_cast<float>(xvec[rowId]), static_cast<float>(yvec[rowId])};
-        Gate.m_location = newGateLocation;
-
-        assert(region.contains(Gate.m_location, absTol));
+        auto newGateLocation = PointF{static_cast<float>(xvec[rowId]), static_cast<float>(yvec[rowId])};
+        assert(region.contains(newGateLocation, absTol));
         
-        if (!region.contains(Gate.m_location))
+        if (!region.contains(newGateLocation))
         {
             fixups++;
-            //std::cout << "  Fixed position of gate " << gateId << " ";
-            auto newLocation = propagate(region, Gate.m_location);
-            //std::cout <<" was: " << Gate.m_location << "  is: " << newLocation << "\n";
+            newGateLocation = propagate(region, newGateLocation);
+        }
 
-            Gate.m_location = newLocation;            
+        Gate.setCenter(newGateLocation.toCoord64());
+    }
+
+    if (fixups != 0) std::cout << "  Number of gate fixups: " << fixups << "\n";
+}
+
+void Placer::toEigen(const Matrix &mat, Eigen::SparseMatrix<double> &eigenMat) const noexcept
+{
+    //std::cout << "toEigen begin\n";
+    auto nnz = mat.nonZeroItemCount();
+    
+    std::vector<Eigen::Triplet<double> > triples;
+    triples.reserve(nnz);
+
+    //std::cout << "  non-zero items " << nnz << "\n";
+    eigenMat.reserve(nnz);
+    for(auto const& row : mat)
+    {
+        for(auto item : row.second)
+        {
+            triples.emplace_back(Eigen::Triplet<double>{row.first, item.first, item.second});
         }
     }
-    if (fixups != 0) std::cout << "  Number of gate fixups: " << fixups << "\n";
-#endif
-    
+
+    //std::cout << "  Eigen::setFromTriplets begin\n";
+    eigenMat.setFromTriplets(triples.begin(), triples.end());
+    //std::cout << "  Eigen::setFromTriplets end\n";
+
+    //std::cout << "toEigen end\n";    
+}
+
+void Placer::populateGatePositions(const ChipDB::Netlist &netlist)
+{
+    m_gatePositions.clear();
+    m_gatePositions.reserve(netlist.m_instances.size());
+
+    for(auto const& insKeyPair : netlist.m_instances)
+    {        
+        assert(insKeyPair.isValid());
+        m_gatePositions[insKeyPair.key()] = insKeyPair->getCenter();
+    }
+}
+
+void Placer::place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
+    std::size_t maxLevels, std::size_t minInstances)
+{
+    m_maxLevels = maxLevels;
+    m_minInstancesInRegion = minInstances;
+
+    populateGatePositions(netlist);
+
+    std::deque<std::unique_ptr<PlacementRegion>> placementRegions;
+
+    auto &placementRegion = placementRegions.emplace_back(std::make_unique<PlacementRegion>());
+
+    placementRegion->m_rect = region.getPlacementRect();
+    for(auto insKeyObjPair : netlist.m_instances)
+    {
+        if (!insKeyObjPair->isFixed())
+        {
+            placementRegion->m_gatesInRegion.push_back(insKeyObjPair.key());
+        }
+    }
+
+    cycle(netlist, placementRegions);
+}
+
+void Placer::cycle(ChipDB::Netlist &netlist, std::deque<std::unique_ptr<PlacementRegion>> &regions)
+{
+    while(!regions.empty())
+    {
+        assert(regions.front());
+
+        //TODO: change this, it's ugly.
+        auto region = *regions.front().get();
+
+        placeRegion(netlist, region);
+
+        // see if we can sub-divide the region
+        if ((region.m_level < m_maxLevels) && (region.m_gatesInRegion.size() >= (m_minInstancesInRegion*2)))
+        {
+            // code to determine whether we do a vertical or horizontal cut
+            Direction cutDir = ((region.m_level % 2) == 0) ? Direction::VERTICAL : Direction::HORIZONTAL;
+
+            // create new regions
+            auto &r1 = *regions.emplace_back().get();
+            auto &r2 = *regions.emplace_back().get();
+            r1.m_level = region.m_level + 1;
+            r2.m_level = region.m_level + 1;
+
+            cutRegion(region, cutDir, r1, r2);
+            sortGates(region, cutDir);
+
+            // FIXME: distribute according to r1 and r2 capacities
+            const std::size_t threshold = region.m_gatesInRegion.size() / 2;
+            std::size_t counter = 0;
+            for(auto gateId : region.m_gatesInRegion)
+            {
+                assert(!netlist.m_instances.at(gateId)->isFixed()); // cppcheck-suppress[assertWithSideEffect]
+
+                if (counter < threshold)
+                {
+                    r2.m_gatesInRegion.push_back(gateId);
+                    m_gatePositions.at(gateId) = r2.center();
+                }
+                else
+                {
+                    r1.m_gatesInRegion.push_back(gateId);
+                    m_gatePositions.at(gateId) = r1.center();
+                }
+                counter++;
+            }
+            assert(r1.m_gatesInRegion.size() > 0);
+            assert(r2.m_gatesInRegion.size() > 0);
+        }
+
+        regions.pop_front();
+    }
+}
+
+void Placer::sortGates(PlacementRegion &region, Direction dir)
+{
+    // sort gates according to y
+    if (dir == Direction::VERTICAL)
+    {
+        std::sort(region.m_gatesInRegion.begin(), region.m_gatesInRegion.end(), 
+            [this](GateId gateId1, GateId gateId2)
+            {
+                return m_gatePositions.at(gateId1).m_y < m_gatePositions.at(gateId2).m_y;
+            }
+        );
+    }
+    else
+    {
+        // sort gates according to x
+        std::sort(region.m_gatesInRegion.begin(), region.m_gatesInRegion.end(), 
+            [this](GateId gateId1, GateId gateId2)
+            {
+                return m_gatePositions.at(gateId1).m_x < m_gatePositions.at(gateId2).m_x;
+            }
+        );
+    }
+}
+
+void Placer::cutRegion(const PlacementRegion &region, Direction dir,
+    PlacementRegion &region1, PlacementRegion &region2) const
+{
+    region1.m_rect = region.m_rect;
+    region2.m_rect = region.m_rect;
+
+    if (dir == Direction::VERTICAL)
+    {
+        region1.m_rect.m_ll.m_x = region.center().m_x;
+        region2.m_rect.m_ur.m_x = region1.m_rect.m_ll.m_x;
+        std::cout << "Cut along vertical axis\n";
+    }
+    else
+    {
+        region1.m_rect.m_ll.m_y = region.center().m_y;
+        region2.m_rect.m_ur.m_y = region1.m_rect.m_ll.m_y;
+        std::cout << "Cut along horizontal axis\n";
+    }
+    std::cout << "  P1: (" << region1.m_rect.m_ll.m_x << "," << region1.m_rect.m_ll.m_y << ") ";
+    std::cout << " W " << region1.width() << "  H " << region1.height() << "\n";
+    std::cout << "  P2: (" << region2.m_rect.m_ll.m_x << "," << region2.m_rect.m_ll.m_y << ") ";
+    std::cout << " W " << region2.width() << "  H " << region2.height() << "\n";    
+}
+
+PointF Placer::propagate(const PlacementRegion &r, const PointF &p) const
+{
+    PointF result = p;
+    if (result.m_x < r.m_rect.m_ll.m_x) result.m_x = r.m_rect.m_ll.m_x;
+    if (result.m_x > r.m_rect.m_ur.m_x) result.m_x = r.m_rect.m_ur.m_x;
+    if (result.m_y < r.m_rect.m_ll.m_y) result.m_y = r.m_rect.m_ll.m_y;
+    if (result.m_y > r.m_rect.m_ur.m_y) result.m_y = r.m_rect.m_ur.m_y;
+    return result;    
+}
+
+std::ostream& operator<<(std::ostream &os, const LunaCore::CellPlacer2::PointF &p)
+{
+    os << "(" << p.m_x << "," << p.m_y << ")";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream &os, const LunaCore::CellPlacer2::PlacementRegion &r)
+{
+    os << r.m_rect;
+    return os;
 }

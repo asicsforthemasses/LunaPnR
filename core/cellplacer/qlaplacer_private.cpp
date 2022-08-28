@@ -144,7 +144,7 @@ LunaCore::QPlacer::PlacerNetlist LunaCore::QLAPlacer::Private::createPlacerNetli
             if (iter == ins2nodeId.end())
             {
                 Logging::doLog(Logging::LogType::ERROR, "createPlacerNetlist: cannot find node\n");
-                return LunaCore::QPlacer::PlacerNetlist();
+                return LunaCore::QPlacer::PlacerNetlist{};
             }
 
             auto placerNodeId = iter->second;

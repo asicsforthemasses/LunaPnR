@@ -32,7 +32,7 @@ KeyObjPair<Cell> CellLib::createCell(const std::string &name)
     auto cellObjKeyOptional = m_cells.add(std::make_shared<Cell>(name));
     if (!cellObjKeyOptional)
     {
-        return KeyObjPair<Cell>();
+        return KeyObjPair<Cell>{};
     }
 
     return cellObjKeyOptional.value();
@@ -153,7 +153,7 @@ KeyObjPair<Module> ModuleLib::createModule(const std::string &name)
         return result.value();
     }
 
-    return KeyObjPair<Module>();
+    return KeyObjPair<Module>{};
 }
 
 bool ModuleLib::removeModule(ObjectKey key)

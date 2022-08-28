@@ -19,6 +19,8 @@ BOOST_AUTO_TEST_CASE(various_instance_tests)
 
     auto cell = std::make_shared<ChipDB::Cell>("henk");
     cell->createPin("A");
+    cell->createPin("B");
+    cell->createPin("Z");
 
     auto insPtr = std::make_shared<ChipDB::Instance>("frans", ChipDB::InstanceType::CELL, cell);
 
@@ -33,10 +35,6 @@ BOOST_AUTO_TEST_CASE(various_instance_tests)
     auto pin = insPtr->getPin("A");
     BOOST_CHECK(pin.netKey() == ChipDB::ObjectNotFound);
         
-    // check pin iterator
-    cell->createPin("B");
-    cell->createPin("Z");
-
     size_t pinCount = 0;
     for(auto pinKey=0; pinKey < insPtr->getNumberOfPins(); pinKey++)
     {
@@ -48,6 +46,18 @@ BOOST_AUTO_TEST_CASE(various_instance_tests)
     
     BOOST_CHECK(pinCount == 3);
     BOOST_CHECK(insPtr->getNumberOfPins() == 3);
+
+    // check net connections
+    // they should all be unconnected
+    pinCount = 0;
+    for(auto connectedNet : insPtr->connections())
+    {
+        BOOST_CHECK(connectedNet == -1);
+        pinCount++;
+    }
+
+    std::cout << "pincount " << pinCount << "\n";
+    BOOST_CHECK(pinCount == 3);
 
     // check instance-is-module stuff
     auto modPtr = std::make_shared<ChipDB::Module>("MyModule");
