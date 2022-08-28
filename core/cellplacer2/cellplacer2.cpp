@@ -59,8 +59,6 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
     Bvec_y.setZero();
 
     std::size_t fixups = 0;
-    const double weight = 1;    // FIXME: use net weight
-
     for(auto row : gates2Row)
     {
         auto srcGateId = row.first;        
@@ -68,8 +66,17 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
 
         auto &srcGate = gates.atRef(srcGateId);
 
+        std::size_t pinIndex = 0;
         for(auto netId : srcGate.connections())
-        {            
+        {   
+            // skip power and ground pins
+            auto const pin = srcGate.getPin(pinIndex);
+            if ((pin.m_pinInfo) && (pin.m_pinInfo->isPGPin()))
+            {
+                pinIndex++;
+                continue;
+            }
+
             if (netId == ChipDB::ObjectNotFound)
             {
                 doLog(Logging::LogType::WARNING, Logging::fmt("Net left unconnected on instance %s\n", srcGate.name().c_str()));
@@ -77,6 +84,18 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
             }
 
             auto const& net = netlist.m_nets.atRef(netId);
+
+            if (net.numberOfConnections() <= 1)
+            {
+                doLog(Logging::LogType::WARNING, Logging::fmt("Net %s has 1 or fewer connections!\n", net.name().c_str()));
+                continue;                
+            }
+
+            float weight = 1.0f/(net.numberOfConnections() - 1.0);
+            if (net.m_isPortNet) 
+            {
+                weight *= 4.0f;
+            }
 
             for(auto const& netConnect : net)
             {
@@ -131,6 +150,7 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
                     }
                 }
             }
+            pinIndex++;
         }
     }
 
@@ -219,7 +239,8 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
             newGateLocation = propagate(region, newGateLocation);
         }
 
-        Gate.setCenter(newGateLocation.toCoord64());
+        m_gatePositions.at(gateId) = newGateLocation;
+        //Gate.setCenter(newGateLocation.toCoord64());
     }
 
     if (fixups != 0) std::cout << "  Number of gate fixups: " << fixups << "\n";
@@ -284,6 +305,23 @@ void Placer::place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
     }
 
     cycle(netlist, placementRegions);
+
+    // write back the new positions of placed gates
+    for(auto gateIdAndPos : m_gatePositions)
+    {
+        const auto gateId = gateIdAndPos.first;
+        const auto gateCenterPos = gateIdAndPos.second;
+        if (!netlist.m_instances.at(gateId)->isFixed())
+        {
+            auto newLocation = gateCenterPos.toCoord64();
+            Logging::doLog(Logging::LogType::VERBOSE, "Ins %s -> pos %d,%d\n", netlist.m_instances.at(gateId)->name().c_str(),
+                newLocation.m_x, newLocation.m_y);
+            netlist.m_instances.at(gateId)->setCenter(newLocation);
+            netlist.m_instances.at(gateId)->m_placementInfo = ChipDB::PlacementInfo::PLACED;
+        }
+    }
+
+    //TODO: end-case placement
 }
 
 void Placer::cycle(ChipDB::Netlist &netlist, std::deque<std::unique_ptr<PlacementRegion>> &regions)
@@ -298,7 +336,7 @@ void Placer::cycle(ChipDB::Netlist &netlist, std::deque<std::unique_ptr<Placemen
         placeRegion(netlist, region);
 
         // see if we can sub-divide the region
-        if ((region.m_level < m_maxLevels) && (region.m_gatesInRegion.size() >= (m_minInstancesInRegion*2)))
+        if ((region.m_level < m_maxLevels) && (region.m_gatesInRegion.size() >= (m_minInstancesInRegion)))
         {
             // code to determine whether we do a vertical or horizontal cut
             Direction cutDir = ((region.m_level % 2) == 0) ? Direction::VERTICAL : Direction::HORIZONTAL;

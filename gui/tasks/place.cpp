@@ -68,7 +68,7 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
         *topModule->m_netlist.get(), nullptr);
 #else
     LunaCore::CellPlacer2::Placer placer;
-    placer.place(*netlist, *firstRegion, 20, 1);
+    placer.place(*netlist, *firstRegion, 20, 10);
     bool ok = true;
     //bool ok = LunaCore::CellPlacer2::place(database, )
 #endif

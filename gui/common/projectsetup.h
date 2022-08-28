@@ -32,6 +32,7 @@ struct ProjectSetup
     std::vector<RegionSetup> m_regions;
 
     std::string m_openSTALocation{"/usr/local/bin/sta"};    ///< this comes from the Luna config file, not the project file.
+    std::string m_floorplanScriptLocation;                  ///< if this is not empty, this script is used to generate the floorplan
 
     bool readFromJSON(std::istream &is);
     bool writeToJSON(std::ostream &os) const;

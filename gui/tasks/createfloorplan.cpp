@@ -34,9 +34,16 @@ void Tasks::CreateFloorplan::execute(GUI::Database &database, ProgressCallback c
         }        
     );
 
-    python->executeScript(R"(import sys; print("Python version"); print (sys.version); )");
-    python->executeScript(R"(from Luna import *; from LunaExtra import *;)");
-
+    auto script = database.m_projectSetup.m_floorplanScriptLocation;
+    if (!script.empty())
+    {
+        Logging::doLog(Logging::LogType::INFO, "Running floor planning script: %s", script.c_str());
+        python->executeScript(R"(import sys; print("Python version"); print (sys.version); )");
+        python->executeScript(R"(from Luna import *; from LunaExtra import *;)");
+        python->executeScriptFile(database.m_projectSetup.m_floorplanScriptLocation);
+    }
+    
+#if 0
     auto script = R"(
 ## create floorplan
 createRegion("core", 10000, 10000, 80000, 80000)
@@ -63,6 +70,7 @@ for idx in range(0,8):
 )";    
 
     python->executeScript(script);
+#endif
 
     info("createfloorplan task finished\n");
 
