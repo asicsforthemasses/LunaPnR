@@ -55,6 +55,16 @@ QJsonArray toJson(const std::vector<RegionSetup> &obj)
     return arr;
 }
 
+QJsonValue toJson(const std::string &str)
+{
+    return QJsonValue(QString::fromStdString(str));
+}
+
+std::string fromJsonToString(const QJsonValue &val)
+{
+    return val.toString().toStdString();
+}
+
 std::vector<std::string> fromJson(const QJsonArray &arr)
 {
     std::vector<std::string> result;
@@ -118,6 +128,7 @@ bool ProjectSetup::writeToJSON(std::ostream &os) const
     json["Verilog"] = toJson(m_verilogFiles);
     json["Layers"] = toJson(m_layerFiles);
     json["Regions"] = toJson(m_regions);
+    json["FloorplanScriptLocation"] = toJson(m_floorplanScriptLocation);
 
     QJsonDocument doc(json);
 
@@ -166,6 +177,7 @@ bool ProjectSetup::readFromJSON(std::istream &is)
     if (json.contains("Timing")) m_timingConstraintFiles = fromJson(json["Timing"].toArray());
     if (json.contains("Layers")) m_layerFiles = fromJson(json["Layers"].toArray());
     if (json.contains("Regions")) m_regions = fromJsonToRegionArray(json["Regions"].toArray());
+    if (json.contains("FloorplanScriptLocation")) m_floorplanScriptLocation = fromJsonToString(json["FloorplanScriptLocation"]);
 
     return true;
 }

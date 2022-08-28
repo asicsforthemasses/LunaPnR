@@ -5,6 +5,11 @@
 #include <sstream>
 #include <QHeaderView>
 #include <QDialogButtonBox>
+#include <QFileIconProvider>
+#include <QLineEdit>
+#include <QFileDialog>
+#include <QLabel>
+#include <QPushButton>
 
 #include "floorplandialog.h"
 #include "common/guihelpers.h"
@@ -28,8 +33,8 @@ FloorplanDialog::FloorplanDialog(Database &db, QWidget *parent) : QDialog(parent
 
     auto addRowButton = new FlatImageButton("://images/add.png");
 
-    layout->addWidget(addRowButton,0,0,Qt::AlignRight);
-    layout->addWidget(m_regionTable,1,0);
+    layout->addWidget(addRowButton,0,0,1,3,Qt::AlignRight);
+    layout->addWidget(m_regionTable,1,0,1,3);
 
     QStringList headerLabels = {"Region name", "Site name", "Size (nm)", "Halo (nm)"};
 
@@ -39,7 +44,7 @@ FloorplanDialog::FloorplanDialog(Database &db, QWidget *parent) : QDialog(parent
     
     // dunno why this fails:
     // the dialog will be almost infinitely wide.. ?
-    //m_regionTable->horizontalHeader()->setStretchLastSection(true);
+    // m_regionTable->horizontalHeader()->setStretchLastSection(true);
 
     auto rectDelegate = new RectDelegate();
     m_regionTable->setItemDelegateForColumn(2, rectDelegate);
@@ -54,7 +59,19 @@ FloorplanDialog::FloorplanDialog(Database &db, QWidget *parent) : QDialog(parent
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
                                      | QDialogButtonBox::Cancel);
 
-    layout->addWidget(buttonBox, 2,0);
+
+    QFileIconProvider iconProvider;
+    m_floorplanScriptEdit = new QLineEdit(QString::fromStdString(db.m_projectSetup.m_floorplanScriptLocation));
+    m_floorplanScriptEdit->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+    auto openScriptLocationButton = new QPushButton(iconProvider.icon(QFileIconProvider::Folder),"");
+    connect(openScriptLocationButton, &QPushButton::clicked, this, &FloorplanDialog::onOpenScriptLocationOpen);
+
+    layout->addWidget(new QLabel("Floorplan script location"),2,0);
+    layout->addWidget(m_floorplanScriptEdit,2,1);
+    layout->addWidget(openScriptLocationButton,2,2);
+
+    // standard dialog box buttons
+    layout->addWidget(buttonBox, 5,0,1,3);
 
     connect(buttonBox, &QDialogButtonBox::accepted, this, &FloorplanDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &FloorplanDialog::reject);
@@ -88,4 +105,22 @@ void FloorplanDialog::onAddRegionRow()
 
     m_regionTable->insertRow(newRowNumber);
     createTableRow(newRowNumber, m_db.m_projectSetup.m_regions.back());
+}
+
+void FloorplanDialog::onOpenScriptLocationOpen()
+{
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Floorplan python script location"),
+                                                m_floorplanScriptEdit->text(),
+                                                tr("Floorplan script (*.py)"));
+    if (!fileName.isEmpty())
+    {
+        m_floorplanScriptEdit->setText(fileName);
+    }    
+}
+
+void FloorplanDialog::accept()
+{
+    //std::cout << "ConfigurationDialog::accept\n";
+    m_db.m_projectSetup.m_floorplanScriptLocation = m_floorplanScriptEdit->text().toStdString();
+    QDialog::accept();
 }

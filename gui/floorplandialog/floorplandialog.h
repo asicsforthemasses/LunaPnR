@@ -22,12 +22,15 @@ public:
 
 protected slots:
     void onAddRegionRow();
+    void accept() override;
 
 protected:
+    void onOpenScriptLocationOpen();
     void createTableRow(size_t row, const RegionSetup &region);
     
     Database &m_db;
     QTableWidget *m_regionTable;
+    QLineEdit    *m_floorplanScriptEdit;
 };
 
 };
