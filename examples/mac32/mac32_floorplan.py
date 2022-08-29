@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+#
+# SPDX-License-Identifier: GPL-3.0-only
+
 ## create floorplan
 createRegion("core", 10000, 10000, 650000, 650000)
 createRows("core", 0, 10000, 64)

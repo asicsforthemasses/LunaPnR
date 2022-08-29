@@ -27,6 +27,7 @@
 #include "common/tasklist.h"
 
 #include "configurationdialog.h"
+#include "aboutdialog/aboutdialog.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -274,7 +275,8 @@ void MainWindow::onQuit()
 
 void MainWindow::onAbout()
 {
-    QMessageBox::aboutQt(this, "Luna place and route version " __DATE__ " " __TIME__ );
+    GUI::AboutDialog dialog;
+    dialog.exec();
 }
 
 void MainWindow::onLoadProject()

@@ -63,6 +63,7 @@ set (LUNA_SRC_FILES
     cellbrowser/cellbrowser.cpp
     cellbrowser/celllayoutview.cpp
     propertyview/propertyview.cpp
+    aboutdialog/aboutdialog.cpp
     projectmanager/filesetupmanager.cpp
     projectmanager/projectmanager.cpp
     floorplandialog/floorplandialog.cpp

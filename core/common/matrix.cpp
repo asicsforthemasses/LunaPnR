@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include "matrix.h"
 
 void LunaCore::toEigen(const Matrix &matrix, Eigen::SparseMatrix<double> &eigenMatrix) noexcept
