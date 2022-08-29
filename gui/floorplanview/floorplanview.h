@@ -33,9 +33,14 @@ public:
     void setOverlay(FloorplanOverlayBase *overlay = nullptr);
 
     /** enable the mouse curor crosshair for position feedback */
-    void setCrosshair(bool enabled = true)
+    void setCrosshair(bool enabled = true) noexcept
     {
         m_crosshairEnabled = enabled;
+    }
+
+    void showNets(bool enabled = true) noexcept
+    {
+        m_showNets = enabled;
     }
 
 protected:
@@ -77,9 +82,10 @@ protected:
     FloorplanOverlayBase* m_overlay;
 
     std::shared_ptr<Database> m_db;
-    bool  m_dirty;
+    bool  m_dirty{true};
 
-    bool  m_crosshairEnabled;
+    bool  m_crosshairEnabled{true};
+    bool  m_showNets{false};
 };
 
 };  // namespace

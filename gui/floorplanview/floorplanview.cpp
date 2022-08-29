@@ -247,7 +247,7 @@ void FloorplanView::paintEvent(QPaintEvent *event)
 
     drawRegions(painter);
     drawInstances(painter);
-    drawNets(painter);
+    if (m_showNets) drawNets(painter);
 
     if (m_overlay != nullptr)
     {

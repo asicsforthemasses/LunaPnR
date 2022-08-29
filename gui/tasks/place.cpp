@@ -63,8 +63,8 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
         return;
     }
 
-#if 0
-    bool ok = LunaCore::QLAPlacer::place(*regionKeyPair.rawPtr(), 
+#if 1
+    bool ok = LunaCore::QLAPlacer::place(*firstRegion.rawPtr(), 
         *topModule->m_netlist.get(), nullptr);
 #else
     LunaCore::CellPlacer2::Placer placer;

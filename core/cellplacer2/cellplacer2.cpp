@@ -7,6 +7,7 @@
 #include <thread>
 #include "common/logging.h"
 #include "cellplacer2.h"
+#include "../cellplacer/rowlegalizer.h"
 
 using namespace LunaCore::CellPlacer2;
 
@@ -231,7 +232,7 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
         auto &Gate = netlist.m_instances.atRef(gateId);
 
         auto newGateLocation = PointF{static_cast<float>(xvec[rowId]), static_cast<float>(yvec[rowId])};
-        assert(region.contains(newGateLocation, absTol));
+        //assert(region.contains(newGateLocation, absTol));
         
         if (!region.contains(newGateLocation))
         {
@@ -320,6 +321,9 @@ void Placer::place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
             netlist.m_instances.at(gateId)->m_placementInfo = ChipDB::PlacementInfo::PLACED;
         }
     }
+
+    // legalise the cells
+    LunaCore::Legalizer::legalizeRegion(region, netlist, 10000);
 
     //TODO: end-case placement
 }
