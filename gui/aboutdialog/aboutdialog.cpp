@@ -4,8 +4,12 @@
 
 #include "aboutdialog.h"
 #include <QBoxLayout>
+#include <QPushButton>
 #include <QMessageBox>
+#include <QTextEdit>
+#include <patchlevel.h>     // from Python
 #include "widgets/flatimage.h"
+#include <Eigen/Core>
 
 using namespace GUI;
 
@@ -18,8 +22,10 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
     m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
                                      | QDialogButtonBox::Cancel);
 
+    m_buttonBox->addButton(tr("Donate"), QDialogButtonBox::InvalidRole); 
+
     connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
-    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);    
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(m_tabWidget);
@@ -35,8 +41,32 @@ AboutGeneralTab::AboutGeneralTab(QWidget *parent) : QWidget(parent)
 
     auto logo = new FlatImage("://images/lunapnrlogo.png");
 
+    auto textDisplay = new QTextEdit();
+    textDisplay->setReadOnly(true);
+
+    QString info;
+
+    const auto eigenVersion = QString::asprintf("%d.%d.%d", 
+        EIGEN_WORLD_VERSION,
+        EIGEN_MAJOR_VERSION,
+        EIGEN_MINOR_VERSION);
+
+    // build information string    
+    info += "<h2>" LUNAVERSIONSTRING "</h2>";
+    info += "<h3>License: GPL v3</h3>";
+    info += "Compiled on " __DATE__ " using " COMPILERVERSIONSTRING "<br>";
+    info += "Additional libraries:";
+    info += "<ul>";
+    info += "<li>Qt version     " QT_VERSION_STR "</li>";
+    info += "<li>Python version " PY_VERSION "</li>";
+    info += "<li>Eigen3 version " + eigenVersion + "</li>";
+    info += "</ul>";
+
+    textDisplay->setHtml(info);
+
     mainLayout->setContentsMargins(0,0,0,0);
     mainLayout->addWidget(logo);
+    mainLayout->addWidget(textDisplay);
     setLayout(mainLayout);
 }
 
@@ -48,13 +78,6 @@ AboutQtTab::AboutQtTab(QWidget *parent) : QWidget(parent)
 
     mainLayout->setContentsMargins(0,0,0,0);
     mainLayout->addWidget(logo);
-
-#if 0
-    auto logo = new FlatImage("://images/lunapnrlogo.png");
-
-    mainLayout->contentsMargins(0,0,0,0);
-    mainLayout->addWidget(logo);
-#endif
 
     setLayout(mainLayout);
 }

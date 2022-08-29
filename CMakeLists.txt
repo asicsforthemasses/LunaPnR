@@ -12,6 +12,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 ## Make Debian/Ubuntu happy: this way the executable is not detected as a shared lib :-/
 set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 
+############################################################
+## Setup LunaPnR version string
+############################################################
+
 project(luna_pnr VERSION 0.1.1 HOMEPAGE_URL https://www.asicsforthemasses.com)
 
 IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
@@ -24,6 +28,13 @@ ENDIF(CMAKE_BUILD_TYPE MATCHES DEBUG)
 message(${LUNAVERSION})
 
 add_definitions(-DLUNAVERSIONSTRING=${LUNAVERSION})
+
+############################################################
+## Setup Compiler version string
+############################################################
+
+set (COMPILERVERSION "\"${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}\"")
+add_definitions(-DCOMPILERVERSIONSTRING=${COMPILERVERSION})
 
 ############################################################
 ## UNIX specific options

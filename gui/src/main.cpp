@@ -21,7 +21,7 @@ int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
 
     QCoreApplication::setOrganizationName("LunaPnR_Org");
-    QCoreApplication::setApplicationName(LUNAVERSIONSTRING);
+    QCoreApplication::setApplicationName("LunaPnR");
 
     Logging::setLogLevel(Logging::LogType::INFO);
     
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
 
     parser.process(app);
 
-    if (parser.isSet(showResourcesOption))
+    //if (parser.isSet(showResourcesOption))
     {
         std::cout << "Resources:\n";
         QDirIterator it(":", QDirIterator::Subdirectories);
