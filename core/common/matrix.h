@@ -22,9 +22,14 @@ struct Matrix
 
     Matrix() = default;
 
-    explicit Matrix(std::size_t reserveRows)
+    explicit Matrix(std::size_t rows)
     {
-        m_rows.reserve(reserveRows);
+        reserveRows(rows);
+    }
+
+    void reserveRows(std::size_t rows)
+    {
+        m_rows.reserve(rows);
     }
 
     std::unordered_map<RowIndex, RowType> m_rows;

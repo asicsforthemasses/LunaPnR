@@ -18,24 +18,7 @@ public:
     AboutDialog(QWidget *parent = nullptr);
 
 protected:
-    QTabWidget *m_tabWidget;
     QDialogButtonBox *m_buttonBox;
-};
-
-class AboutGeneralTab : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit AboutGeneralTab(QWidget *parent = nullptr);
-};
-
-class AboutQtTab : public QWidget
-{
-    Q_OBJECT
-
-public:
-    explicit AboutQtTab(QWidget *parent = nullptr);
 };
 
 };

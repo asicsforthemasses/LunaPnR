@@ -187,6 +187,7 @@ void MainWindow::createMenus()
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(m_aboutAct);
+    helpMenu->addAction(m_aboutQtAct);
 }
 
 void MainWindow::createActions()
@@ -206,6 +207,9 @@ void MainWindow::createActions()
 
     m_aboutAct = new QAction(tr("&About"), this);    
     connect(m_aboutAct, &QAction::triggered, this, &MainWindow::onAbout);
+
+    m_aboutQtAct = new QAction(tr("About Qt"), this);
+    connect(m_aboutQtAct, &QAction::triggered, this, &MainWindow::onAboutQt);
 
     m_loadProject = new QAction(tr("&Open Project"), this);
     m_loadProject->setShortcut(QKeySequence::Open);
@@ -277,6 +281,11 @@ void MainWindow::onAbout()
 {
     GUI::AboutDialog dialog;
     dialog.exec();
+}
+
+void MainWindow::onAboutQt()
+{
+    QMessageBox::aboutQt(this);
 }
 
 void MainWindow::onLoadProject()

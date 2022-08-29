@@ -59,6 +59,7 @@ public:
 public slots:
     void onQuit();
     void onAbout();
+    void onAboutQt();
 
     void onLoadProject();
     void onSaveProject();
@@ -90,6 +91,7 @@ protected:
     QAction *m_clearAct;
     QAction *m_quitAct;    
     QAction *m_aboutAct;
+    QAction *m_aboutQtAct;
 
     QAction *m_configAct;
 

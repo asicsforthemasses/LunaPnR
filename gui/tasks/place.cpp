@@ -64,9 +64,11 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
     }
 
 #if 1
+    info("Using QLAPlacer\n");
     bool ok = LunaCore::QLAPlacer::place(*firstRegion.rawPtr(), 
         *topModule->m_netlist.get(), nullptr);
 #else
+    info("Using CellPlacer2\n");
     LunaCore::CellPlacer2::Placer placer;
     placer.place(*netlist, *firstRegion, 20, 10);
     bool ok = true;

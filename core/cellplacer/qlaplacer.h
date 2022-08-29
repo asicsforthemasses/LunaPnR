@@ -18,6 +18,7 @@
 #include <functional>
 
 #include "common/dbtypes.h"
+#include "common/matrix.h"
 #include "floorplan/region.h"
 #include "netlist/netlist.h"
 #include "qplacertypes.h"
@@ -26,7 +27,8 @@ namespace LunaCore::QLAPlacer::Private
 {
     struct SolverData
     {
-        Eigen::SparseMatrix<double> m_Amat;
+        //Eigen::SparseMatrix<double> m_Amat;
+        LunaCore::Matrix m_Amat;
         Eigen::VectorXd m_Bvec;
     };
 
