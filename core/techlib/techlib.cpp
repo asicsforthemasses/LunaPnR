@@ -54,7 +54,7 @@ KeyObjPair<LayerInfo> TechLib::createLayer(const std::string &name)
         return layerKeyObj.value();
     }
 
-    return KeyObjPair<LayerInfo>();
+    return KeyObjPair<LayerInfo>{};
 }
 
 KeyObjPair<LayerInfo> TechLib::lookupLayer(const std::string &name) const
@@ -70,7 +70,7 @@ KeyObjPair<SiteInfo> TechLib::createSiteInfo(const std::string &name)
         return siteKeyObj.value();
     }
 
-    return KeyObjPair<SiteInfo>();
+    return KeyObjPair<SiteInfo>{};
 }
 
 KeyObjPair<SiteInfo> TechLib::lookupSiteInfo(const std::string &name) const

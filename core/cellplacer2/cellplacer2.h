@@ -13,29 +13,13 @@
 #include <Eigen/IterativeLinearSolvers>
 
 #include "design/design.h"
-#include "matrix.h"
+#include "common/matrix.h"
 
 namespace LunaCore::CellPlacer2
 {
 
 using NetId  = ChipDB::NetObjectKey;
 using GateId = ChipDB::InstanceObjectKey;
-
-#if 0
-struct Gate
-{
-    ChipDB::Coord64         m_size;                 ///< gate size in nm
-    std::vector<GateId>     m_netIDs;    ///< connected nets
-    ChipDB::Coord64         m_pos;                  ///< location of lower left coordinate
-    ChipDB::PlacementInfo   m_placement;
-};
-
-struct Net
-{
-    std::vector<GateId> m_gateIDs;   ///< gates on this net
-    float               m_weight{1.0f}; ///< net weight
-};
-#endif
 
 struct PointF
 {
@@ -143,8 +127,6 @@ protected:
     void mapGatesToMatrixRows(const ChipDB::Netlist &netlist,
         const PlacementRegion &r,
         GateToRowContainer &gate2Row);
-
-    void toEigen(const Matrix &mat, Eigen::SparseMatrix<double> &eigenMat) const noexcept;
 
     void populateGatePositions(const ChipDB::Netlist &netlist);
 

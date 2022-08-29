@@ -20,6 +20,12 @@ namespace LunaCore::NetlistTools
     /** returns a histogram of the net connections */
     NetlistHistogram calcNetlistHistogram(const ChipDB::Netlist *netlist);
 
-    /** remote NETCON instances from a netlist */
+    /** remote NETCON instances from a netlist. FIXME: does not work!!! */
     bool removeNetconInstances(ChipDB::Netlist &netlist);
+
+    /** calculate half-perimiter wire length, ignoring the exact pin locations */
+    double calcHPWL(const ChipDB::Netlist &netlist);
+
+    /** calculate the total cell area of cells in the netlist */
+    double calcTotalCellArea(const ChipDB::Netlist &netlist);
 };

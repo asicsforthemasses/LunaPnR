@@ -5,11 +5,14 @@
 #pragma once
 #include <unordered_map>
 #include <cstdlib>
+#include <Eigen/Sparse>
 
-namespace LunaCore::CellPlacer2
+namespace LunaCore
 {
 
-/** Sparse matrix class to function as intermediary for Eigen3 */
+/** Sparse matrix class to function as intermediary for Eigen3 
+    to get around the slowness of building Eigen3 matrices directly.
+*/
 struct Matrix
 {
     using ColIndex  = int;
@@ -100,5 +103,8 @@ struct Matrix
         return m_rows.cend();
     }
 };
+
+    /** fill an Eigen3 matrix with data from LunaCore::Matrix */
+    void toEigen(const Matrix &matrix, Eigen::SparseMatrix<double> &eigenMatrix) noexcept;
 
 };

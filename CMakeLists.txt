@@ -13,7 +13,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 
 project(luna_pnr VERSION 0.1.1 HOMEPAGE_URL https://www.asicsforthemasses.com)
-set(LUNAVERSION "\"LunaPnR version ${CMAKE_PROJECT_VERSION}\"")
+
+IF(CMAKE_BUILD_TYPE MATCHES DEBUG)
+    message("Building debug binaries")
+    set(LUNAVERSION "\"LunaPnR version ${CMAKE_PROJECT_VERSION}\"")
+ELSE()
+    set(LUNAVERSION "\"LunaPnR version ${CMAKE_PROJECT_VERSION} DEBUG\"")
+ENDIF(CMAKE_BUILD_TYPE MATCHES DEBUG)
 
 message(${LUNAVERSION})
 

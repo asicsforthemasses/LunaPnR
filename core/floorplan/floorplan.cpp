@@ -19,7 +19,7 @@ KeyObjPair<Region> Floorplan::createRegion(const std::string &name)
         return optKeyObjPair.value();
     }
     
-    return KeyObjPair<Region>();
+    return KeyObjPair<Region>{};
 }
 
 std::shared_ptr<Region> Floorplan::lookupRegion(ChipDB::ObjectKey key) const

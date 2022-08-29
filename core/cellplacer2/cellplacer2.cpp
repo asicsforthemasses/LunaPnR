@@ -8,6 +8,7 @@
 #include "common/logging.h"
 #include "cellplacer2.h"
 #include "../cellplacer/rowlegalizer.h"
+#include "netlist/netlisttools.h"
 
 using namespace LunaCore::CellPlacer2;
 
@@ -29,7 +30,7 @@ void Placer::mapGatesToMatrixRows(const ChipDB::Netlist &netlist,
     }
 }
 
-Matrix::RowIndex Placer::findRowOfGate(const GateToRowContainer &gate2Row, 
+LunaCore::Matrix::RowIndex Placer::findRowOfGate(const GateToRowContainer &gate2Row, 
     const GateId gateId) const noexcept
 {
     auto iter = gate2Row.find(gateId);
@@ -247,31 +248,6 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
     if (fixups != 0) std::cout << "  Number of gate fixups: " << fixups << "\n";
 }
 
-void Placer::toEigen(const Matrix &mat, Eigen::SparseMatrix<double> &eigenMat) const noexcept
-{
-    //std::cout << "toEigen begin\n";
-    auto nnz = mat.nonZeroItemCount();
-    
-    std::vector<Eigen::Triplet<double> > triples;
-    triples.reserve(nnz);
-
-    //std::cout << "  non-zero items " << nnz << "\n";
-    eigenMat.reserve(nnz);
-    for(auto const& row : mat)
-    {
-        for(auto item : row.second)
-        {
-            triples.emplace_back(Eigen::Triplet<double>{row.first, item.first, item.second});
-        }
-    }
-
-    //std::cout << "  Eigen::setFromTriplets begin\n";
-    eigenMat.setFromTriplets(triples.begin(), triples.end());
-    //std::cout << "  Eigen::setFromTriplets end\n";
-
-    //std::cout << "toEigen end\n";    
-}
-
 void Placer::populateGatePositions(const ChipDB::Netlist &netlist)
 {
     m_gatePositions.clear();
@@ -287,6 +263,18 @@ void Placer::populateGatePositions(const ChipDB::Netlist &netlist)
 void Placer::place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
     std::size_t maxLevels, std::size_t minInstances)
 {
+    // report utilization factor
+    const double nm2um = 1.0e-3;
+    double totalCellArea = LunaCore::NetlistTools::calcTotalCellArea(netlist);
+    auto regionSize      = region.m_rect.getSize();
+    double regionArea    = static_cast<double>(regionSize.m_x)*nm2um * 
+        static_cast<double>(regionSize.m_y)*nm2um;
+
+    auto utilization = static_cast<float>(totalCellArea / regionArea);
+    Logging::doLog(Logging::LogType::INFO, "Region %s utilization is %f percent\n",
+        region.m_name.c_str(),
+        utilization*100.0f);
+
     m_maxLevels = maxLevels;
     m_minInstancesInRegion = minInstances;
 
@@ -325,6 +313,9 @@ void Placer::place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
     // legalise the cells
     LunaCore::Legalizer::legalizeRegion(region, netlist, 10000);
 
+    auto hpwl = LunaCore::NetlistTools::calcHPWL(netlist);
+    Logging::doLog(Logging::LogType::INFO, "HPWL = %f *1e6 nm\n", hpwl / 1.0e6);
+    
     //TODO: end-case placement
 }
 
