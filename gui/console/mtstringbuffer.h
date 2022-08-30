@@ -4,11 +4,13 @@
 
 #pragma once
 
+#include <QColor>
 #include <string_view>
 #include <string>
 #include <mutex>
 #include <list>
 #include <QObject>
+#include "common/logging.h"
 
 namespace GUI
 {
@@ -19,18 +21,28 @@ namespace GUI
 class MTStringBuffer
 {
 public:
+    struct LogString
+    {
+        Logging::LogType    m_logType{Logging::LogType::INFO};
+        std::string         m_txt;
+    };
+
     MTStringBuffer(QObject *eventReceiver);
 
     void print(const std::string &txt);
     void print(const std::string_view &txt);
 
-    std::string pop();
+    void print(const Logging::LogType &logType, const std::string &txt);
+    void print(const Logging::LogType &logType, const std::string_view &txt);
+
+    LogString pop();
     bool containsString();
 
 protected:
     QObject *m_eventReceiver = nullptr;
     std::mutex m_mutex;
-    std::list<std::string> m_buffer;
+
+    std::list<LogString> m_buffer;
 };
 
 }; //namespace

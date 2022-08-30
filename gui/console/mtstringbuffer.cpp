@@ -14,8 +14,18 @@ MTStringBuffer::MTStringBuffer(QObject *eventReceiver) : m_eventReceiver(eventRe
 
 void MTStringBuffer::print(const std::string &txt)
 {
+    print(Logging::LogType::INFO, txt);
+}
+
+void MTStringBuffer::print(const std::string_view &txt)
+{
+    print(Logging::LogType::INFO, txt);
+}
+
+void MTStringBuffer::print(const Logging::LogType &logType, const std::string &txt)
+{
     std::lock_guard<std::mutex> guard(m_mutex);
-    m_buffer.push_back(txt);
+    m_buffer.push_back(LogString{logType, txt});
 
     if (m_eventReceiver != nullptr)
     {
@@ -24,10 +34,10 @@ void MTStringBuffer::print(const std::string &txt)
     }
 }
 
-void MTStringBuffer::print(const std::string_view &txt)
+void MTStringBuffer::print(const Logging::LogType &logType, const std::string_view &txt)
 {
     std::lock_guard<std::mutex> guard(m_mutex);
-    m_buffer.push_back(std::string(txt));
+    m_buffer.push_back(LogString{logType, std::string(txt)});
 
     if (m_eventReceiver != nullptr)
     {
@@ -36,12 +46,12 @@ void MTStringBuffer::print(const std::string_view &txt)
     }    
 }
 
-std::string MTStringBuffer::pop()
+MTStringBuffer::LogString MTStringBuffer::pop()
 {
     std::lock_guard<std::mutex> guard(m_mutex);
-    auto str = m_buffer.front();
+    auto logString = m_buffer.front();
     m_buffer.pop_front();
-    return str;
+    return logString;
 }
 
 bool MTStringBuffer::containsString()

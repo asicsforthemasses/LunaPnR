@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include "openstaparser.h"
+#include "common/logging.h"
 
 using namespace GUI;
 
@@ -15,17 +16,17 @@ void OpenSTAParser::reset()
 
 bool OpenSTAParser::submitLine(const std::string &line)
 {
-    if (line == "#UNITS\n")
+    if (line.substr(0,6) == "#UNITS")
     {
         m_state = ParseState::UNITS;
         return true;
     }
-    else if (line == "#CHECKSETUP")
+    else if (line.substr(0,11) == "#CHECKSETUP")
     {
         m_state = ParseState::CHECKSETUP;
         return true;
     }
-    else if (line == "#REPORTCHECKS")
+    else if (line.substr(0,13) == "#REPORTCHECKS")
     {
         m_state = ParseState::REPORTCHECKS;
         return true;
@@ -38,8 +39,18 @@ bool OpenSTAParser::submitLine(const std::string &line)
     switch(m_state)
     {
     case ParseState::UNITS:
+        if (std::regex_search(line, matches, m_reTimeUnit))
+        {
+            m_timeMult = std::stod(matches.str(1));
+            m_timeUnit = matches.str(2);
+            Logging::doLog(Logging::LogType::VERBOSE,"OpenSTA time unit: %f %s\n", m_timeMult, m_timeUnit.c_str());
+        }
         break;
     case ParseState::CHECKSETUP:
+        if (std::regex_search(line, matches, m_reWarning))
+        {
+            m_setupWarnings.push_back(matches.str(1));
+        }
         break;
     case ParseState::REPORTCHECKS:
         if (std::regex_search(line, matches, m_reSourcePath))

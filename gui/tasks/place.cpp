@@ -70,7 +70,7 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
 #else
     info("Using CellPlacer2\n");
     LunaCore::CellPlacer2::Placer placer;
-    placer.place(*netlist, *firstRegion, 0, 10);
+    placer.place(*netlist, *firstRegion, 20, 10);
     bool ok = true;
     //bool ok = LunaCore::CellPlacer2::place(database, )
 #endif

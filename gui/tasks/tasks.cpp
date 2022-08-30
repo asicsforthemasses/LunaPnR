@@ -28,6 +28,11 @@ void Task::error(const std::string &txt)
     m_status.store(Status::DONE_ERROR);
 }
 
+void Task::warning(const std::string &txt)
+{
+    Logging::doLog(Logging::LogType::WARNING, txt);
+}
+
 void Task::info(const std::string &txt)
 {
     Logging::doLog(Logging::LogType::INFO, txt);

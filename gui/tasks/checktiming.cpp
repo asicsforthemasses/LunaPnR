@@ -81,9 +81,18 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
         }
     }
 
+    if (!parser.setupWarnings().empty())
+    {
+        warning("** Timing analysis found the following issues with your setup **\n");
+        for(auto warningText : parser.setupWarnings())
+        {
+            warning(warningText);
+        }
+    }
+
     if (timingErrors) 
     {
-        error("Timing checks failed\n");
+        error("** Timing checks failed **\n");
         return;
     }
 

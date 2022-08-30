@@ -242,6 +242,7 @@ void MainWindow::saveSettings()
     settings.setValue("console/bkcolour", consoleColours.m_bkCol.name(QColor::HexRgb));
     settings.setValue("console/promptcolour", consoleColours.m_promptCol.name(QColor::HexRgb));
     settings.setValue("console/errorcolour", consoleColours.m_errorCol.name(QColor::HexRgb));
+    settings.setValue("console/warningcolour", consoleColours.m_warningCol.name(QColor::HexRgb));
 
     settings.setValue("console/font", m_console->font().family());
     settings.setValue("console/fontsize", m_console->font().pointSize());
@@ -258,7 +259,8 @@ void MainWindow::loadSettings()
     m_console->setColours(
         QColor(settings.value("console/bkcolour", "#1d1f21").toString()),
         QColor(settings.value("console/promptcolour", "#c5c8c6").toString()),
-        QColor(settings.value("console/errorcolour", "#a54242").toString())
+        QColor(settings.value("console/errorcolour", "#a54242").toString()),
+        QColor(settings.value("console/warningcolour", "#a68542").toString())        
     );
 
     QFont font;
@@ -490,7 +492,7 @@ void ConsoleLogOutputHandler::print(Logging::LogType t, const std::string &txt)
 {
     if (m_console != nullptr)
     {
-        m_console->mtPrint(txt);
+        m_console->mtPrint(t, txt);
     }
     else
     {
@@ -502,7 +504,7 @@ void ConsoleLogOutputHandler::print(Logging::LogType t, const std::string_view &
 {
     if (m_console != nullptr)
     {
-        m_console->mtPrint(txt);
+        m_console->mtPrint(t, txt);
     }
     else
     {
