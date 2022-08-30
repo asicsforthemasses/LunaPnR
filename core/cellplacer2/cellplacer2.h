@@ -128,7 +128,7 @@ protected:
         const PlacementRegion &r,
         GateToRowContainer &gate2Row);
 
-    void populateGatePositions(const ChipDB::Netlist &netlist);
+    void populateGatePositions(const ChipDB::Netlist &netlist, const ChipDB::Region &region);
 
     enum class Direction
     {

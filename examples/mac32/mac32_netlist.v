@@ -7305,73 +7305,50 @@ module mac32(clk, rst_an, \a_in[0] , \a_in[1] , \a_in[2] , \a_in[3] , \a_in[4] ,
   wire _07229_;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[0] ;
-  wire \a_in[0] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[10] ;
-  wire \a_in[10] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[11] ;
-  wire \a_in[11] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[12] ;
-  wire \a_in[12] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[13] ;
-  wire \a_in[13] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[14] ;
-  wire \a_in[14] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[15] ;
-  wire \a_in[15] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[16] ;
-  wire \a_in[16] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[17] ;
-  wire \a_in[17] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[18] ;
-  wire \a_in[18] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[19] ;
-  wire \a_in[19] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[1] ;
-  wire \a_in[1] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[20] ;
-  wire \a_in[20] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[21] ;
-  wire \a_in[21] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[22] ;
-  wire \a_in[22] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[23] ;
-  wire \a_in[23] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[24] ;
-  wire \a_in[24] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[25] ;
-  wire \a_in[25] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[26] ;
-  wire \a_in[26] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[27] ;
-  wire \a_in[27] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[28] ;
-  wire \a_in[28] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[29] ;
-  wire \a_in[29] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[2] ;
-  wire \a_in[2] ;
   (* src = "mac32.v:11.26-11.30" *)
   input \a_in[30] ;
   wire \a_in[30] ;
@@ -7500,79 +7477,54 @@ module mac32(clk, rst_an, \a_in[0] , \a_in[1] , \a_in[2] , \a_in[3] , \a_in[4] ,
   wire clk;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[0] ;
-  wire \data_out[0] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[10] ;
-  wire \data_out[10] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[11] ;
-  wire \data_out[11] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[12] ;
-  wire \data_out[12] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[13] ;
-  wire \data_out[13] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[14] ;
-  wire \data_out[14] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[15] ;
-  wire \data_out[15] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[16] ;
-  wire \data_out[16] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[17] ;
-  wire \data_out[17] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[18] ;
-  wire \data_out[18] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[19] ;
-  wire \data_out[19] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[1] ;
-  wire \data_out[1] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[20] ;
-  wire \data_out[20] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[21] ;
-  wire \data_out[21] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[22] ;
-  wire \data_out[22] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[23] ;
-  wire \data_out[23] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[24] ;
-  wire \data_out[24] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[25] ;
-  wire \data_out[25] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[26] ;
-  wire \data_out[26] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[27] ;
-  wire \data_out[27] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[28] ;
-  wire \data_out[28] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[29] ;
-  wire \data_out[29] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[2] ;
-  wire \data_out[2] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[30] ;
-  wire \data_out[30] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[31] ;
-  wire \data_out[31] ;
   (* src = "mac32.v:13.26-13.34" *)
   output \data_out[32] ;
   wire \data_out[32] ;

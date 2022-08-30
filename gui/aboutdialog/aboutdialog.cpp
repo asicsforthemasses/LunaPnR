@@ -42,7 +42,6 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
 
     textDisplay->setHtml(info);
 
-
     m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
                                      | QDialogButtonBox::Cancel);
 

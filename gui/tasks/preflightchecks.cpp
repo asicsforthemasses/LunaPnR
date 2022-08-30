@@ -45,6 +45,7 @@ void Tasks::PreflightChecks::execute(GUI::Database &database, ProgressCallback c
         return;
     }
 
+#if 0
     // check that we have a top module selected
     auto topModule = database.design().getTopModule();
 
@@ -73,6 +74,7 @@ void Tasks::PreflightChecks::execute(GUI::Database &database, ProgressCallback c
         error(Logging::fmt("Module %s does not have a netlist!\n", topModule->name().c_str()));
         return;
     }
+#endif
 
 #if 0
 

@@ -182,6 +182,8 @@ static PyObject* pySetTopModule(PyObject *self, PyObject *args)
             return PyErr_Format(PyExc_RuntimeError, "cannot set top module to %s", topModuleName);
         }
 
+        std::cout << "Set top module to " << topModuleName << "\n";
+
         // Success!
         Py_RETURN_NONE;
     }

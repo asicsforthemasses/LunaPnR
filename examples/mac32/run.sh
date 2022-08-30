@@ -4,5 +4,5 @@
 #
 # SPDX-License-Identifier: GPL-3.0-only
 
-EXPORT PDK_PATH="/storage/programming/asic/luna_pnr/test.files/"
+#EXPORT PDK_PATH="/storage/programming/asic/luna_pnr/test.files/"
 yosys -s mac32.tcl

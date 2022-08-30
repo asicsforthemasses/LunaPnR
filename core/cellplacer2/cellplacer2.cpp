@@ -5,6 +5,7 @@
 #include <cassert>
 
 #include <thread>
+#include <fstream>
 #include "common/logging.h"
 #include "cellplacer2.h"
 #include "../cellplacer/rowlegalizer.h"
@@ -96,7 +97,7 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
             float weight = 1.0f/(net.numberOfConnections() - 1.0);
             if (net.m_isPortNet) 
             {
-                weight *= 4.0f;
+                //weight *= 4.0f;
             }
 
             for(auto const& netConnect : net)
@@ -173,8 +174,8 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
     // ibm18, always multi-threading -> 30s
     // ibm18, limit 20 rows -> 25s
     // ibm18, limit 50 rows -> 25s
-    if (Nrows < 20)
-    //if (true)
+    //if (Nrows < 20)
+    if (true)
     {
         xvec = solver.solve(Bvec_x);
         yvec = solver.solve(Bvec_y);
@@ -230,7 +231,7 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
     {
         auto gateId = row.first;
         auto rowId  = row.second;
-        auto &Gate = netlist.m_instances.atRef(gateId);
+        auto const& Gate = netlist.m_instances.atRef(gateId);
 
         auto newGateLocation = PointF{static_cast<float>(xvec[rowId]), static_cast<float>(yvec[rowId])};
         //assert(region.contains(newGateLocation, absTol));
@@ -245,18 +246,42 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
         //Gate.setCenter(newGateLocation.toCoord64());
     }
 
+#if 0
+    std::ofstream ofile("cellplacer2_pos.txt");
+    std::size_t index = 0;
+    for(auto gateId : region.m_gatesInRegion)
+    {
+        ofile << "Gate " << gateId << " pos: " << m_gatePositions.at(gateId) << "\n";
+    }
+    ofile.close();
+#endif
+
     if (fixups != 0) std::cout << "  Number of gate fixups: " << fixups << "\n";
 }
 
-void Placer::populateGatePositions(const ChipDB::Netlist &netlist)
+void Placer::populateGatePositions(const ChipDB::Netlist &netlist, const ChipDB::Region &region)
 {
     m_gatePositions.clear();
     m_gatePositions.reserve(netlist.m_instances.size());
 
     for(auto const& insKeyPair : netlist.m_instances)
     {        
+        // We have to make sure the unplaced gates/instances are
+        // within the region so the placer doesn't flag them
+        // as pseud0 terminals.
+        // The placed gates/instances should remain where they are.
         assert(insKeyPair.isValid());
-        m_gatePositions[insKeyPair.key()] = insKeyPair->getCenter();
+        if (insKeyPair->isFixed())
+        {
+            // keep fixed gates/instances where they are
+            m_gatePositions[insKeyPair.key()] = insKeyPair->getCenter();
+        }
+        else
+        {
+            // move all placable gates/instances to the center of the
+            // region
+            m_gatePositions[insKeyPair.key()] = region.m_rect.center();
+        }
     }
 }
 
@@ -278,7 +303,7 @@ void Placer::place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
     m_maxLevels = maxLevels;
     m_minInstancesInRegion = minInstances;
 
-    populateGatePositions(netlist);
+    populateGatePositions(netlist, region);
 
     std::deque<std::unique_ptr<PlacementRegion>> placementRegions;
 
@@ -311,7 +336,7 @@ void Placer::place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
     }
 
     // legalise the cells
-    LunaCore::Legalizer::legalizeRegion(region, netlist, 10000);
+    //LunaCore::Legalizer::legalizeRegion(region, netlist, 10000);
 
     auto hpwl = LunaCore::NetlistTools::calcHPWL(netlist);
     Logging::doLog(Logging::LogType::INFO, "HPWL = %f *1e6 nm\n", hpwl / 1.0e6);
@@ -348,9 +373,42 @@ void Placer::cycle(ChipDB::Netlist &netlist, std::deque<std::unique_ptr<Placemen
             cutRegion(region, cutDir, r1, r2);
             sortGates(region, cutDir);
 
-            // FIXME: distribute according to r1 and r2 capacities
             const std::size_t threshold = region.m_gatesInRegion.size() / 2;
             std::size_t counter = 0;
+
+#if 0
+            std::ofstream ofile("placer_pos.txt");
+            std::size_t index = 0;
+            for(auto gateId : region.m_gatesInRegion)
+            {
+                index++;
+                if (index == threshold)
+                {
+                    ofile << "**THRESHOLD**\n";
+                }
+                ofile << "Gate " << gateId << " pos: " << m_gatePositions.at(gateId) << "\n";
+            }
+            ofile.close();
+#endif
+
+            // figure out where the cut line is
+            double cutPosition = 0.0f;
+            auto cutGateId = region.m_gatesInRegion.at(threshold);
+            auto const& cutPos = m_gatePositions.at(cutGateId);
+
+            if (cutDir == Direction::HORIZONTAL)
+            {
+                Logging::doLog(Logging::LogType::INFO, "  cut position at x=%f\n", cutPos.m_x);
+                cutPosition = cutPos.m_x;
+            }
+            else
+            {
+                Logging::doLog(Logging::LogType::INFO, "  cut position at y=%f\n", cutPos.m_y);
+                cutPosition = cutPos.m_y;
+            }
+
+            // FIXME: distribute according to r1 and r2 capacities
+                        
             for(auto gateId : region.m_gatesInRegion)
             {
                 assert(!netlist.m_instances.at(gateId)->isFixed()); // cppcheck-suppress[assertWithSideEffect]

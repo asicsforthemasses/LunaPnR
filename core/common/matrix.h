@@ -51,7 +51,7 @@ struct Matrix
             row[c] = 0.0f;
         }
 
-        return row[c];
+        return row.at(c);
     }
 
     /** returns a const reference to a matrix entry at (r,c)
