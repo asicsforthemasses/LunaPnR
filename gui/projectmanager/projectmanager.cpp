@@ -7,6 +7,7 @@
 
 #include <QHeaderView>
 #include <QMessageBox>
+#include <QFileDialog>
 
 #include "projectmanager.h"
 #include "../common/customevents.h"
@@ -191,7 +192,7 @@ void ProjectManager::create()
     blockFrame->addWidget(actionTile);
 
     actionTile = new GUI::FlatActionTile("Write DEF", "://images/floorplan.png", "://images/go.png", "WRITEDEF");
-    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onWriteToDef);
     m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
@@ -274,3 +275,36 @@ void ProjectManager::onFloorplanSetup(QString actionName)
     }
 }
 
+void ProjectManager::onWriteToDef(QString actionName)
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save DEF File"),
+                           "",
+                           tr("DEF (*.def)"));
+    
+    if (!fileName.isEmpty())
+    {
+        std::ofstream ofile(fileName.toStdString());
+        if (!ofile.good())
+        {
+            Logging::doLog(Logging::LogType::ERROR, "Could not open DEF file for writing!\n");
+/*            
+            int ret = QMessageBox::critical(this, tr("File Save Error"),
+                               tr("Could open the DEF file for saving."),
+                               QMessageBox::Ok,
+                               QMessageBox::Ok);
+*/                               
+            return;
+        }
+
+        auto topModulePtr = m_db.design().getTopModule();
+        if (!topModulePtr)
+        {
+            Logging::doLog(Logging::LogType::ERROR, "Could not write DEF file: top module not set!\n");
+            return;
+        }
+
+        LunaCore::DEF::write(ofile, topModulePtr);
+        ofile.close();
+        Logging::doLog(Logging::LogType::INFO, "DEF file written!\n");
+    }
+}

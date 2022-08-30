@@ -665,6 +665,7 @@ bool Scripting::Python::executeScript(const std::string &code)
     }
 
     const int PyResultOK = 0;
+
     if (PyRun_SimpleString(code.c_str()) == PyResultOK)
     {
         return true;

@@ -101,5 +101,19 @@ MACRO TIELO
   END vdd
 END TIELO
 
+MACRO __PIN
+  CLASS  CORE ;
+  ORIGIN 0.000 0.000 ;
+  SIZE 4.00 BY 4.00 ;
+  SYMMETRY X Y  ;
+  SITE core ;
+  PIN Y
+    DIRECTION INOUT ;
+    PORT
+      LAYER metal1 ;
+        RECT 1.000 1.000 3.00 3.00 ;
+    END
+  END Y
+END __PIN
 
 END LIBRARY

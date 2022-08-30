@@ -117,6 +117,11 @@ public:
         return m_setupWarnings;
     }
 
+    auto timeUnits() const
+    {
+        return std::make_pair(m_timeMult, m_timeUnit);
+    }
+
 protected:
     enum class ParseState
     {

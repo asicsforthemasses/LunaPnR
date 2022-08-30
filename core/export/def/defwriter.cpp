@@ -34,6 +34,10 @@ LunaCore::DEF::Private::WriterImpl::WriterImpl(std::ostream &os) : m_os(os)
 
 LunaCore::DEF::Private::WriterImpl::~WriterImpl()
 {
+    m_os << "# Generated with " LUNAVERSIONSTRING "\n\n";
+    m_os << "VERSION 5.4 ;\n";
+    m_os << "BUSBITCHARS \"[]\" ;\n";
+    m_os << "DIVIDERCHAR \"/\" ;\n";
     m_os << "DESIGN " << m_designName << " ;\n";
     m_os << "UNITS DISTANCE MICRONS " << m_databaseUnits << " ; \n";
     m_os << "COMPONENTS " << m_cellCount << " ;\n";
