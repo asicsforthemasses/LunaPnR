@@ -12,21 +12,21 @@ std::string ChipDB::toString(const IOType &iotype)
     switch(iotype)
     {
     case IOType::UNKNOWN:
-        return std::string("UNKNOWN");
+        return "UNKNOWN";
     case IOType::INPUT:
-        return std::string("INPUT");
+        return "INPUT";
     case IOType::OUTPUT:
-        return std::string("OUTPUT");
+        return "OUTPUT";
     case IOType::OUTPUT_TRI:
-        return std::string("TRI-STATE");
+        return "TRI-STATE";
     case IOType::IO:
-        return std::string("INOUT");
+        return "INOUT";
     case IOType::POWER:
-        return std::string("POWER");
+        return "POWER";
     case IOType::GROUND:
-        return std::string("GROUND");
+        return "GROUND";
     default:
-        return std::string("?");
+        return "?";
     }
 };
 

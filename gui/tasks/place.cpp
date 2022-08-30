@@ -63,22 +63,38 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
         return;
     }
 
-#if 0
-    info("Using QLAPlacer\n");
-    bool ok = LunaCore::QLAPlacer::place(*firstRegion.rawPtr(), 
-        *topModule->m_netlist.get(), nullptr);
-#else
     info("Using CellPlacer2\n");
     LunaCore::CellPlacer2::Placer placer;
     placer.place(*netlist, *firstRegion, 20, 10);
+
+    auto cellLib = database.cellLib();
+    if (!cellLib)
+    {
+        error("No cell library defined in database\n");
+        return;
+    }
+
+    info("Placing fillers..\n");
+    LunaCore::FillerHandler fillerHandler(*cellLib.get());
+
+    fillerHandler.addFillerByName(*database.cellLib().get() ,"FILL");
+    if (!fillerHandler.placeFillers(database.design(), *firstRegion, *netlist))
+    {
+        warning("  failed!\n");
+    }
+    else
+    {
+        info("  succeeded!\n");
+    }
+
+#if 0
     bool ok = true;
-    //bool ok = LunaCore::CellPlacer2::place(database, )
-#endif
     if (!ok)
     {
         error("Placement failed!\n");
         return;
     }
+#endif
 
     done();
 }

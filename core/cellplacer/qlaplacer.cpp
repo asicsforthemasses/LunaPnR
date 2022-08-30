@@ -96,8 +96,8 @@ bool LunaCore::QLAPlacer::place(
     } 
 
     Logging::doLog(Logging::LogType::VERBOSE, "Running final legalization.\n");
-    LunaCore::Legalizer::legalizeRegion(region, netlist, 800);
-
+    LunaCore::Legalizer legalizer;
+    legalizer.legalizeRegion(region, netlist, 800);
 
     Logging::doLog(Logging::LogType::INFO, "Placement done.\n");
 

@@ -313,6 +313,14 @@ static PyObject* pyCreateRows(PyObject *self, PyObject *args)
 
                 row.m_region = region.ptr();
                 row.m_rect = ChipDB::Rect64(ll,ur);
+                if ((i % 2) == 1) 
+                {
+                    row.m_rowType = ChipDB::RowType::FLIPY;
+                }
+                else
+                {
+                    row.m_rowType = ChipDB::RowType::NORMAL;
+                }
             }
             else
             {

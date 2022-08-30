@@ -18,6 +18,22 @@ using namespace Logging;
 
 BOOST_AUTO_TEST_SUITE(RowLegalizerTest)
 
+class Legalizer : public LunaCore::Legalizer
+{
+public:
+    void placeRow(std::vector<LunaCore::Legalizer::Cell> &cells,
+        const LunaCore::Legalizer::Row &row,
+        const ChipDB::CoordType cellMinWidth)
+    {
+        LunaCore::Legalizer::placeRow(cells, row, cellMinWidth);
+    }
+
+    double calcRowCost(const std::vector<Cell> &cells, const Row &row)
+    {
+        return LunaCore::Legalizer::calcRowCost(cells, row);
+    }
+};
+
 BOOST_AUTO_TEST_CASE(check_legal_positions)
 {
     auto netlist = std::make_shared<ChipDB::Netlist>();
@@ -71,7 +87,8 @@ BOOST_AUTO_TEST_CASE(check_legal_positions)
     row.m_cellIdxs.push_back(1);
     row.m_cellIdxs.push_back(2);
     row.m_cellIdxs.push_back(3);
-    LunaCore::Legalizer::placeRow(cells, row, 800);
+    Legalizer legalizer;
+    legalizer.placeRow(cells, row, 800);
 
     ssize_t idx = 0;
     for(auto const& cell : cells)
@@ -82,7 +99,7 @@ BOOST_AUTO_TEST_CASE(check_legal_positions)
         idx++;
     }
 
-    auto cost = calcRowCost(cells, row);
+    auto cost = legalizer.calcRowCost(cells, row);
     doLog(LogType::INFO, "Placement cost: %lf\n", cost);
 
     BOOST_TEST(cost == 25100.0);

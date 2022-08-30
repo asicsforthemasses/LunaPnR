@@ -396,7 +396,7 @@ public:
         // postfix increment
         ConstIterator operator++(int)
         {
-            Iterator tmp = *this;
+            ConstIterator tmp = *this;
             m_baseIterator++;
             return tmp;
         }
