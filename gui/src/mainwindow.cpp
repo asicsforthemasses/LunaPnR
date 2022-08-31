@@ -1,10 +1,8 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
+#include <QEvent>
 #include <QAction>
 #include <QTimer>
 #include <QTabWidget>
@@ -28,6 +26,9 @@
 
 #include "common/tasklist.h"
 
+#include "configurationdialog.h"
+#include "aboutdialog/aboutdialog.h"
+
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
     m_db = std::make_shared<GUI::Database>();
@@ -36,14 +37,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_techLibDirty   = true;
     m_cellLibDirty   = true;
 
-    Logging::setLogLevel(Logging::LogType::VERBOSE);
+    //Logging::setLogLevel(Logging::LogType::VERBOSE);
 
     createActions();
     createMenus();
 
     auto hMainLayout = new QHBoxLayout();
 
-    m_projectManager = new GUI::ProjectManager(&m_db->m_projectSetup);
+    m_projectManager = new GUI::ProjectManager(*m_db.get());
     m_projectSplitter = new QSplitter(Qt::Horizontal, this);
 
     // create tabs
@@ -135,9 +136,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_python->executeScript(R"(import sys; print("Python version"); print (sys.version); )");
     m_python->executeScript(R"(from Luna import *; from LunaExtra import *;)");
 
-    connect(m_projectManager, &GUI::ProjectManager::onPlace, this, &MainWindow::onPlace);
-    connect(m_projectManager, &GUI::ProjectManager::onWriteDEF, this, &MainWindow::onWriteDEF);
-    connect(m_projectManager, &GUI::ProjectManager::onWriteGDS2, this, &MainWindow::onWriteGDS2);
+    connect(m_projectManager, &GUI::ProjectManager::onAction, this, &MainWindow::onProjectManagerAction);
+
+    m_taskList = std::make_unique<GUI::TaskList>(m_projectManager);
 }
 
 MainWindow::~MainWindow()
@@ -168,7 +169,7 @@ void MainWindow::notify(ChipDB::ObjectKey index, NotificationType t)
 
 void MainWindow::createMenus()
 {
-    QMenu *fileMenu = menuBar()->addMenu(tr("&File"));    
+    QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(m_loadProject);
     fileMenu->addAction(m_saveProject);
     fileMenu->addAction(m_saveProjectAs);
@@ -180,10 +181,13 @@ void MainWindow::createMenus()
     fileMenu->addSeparator();
     fileMenu->addAction(m_exportLayers);
     fileMenu->addSeparator();
+    fileMenu->addAction(m_configAct);
+    fileMenu->addSeparator();
     fileMenu->addAction(m_quitAct);
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(m_aboutAct);
+    helpMenu->addAction(m_aboutQtAct);
 }
 
 void MainWindow::createActions()
@@ -204,6 +208,9 @@ void MainWindow::createActions()
     m_aboutAct = new QAction(tr("&About"), this);    
     connect(m_aboutAct, &QAction::triggered, this, &MainWindow::onAbout);
 
+    m_aboutQtAct = new QAction(tr("About Qt"), this);
+    connect(m_aboutQtAct, &QAction::triggered, this, &MainWindow::onAboutQt);
+
     m_loadProject = new QAction(tr("&Open Project"), this);
     m_loadProject->setShortcut(QKeySequence::Open);
     connect(m_loadProject, &QAction::triggered, this, &MainWindow::onLoadProject);
@@ -218,6 +225,9 @@ void MainWindow::createActions()
 
     m_exportLayers = new QAction(tr("Export layers"), this);
     connect(m_exportLayers, &QAction::triggered, this, &MainWindow::onExportLayers);
+
+    m_configAct = new QAction(tr("Luna Configuration"), this);
+    connect(m_configAct, &QAction::triggered, this, &MainWindow::onLunaConfig);
 }
 
 void MainWindow::saveSettings()
@@ -232,9 +242,12 @@ void MainWindow::saveSettings()
     settings.setValue("console/bkcolour", consoleColours.m_bkCol.name(QColor::HexRgb));
     settings.setValue("console/promptcolour", consoleColours.m_promptCol.name(QColor::HexRgb));
     settings.setValue("console/errorcolour", consoleColours.m_errorCol.name(QColor::HexRgb));
+    settings.setValue("console/warningcolour", consoleColours.m_warningCol.name(QColor::HexRgb));
 
     settings.setValue("console/font", m_console->font().family());
     settings.setValue("console/fontsize", m_console->font().pointSize());
+
+    settings.setValue("opensta_location", QString::fromStdString(m_db->m_projectSetup.m_openSTALocation));
 }
 
 void MainWindow::loadSettings()
@@ -246,7 +259,8 @@ void MainWindow::loadSettings()
     m_console->setColours(
         QColor(settings.value("console/bkcolour", "#1d1f21").toString()),
         QColor(settings.value("console/promptcolour", "#c5c8c6").toString()),
-        QColor(settings.value("console/errorcolour", "#a54242").toString())
+        QColor(settings.value("console/errorcolour", "#a54242").toString()),
+        QColor(settings.value("console/warningcolour", "#a68542").toString())        
     );
 
     QFont font;
@@ -254,6 +268,8 @@ void MainWindow::loadSettings()
     font.setPointSize(settings.value("console/fontsize", "11").toInt());
     m_console->setFont(font);
 
+    auto openStaLocation = settings.value("opensta_location", "/usr/local/bin/sta").toString();
+    m_db->m_projectSetup.m_openSTALocation = openStaLocation.toStdString();
 }
 
 void MainWindow::onQuit()
@@ -265,7 +281,13 @@ void MainWindow::onQuit()
 
 void MainWindow::onAbout()
 {
-    QMessageBox::aboutQt(this, "Luna place and route version " __DATE__ " " __TIME__ );
+    GUI::AboutDialog dialog;
+    dialog.exec();
+}
+
+void MainWindow::onAboutQt()
+{
+    QMessageBox::aboutQt(this);
 }
 
 void MainWindow::onLoadProject()
@@ -288,7 +310,10 @@ void MainWindow::onLoadProject()
         m_projectFileName = fileName;
         m_projectManager->repopulate();
 
-        m_taskList.executeToTask(*m_db.get(), "ReadAllFiles", nullptr);
+        if (m_taskList)
+        {
+            m_taskList->executeToTask(*m_db.get(), "ReadAllFiles");
+        }
     }
 }
 
@@ -392,20 +417,7 @@ void MainWindow::onRunScript()
         message << "\nRunning script " << fileName.toStdString() << "\n";
         m_console->print(message);
 
-#if 0        
-        auto pythonPtr = m_python.get();
-        auto lambda = [this, pythonPtr, &ss]()
-        { 
-            if (pythonPtr != nullptr)
-            {
-                pythonPtr->executeScript(ss.str());
-            }
-        };
-
-        QThreadPool::globalInstance()->start(lambda);
-#else
         m_python->executeScript(ss.str());
-#endif
 
         m_console->enablePrompt();
     }
@@ -441,41 +453,46 @@ void MainWindow::onConsoleFontDialog()
     m_console->setFont(QFontDialog::getFont(0, m_console->font()));
 }
 
-void MainWindow::onPlace()
+void MainWindow::onProjectManagerAction(QString actionName)
 {
     if (!m_db)
     {
         m_console->print("Error: no database");
     }
 
-    auto taskCallback = [this](GUI::TaskList::CallbackInfo info)
-    {        
-        m_console->mtPrint(Logging::fmt("Task %u callback\n", info.m_taskIdx));
-    };
-
-    m_taskList.executeToTask(*m_db.get(), "CheckTiming", taskCallback);
+    if (actionName != "NONE")
+    {
+#if 0        
+        auto taskCallback = [this, &actionName](GUI::TaskList::CallbackInfo info)
+        {   
+            auto taskPtr = m_taskList.at(info.m_taskIdx);
+            m_console->mtPrint(Logging::fmt("Task %u:%s callback\n", info.m_taskIdx, taskPtr->name().c_str()));
+            auto event = new GUI::ProjectManagerEvent(QString::fromStdString(taskPtr->name()));
+            QApplication::postEvent(m_projectManager, event);
+        };
+#endif
+        if (m_taskList)
+        {
+            m_taskList->executeToTask(*m_db.get(), actionName.toStdString());
+        }
+    }
 }
 
-void MainWindow::onWriteDEF()
+void MainWindow::onLunaConfig()
 {
-
-}
-
-void MainWindow::onWriteGDS2()
-{
-
+    GUI::ConfigurationDialog dialog(*m_db.get());
+    dialog.exec();
 }
 
 ConsoleLogOutputHandler::ConsoleLogOutputHandler(GUI::MMConsole *console) : m_console(console)
 {
-
 }
 
 void ConsoleLogOutputHandler::print(Logging::LogType t, const std::string &txt)
 {
     if (m_console != nullptr)
     {
-        m_console->mtPrint(txt);
+        m_console->mtPrint(t, txt);
     }
     else
     {
@@ -487,7 +504,7 @@ void ConsoleLogOutputHandler::print(Logging::LogType t, const std::string_view &
 {
     if (m_console != nullptr)
     {
-        m_console->mtPrint(txt);
+        m_console->mtPrint(t, txt);
     }
     else
     {

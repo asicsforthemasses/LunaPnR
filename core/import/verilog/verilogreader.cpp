@@ -1,9 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 
 #include <sstream>
@@ -111,7 +108,7 @@ void ReaderImpl::onInstance(const std::string &modName, const std::string &insNa
     auto const cellKeyObjPtr = m_design.m_cellLib->lookupCell(modName);
     if (cellKeyObjPtr.isValid())
     {           
-        auto insPtr = std::make_shared<Instance>(insName, cellKeyObjPtr.ptr());
+        auto insPtr = std::make_shared<Instance>(insName, ChipDB::InstanceType::CELL, cellKeyObjPtr.ptr());
         auto insKeyObjPair = m_currentModule->addInstance(insPtr);
 
         if (!insKeyObjPair.isValid())
@@ -129,7 +126,7 @@ void ReaderImpl::onInstance(const std::string &modName, const std::string &insNa
     auto moduleKeyObjPair = m_design.m_moduleLib->lookupModule(modName);
     if (moduleKeyObjPair.isValid())
     {
-        auto insPtr = std::make_shared<Instance>(modName, moduleKeyObjPair.ptr());
+        auto insPtr = std::make_shared<Instance>(modName, ChipDB::InstanceType::MODULE, moduleKeyObjPair.ptr());
         auto insKeyObjPair = m_currentModule->addInstance(insPtr);
         if (!insKeyObjPair.isValid())
         {
@@ -185,11 +182,14 @@ void ReaderImpl::onInput(const std::string &netname)
     auto pin = m_currentModule->createPin(netname);
     pin->m_iotype = ChipDB::IOType::INPUT;
 
-    auto pinInstance = std::make_shared<PinInstance>(netname);
-    pinInstance->setPinIOType(ChipDB::IOType::OUTPUT);    // input ports have output pins!
+    auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN, 
+        m_design.m_cellLib->lookupCell("__INPIN").ptr());
 
     auto pinInsKeyObjPair = m_currentModule->addInstance(pinInstance);
-    m_currentModule->connect(pinInsKeyObjPair.key(), 0, netPtr.key());
+    if (!m_currentModule->connect(netname, "Y", netname))   // output on the inner level
+    {
+        Logging::doLog(Logging::LogType::ERROR,"VerilogReader::ReaderImpl::onInput: cannot connect to pin Instance!\n");
+    }
 }
 
 void ReaderImpl::onInput(const std::string &netname, uint32_t start, uint32_t stop)
@@ -216,11 +216,14 @@ void ReaderImpl::onInput(const std::string &netname, uint32_t start, uint32_t st
         pin->m_iotype = ChipDB::IOType::INPUT;
 
         // add a PinInstance for each pin to the netlist
-        auto pinInstance = std::make_shared<PinInstance>(netname);
-        pinInstance->setPinIOType(ChipDB::IOType::OUTPUT);    // input ports have output pins!
+        auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN, 
+        m_design.m_cellLib->lookupCell("__INPIN").ptr());
 
         auto pinInsKeyObjPair = m_currentModule->addInstance(pinInstance);
-        m_currentModule->connect(pinInsKeyObjPair.key(), 0, netPtr.key());        
+        if (!m_currentModule->connect(netname, "Y", netname))    // output on the inner level
+        {
+            Logging::doLog(Logging::LogType::ERROR,"VerilogReader::ReaderImpl::onInput: cannot connect to pin Instance!\n");
+        }
     }
 
     Logging::doLog(Logging::LogType::VERBOSE,"Expanded input net %s\n", netname.c_str());
@@ -239,11 +242,12 @@ void ReaderImpl::onOutput(const std::string &netname)
     pin->m_iotype = ChipDB::IOType::OUTPUT;
 
     // add a PinInstance for each pin to the netlist
-    auto pinInstance = std::make_shared<PinInstance>(netname);
+    auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN, 
+        m_design.m_cellLib->lookupCell("__OUTPIN").ptr());
+
     auto pinInsKeyObjPair = m_currentModule->addInstance(pinInstance);
 
-    pinInstance->setPinIOType(ChipDB::IOType::INPUT);    // output ports have input pins!
-    if (!m_currentModule->connect(pinInsKeyObjPair.key(), 0, netKeyObjPair.key()))
+    if (!m_currentModule->connect(netname, "A", netname))    // input on the inner level
     {
         Logging::doLog(Logging::LogType::ERROR,"VerilogReader::ReaderImpl::onOutput: cannot connect to pin Instance!\n");        
     }
@@ -272,11 +276,12 @@ void ReaderImpl::onOutput(const std::string &netname, uint32_t start, uint32_t s
         pin->m_iotype = ChipDB::IOType::OUTPUT;
 
         // add a PinInstance for each pin to the netlist
-        auto pinInstance = std::make_shared<PinInstance>(ss.str());
+        auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN, 
+            m_design.m_cellLib->lookupCell("__OUTPIN").ptr());
+
         auto pinInsKeyObjPair = m_currentModule->addInstance(pinInstance);
 
-        pinInstance->setPinIOType(ChipDB::IOType::INPUT);    // output ports have input pins!
-        if (!m_currentModule->connect(pinInsKeyObjPair.key(), 0, netKeyObjPair.key()))
+        if (!m_currentModule->connect(netname, "A", netname))    // input on the inner level
         {
             Logging::doLog(Logging::LogType::ERROR,"VerilogReader::ReaderImpl::onOutput: cannot connect to pin Instance!\n");        
         }
@@ -327,7 +332,11 @@ void ReaderImpl::onInstanceNamedPort(const std::string &pinName, const std::stri
         return;
     }
 
-    m_currentModule->connect(m_currentInsKeyObjPair.key(), pin.m_pinKey, netKeyObjPair.key());
+    if (!m_currentModule->connect(m_currentInsKeyObjPair.key(), pin.m_pinKey, netKeyObjPair.key()))
+    {
+        Logging::doLog(Logging::LogType::WARNING,"Cannot connect %s:%s to net %s -- Module->connect returned false\n", m_currentInsKeyObjPair->name().c_str(), 
+            pinName.c_str(), netName.c_str());
+    }
 }
 
 void ReaderImpl::onAssign(const std::string &left, const std::string &right)
@@ -348,7 +357,7 @@ void ReaderImpl::onAssign(const std::string &left, const std::string &right)
         return;
     }
 
-    auto insPtr = std::make_shared<Instance>(ss.str(), cellKeyObjPair.ptr());
+    auto insPtr = std::make_shared<Instance>(ss.str(), ChipDB::InstanceType::CELL, cellKeyObjPair.ptr());
     auto insKeyObjPair = m_currentModule->addInstance(insPtr);
 
     if (!insKeyObjPair.isValid())

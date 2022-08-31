@@ -1,30 +1,25 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "instance.h"
+#include "common/logging.h"
 
 using namespace ChipDB;
 
 std::string ChipDB::toString(const InstanceType &t)
 {
-    constexpr const std::array<const char*, 5> names = 
-    {{
-        "UNKNOWN", "ABSTRACT", "CELL", "MODULE", "PIN"
-    }};
+    constexpr const std::array<const char *, 5> names =
+        {{"UNKNOWN", "ABSTRACT", "CELL", "MODULE", "PIN"}};
 
     auto index = static_cast<size_t>(t);
     if (index < names.size())
     {
-        return std::string(names[index]);
+        return names[index];
     }
     else
     {
-        return std::string("UNKNOWN");
+        return "UNKNOWN";
     }
 };
 
@@ -32,12 +27,19 @@ std::string ChipDB::toString(const InstanceType &t)
 //  Instance implementation
 // **********************************************************************
 
-std::string Instance::getArchetypeName() const
+std::string Instance::getArchetypeName() const noexcept
 {
-    if (m_cell != nullptr)
-        return m_cell->name();
-    else
+    switch (m_insType)
+    {
+    case InstanceType::PIN:
+        return "__PIN";
+    case InstanceType::CELL:
+    case InstanceType::ABSTRACT:
+        if (m_cell != nullptr)
+            return m_cell->name();  
+    default:    // intentional fall-though
         return "UNKNOWN";
+    }
 }
 
 double Instance::getArea() const noexcept
@@ -48,12 +50,12 @@ double Instance::getArea() const noexcept
         return m_cell->m_area;
 }
 
-InstanceBase::Pin Instance::getPin(PinObjectKey key) const
+Instance::Pin Instance::getPin(PinObjectKey key) const
 {
-    InstanceBase::Pin pin;
+    Instance::Pin pin;
     if (!m_cell)
     {
-        return InstanceBase::Pin();
+        return Instance::Pin{};
     }
 
     pin.m_pinInfo = m_cell->m_pins[key];
@@ -67,25 +69,25 @@ InstanceBase::Pin Instance::getPin(PinObjectKey key) const
         pin.m_netKey = ChipDB::ObjectNotFound;
     }
 
-    pin.m_pinKey  = key;
+    pin.m_pinKey = key;
 
     return pin;
 }
 
-InstanceBase::Pin Instance::getPin(const std::string &pinName) const
+Instance::Pin Instance::getPin(const std::string &pinName) const
 {
-    InstanceBase::Pin pin;
+    Instance::Pin pin;
     if (!m_cell)
     {
-        return InstanceBase::Pin();
+        return Instance::Pin{};
     }
 
     auto pinKeyObjPair = m_cell->m_pins[pinName];
     if (pinKeyObjPair.isValid())
     {
         pin.m_pinInfo = pinKeyObjPair.ptr();
-        pin.m_pinKey  = pinKeyObjPair.key();
-        
+        pin.m_pinKey = pinKeyObjPair.key();
+
         auto key = pinKeyObjPair.key();
         if (key < m_pinToNet.size())
         {
@@ -104,6 +106,7 @@ bool Instance::setPinNet(PinObjectKey pinKey, NetObjectKey netKey)
 {
     if (!m_cell)
     {
+        Logging::doLog(Logging::LogType::WARNING, "Instance::setPinNet failed for pin id %d and net id %d\n", pinKey, netKey);
         return false;
     }
 
@@ -128,11 +131,12 @@ size_t Instance::getNumberOfPins() const
     {
         // nope..
         return 0;
-    }   
+    }
 
     return m_cell->m_pins.size();
 }
 
+#if 0
 // **********************************************************************
 //  PinInstance implementation
 // **********************************************************************
@@ -149,8 +153,8 @@ InstanceBase::Pin PinInstance::getPin(PinObjectKey key) const
     if (key == 0)
     {
         pin.m_pinInfo = std::make_shared<PinInfo>(m_pinInfo);
-        pin.m_pinKey  = key;
-        pin.m_netKey  = m_connectedNet;
+        pin.m_pinKey = key;
+        pin.m_netKey = m_connectedNet;
     }
 
     return pin;
@@ -163,7 +167,7 @@ InstanceBase::Pin PinInstance::getPin(const std::string &pinName) const
     if (m_pinInfo.m_name == pinName)
     {
         pin.m_pinInfo = std::make_shared<PinInfo>(m_pinInfo);
-        pin.m_netKey  = m_connectedNet;
+        pin.m_netKey = m_connectedNet;
     }
 
     return pin;
@@ -173,7 +177,7 @@ bool PinInstance::setPinNet(PinObjectKey pinKey, NetObjectKey netKey)
 {
     if (pinKey != 0)
     {
-        return false;   // there is only one pin
+        return false; // there is only one pin
     }
 
     m_connectedNet = netKey;
@@ -184,3 +188,4 @@ size_t PinInstance::getNumberOfPins() const
 {
     return 1;
 }
+#endif

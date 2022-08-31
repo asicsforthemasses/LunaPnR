@@ -1,9 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #pragma once
 
@@ -29,7 +26,7 @@ namespace LunaCore::DEF::Private
 
         ChipDB::Coord64 toDEFCoordinates(const ChipDB::Coord64 &pos) const noexcept;
 
-        bool write(const std::shared_ptr<ChipDB::InstanceBase> instance);
+        bool write(const std::shared_ptr<ChipDB::Instance> instance);
 
         size_t  m_cellCount     = 0;
         int64_t m_databaseUnits = 100;  /** NOTE: default, actual should come from from LEF file */

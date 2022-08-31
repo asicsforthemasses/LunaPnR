@@ -1,10 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #pragma once
 
@@ -25,7 +21,7 @@ public:
         return true;
     }
 
-    KeyObjPair<InstanceBase> addInstance(std::shared_ptr<InstanceBase> insPtr);
+    KeyObjPair<Instance> addInstance(std::shared_ptr<Instance> insPtr);
     KeyObjPair<Net> createNet(const std::string &netName);
 
     bool connect(const std::string &insName, const std::string &pinName, const std::string &netName);

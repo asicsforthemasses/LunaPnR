@@ -1,7 +1,15 @@
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
 #pragma once
+
+#include <QEvent>
 #include <QWidget>
 #include <QBoxLayout>
-#include "../common/projectsetup.h"
+#include <vector>
+#include "../common/database.h"
+#include "../widgets/flatactiontile.h"
 #include "filesetupmanager.h"
 
 namespace GUI
@@ -11,26 +19,28 @@ class ProjectManager : public QWidget
 {
     Q_OBJECT
 public:
-    ProjectManager(ProjectSetup *projectSetup, QWidget *parent = nullptr);
+    ProjectManager(Database &db, QWidget *parent = nullptr);
 
     void repopulate();
 
-protected slots:
-    void onFloorplanSetup();
-    void onCTSSetup();
-
 signals:
-    void onPlace();
-    void onWriteDEF();
-    void onWriteGDS2();
+    void onAction(QString actionName);
+    
+protected slots:
+    void onFloorplanSetup(QString actionName);
+    void onWriteToDef(QString actionName);
 
 protected:
+    bool event(QEvent * event) override;
     void create();    
+    
+    Database &m_db;
+    ProjectSetup &m_projectSetup;
 
     QVBoxLayout *m_managerLayout = nullptr;
-    ProjectSetup *m_projectSetup = nullptr;
     
     GUI::FileSetupManager *m_fileSetupManager = nullptr;
+    std::vector<FlatTileBase*> m_tiles;
 };
 
 }

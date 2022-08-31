@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
 #pragma once
 
 #include <atomic>
@@ -12,9 +16,10 @@ namespace Tasks
 class Task
 {
 public:
-    Task(const std::string &taskName);
-
+    Task();
     virtual ~Task() = default;
+
+    void setName(const std::string &taskName);
 
     /** revert the task to the reset state */
     virtual void reset();
@@ -61,10 +66,11 @@ protected:
     virtual void execute(GUI::Database &db, ProgressCallback callback) = 0;
 
     void error(const std::string &txt);
+    void warning(const std::string &txt);
     void info(const std::string &txt);
     void done();
 
-    std::string             m_name;             ///< task name
+    std::string             m_name = {"UNDEFINED"};         ///< task name
     std::atomic<Status>     m_status = {Status::INVALID};
 };
 

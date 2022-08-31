@@ -1,3 +1,9 @@
+<!--
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
+-->
+
 <!DOCTYPE RCC>
 <RCC version="1.0">
 <qresource>
@@ -11,6 +17,11 @@
     <file>./images/properties.png</file>
     <file>./images/floorplan.png</file>
     <file>./images/go.png</file>
+    <file>./images/status_ok.png</file>
+    <file>./images/status_error.png</file>
+    <file>./images/status_empty.png</file>
+    <file>./images/status_running.png</file>
+    <file>./images/lunapnrlogo.png</file>
 </qresource>
 
 <!--

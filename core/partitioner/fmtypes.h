@@ -1,9 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 
 #pragma once
@@ -94,7 +91,7 @@ namespace LunaCore::Partitioner
         int64_t             m_weight;           ///< weight of the node (probably cell width instead of area)
         int64_t             m_gain;             ///< change in the number of net cuts when node is moved to the other partition
 
-        std::shared_ptr<ChipDB::InstanceBase> m_instance;
+        std::shared_ptr<ChipDB::Instance> m_instance;
 
         // IDs for gain based bucket list implementation
         NodeId              m_next;

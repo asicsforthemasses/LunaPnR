@@ -1,10 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "lunacore.h"
 
@@ -42,13 +38,13 @@ bool createStringOfInstancesConnectingTwoTerminals(ChipDB::Design &design, std::
     inInsPin->m_iotype  = ChipDB::IOType::INPUT;
     outInsPin->m_iotype = ChipDB::IOType::OUTPUT;
 
-    auto ins = std::make_shared<ChipDB::Instance>("src", srcTerminalCell.ptr());
+    auto ins = std::make_shared<ChipDB::Instance>("src", ChipDB::InstanceType::CELL, srcTerminalCell.ptr());
     if (!mod->addInstance(ins).isValid())
     {
         return false;
     }
 
-    ins = std::make_shared<ChipDB::Instance>("dst", dstTerminalCell.ptr());
+    ins = std::make_shared<ChipDB::Instance>("dst", ChipDB::InstanceType::CELL, dstTerminalCell.ptr());
     if (!mod->addInstance(ins).isValid())
     {
         return false;
@@ -58,7 +54,7 @@ bool createStringOfInstancesConnectingTwoTerminals(ChipDB::Design &design, std::
     {
         std::stringstream ss;
         ss << "cell" << i;
-        auto ins = std::make_shared<ChipDB::Instance>(ss.str(), insCell.ptr());
+        auto ins = std::make_shared<ChipDB::Instance>(ss.str(), ChipDB::InstanceType::CELL, insCell.ptr());
         if (!mod->addInstance(ins).isValid())
         {
             return false;

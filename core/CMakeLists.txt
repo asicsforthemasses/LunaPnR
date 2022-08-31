@@ -58,14 +58,17 @@ add_library(lunacore
     common/logging.cpp
     common/dbtypes.cpp
     common/fileutils.cpp
+    common/matrix.cpp
     netlist/net.cpp
     netlist/instance.cpp
     netlist/netlist.cpp
     netlist/netlisttools.cpp
+    cellplacer2/cellplacer2.cpp
+    cellplacer2/fillerhandler.cpp
     cellplacer/qplacertypes.cpp
-    cellplacer/qplacer.cpp
+    #cellplacer/qplacer.cpp
     cellplacer/cellplacer.cpp
-    cellplacer/densitybitmap.cpp
+    #cellplacer/densitybitmap.cpp
     cellplacer/netlistsplitter.cpp
     cellplacer/qlaplacer_private.cpp
     cellplacer/qlaplacer.cpp

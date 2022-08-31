@@ -1,9 +1,6 @@
-/*
-    LunaPnR Source Code
-  
-    SPDX-License-Identifier: GPL-3.0-only
-    SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "dbtypes.h"
 
@@ -116,11 +113,11 @@ std::string ChipDB::toString(const CellSubclass &v)
     auto index = static_cast<size_t>(v);
     if (index < names.size())
     {
-        return std::string(names[index]);
+        return names[index];
     }
     else
     {
-        return std::string("?");
+        return "?";
     }
 }
 
@@ -134,11 +131,11 @@ std::string ChipDB::toString(const CellClass &v)
     auto index = static_cast<size_t>(v);
     if (index < names.size())
     {
-        return std::string(names[index]);
+        return names[index];
     }
     else
     {
-        return std::string("?");
+        return "?";
     }
 }
 
@@ -152,11 +149,11 @@ std::string ChipDB::toString(const Orientation &v)
     auto index = static_cast<size_t>(v);
     if (index < names.size())
     {
-        return std::string(names[index]);
+        return names[index];
     }
     else
     {
-        return std::string("?");
+        return "?";
     }
 }
 
@@ -170,11 +167,11 @@ std::string ChipDB::toString(const PlacementInfo &v)
     auto index = static_cast<size_t>(v);
     if (index < names.size())
     {
-        return std::string(names[index]);
+        return names[index];
     }
     else
     {
-        return std::string("UNDEFINED");
+        return "UNDEFINED";
     }
 }
 

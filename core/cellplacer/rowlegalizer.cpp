@@ -1,16 +1,12 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "rowlegalizer.h"
 #include <list> 
 #include <cmath>
 
-using namespace LunaCore::Legalizer;
+using namespace LunaCore;
 
 static ChipDB::CoordType roundToNearestValidPosition(ChipDB::CoordType pos, const ChipDB::CoordType minCellWidth)
 {
@@ -24,7 +20,7 @@ static ChipDB::CoordType roundToLowestValidPosition(ChipDB::CoordType pos, const
     return v * minCellWidth;
 }
 
-void Cluster::addCell(const ChipDB::CoordType cellXPos, const Cell &cell, CellIndex cellIdx)
+void Legalizer::Cluster::addCell(const ChipDB::CoordType cellXPos, const Cell &cell, CellIndex cellIdx)
 {
     m_lastCellIndex = cellIdx;
     m_totalWeight   += cell.m_weight;
@@ -32,7 +28,7 @@ void Cluster::addCell(const ChipDB::CoordType cellXPos, const Cell &cell, CellIn
     m_totalWidth += cell.m_size.m_x;
 }
 
-void Cluster::addCluster(Cluster &cluster)
+void Legalizer::Cluster::addCluster(Cluster &cluster)
 {
     m_lastCellIndex = cluster.m_lastCellIndex;
     m_totalWeight += cluster.m_totalWeight;
@@ -40,7 +36,8 @@ void Cluster::addCluster(Cluster &cluster)
     m_totalWidth += cluster.m_totalWidth;
 }
 
-void Collapse(const Row &row, std::list<Cluster> &clusters, std::list<Cluster>::iterator clusterIter, 
+void Collapse(const Legalizer::Row &row, std::list<Legalizer::Cluster> &clusters, 
+    std::list<Legalizer::Cluster>::iterator clusterIter, 
     const ChipDB::CoordType minCellWidth)
 {
     auto &cluster = *clusterIter;
@@ -72,7 +69,7 @@ void Collapse(const Row &row, std::list<Cluster> &clusters, std::list<Cluster>::
     }
 }
 
-void LunaCore::Legalizer::placeRow(std::vector<Cell> &cells, const Row &row, const ChipDB::CoordType minCellWidth)
+void Legalizer::placeRow(std::vector<Cell> &cells, const Row &row, const ChipDB::CoordType minCellWidth)
 {
     std::list<Cluster> clusters;
 
@@ -152,6 +149,17 @@ void LunaCore::Legalizer::placeRow(std::vector<Cell> &cells, const Row &row, con
         {
             auto &cell = cells.at(row.m_cellIdxs.at(idx));
             cell.m_legalPos = ChipDB::Coord64{x, row.m_rect.bottom()};
+
+            switch(row.m_rowType)
+            {
+            case ChipDB::RowType::FLIPY:
+                cell.m_orientation = ChipDB::Orientation::MX;
+                break;
+            default:
+                cell.m_orientation = ChipDB::Orientation::R0;
+                break;
+            }
+            
             x += cell.m_size.m_x;
         }
     }
@@ -225,7 +233,8 @@ void LunaCore::Legalizer::legalizeRegion(const ChipDB::Region &region, ChipDB::N
     
     for(size_t rowIdx=0; rowIdx < region.m_rows.size(); rowIdx++)
     {
-        rows.at(rowIdx).m_rect = region.m_rows.at(rowIdx).m_rect;
+        rows.at(rowIdx).m_rect    = region.m_rows.at(rowIdx).m_rect;
+        rows.at(rowIdx).m_rowType = region.m_rows.at(rowIdx).m_rowType;
     }
 
     // try the sorted cells in each row and see which row has the lowest
@@ -260,5 +269,31 @@ void LunaCore::Legalizer::legalizeRegion(const ChipDB::Region &region, ChipDB::N
     {
         assert(cell.m_instanceKey >= 0);
         netlist.m_instances.at(cell.m_instanceKey)->m_pos = cell.m_legalPos;
+        netlist.m_instances.at(cell.m_instanceKey)->m_orientation = cell.m_orientation;
     }
 }
+
+#if 0
+void LunaCore::Legalizer::identifyFillerCells(const ChipDB::Design &design)
+{
+    auto cellLib = design.cellLib();
+    for(auto const& cell : cellLib)
+    {
+        //if (cell.)
+    }
+}
+
+void LunaCore::Legalizer::insertFillerCell(ChipDB::Netlist &netlist,
+    const ChipDB::Coord64 &pos, const ChipDB::CoordType width)
+{
+    auto fillerPos = pos;
+    std::stringstream ss;
+    ss << "__filler" << m_fillerID++;
+
+#if 0
+    auto fillerInstance = std::make_shared<ChipDB::Instance>(ss.str(), ChipDB::InstanceType::CELL, cell);
+    fillerInstance->m_pos = fillerPos;
+    netlist.m_instances.add(fillerInstance);
+#endif
+}
+#endif

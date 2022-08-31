@@ -1,10 +1,31 @@
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
 #pragma once
 #include <string>
 #include <vector>
 #include <regex>
+#include <list>
 #include <sstream>
 
 /* Example output from OpenSTA:
+
+#UNITS
+ time 1ns
+ capacitance 1pF
+ resistance 1kohm
+ voltage 1v
+ current 1uA
+ power 1nW
+ distance 1um
+
+#CHECKSETUP
+Warning: There are 2 input ports missing set_input_delay.
+Warning: There are 64 unclocked register/latch pins.
+Warning: There are 128 unconstrained endpoints.
+
+#REPORTCHECKS
 
 Startpoint: b_in[1] (input port clocked by clk)
 Endpoint: data_out[5] (output port clocked by clk)
@@ -90,6 +111,17 @@ public:
         }
     };
 
+    /** return a list of setup warnings */
+    auto const& setupWarnings() const
+    {
+        return m_setupWarnings;
+    }
+
+    auto timeUnits() const
+    {
+        return std::make_pair(m_timeMult, m_timeUnit);
+    }
+
 protected:
     enum class ParseState
     {
@@ -106,6 +138,13 @@ protected:
     std::regex m_reSourcePath{R"(Startpoint: (\S*))"};
     std::regex m_reDestPath{R"(Endpoint: (\S*))"};
     std::regex m_reSlack{R"(\s*([0-9.]*)\s*slack)"};
+    std::regex m_reTimeUnit{R"(\s*time\s*([0-9])([a-z]*))"};
+    std::regex m_reWarning{R"(\s*Warning:\s*(.*))"};
+
+    double      m_timeMult{1.0f};
+    std::string m_timeUnit{"ns"};
+
+    std::list<std::string> m_setupWarnings;
 
     PathInfo m_pathInfo;
 

@@ -1,10 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #pragma once
 
@@ -37,9 +33,14 @@ public:
     void setOverlay(FloorplanOverlayBase *overlay = nullptr);
 
     /** enable the mouse curor crosshair for position feedback */
-    void setCrosshair(bool enabled = true)
+    void setCrosshair(bool enabled = true) noexcept
     {
         m_crosshairEnabled = enabled;
+    }
+
+    void showNets(bool enabled = true) noexcept
+    {
+        m_showNets = enabled;
     }
 
 protected:
@@ -58,8 +59,8 @@ protected:
     void drawNets(QPainter &p);
     void drawRows(QPainter &p, const std::shared_ptr<ChipDB::Region> region);
 
-    void drawCell(QPainter &p, const std::shared_ptr<ChipDB::InstanceBase> ins);
-    void drawPin(QPainter &p, const std::shared_ptr<ChipDB::InstanceBase> ins);
+    void drawCell(QPainter &p, const std::shared_ptr<ChipDB::Instance> ins);
+    void drawPin(QPainter &p, const std::shared_ptr<ChipDB::Instance> ins);
 
     void drawBottomRuler(QPainter &p);
     void drawLeftRuler(QPainter &p);
@@ -81,9 +82,10 @@ protected:
     FloorplanOverlayBase* m_overlay;
 
     std::shared_ptr<Database> m_db;
-    bool  m_dirty;
+    bool  m_dirty{true};
 
-    bool  m_crosshairEnabled;
+    bool  m_crosshairEnabled{true};
+    bool  m_showNets{false};
 };
 
 };  // namespace

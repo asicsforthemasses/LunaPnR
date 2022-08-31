@@ -1,9 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "common/logging.h"
 #include "defwriter.h"
@@ -37,6 +34,10 @@ LunaCore::DEF::Private::WriterImpl::WriterImpl(std::ostream &os) : m_os(os)
 
 LunaCore::DEF::Private::WriterImpl::~WriterImpl()
 {
+    m_os << "# Generated with " LUNAVERSIONSTRING "\n\n";
+    m_os << "VERSION 5.4 ;\n";
+    m_os << "BUSBITCHARS \"[]\" ;\n";
+    m_os << "DIVIDERCHAR \"/\" ;\n";
     m_os << "DESIGN " << m_designName << " ;\n";
     m_os << "UNITS DISTANCE MICRONS " << m_databaseUnits << " ; \n";
     m_os << "COMPONENTS " << m_cellCount << " ;\n";
@@ -65,7 +66,7 @@ ChipDB::Coord64 LunaCore::DEF::Private::WriterImpl::toDEFCoordinates(const ChipD
     return ChipDB::Coord64(pos.m_x * dbunits / 1000, pos.m_y * dbunits / 1000);
 }
 
-bool LunaCore::DEF::Private::WriterImpl::write(const std::shared_ptr<ChipDB::InstanceBase> instance)
+bool LunaCore::DEF::Private::WriterImpl::write(const std::shared_ptr<ChipDB::Instance> instance)
 {
     if (!instance)
     {

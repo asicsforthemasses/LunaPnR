@@ -1,10 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #pragma once
 
@@ -20,7 +16,7 @@
 namespace LunaCore::QPlacer
 {
 
-class TerminationInstance : public ChipDB::InstanceBase
+class TerminationInstance : public ChipDB::Instance
 {
 public:
     /** get area in um² */

@@ -1,10 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "lunacore.h"
 
@@ -711,7 +707,7 @@ BOOST_AUTO_TEST_CASE(can_partition_multiplier)
     int64_t right_y = 0;
     for(auto insKeyObjPair : modKeyObjPair->m_netlist->m_instances)
     {
-        if (insKeyObjPair->m_insType == ChipDB::InstanceType::PIN)
+        if (insKeyObjPair->isPin())
         {
             auto const& pin = insKeyObjPair->getPin(0);
 
@@ -778,7 +774,7 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv_concise)
     int64_t right_y = 0;
     for(auto insKeyObjPair : modKeyObjPair->m_netlist->m_instances)
     {
-        if (insKeyObjPair->m_insType == ChipDB::InstanceType::PIN)
+        if (insKeyObjPair->isPin())
         {
             auto const& pin = insKeyObjPair->getPin(0);
             BOOST_CHECK(pin.isValid());

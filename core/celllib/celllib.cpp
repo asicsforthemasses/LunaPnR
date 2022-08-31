@@ -1,10 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include <algorithm>
 #include "celllib.h"
@@ -19,6 +15,9 @@ void CellLib::clear()
 {
     m_cells.clear();
     createNetConCell();
+    createInputPinCell();
+    createOutputPinCell();
+    createIOPinCell();
 }
 
 KeyObjPair<Cell> CellLib::createCell(const std::string &name)
@@ -33,7 +32,7 @@ KeyObjPair<Cell> CellLib::createCell(const std::string &name)
     auto cellObjKeyOptional = m_cells.add(std::make_shared<Cell>(name));
     if (!cellObjKeyOptional)
     {
-        return KeyObjPair<Cell>();
+        return KeyObjPair<Cell>{};
     }
 
     return cellObjKeyOptional.value();
@@ -69,6 +68,36 @@ void CellLib::createNetConCell()
     auto outPin = netConCell->m_pins.createPin("Y");
     inPin->m_iotype  = IOType::INPUT;
     outPin->m_iotype = IOType::OUTPUT;
+}
+
+void CellLib::createOutputPinCell()
+{
+    auto outPinCell = createCell("__OUTPIN");
+    outPinCell->m_size = {0,0};
+    outPinCell->m_area = 0;
+    outPinCell->m_leakagePower = 0;
+    auto inPin  = outPinCell->m_pins.createPin("A");    // inner connection
+    inPin->m_iotype  = IOType::INPUT;
+}
+
+void CellLib::createInputPinCell()
+{
+    auto outPinCell = createCell("__INPIN");
+    outPinCell->m_size = {0,0};
+    outPinCell->m_area = 0;
+    outPinCell->m_leakagePower = 0;
+    auto outPin = outPinCell->m_pins.createPin("Y");    // inner connection first
+    outPin->m_iotype = IOType::OUTPUT;
+}
+
+void CellLib::createIOPinCell()
+{
+    auto ioPinCell = createCell("__IOPIN");
+    ioPinCell->m_size = {0,0};
+    ioPinCell->m_area = 0;
+    ioPinCell->m_leakagePower = 0;
+    auto ioPin  = ioPinCell->m_pins.createPin("IO");    // inner connection first
+    ioPin->m_iotype  = IOType::IO;
 }
 
 void CellLib::addListener(INamedStorageListener *listener)
@@ -118,7 +147,7 @@ KeyObjPair<Module> ModuleLib::createModule(const std::string &name)
         return result.value();
     }
 
-    return KeyObjPair<Module>();
+    return KeyObjPair<Module>{};
 }
 
 bool ModuleLib::removeModule(ObjectKey key)

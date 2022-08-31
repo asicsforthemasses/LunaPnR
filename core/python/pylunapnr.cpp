@@ -1,8 +1,6 @@
-/*  LunaPnR Source Code
- 
-    SPDX-License-Identifier: GPL-3.0-only
-    SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include <fstream>
 #include <sstream>
@@ -184,6 +182,8 @@ static PyObject* pySetTopModule(PyObject *self, PyObject *args)
             return PyErr_Format(PyExc_RuntimeError, "cannot set top module to %s", topModuleName);
         }
 
+        std::cout << "Set top module to " << topModuleName << "\n";
+
         // Success!
         Py_RETURN_NONE;
     }
@@ -313,6 +313,14 @@ static PyObject* pyCreateRows(PyObject *self, PyObject *args)
 
                 row.m_region = region.ptr();
                 row.m_rect = ChipDB::Rect64(ll,ur);
+                if ((i % 2) == 1) 
+                {
+                    row.m_rowType = ChipDB::RowType::FLIPY;
+                }
+                else
+                {
+                    row.m_rowType = ChipDB::RowType::NORMAL;
+                }
             }
             else
             {
@@ -665,6 +673,7 @@ bool Scripting::Python::executeScript(const std::string &code)
     }
 
     const int PyResultOK = 0;
+
     if (PyRun_SimpleString(code.c_str()) == PyResultOK)
     {
         return true;

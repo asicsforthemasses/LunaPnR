@@ -1,9 +1,6 @@
-/*
-    LunaPnR Source Code
-  
-    SPDX-License-Identifier: GPL-3.0-only
-    SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include <iostream>
 #include <QApplication>
@@ -38,7 +35,7 @@ int main(int argc, char *argv[]) {
 
     parser.process(app);
 
-    if (parser.isSet(showResourcesOption))
+    //if (parser.isSet(showResourcesOption))
     {
         std::cout << "Resources:\n";
         QDirIterator it(":", QDirIterator::Subdirectories);
@@ -110,7 +107,9 @@ int main(int argc, char *argv[]) {
     window.move((width - window.width()) / 2.0,
                     (height - window.height()) / 2.0);        
 
-    window.setWindowTitle(QObject::tr("LunaPnR - a moonshot ASIC place&route tool"));
+    QString title = LUNAVERSIONSTRING;
+    title.append(QObject::tr(" - a moonshot ASIC place&route tool"));
+    window.setWindowTitle(title);
     window.show();
 
     // run application

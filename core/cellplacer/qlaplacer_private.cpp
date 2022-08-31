@@ -1,9 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 
 #include <fstream>
@@ -147,7 +144,7 @@ LunaCore::QPlacer::PlacerNetlist LunaCore::QLAPlacer::Private::createPlacerNetli
             if (iter == ins2nodeId.end())
             {
                 Logging::doLog(Logging::LogType::ERROR, "createPlacerNetlist: cannot find node\n");
-                return LunaCore::QPlacer::PlacerNetlist();
+                return LunaCore::QPlacer::PlacerNetlist{};
             }
 
             auto placerNodeId = iter->second;
@@ -203,43 +200,24 @@ void updateWeights(
         // one of the two nodes is fixed
         if (node1.isFixed())
         {
-            solverData.m_Amat.coeffRef(node2Id, node2Id)  += fixedWeight;
+            solverData.m_Amat(node2Id, node2Id)  += fixedWeight;
             solverData.m_Bvec[node2Id] += fixedWeight * AxisAccessor::get(node1.getCenterPos());
-
-            //if (node2Id == 20)
-            //{
-            //    doLog(LogType::VERBOSE,"Node20: axis=%s anchor pos=%d w=%f (fixed -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node1.getCenterPos()), fixedWeight, node1Id);
-            //}
         }
         else
         {
-            solverData.m_Amat.coeffRef(node1Id, node1Id)  += fixedWeight;
+            solverData.m_Amat(node1Id, node1Id)  += fixedWeight;
             solverData.m_Bvec[node1Id] += fixedWeight * AxisAccessor::get(node2.getCenterPos());
 
-            //if (node1Id == 20)
-            //{
-            //    doLog(LogType::VERBOSE,"Node20: axis=%s anchor pos=%d w=%f (fixed -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node2.getCenterPos()), fixedWeight, node2Id);
-            //}            
         }
     }
     else
     {
         // both nodes are movable
-        solverData.m_Amat.coeffRef(node1Id, node1Id)  += weight;
-        solverData.m_Amat.coeffRef(node2Id, node2Id)  += weight;
-        solverData.m_Amat.coeffRef(node1Id, node2Id)  -= weight;
-        solverData.m_Amat.coeffRef(node2Id, node1Id)  -= weight;
-
-        //if (node1Id == 20)
-        //{
-        //    doLog(LogType::VERBOSE,"Node20: axis=%s dst pos=%d w=%f (movable -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node2.getCenterPos()), fixedWeight, node2Id);
-        //}            
-        //if (node2Id == 20)
-        //{
-        //    doLog(LogType::VERBOSE,"Node20: axis=%s dst pos=%d w=%f (movable -> node %d)\n", AxisAccessor::m_name, AxisAccessor::get(node1.getCenterPos()), fixedWeight, node1Id);
-        //}
+        solverData.m_Amat(node1Id, node1Id)  += weight;
+        solverData.m_Amat(node2Id, node2Id)  += weight;
+        solverData.m_Amat(node1Id, node2Id)  -= weight;
+        solverData.m_Amat(node2Id, node1Id)  -= weight;
     }
-
 }
 
 
@@ -305,18 +283,15 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
     LunaCore::QLAPlacer::Private::SolverData XSolverData;
     LunaCore::QLAPlacer::Private::SolverData YSolverData;
 
-    XSolverData.m_Amat.resize(netlist.numberOfNodes(), netlist.numberOfNodes());
-    XSolverData.m_Amat.reserve(2*netlist.numberOfNodes());    // rough estimate of size
+    XSolverData.m_Amat.reserveRows(netlist.numberOfNodes());    // rough estimate of rows
     XSolverData.m_Bvec = Eigen::VectorXd::Zero(netlist.numberOfNodes());
 
-    YSolverData.m_Amat.resize(netlist.numberOfNodes(), netlist.numberOfNodes());
-    YSolverData.m_Amat.reserve(2*netlist.numberOfNodes());    // rough estimate of size
+    YSolverData.m_Amat.reserveRows(netlist.numberOfNodes());    // rough estimate of rows
     YSolverData.m_Bvec = Eigen::VectorXd::Zero(netlist.numberOfNodes());
 
     ssize_t netIdx = 0;
     for(auto const& net : netlist.m_nets)
     {
-        //doLog(LogType::VERBOSE,"Net %d:\n", netIdx);
         if (net.m_nodes.size() == 2)
         {
             updateWeights<ChipDB::XAxisAccessor>(XSolverData, 
@@ -402,7 +377,7 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
 
     Logging::doLog(Logging::LogType::VERBOSE,"  Number of degenerate nets: %ld\n", degenerateNets);
 
-#if 1
+#if 0
     std::stringstream ss;
     std::ofstream ofile("qplacer.txt");
 
@@ -435,10 +410,14 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
 */
 #endif
 
+    Logging::doLog(Logging::LogType::INFO, "Calling solver\n");
     Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Upper | Eigen::Lower> solver;
 
-    XSolverData.m_Amat.makeCompressed();
-    solver.compute(XSolverData.m_Amat);
+    Eigen::SparseMatrix<double> EigenMatX(netlist.numberOfNodes(), netlist.numberOfNodes());
+    LunaCore::toEigen(XSolverData.m_Amat, EigenMatX);
+    
+    EigenMatX.makeCompressed();
+    solver.compute(EigenMatX);
     Eigen::VectorXd xpos = solver.solve(XSolverData.m_Bvec);
     //auto xpos_err  = solver.error();
     auto xpos_info = solver.info();
@@ -448,8 +427,11 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
         Logging::doLog(Logging::LogType::WARNING,"  Eigen reports error code %s for x axis\n", toString(xpos_info).c_str());
     }
 
-    YSolverData.m_Amat.makeCompressed();
-    solver.compute(YSolverData.m_Amat);
+    Eigen::SparseMatrix<double> EigenMatY(netlist.numberOfNodes(), netlist.numberOfNodes());
+    LunaCore::toEigen(YSolverData.m_Amat, EigenMatY);
+
+    EigenMatY.makeCompressed();
+    solver.compute(EigenMatY);
     Eigen::VectorXd  ypos = solver.solve(YSolverData.m_Bvec);
     //auto ypos_err  = solver.error();
     auto ypos_info = solver.info();
@@ -478,7 +460,8 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
         idx++;
     }
 
-    LnodeIdx = 0;
+#if 0
+    std::size_t LnodeIdx = 0;
     ss << "New node positions:\n";
     for(auto const& node : netlist.m_nodes)
     {
@@ -492,6 +475,7 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
     }
 
     ofile << ss.str() << "\n\n";
+#endif
 
     Logging::doLog(Logging::LogType::INFO, "Number of fixed nodes: %ld\n", fixedNodes);
 

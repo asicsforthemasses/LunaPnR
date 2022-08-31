@@ -1,9 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #pragma once
 
@@ -68,7 +65,7 @@ protected:
 
     Design                      &m_design;
     std::shared_ptr<Module>     m_currentModule;
-    KeyObjPair<InstanceBase>    m_currentInsKeyObjPair;
+    KeyObjPair<Instance>        m_currentInsKeyObjPair;
 };
 
 /// \endcond

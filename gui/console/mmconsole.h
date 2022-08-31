@@ -1,10 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 // inspiration: https://github.com/jupyter/qtconsole/blob/master/qtconsole/console_widget.py
 
@@ -29,6 +25,7 @@
 
 #include "mtstringbuffer.h"
 #include "singlelineedit.h"
+#include "common/logging.h"
 #include "../common/msvcfix.h"
 
 namespace GUI
@@ -51,20 +48,39 @@ public:
     void print(const std::stringstream &ss);
     void print(const char *txt);
 
+    void print(const Logging::LogType &logType, const QString &txt);
+    void print(const Logging::LogType &logType, const std::string &txt);
+
     /** multi-threaded safe print */
     void mtPrint(const std::string &txt);
+    void mtPrint(const Logging::LogType &logType, const std::string &txt);
 
     /** multi-threaded safe print */
     void mtPrint(const std::string_view &txt);
+    void mtPrint(const Logging::LogType &logType, const std::string_view &txt);
 
     struct ConsoleColours
     {
         QColor  m_bkCol;
         QColor  m_promptCol;
         QColor  m_errorCol;
+        QColor  m_warningCol;
+
+        constexpr auto getColor(const Logging::LogType &logType) const
+        {
+            switch(logType)
+            {
+            case Logging::LogType::ERROR:
+                return m_errorCol;
+            case Logging::LogType::WARNING:
+                return m_warningCol;
+            default:
+                return m_promptCol;                
+            }
+        }
     };
 
-    void setColours(const QColor &bkCol, const QColor &promptCol, const QColor &errorCol) noexcept;
+    void setColours(const QColor &bkCol, const QColor &promptCol, const QColor &errorCol, const QColor &warningCol) noexcept;
     void setColours(const ConsoleColours &colours) noexcept;
 
     [[nodiscard]] ConsoleColours getColours() const noexcept;

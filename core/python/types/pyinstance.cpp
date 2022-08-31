@@ -1,8 +1,6 @@
-/*  LunaPnR Source Code
- 
-    SPDX-License-Identifier: GPL-3.0-only
-    SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -18,7 +16,7 @@
 #include "pypininfolist.h"
 
 /** container for LunaCore::Cell */
-struct PyInstance : public Python::TypeTemplate<ChipDB::InstanceBase>
+struct PyInstance : public Python::TypeTemplate<ChipDB::Instance>
 {
     static PyObject* getName(PyInstance *self, void *closure)
     {
@@ -291,7 +289,7 @@ PyTypeObject PyInstanceType = {
     PyInstance::pyNewCall
 };
 
-PyObject* Python::toPython(std::shared_ptr<ChipDB::InstanceBase> instancePtr)
+PyObject* Python::toPython(std::shared_ptr<ChipDB::Instance> instancePtr)
 {
     // create a new PyInstance oject
     auto instanceObject = reinterpret_cast<PyInstance*>(PyObject_CallObject((PyObject*)&PyInstanceType, nullptr));

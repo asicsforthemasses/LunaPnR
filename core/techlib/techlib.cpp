@@ -1,8 +1,6 @@
-/*  LunaPnR Source Code
- 
-    SPDX-License-Identifier: GPL-3.0-only
-    SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "techlib.h"
 #include <algorithm>
@@ -15,15 +13,15 @@ std::string ChipDB::toString(const LayerType &lt)
     {
     default:
     case LAYER_UNDEFINED:
-        return std::string("UNDEFINED");
+        return "UNDEFINED";
     case LAYER_ROUTING:
-        return std::string("ROUTING");        
+        return "ROUTING";        
     case LAYER_CUT:
-        return std::string("CUT");
+        return "CUT";
     case LAYER_MASTERSLICE:
-        return std::string("MASTERSLICE");
+        return "MASTERSLICE";
     case LAYER_OVERLAP:
-        return std::string("OVERLAP");
+        return "OVERLAP";
     }    
 }
 
@@ -33,11 +31,11 @@ std::string ChipDB::toString(const LayerDirection &ldir)
     {
     default:
     case LAYERDIR_UNDEFINED:
-        return std::string("UNDEFINED");
+        return "UNDEFINED";
     case LAYERDIR_HORIZONTAL:
-        return std::string("HORIZONTAL");
+        return "HORIZONTAL";
     case LAYERDIR_VERTICAL:
-        return std::string("VERTICAL");
+        return "VERTICAL";
     }
 }
 
@@ -56,7 +54,7 @@ KeyObjPair<LayerInfo> TechLib::createLayer(const std::string &name)
         return layerKeyObj.value();
     }
 
-    return KeyObjPair<LayerInfo>();
+    return KeyObjPair<LayerInfo>{};
 }
 
 KeyObjPair<LayerInfo> TechLib::lookupLayer(const std::string &name) const
@@ -72,7 +70,7 @@ KeyObjPair<SiteInfo> TechLib::createSiteInfo(const std::string &name)
         return siteKeyObj.value();
     }
 
-    return KeyObjPair<SiteInfo>();
+    return KeyObjPair<SiteInfo>{};
 }
 
 KeyObjPair<SiteInfo> TechLib::lookupSiteInfo(const std::string &name) const

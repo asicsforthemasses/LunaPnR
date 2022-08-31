@@ -1,10 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "floorplanview.h"
 #include "common/guihelpers.h"
@@ -251,7 +247,7 @@ void FloorplanView::paintEvent(QPaintEvent *event)
 
     drawRegions(painter);
     drawInstances(painter);
-    drawNets(painter);
+    if (m_showNets) drawNets(painter);
 
     if (m_overlay != nullptr)
     {
@@ -334,7 +330,7 @@ void FloorplanView::drawRows(QPainter &p, const std::shared_ptr<ChipDB::Region> 
     }
 }
 
-void FloorplanView::drawCell(QPainter &p, const std::shared_ptr<ChipDB::InstanceBase> ins)
+void FloorplanView::drawCell(QPainter &p, const std::shared_ptr<ChipDB::Instance> ins)
 {    
     QRectF cellRect;
     cellRect.setBottomLeft(m_viewPort.toScreen(ins->m_pos));
@@ -389,7 +385,7 @@ void FloorplanView::drawCell(QPainter &p, const std::shared_ptr<ChipDB::Instance
     }
 }
 
-void FloorplanView::drawPin(QPainter &p, const std::shared_ptr<ChipDB::InstanceBase> ins)
+void FloorplanView::drawPin(QPainter &p, const std::shared_ptr<ChipDB::Instance> ins)
 {
     QRectF cellRect;
     cellRect.setBottomLeft(m_viewPort.toScreen(ins->m_pos));
@@ -493,7 +489,7 @@ void FloorplanView::drawInstances(QPainter &p)
     {
         if (ins.isValid() && (ins->m_placementInfo != ChipDB::PlacementInfo::UNPLACED) && (ins->m_placementInfo != ChipDB::PlacementInfo::IGNORE))
         {
-            switch(ins->m_insType)
+            switch(ins->insType())
             {
             case ChipDB::InstanceType::ABSTRACT:
                 break;

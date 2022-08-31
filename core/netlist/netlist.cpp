@@ -1,10 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include <algorithm>
 #include "netlist.h"
@@ -37,15 +33,15 @@ KeyObjPair<Net> Netlist::createNet(const std::string &netName)
         return result.value();
     }
     
-    return KeyObjPair<Net>();
+    return KeyObjPair<Net>{};
 }
 
-std::shared_ptr<InstanceBase> Netlist::lookupInstance(InstanceObjectKey key)
+std::shared_ptr<Instance> Netlist::lookupInstance(InstanceObjectKey key)
 {
     return m_instances[key];
 }
 
-KeyObjPair<InstanceBase> Netlist::lookupInstance(const std::string &name)
+KeyObjPair<Instance> Netlist::lookupInstance(const std::string &name)
 {
     return m_instances[name];
 }

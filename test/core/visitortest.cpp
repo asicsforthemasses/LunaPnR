@@ -1,6 +1,9 @@
-#include "lunacore.h"
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "testhelpers.h"
+#include "lunacore.h"
 
 #include <string>
 #include <sstream>
@@ -17,7 +20,6 @@ public:
     NetLoadVisitor(ChipDB::Netlist &netlist) : m_netlist(netlist), m_capacitance(0), m_inputCount(0) {};
 
     virtual void visit(const ChipDB::Instance *instance) override {};
-    virtual void visit(const ChipDB::PinInstance *instance) override {};
     virtual void visit(const ChipDB::Module *mod) override {};
     virtual void visit(const ChipDB::Cell *cell) override {};
     virtual void visit(const ChipDB::PinInfo *pinfo) override {};

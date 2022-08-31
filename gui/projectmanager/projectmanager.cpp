@@ -1,19 +1,27 @@
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include <cassert>
+#include <algorithm>
+
 #include <QHeaderView>
 #include <QMessageBox>
+#include <QFileDialog>
 
 #include "projectmanager.h"
+#include "../common/customevents.h"
 #include "../widgets/blockcontainer.h"
 #include "../widgets/flatimagebutton.h"
 #include "../widgets/flatactiontile.h"
 #include "../widgets/blockframe.h"
 #include "../projectmanager/filesetupmanager.h"
+#include "../floorplandialog/floorplandialog.h"
 
 using namespace GUI;
 
-ProjectManager::ProjectManager(ProjectSetup *projectSetup, QWidget *parent) : QWidget(parent), m_projectSetup(projectSetup)
+ProjectManager::ProjectManager(Database &db, QWidget *parent) : QWidget(parent), m_db(db), m_projectSetup(db.m_projectSetup)
 {
-    assert(projectSetup != nullptr);
     create();
 }
 
@@ -35,11 +43,11 @@ void ProjectManager::create()
 
     m_fileSetupManager = new GUI::FileSetupManager();
     m_fileSetupManager->header()->hide();
-    m_fileSetupManager->addCategory("LEF", ".lef", &m_projectSetup->m_lefFiles);
-    m_fileSetupManager->addCategory("LIB", ".lib", &m_projectSetup->m_libFiles);
-    m_fileSetupManager->addCategory("Verilog", ".v", &m_projectSetup->m_verilogFiles);    
-    m_fileSetupManager->addCategory("Timing constraints", ".sdc", &m_projectSetup->m_timingConstraintFiles);
-    m_fileSetupManager->addCategory("Layers", ".layers", &m_projectSetup->m_layerFiles);
+    m_fileSetupManager->addCategory("LEF", ".lef", &m_projectSetup.m_lefFiles);
+    m_fileSetupManager->addCategory("LIB", ".lib", &m_projectSetup.m_libFiles);
+    m_fileSetupManager->addCategory("Verilog", ".v", &m_projectSetup.m_verilogFiles);    
+    m_fileSetupManager->addCategory("Timing constraints", ".sdc", &m_projectSetup.m_timingConstraintFiles);
+    m_fileSetupManager->addCategory("Layers", ".layers", &m_projectSetup.m_layerFiles);
 
     block->addWidget(m_fileSetupManager,1);
     m_managerLayout->addWidget(block);
@@ -53,12 +61,18 @@ void ProjectManager::create()
 
     auto blockFrame = new GUI::BlockFrame();
     
-    auto actionTile = new GUI::FlatActionTile("Floorplan setup", "://images/floorplan.png", "://images/properties.png");
+    auto actionTile = new GUI::FlatActionTile("Floorplan setup", "://images/floorplan.png", "://images/properties.png", "FLOORPLANSETUP");
     connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onFloorplanSetup);
+    m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
-    actionTile = new GUI::FlatActionTile("Place", "://images/floorplan.png", "://images/go.png");
-    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onPlace);
+    auto statusTile = new GUI::FlatStatusTile("Pre-place checks", "://images/floorplan.png", "PreflightChecks");
+    m_tiles.push_back(statusTile);
+    blockFrame->addWidget(statusTile);
+
+    actionTile = new GUI::FlatActionTile("Place", "://images/floorplan.png", "://images/go.png", "PLACE");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
     block->addWidget(blockFrame);
@@ -74,14 +88,19 @@ void ProjectManager::create()
 
     blockFrame = new GUI::BlockFrame();
     
-    actionTile = new GUI::FlatActionTile("CTS setup", "://images/floorplan.png", "://images/properties.png");
-    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onCTSSetup);
+    actionTile = new GUI::FlatActionTile("CTS setup", "://images/floorplan.png", "://images/properties.png", "CTSSETUP");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
-    actionTile = new GUI::FlatActionTile("Create tree", "://images/floorplan.png", "://images/go.png");
+    actionTile = new GUI::FlatActionTile("Create tree", "://images/floorplan.png", "://images/go.png", "CREATECTSTREE");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
-    actionTile = new GUI::FlatActionTile("Timing Report", "://images/floorplan.png", "://images/go.png");
+    actionTile = new GUI::FlatActionTile("Timing Report", "://images/floorplan.png", "://images/go.png", "TIMINGREPORT1");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
     block->addWidget(blockFrame);
@@ -141,10 +160,14 @@ void ProjectManager::create()
     //connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onCTSSetup);
     //blockFrame->addWidget(actionTile);
 
-    actionTile = new GUI::FlatActionTile("Timing Report", "://images/floorplan.png", "://images/go.png");
+    actionTile = new GUI::FlatActionTile("Timing Report", "://images/floorplan.png", "://images/go.png", "TIMINGREPORT2");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
-    actionTile = new GUI::FlatActionTile("DRC", "://images/floorplan.png", "://images/go.png");
+    actionTile = new GUI::FlatActionTile("DRC", "://images/floorplan.png", "://images/go.png", "DRC");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
     //actionTile = new GUI::FlatActionTile("Create tree", "://images/floorplan.png", "://images/go.png");
@@ -163,12 +186,14 @@ void ProjectManager::create()
 
     blockFrame = new GUI::BlockFrame();
     
-    actionTile = new GUI::FlatActionTile("Write GDS2", "://images/floorplan.png", "://images/go.png");
-    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onWriteGDS2);
+    actionTile = new GUI::FlatActionTile("Write GDS2", "://images/floorplan.png", "://images/go.png", "WRITEGDS2");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
-    actionTile = new GUI::FlatActionTile("Write DEF", "://images/floorplan.png", "://images/go.png");
-    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onWriteDEF);
+    actionTile = new GUI::FlatActionTile("Write DEF", "://images/floorplan.png", "://images/go.png", "WRITEDEF");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onWriteToDef);
+    m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
     block->addWidget(blockFrame);
@@ -187,16 +212,99 @@ void ProjectManager::repopulate()
     }
 }
 
-void ProjectManager::onFloorplanSetup()
+bool ProjectManager::event(QEvent * event)
 {
-    QMessageBox msgBox;
-    msgBox.setText("Floorplanning setup clicked");
-    msgBox.exec();
+    if (event->type() == GUI::TaskListEvent::EventType)
+    {
+        auto e = static_cast<GUI::TaskListEvent*>(event);
+
+        // search through action tiles and set the status accordingly
+        const QString actionName = e->name();
+
+        auto iter = std::find_if(m_tiles.begin(), m_tiles.end(), [&actionName]
+            (const FlatTileBase *tile)
+            {
+                return tile->actionName() == actionName;
+            }
+        );
+
+        if (iter == m_tiles.end())
+        {
+            std::cout << "ProjectManager event: tile with action name " << actionName.toStdString() << " not found!\n";
+        }
+        else
+        {
+            //std::cout << "ProjectManager event: tile " << (*iter)->actionTitle().toStdString() << " with action name " << actionName.toStdString() << " update!\n";
+            switch(e->status())
+            {
+            case Tasks::Task::Status::RESET:
+                (*iter)->setStatus(GUI::FlatActionTile::Status::NONE);
+                break;
+            case Tasks::Task::Status::DONE_OK:
+                (*iter)->setStatus(GUI::FlatActionTile::Status::OK);
+                break;
+            case Tasks::Task::Status::DONE_ERROR:
+                (*iter)->setStatus(GUI::FlatActionTile::Status::ERROR);
+                break;
+            case Tasks::Task::Status::RUNNING:
+                (*iter)->setStatus(GUI::FlatActionTile::Status::RUNNING);
+                break;
+            default:
+                //FIXME: handle progress!
+                break;
+            }
+        }
+
+        return true;
+    }
+    
+    return QWidget::event(event);
 }
 
-void ProjectManager::onCTSSetup()
+void ProjectManager::onFloorplanSetup(QString actionName)
 {
-    QMessageBox msgBox;
-    msgBox.setText("CTS setup clicked");
-    msgBox.exec();
+    FloorplanDialog dialog(m_db);
+    int result = dialog.exec();
+    if (result == QDialog::Accepted)
+    {
+        std::cout << "FloorplanDialog was excepted\n";
+    }
+    else
+    {
+        std::cout << "FloorplanDialog was rejected\n";
+    }
+}
+
+void ProjectManager::onWriteToDef(QString actionName)
+{
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save DEF File"),
+                           "",
+                           tr("DEF (*.def)"));
+    
+    if (!fileName.isEmpty())
+    {
+        std::ofstream ofile(fileName.toStdString());
+        if (!ofile.good())
+        {
+            Logging::doLog(Logging::LogType::ERROR, "Could not open DEF file for writing!\n");
+/*            
+            int ret = QMessageBox::critical(this, tr("File Save Error"),
+                               tr("Could open the DEF file for saving."),
+                               QMessageBox::Ok,
+                               QMessageBox::Ok);
+*/                               
+            return;
+        }
+
+        auto topModulePtr = m_db.design().getTopModule();
+        if (!topModulePtr)
+        {
+            Logging::doLog(Logging::LogType::ERROR, "Could not write DEF file: top module not set!\n");
+            return;
+        }
+
+        LunaCore::DEF::write(ofile, topModulePtr);
+        ofile.close();
+        Logging::doLog(Logging::LogType::INFO, "DEF file written!\n");
+    }
 }

@@ -1,8 +1,6 @@
-/*  LunaPnR Source Code
- 
-    SPDX-License-Identifier: GPL-3.0-only
-    SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -17,8 +15,8 @@
 #include "pypininfo.h"
 
 /** container for LunaCore::Cell */
-struct PyPin : public Python::TypeTemplate<ChipDB::InstanceBase::Pin, 
-    Python::ValueContainer<ChipDB::InstanceBase::Pin> >
+struct PyPin : public Python::TypeTemplate<ChipDB::Instance::Pin, 
+    Python::ValueContainer<ChipDB::Instance::Pin> >
 {
     static PyObject* getName(PyPin *self, void *closure)
     {
@@ -143,7 +141,7 @@ PyTypeObject PyPinType = {
     PyPin::pyNewCall
 };
 
-PyObject* Python::toPython(const ChipDB::InstanceBase::Pin &pin)
+PyObject* Python::toPython(const ChipDB::Instance::Pin &pin)
 {
     // create a new PyPin oject
     auto pinObject = reinterpret_cast<PyPin*>(PyObject_CallObject((PyObject*)&PyPinType, nullptr));

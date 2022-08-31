@@ -1,11 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include <iostream>
 #include <string_view>
@@ -45,7 +40,7 @@ MMConsole::MMConsole(QWidget *parent) : QFrame(parent)
     reset();
 
     // default colours
-    setColours(QColor("#1d1f21"), QColor("#c5c8c6"), QColor("#a54242"));
+    setColours(QColor("#1d1f21"), QColor("#c5c8c6"), QColor("#a54242"), QColor("#a69242"));
 
     m_mtStringBuffer = std::make_unique<MTStringBuffer>(this);
 
@@ -54,7 +49,8 @@ MMConsole::MMConsole(QWidget *parent) : QFrame(parent)
     connect(m_commandLine, &SingleLineEdit::executeCommand, this, &MMConsole::executeCommand);
 }
 
-void MMConsole::setColours(const QColor &bkCol, const QColor &promptCol, const QColor &errorCol) noexcept
+void MMConsole::setColours(const QColor &bkCol, const QColor &promptCol, 
+    const QColor &errorCol, const QColor &warningCol) noexcept
 {
     QPalette pal = palette();
     pal.setColor(QPalette::Window, bkCol);
@@ -69,9 +65,10 @@ void MMConsole::setColours(const QColor &bkCol, const QColor &promptCol, const Q
     //m_commandLine->setTextColor(promptCol);
     //m_textDisplay->setAutoFillBackground(true);
     
-    m_colours.m_bkCol     = bkCol;
-    m_colours.m_promptCol = promptCol;
-    m_colours.m_errorCol  = errorCol;
+    m_colours.m_bkCol      = bkCol;
+    m_colours.m_promptCol  = promptCol;
+    m_colours.m_errorCol   = errorCol;
+    m_colours.m_warningCol = warningCol;
 }
 
 bool MMConsole::event(QEvent *event)
@@ -82,7 +79,8 @@ bool MMConsole::event(QEvent *event)
         {
             while(m_mtStringBuffer->containsString())
             {
-                print(m_mtStringBuffer->pop());
+                auto logString = m_mtStringBuffer->pop();
+                print(logString.m_logType, logString.m_txt);
             }
             return true;
         }
@@ -147,6 +145,22 @@ void MMConsole::mtPrint(const std::string_view &txt)
     }
 }
 
+void MMConsole::mtPrint(const Logging::LogType &logType, const std::string &txt)
+{
+    if (m_mtStringBuffer)
+    {
+        m_mtStringBuffer->print(logType, txt);
+    }
+}
+
+void MMConsole::mtPrint(const Logging::LogType &logType, const std::string_view &txt)
+{
+    if (m_mtStringBuffer)
+    {
+        m_mtStringBuffer->print(logType, txt);
+    }
+}
+
 void MMConsole::setPrompt(const QString &prompt)
 {
     //m_prompt = prompt;
@@ -192,3 +206,19 @@ void MMConsole::print(const char *txt)
     print(QString::fromUtf8(txt));
 }
 
+void MMConsole::print(const Logging::LogType &logType, const QString &txt)
+{
+    m_textDisplay->setTextColor(m_colours.getColor(logType));
+    appendWithoutNewline(txt);
+
+    if (!txt.endsWith("\n"))
+    {
+        m_textDisplay->append("");
+    }   
+    m_textDisplay->setTextColor(m_colours.m_promptCol);
+}
+
+void MMConsole::print(const Logging::LogType &logType, const std::string &txt)
+{
+    print(logType, QString::fromStdString(txt));
+}

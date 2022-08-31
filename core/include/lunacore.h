@@ -1,9 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #pragma once
 
@@ -24,11 +21,13 @@
 #include "../floorplan/region.h"
 #include "../floorplan/floorplan.h"
 #include "../cellplacer/cellplacer.h"
-#include "../cellplacer/qplacer.h"
+//#include "../cellplacer/qplacer.h"
 #include "../cellplacer/qlaplacer.h"
-#include "../cellplacer/densitybitmap.h"
+//#include "../cellplacer/densitybitmap.h"
 #include "../cellplacer/netlistsplitter.h"
 #include "../cellplacer/rowlegalizer.h"
+#include "../cellplacer2/cellplacer2.h"
+#include "../cellplacer2/fillerhandler.h"
 #include "../partitioner/fmpart.h"
 #include "../import/liberty/libparser.h"
 #include "../import/liberty/libreaderimpl.h"

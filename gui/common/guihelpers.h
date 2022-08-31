@@ -1,10 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #pragma once
 
@@ -116,5 +112,9 @@ protected:
     float m_sy;
     bool  m_valid;
 };
+
+QString toQString(const std::string &str) noexcept;
+QString toQString(const ChipDB::Rect64 &rect) noexcept;
+QString toQString(const ChipDB::Margins64 &margins) noexcept;
 
 };

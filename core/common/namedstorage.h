@@ -1,9 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 
 #pragma once
@@ -236,6 +233,56 @@ public:
         return m_objects.at(key);
     }
 
+    /** access an object by key. Returns an object reference. Will throw std::out_of_range exception when the object does not exist */
+    constexpr T& atRef(ObjectKey key)
+    {
+        auto objPtr = m_objects.at(key);
+        if (!objPtr)
+        {
+            throw(std::runtime_error("NamedStorage::atRef retrieved a null pointer"));
+        }
+        return static_cast<T&>(*objPtr.get());
+    }
+
+    /** access an object by key. Returns an object reference. Will throw std::out_of_range exception when the object does not exist */
+    constexpr const T& atRef(ObjectKey key) const
+    {
+        auto objPtr = m_objects.at(key);
+        if (!objPtr)
+        {
+            throw(std::runtime_error("NamedStorage::atRef retrieved a null pointer"));
+        }
+        return static_cast<const T&>(*objPtr.get());
+    }
+
+    /** access an object by key. Returns an object pointer. 
+     *  Will throw std::out_of_range exception when the object does not exist.
+     *  Will throw std::runtime_error when the object is nullptr.
+    */
+    constexpr T* atRaw(ObjectKey key)
+    {
+        auto objPtr = m_objects.at(key);
+        if (!objPtr)
+        {
+            throw(std::runtime_error("NamedStorage::atRef retrieved a null pointer"));
+        }
+        return objPtr.get();
+    }
+
+    /** access an object by key. Returns an object pointer. 
+     *  Will throw std::out_of_range exception when the object does not exist.
+     *  Will throw std::runtime_error when the object is nullptr.
+    */
+    constexpr const T* atRaw(ObjectKey key) const
+    {
+        auto objPtr = m_objects.at(key);
+        if (!objPtr)
+        {
+            throw(std::runtime_error("NamedStorage::atRef retrieved a null pointer"));
+        }
+        return objPtr.get();
+    }
+
     /** access an object by key. Will return a nullptr when the object does not exist */
     constexpr std::shared_ptr<T> operator[](ObjectKey key)
     {
@@ -349,7 +396,7 @@ public:
         // postfix increment
         ConstIterator operator++(int)
         {
-            Iterator tmp = *this;
+            ConstIterator tmp = *this;
             m_baseIterator++;
             return tmp;
         }

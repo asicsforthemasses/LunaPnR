@@ -1,10 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include <unordered_map>
 #include "common/logging.h"
@@ -38,7 +34,7 @@ bool LunaCore::QLAPlacer::place(
     // and calculate total area
     for(auto ins : netlist.m_instances)
     {
-        if (ins->m_insType == ChipDB::InstanceType::PIN)
+        if (ins->isPin())
         {
             if (ins->m_placementInfo != ChipDB::PlacementInfo::PLACEDANDFIXED)
             {
@@ -100,8 +96,8 @@ bool LunaCore::QLAPlacer::place(
     } 
 
     Logging::doLog(Logging::LogType::VERBOSE, "Running final legalization.\n");
-    LunaCore::Legalizer::legalizeRegion(region, netlist, 800);
-
+    LunaCore::Legalizer legalizer;
+    legalizer.legalizeRegion(region, netlist, 800);
 
     Logging::doLog(Logging::LogType::INFO, "Placement done.\n");
 

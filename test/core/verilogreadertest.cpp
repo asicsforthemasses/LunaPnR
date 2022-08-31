@@ -1,10 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "lunacore.h"
 
@@ -47,7 +43,7 @@ BOOST_AUTO_TEST_CASE(can_read_netlist)
 
     for(auto ins : mod->m_netlist->m_instances)
     {
-        switch(ins->m_insType)
+        switch(ins->insType())
         {
         case ChipDB::InstanceType::MODULE:
             std::cout << "    module " << ins->name() << "\n";
@@ -123,13 +119,12 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
 
         // check that module pins have a __pin instance in the netlist
         for(auto modPin : mod->m_pins)
-        {
-            BOOST_CHECK(mod->m_netlist->m_instances.at(modPin->m_name).isValid());
-            
-            if (mod->m_netlist->m_instances.at(modPin->m_name).isValid())
+        {            
+            if (!mod->m_netlist->m_instances.at(modPin->m_name).isValid())
             {
                 std::cout << "  missing pin instance for pin '" << modPin->name() << "'\n";
             }
+            BOOST_CHECK(mod->m_netlist->m_instances.at(modPin->m_name).isValid());
         }
 
         // determine cell area
@@ -141,6 +136,28 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
 
         std::cout << "  module area " << area << " um²\n";
     }
+
+    // check if all instances have all pins connected
+    std::size_t unconnectedPins = 0;
+    auto const& netlist = mod->m_netlist;
+    for(auto ins : netlist->m_instances)
+    {
+        int pinIndex = 0; 
+        for(auto connection : ins->connections())
+        {   
+            auto checkPin = ins->getPin(pinIndex);
+            if ((checkPin.m_pinInfo) && (checkPin.m_pinInfo->isPGPin())) continue;    // skip power and ground pins.
+            
+            if (connection == ChipDB::ObjectNotFound)
+            {
+                unconnectedPins++;
+                Logging::doLog(Logging::LogType::ERROR, Logging::fmt("Pin with index %d (name is %s) on instance %s is unconnected\n",
+                    pinIndex, checkPin.name().c_str(), ins->name().c_str()));
+            }
+            pinIndex++;
+        }
+    }
+    BOOST_CHECK(unconnectedPins == 0);
 }
 
 BOOST_AUTO_TEST_CASE(can_read_nerv32)

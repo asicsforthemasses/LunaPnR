@@ -1,3 +1,7 @@
+## SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+##
+## SPDX-License-Identifier: GPL-3.0-only
+
 cmake_minimum_required(VERSION 3.20)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
@@ -49,16 +53,20 @@ set (LUNA_SRC_FILES
     widgets/flattogglebutton.cpp
     widgets/flatimage.cpp
     widgets/flatimagebutton.cpp
+    widgets/flattilebase.cpp
     widgets/flatactiontile.cpp
     widgets/blockcontainer.cpp
+    widgets/rectdelegate.cpp
     floorplanview/floorplanview.cpp
     techbrowser/techbrowser.cpp
     designbrowser/designbrowser.cpp
     cellbrowser/cellbrowser.cpp
     cellbrowser/celllayoutview.cpp
     propertyview/propertyview.cpp
+    aboutdialog/aboutdialog.cpp
     projectmanager/filesetupmanager.cpp
     projectmanager/projectmanager.cpp
+    floorplandialog/floorplandialog.cpp
     console/mmconsole.cpp
     console/mtstringbuffer.cpp
     console/singlelineedit.cpp
@@ -67,10 +75,13 @@ set (LUNA_SRC_FILES
     tasks/readallfiles.cpp
     tasks/checktiming.cpp
     tasks/preflightchecks.cpp
+    tasks/createfloorplan.cpp
+    tasks/place.cpp
     python/types/pyprojectlef.cpp
     python/types/pyprojectlib.cpp
     python/types/pyprojectverilog.cpp
     python/pyluna_extra.cpp
+    src/configurationdialog.cpp
     src/mainwindow.cpp
     src/main.cpp
 )

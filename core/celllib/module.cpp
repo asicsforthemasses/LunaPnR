@@ -1,10 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "module.h"
 
@@ -19,16 +15,16 @@ Module::Module(const std::string &name) : Cell(name)
     m_netlist = std::make_shared<Netlist>();
 }
 
-KeyObjPair<InstanceBase> Module::addInstance(std::shared_ptr<InstanceBase> insPtr)
+KeyObjPair<Instance> Module::addInstance(std::shared_ptr<Instance> insPtr)
 {
     if (!insPtr)
     {
-        return KeyObjPair<InstanceBase>();
+        return KeyObjPair<Instance>{};
     }
 
     if (insPtr->name().empty())
     {
-        return KeyObjPair<InstanceBase>();
+        return KeyObjPair<Instance>{};
     }
 
     if (m_netlist)
@@ -37,14 +33,14 @@ KeyObjPair<InstanceBase> Module::addInstance(std::shared_ptr<InstanceBase> insPt
         return result.value();
     }
 
-    return KeyObjPair<InstanceBase>();   // cannot add instances to a black box
+    return KeyObjPair<Instance>{};   // cannot add instances to a black box
 }
 
 KeyObjPair<Net> Module::createNet(const std::string &netName)
 {
     if (!m_netlist)
     {
-        return KeyObjPair<Net>();
+        return KeyObjPair<Net>{};
     }
 
     return m_netlist->createNet(netName);

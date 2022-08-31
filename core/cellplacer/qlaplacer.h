@@ -1,10 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 /*
 
@@ -22,6 +18,7 @@
 #include <functional>
 
 #include "common/dbtypes.h"
+#include "common/matrix.h"
 #include "floorplan/region.h"
 #include "netlist/netlist.h"
 #include "qplacertypes.h"
@@ -30,7 +27,8 @@ namespace LunaCore::QLAPlacer::Private
 {
     struct SolverData
     {
-        Eigen::SparseMatrix<double> m_Amat;
+        //Eigen::SparseMatrix<double> m_Amat;
+        LunaCore::Matrix m_Amat;
         Eigen::VectorXd m_Bvec;
     };
 

@@ -1,25 +1,28 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #pragma once
 #include <list>
+#include <vector>
 #include <cassert>
 
 #include "design/design.h"
 
-namespace LunaCore::Legalizer
+namespace LunaCore
 {
+
+class Legalizer
+{
+public:
+
     struct Cell
     {
         ChipDB::ObjectKey   m_instanceKey;  ///< key to the instance in the netlist
         ChipDB::Coord64     m_globalPos;    ///< position before legalization
         ChipDB::Coord64     m_legalPos;     ///< position after legalization
         ChipDB::Coord64     m_size;         ///< cell size
+        ChipDB::Orientation m_orientation;  ///< cell orientation
         double              m_weight;       ///< mathematical weight of cell (number of connections?)
     };
 
@@ -55,7 +58,8 @@ namespace LunaCore::Legalizer
 
     struct Row
     {
-        ChipDB::Rect64 m_rect;
+        ChipDB::RowType m_rowType;
+        ChipDB::Rect64  m_rect;
         std::vector<CellIndex> m_cellIdxs;
 
         void insertCell(CellIndex idx)
@@ -69,11 +73,17 @@ namespace LunaCore::Legalizer
         }
     };
 
+    void legalizeRegion(
+        const ChipDB::Region &region, 
+        ChipDB::Netlist &netlist, 
+        ChipDB::CoordType minCellWidth);
+
+protected:
+
     /** layout all the cells in a row and update the cell vector accordingly */
     void placeRow(std::vector<Cell> &cells, const Row &row, const ChipDB::CoordType cellMinWidth);
-
     
     double calcRowCost(const std::vector<Cell> &cells, const Row &row);
+};
 
-    void legalizeRegion(const ChipDB::Region &region, ChipDB::Netlist &netlist, ChipDB::CoordType minCellWidth);
 };

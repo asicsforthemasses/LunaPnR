@@ -1,10 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include <algorithm>
 #include "cellplacer.h"
@@ -21,7 +17,7 @@ void SimpleCellPlacer::place(ChipDB::Netlist *nl, const ChipDB::Rect64 &regionRe
     for(auto ins : nl->m_instances)
     {
         // do not place pins
-        if (ins->m_insType == ChipDB::InstanceType::PIN)
+        if (ins->isPin())
             continue;
             
         auto cellSize = ins->instanceSize();
@@ -54,52 +50,3 @@ void SimpleCellPlacer::place(ChipDB::Netlist *nl, const ChipDB::Rect64 &regionRe
     }
 }
 
-int64_t HPWLCalculator::calc(ChipDB::Netlist *nl)
-{
-    int64_t hpwl = 0;
-    for(auto const netPtr : nl->m_nets)
-    {
-        auto iter = netPtr->begin();
-
-        // skip if there are no connection on this net.
-        if (iter == netPtr->end())
-            continue;
-
-        // get first cell
-        auto center = nl->m_instances.at(iter->m_instanceKey)->getCenter();
-        ChipDB::Coord64 minCoord{center.m_x, center.m_y};
-        ChipDB::Coord64 maxCoord{center.m_x, center.m_y};
-        ++iter;
-
-        // process next cells
-        while(iter != netPtr->end())
-        {
-            center = nl->m_instances.at(iter->m_instanceKey)->getCenter();
-            minCoord.m_x = std::min(minCoord.m_x, center.m_x);
-            minCoord.m_y = std::min(minCoord.m_y, center.m_y);
-            maxCoord.m_x = std::max(maxCoord.m_x, center.m_x);
-            maxCoord.m_y = std::max(maxCoord.m_y, center.m_y);            
-            ++iter;
-        }
-
-        // calculate final hpwl from the net extents
-        auto delta = maxCoord - minCoord;
-        hpwl += delta.m_x + delta.m_y;
-    }
-
-    return hpwl;
-}
-
-double CellAreaCalculator::calc(ChipDB::Netlist *nl)
-{
-    double um2 = 0.0;
-    for(auto const ins : nl->m_instances)
-    {
-        auto csize = ins->instanceSize();
-        double sx = static_cast<double>(csize.m_x) / 1000.0;
-        double sy = static_cast<double>(csize.m_y) / 1000.0;
-        um2 += sx*sy;
-    }
-
-    return um2;
-}

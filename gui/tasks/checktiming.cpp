@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include "checktiming.h"
 #include "common/logging.h"
 #include "common/subprocess.h"
@@ -60,27 +64,62 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
         info("OpenSTA ok\n");
     }
 
+    auto timeUnits = parser.timeUnits();
+
     // report the paths
+    info("** Path report **");
+    std::size_t pathsReported = 0;
+    std::size_t warnings = 0;
     bool timingErrors = false;
+    
     for(auto iter = parser.beginPaths(); iter != parser.endPaths(); ++iter)
     {
         if (iter->m_slack >= 0.0)
         {
-            info(Logging::fmt("From %s to %s -> slack %f\n", 
-                iter->m_source.c_str(), iter->m_destination.c_str(), iter->m_slack));
+            info(Logging::fmt("  From %s to %s -> slack %f %s\n", 
+                iter->m_source.c_str(), iter->m_destination.c_str(), 
+                iter->m_slack * timeUnits.first,
+                timeUnits.second.c_str()));
         }
         else
         {
-            error(Logging::fmt("From %s to %s -> slack %f\n", 
-                iter->m_source.c_str(), iter->m_destination.c_str(), iter->m_slack));
+            error(Logging::fmt("  From %s to %s -> slack %f %s  FAILED\n", 
+                iter->m_source.c_str(), iter->m_destination.c_str(), 
+                iter->m_slack * timeUnits.first, timeUnits.second.c_str()));
             timingErrors = true;
+        }
+        pathsReported++;
+    }
+
+    if (pathsReported == 0)
+    {
+        warning("  No paths to report - are you sure your timing constraints are setup correctly?\n");
+        warnings++;
+    }
+
+    if (!parser.setupWarnings().empty())
+    {
+        warning("** Timing analysis found the following issues with your setup **\n");
+        for(auto warningText : parser.setupWarnings())
+        {
+            warning(warningText);
+            warnings++;
         }
     }
 
     if (timingErrors) 
     {
-        error("Timing checks failed\n");
+        error("** Timing checks failed **\n");
         return;
+    }
+
+    if (warnings != 0)
+    {
+        warning(Logging::fmt("Timing analysis reports %d warnings!\n", warnings));
+    }
+    else
+    {
+        info("** Timing checks passed **\n");
     }
 
     done();

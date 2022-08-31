@@ -1,10 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #pragma once
 
@@ -63,10 +59,13 @@ public:
 public slots:
     void onQuit();
     void onAbout();
+    void onAboutQt();
 
     void onLoadProject();
     void onSaveProject();
     void onSaveProjectAs();
+
+    void onLunaConfig();
 
     void onExportLayers();
     void onRunScript();
@@ -74,10 +73,14 @@ public slots:
     void onConsoleCommand(const QString &cmd);
     void onConsoleFontDialog();
     void onGUIUpdateTimer();
-    
+
+    void onProjectManagerAction(QString action);
+
+#if 0
     void onPlace();
     void onWriteDEF();
     void onWriteGDS2();
+#endif
 
 protected:
     void createMenus();
@@ -88,6 +91,9 @@ protected:
     QAction *m_clearAct;
     QAction *m_quitAct;    
     QAction *m_aboutAct;
+    QAction *m_aboutQtAct;
+
+    QAction *m_configAct;
 
     QAction *m_loadProject;
     QAction *m_saveProject;
@@ -108,7 +114,7 @@ protected:
     GUI::FloorplanView  *m_floorplanView;
     GUI::ProjectManager *m_projectManager;
     
-    GUI::TaskList m_taskList;
+    std::unique_ptr<GUI::TaskList> m_taskList;
     
     QString m_projectFileName;
     std::shared_ptr<GUI::Database> m_db;

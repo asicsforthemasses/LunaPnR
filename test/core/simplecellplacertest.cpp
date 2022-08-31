@@ -1,9 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "lunacore.h"
 
@@ -36,11 +33,11 @@ BOOST_AUTO_TEST_CASE(check_simplecellplacer)
 
     LunaCore::SimpleCellPlacer::place(mod->m_netlist.get(), ChipDB::Rect64{{0,0},{650000,650000}}, 10000);
 
-    auto hpwl = LunaCore::HPWLCalculator::calc(mod->m_netlist.get());
+    auto hpwl = LunaCore::NetlistTools::calcHPWL(*mod->m_netlist.get());
     BOOST_CHECK(hpwl > 0);
     std::cout << "  HPWL = " << hpwl << " nm\n";
 
-    auto area = LunaCore::CellAreaCalculator::calc(mod->m_netlist.get());
+    auto area = LunaCore::NetlistTools::calcTotalCellArea(*mod->m_netlist.get());
     BOOST_CHECK(area > 0.0);
     std::cout << "  Area = " << area << " um²\n";
 };

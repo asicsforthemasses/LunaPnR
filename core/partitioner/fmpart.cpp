@@ -1,9 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 
 #include <cassert>
@@ -470,7 +467,7 @@ void FMPart::exportToDot(std::ostream &dotFile, FMContainer &container)
     for(auto const& node : container.m_nodes)
     {
         std::stringstream nodeLabel;
-        if ((node.m_instance != nullptr) && (node.m_instance->m_insType == ChipDB::InstanceType::PIN))
+        if ((node.m_instance != nullptr) && (node.m_instance->isPin()))
         {
             auto const& pin = node.m_instance->getPin(0);
             if (!pin.isValid())
@@ -656,7 +653,7 @@ bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
                 continue;
             }
 
-            if (node.m_instance->m_insType == ChipDB::InstanceType::PIN)
+            if (node.m_instance->isPin())
             {
                 net.m_weight += 4;
                 break;

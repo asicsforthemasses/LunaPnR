@@ -1,10 +1,16 @@
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
 #pragma once
 
-#include <QEvent>
 #include <map>
 #include <string>
 #include <thread>
 #include <functional>
+
+#include <QEvent>
+#include <QObject>
 
 #include "database.h"
 #include "tasks/tasks.h"
@@ -15,7 +21,7 @@ namespace GUI
 class TaskList
 {
 public:
-    TaskList();
+    TaskList(QObject *projectManager);
     virtual ~TaskList();
 
     size_t numberOfTasks() const noexcept
@@ -23,26 +29,24 @@ public:
         return m_tasks.size();
     }
 
-    using TaskIndex = size_t;
-
-    struct CallbackInfo
+    const Tasks::Task* at(size_t index) const
     {
-        TaskIndex m_taskIdx = 0;
-        Tasks::Task::Status m_taskStatus = Tasks::Task::Status::INVALID;
-        int m_progress = 0;
-    };
+        return m_tasks.at(index).get();
+    }
 
-    bool executeToTask(Database &db, const std::string &taskName, std::function<void(CallbackInfo)> callback);
+    bool executeToTask(Database &db, const std::string &taskName);
 
 protected:
     void createTask(const std::string &taskName, Tasks::Task *task);
 
+    QObject  *m_projectManager = nullptr;
+
     std::vector<std::unique_ptr<Tasks::Task> > m_tasks;
 
     using TaskName  = std::string;
-    std::map<TaskName, TaskIndex> m_nameToIndex;
+    std::map<TaskName, size_t> m_nameToIndex;
 
-    void taskThread(Database &db, TaskIndex firstTask, TaskIndex lastTask, std::function<void(CallbackInfo)> callback);
+    void taskThread(Database &db, size_t firstTask, size_t lastTask, QObject *projectManager);
     std::unique_ptr<std::thread> m_thread;
 };
 

@@ -1,10 +1,6 @@
-/*
-  LunaPnR Source Code
-  
-  SPDX-License-Identifier: GPL-3.0-only
-  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
-
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "lunacore.h"
 
@@ -29,7 +25,7 @@ BOOST_AUTO_TEST_CASE(can_read_lef)
     BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
     std::cout << "  Found " << design.m_cellLib->size() << " cells\n";
-    BOOST_CHECK(design.m_cellLib->size() == 34);
+    BOOST_CHECK(design.m_cellLib->size() == 37);
 
     for(auto cellKeyObjPair : *design.m_cellLib)
     {
@@ -103,7 +99,7 @@ BOOST_AUTO_TEST_CASE(can_read_lef2)
     BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
     std::cout << "  Found " << design.m_cellLib->size() << " cells\n";
-    BOOST_CHECK(design.m_cellLib->size() == 135);
+    BOOST_CHECK(design.m_cellLib->size() == 138);
 }
 
 BOOST_AUTO_TEST_CASE(can_read_techlef2)

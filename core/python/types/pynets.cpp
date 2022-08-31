@@ -1,8 +1,6 @@
-/*  LunaPnR Source Code
- 
-    SPDX-License-Identifier: GPL-3.0-only
-    SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
-*/
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -30,7 +28,7 @@ struct PyNetsIterator
     {
         if (!m_netlist)
         {
-            return iterator();
+            return iterator{};
         }
         return m_netlist->m_nets.end();
     }
@@ -39,7 +37,7 @@ struct PyNetsIterator
     {
         if (!m_netlist)
         {
-            return iterator();
+            return iterator{};
         }        
         return m_netlist->m_nets.begin();
     }
