@@ -39,7 +39,7 @@ public:
     bool removeRows(int row, int count, const QModelIndex &parent) override;
     bool insertRows(int row, int count, const QModelIndex &parent) override;
 
-    void addCategory(const QString &name, const QString &fileExt, std::vector<std::string > *data);
+    void addCategory(const QString &name, const QStringList &fileExt, std::vector<std::string > *data);
     void addCategoryItem(size_t categoryIndex, const QString &data);
 
     bool isCategory(const QModelIndex &index) const;
@@ -56,8 +56,8 @@ protected:
 
     struct Category
     {
-        QString m_name;         ///< name of the category
-        QString m_extension;    ///< file extension for this category
+        QString     m_name;         ///< name of the category
+        QStringList m_extension;    ///< file extensions for this category
         std::vector<std::string > *m_data = nullptr;
     };
 

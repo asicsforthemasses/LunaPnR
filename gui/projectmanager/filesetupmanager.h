@@ -7,6 +7,8 @@
 #include <QTreeView>
 #include <QAction>
 #include <QMenu>
+#include <QString>
+#include <QStringList>
 #include "../models/filesetupmodel.h"
 
 namespace GUI
@@ -17,7 +19,12 @@ class FileSetupManager : public QTreeView
 public:
     FileSetupManager(QWidget *parent = nullptr);
 
-    void addCategory(const QString &name, const QString &fileExt,  
+    /** add a file category with a single file extension */
+    void addCategory(const QString &name, const QString &fileExt,
+        std::vector<std::string > *data);
+
+    /** add a file category with multiple file extensions */
+    void addCategory(const QString &name, const QStringList &fileExt,  
         std::vector<std::string > *data);
 
     void addCategoryItem(size_t categoryIndex, const QString &name);

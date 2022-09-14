@@ -28,9 +28,15 @@ FileSetupManager::FileSetupManager(QWidget *parent) : QTreeView(parent)
     m_itemContextMenu->addAction(m_removeResourceAction);
 }
 
-void FileSetupManager::addCategory(const QString &name, const QString &fileExt, std::vector<std::string > *data)
+void FileSetupManager::addCategory(const QString &name, const QStringList &fileExt, std::vector<std::string > *data)
 {
     m_model.addCategory(name, fileExt, data);
+}
+
+void FileSetupManager::addCategory(const QString &name, const QString &fileExt,  
+    std::vector<std::string > *data)
+{
+    m_model.addCategory(name, QStringList{fileExt}, data);
 }
 
 void FileSetupManager::addCategoryItem(size_t categoryIndex, const QString &name)
@@ -60,10 +66,14 @@ void FileSetupManager::onAddResource()
 
     for(auto const& cat : m_model.categories())
     {
-        extensions.append("*");
-        extensions.append(cat.m_extension);
-        extensions.append(" ");
+        for(auto const& ext : cat.m_extension)
+        {
+            extensions.append("*");
+            extensions.append(ext);
+            extensions.append(" ");
+        }
     }
+
     extensions.append(")");
 
     QString fileName = QFileDialog::getOpenFileName(this, tr("Add resource"),
@@ -74,10 +84,13 @@ void FileSetupManager::onAddResource()
         size_t catIndex = 0;
         for(auto const& cat : m_model.categories())
         {
-            if (fileName.endsWith(cat.m_extension))
+            for(auto const& ext : cat.m_extension)
             {
-                m_model.addCategoryItem(catIndex, fileName);
-                return;
+                if (fileName.endsWith(ext))
+                {
+                    m_model.addCategoryItem(catIndex, fileName);
+                    return;
+                }
             }
             catIndex++;
         }
