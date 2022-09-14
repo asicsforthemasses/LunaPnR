@@ -12,15 +12,15 @@ std::string ChipDB::toString(const LayerType &lt)
     switch(lt)    
     {
     default:
-    case LAYER_UNDEFINED:
+    case LayerType::UNDEFINED:
         return "UNDEFINED";
-    case LAYER_ROUTING:
+    case LayerType::ROUTING:
         return "ROUTING";        
-    case LAYER_CUT:
+    case LayerType::CUT:
         return "CUT";
-    case LAYER_MASTERSLICE:
+    case LayerType::MASTERSLICE:
         return "MASTERSLICE";
-    case LAYER_OVERLAP:
+    case LayerType::OVERLAP:
         return "OVERLAP";
     }    
 }
@@ -30,11 +30,11 @@ std::string ChipDB::toString(const LayerDirection &ldir)
     switch(ldir)    
     {
     default:
-    case LAYERDIR_UNDEFINED:
+    case LayerDirection::UNDEFINED:
         return "UNDEFINED";
-    case LAYERDIR_HORIZONTAL:
+    case LayerDirection::HORIZONTAL:
         return "HORIZONTAL";
-    case LAYERDIR_VERTICAL:
+    case LayerDirection::VERTICAL:
         return "VERTICAL";
     }
 }
@@ -62,6 +62,11 @@ KeyObjPair<LayerInfo> TechLib::lookupLayer(const std::string &name) const
     return m_layers[name];
 }
 
+std::shared_ptr<LayerInfo> TechLib::lookupLayer(const ChipDB::ObjectKey key) const
+{
+    return m_layers.at(key);
+}
+
 KeyObjPair<SiteInfo> TechLib::createSiteInfo(const std::string &name)
 {
     auto siteKeyObj = m_sites.add(std::make_shared<SiteInfo>(name));
@@ -76,6 +81,11 @@ KeyObjPair<SiteInfo> TechLib::createSiteInfo(const std::string &name)
 KeyObjPair<SiteInfo> TechLib::lookupSiteInfo(const std::string &name) const
 {
     return m_sites[name];
+}
+
+std::shared_ptr<SiteInfo> TechLib::lookupSiteInfo(const ChipDB::ObjectKey key) const
+{
+    return m_sites.at(key);
 }
 
 void TechLib::addLayerListener(ChipDB::INamedStorageListener *listener)

@@ -108,6 +108,8 @@ add_library(lunacore
     python/types/pypininfolist.cpp
     python/types/pyinstance.cpp
     python/types/pyinstances.cpp
+    python/types/pylayerinfo.cpp
+    python/types/pytechlib.cpp
     ${PLATFORMSRC}
     )
 

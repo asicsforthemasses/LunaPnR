@@ -44,11 +44,11 @@ class SimpleTestCases(unittest.TestCase):
         print("Luna.Net prints as: ", myNet)
         self.assertTrue(str(myNet) == "Net")        
 
-class IterationTest(unittest.TestCase):
+class CellibIterationTest(unittest.TestCase):
 
     # test celllib and cell pin iteration
     def test_CellAndPinIteration(self):
-        banner("Iteration test")
+        banner("Cellib Iteration test")
         Luna.clear()
         cells = Luna.CellLib()
         for c in cells:
@@ -70,6 +70,20 @@ class IterationTest(unittest.TestCase):
                 print("\t\t\tOffset      : ", pin.offset)        
                 print("\t\t\tFunction    : ", pin.function)
                 print("\t\t\t3-Function  : ", pin.tristateFunction)
+
+class LayersIterationTest(unittest.TestCase):
+
+    # test celllib and cell pin iteration
+    def test_LayersIteration(self):
+        banner("Layers Iteration test")
+        Luna.clear()
+        Luna.loadLef("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef")
+        Luna.loadLib("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib")        
+        layers = Luna.TechLibLayers()
+        print("Number of layers: ", layers.layerCount())
+        print("Layer #1 name   : ", layers.getLayer(0).name)
+        for layer in layers:
+            print("Layer:", layer.name)
 
 class TestImporters(unittest.TestCase):
     
