@@ -2158,7 +2158,7 @@ bool Parser::parseViaRule()
             error("Expected viarule name after END\n");
             return false;
         }
-    } while(m_tokstr == viaRuleName);
+    } while(m_tokstr != viaRuleName);
     
     m_curtok = tokenize(m_tokstr);
     if (m_curtok != TOK_EOL)
