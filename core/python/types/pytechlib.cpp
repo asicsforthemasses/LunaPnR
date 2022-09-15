@@ -36,7 +36,7 @@ struct PyTechLibLayers : public Python::TypeTemplate<PyTechLibLayerIterator>
     /** set internal values of PyCell */
     static int pyInit(PyTechLibLayers *self, PyObject *args, PyObject *kwds)
     {
-        std::cout << "PyTechLibLayers::Init\n";
+        //std::cout << "PyTechLibLayers::Init\n";
 
         // do not use ok() here, as it checks for
         // m_holder to be != nullptr.
@@ -128,7 +128,7 @@ struct PyTechLibLayers : public Python::TypeTemplate<PyTechLibLayerIterator>
 
     static PyObject* pyIter(PyTechLibLayers *self)
     {
-        std::cout << "PyTechLib::Iter\n";
+        //std::cout << "PyTechLib::Iter\n";
 
         if (self->ok())
         {
@@ -142,7 +142,7 @@ struct PyTechLibLayers : public Python::TypeTemplate<PyTechLibLayerIterator>
 
     static PyObject* pyIterNext(PyTechLibLayers *self)
     {
-        std::cout << "PyTechLibLayers::IterNext\n";
+        //std::cout << "PyTechLibLayers::IterNext\n";
 
         if (self->ok())
         {
