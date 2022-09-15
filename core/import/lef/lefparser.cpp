@@ -406,7 +406,6 @@ bool Parser::parse(const std::string &lefstring)
             }
             else
             {
-                Logging::setLogLevel(Logging::LogType::VERBOSE);
                 if (!m_tokstr.empty())
                 {   
                     Logging::doLog(Logging::LogType::VERBOSE, "  LEF skipping: %s on line %u\n", m_tokstr.c_str(), m_lineNum);
@@ -414,7 +413,6 @@ bool Parser::parse(const std::string &lefstring)
             }
             break;
         default:
-            Logging::setLogLevel(Logging::LogType::VERBOSE);
             if (!m_tokstr.empty())
             {   
                 Logging::doLog(Logging::LogType::VERBOSE, "  LEF skipping: %s on line %u\n", m_tokstr.c_str(), m_lineNum);
