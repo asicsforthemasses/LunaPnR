@@ -49,6 +49,16 @@ void ReaderImpl::onEndMacro(const std::string &macroName)
     m_curCell.reset();
 }
 
+void ReaderImpl::onVia(const std::string &viaName)
+{
+    Logging::doLog(Logging::LogType::VERBOSE,"LEF VIA: %s\n", viaName.c_str());
+}
+
+void ReaderImpl::onViaRule(const std::string &viaRuleName)
+{
+    Logging::doLog(Logging::LogType::VERBOSE,"LEF VIARULE: %s\n", viaRuleName.c_str());
+}
+
 void ReaderImpl::onSize(int64_t sx, int64_t sy)
 {   
     const double nm2microns = 0.001;

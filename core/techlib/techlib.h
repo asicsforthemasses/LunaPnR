@@ -183,12 +183,22 @@ public:
     KeyObjPair<SiteInfo> lookupSiteInfo(const std::string &name) const; 
     std::shared_ptr<SiteInfo> lookupSiteInfo(const ChipDB::ObjectKey key) const; 
 
-    auto layers() const noexcept
+    auto const& layers() const noexcept
     {
         return m_layers;
     }
 
-    auto sites() const noexcept
+    auto const& sites() const noexcept
+    {
+        return m_sites;
+    }
+
+    auto & layers() noexcept
+    {
+        return m_layers;
+    }
+
+    auto & sites() noexcept
     {
         return m_sites;
     }

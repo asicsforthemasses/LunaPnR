@@ -38,6 +38,15 @@ BOOST_AUTO_TEST_CASE(various_tech_tests)
     }
 
     BOOST_CHECK(techlib->getNumberOfSites() > 0);
+
+    // iterate over sites
+    std::cout << "Iterating over sites:\n";
+    auto iter2 = techlib->sites().begin();
+    while(iter2 != techlib->sites().end())
+    {
+        std::cout << "  Site: " << iter2->name() << "\n";
+        iter2++;
+    }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

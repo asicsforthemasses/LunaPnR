@@ -69,6 +69,12 @@ public:
     /** callback when done parsing */
     virtual void onEndParse() override {}
 
+    /** callback for via */
+    virtual void onVia(const std::string &viaName) override;
+
+    /** callback for viarule */
+    virtual void onViaRule(const std::string &viaRuleName) override;
+
     /** callback for layer */
     virtual void onLayer(const std::string &layerName) override;
 
