@@ -42,7 +42,7 @@ LayerInfoModel::~LayerInfoModel()
 void LayerInfoModel::setLayer(std::shared_ptr<ChipDB::LayerInfo> layer)
 {
     beginResetModel();
-    m_rootNode.reset(new LayerInfoNode("Cell", "", m_altColors.getColor()));
+    m_rootNode.reset(new LayerInfoNode("Layer", "", m_altColors.getColor()));
 
     if (!layer)
     {
@@ -54,7 +54,7 @@ void LayerInfoModel::setLayer(std::shared_ptr<ChipDB::LayerInfo> layer)
     m_altColors.resetState();
 
     // generic layer information
-    auto layerNode = new LayerInfoNode("Layer", QString::fromStdString(layer->name()), m_altColors.getColorAndUpdate());
+    auto layerNode = new LayerInfoNode("Layer name", QString::fromStdString(layer->name()), m_altColors.getColorAndUpdate());
     m_rootNode->addChild(layerNode);
 
     //layerNode->addChild(new LayerInfoNode("ID", layer->m_id, m_altColors.getColorAndUpdate()));

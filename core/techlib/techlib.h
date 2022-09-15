@@ -127,6 +127,8 @@ enum class SiteClass : uint8_t
     CORE
 };
 
+std::string toString(const SiteClass &cls);
+
 class SiteInfo
 {
 public:

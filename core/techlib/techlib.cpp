@@ -39,6 +39,20 @@ std::string ChipDB::toString(const LayerDirection &ldir)
     }
 }
 
+std::string ChipDB::toString(const SiteClass &cls)
+{
+    switch(cls)
+    {
+    default:
+    case SiteClass::UNDEFINED:
+        return "UNDEFINED";
+    case SiteClass::PAD:
+        return "PAD";
+    case SiteClass::CORE:
+        return "CORE";
+    }
+}
+
 void TechLib::clear()
 {
     m_layers.clear();

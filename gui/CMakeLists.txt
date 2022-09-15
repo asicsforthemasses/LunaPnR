@@ -37,6 +37,7 @@ set (LUNA_SRC_FILES
     models/layerappearancetablemodel.cpp
     models/techlibinfomodel.cpp
     models/filesetupmodel.cpp
+    models/techlibsitemodel.cpp
     common/guihelpers.cpp
     common/hatchlibrary.cpp
     common/layerrenderinfo.cpp
