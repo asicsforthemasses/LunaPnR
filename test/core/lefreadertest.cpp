@@ -136,7 +136,7 @@ BOOST_AUTO_TEST_CASE(can_read_techlef2)
     // check site parameters
     BOOST_CHECK(design.m_techLib->sites().at(0)->name() == "FreePDK45_38x28_10R_NP_162NW_34O");
     BOOST_CHECK(design.m_techLib->sites().at(0)->m_symmetry.m_flags == ChipDB::SymmetryFlags::SYM_Y);
-    BOOST_CHECK(design.m_techLib->sites().at(0)->m_class == ChipDB::SC_CORE);
+    BOOST_CHECK(design.m_techLib->sites().at(0)->m_class == ChipDB::SiteClass::CORE);
     BOOST_CHECK((design.m_techLib->sites().at(0)->m_size == ChipDB::Coord64{190,1400}));
 
 }

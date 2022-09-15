@@ -15,6 +15,24 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent), m_db(nullptr)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 
+    // ************************************************************************
+    // create layer and site group boxes and stack them vertically
+    // ************************************************************************
+
+    m_mainLayout = new QVBoxLayout();
+
+    m_layerGroupBox = new QGroupBox("Layers");
+    m_siteGroupBox  = new QGroupBox("Sites");
+
+    m_mainLayout->addWidget(m_layerGroupBox);
+    m_mainLayout->addWidget(m_siteGroupBox);
+
+    setLayout(m_mainLayout);
+
+    // ************************************************************************
+    // create contents of layer groupbox
+    // ************************************************************************
+
     m_layerTableView = new QTableView(this);
     m_layerTableView->setSelectionBehavior(QTableView::SelectRows);
     m_layerTableView->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -34,9 +52,9 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent), m_db(nullptr)
     //m_layout2->addWidget(new QLabel("Cell information"),0);
     //m_layout2->addWidget(m_cellTreeView,1);
 
-    m_mainLayout = new QHBoxLayout();
-    m_mainLayout->addWidget(m_layerTableView,1);
-    m_mainLayout->addWidget(m_layerTreeView,2);
+    m_layerLayout = new QHBoxLayout();
+    m_layerLayout->addWidget(m_layerTableView,1);
+    m_layerLayout->addWidget(m_layerTreeView,2);
 
     m_colorButton = new SelectColorButton();
     m_hatchButton = new SelectHatchButton();
@@ -61,12 +79,41 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent), m_db(nullptr)
     renderInfoBox->addWidget(gbox1);
     renderInfoBox->addWidget(gbox2);
 
-    m_mainLayout->addLayout(renderInfoBox);
+    m_layerLayout->addLayout(renderInfoBox);
 
     //m_layout->addWidget(m_cellLayoutView,2);
     //m_layout->addLayout(m_layout2,1);
 
-    setLayout(m_mainLayout);
+    m_layerGroupBox->setLayout(m_layerLayout);
+
+    // ************************************************************************
+    // create contents of layer groupbox
+    // ************************************************************************
+
+    m_siteTableView = new QTableView(this);
+    m_siteTableView->setSelectionBehavior(QTableView::SelectRows);
+    m_siteTableView->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    m_siteTableModel.reset(new SiteTableModel(nullptr));
+    m_siteTableView->setModel(m_siteTableModel.get());
+
+    // layer information tree view
+    m_siteTreeView = new QTreeView(this);
+    m_siteTreeView->setRootIsDecorated(false);
+    m_siteTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers); // make read-only
+
+    m_siteInfoModel.reset(new SiteInfoModel());
+    m_siteTreeView->setModel(m_siteInfoModel.get());
+
+    m_siteLayout = new QHBoxLayout();
+    m_siteLayout->addWidget(m_siteTableView,1);
+    m_siteLayout->addWidget(m_siteTreeView,2);
+
+    m_siteGroupBox->setLayout(m_siteLayout);
+
+    // ************************************************************************
+    // connect signals/slots
+    // ************************************************************************
 
     connect(m_layerTableView->selectionModel(), 
         SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), 
@@ -91,7 +138,12 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent), m_db(nullptr)
     connect(m_hatchObsButton, 
         SIGNAL(clicked()), 
         this,
-        SLOT(onChangeObsHatch()) );        
+        SLOT(onChangeObsHatch()) );    
+
+    connect(m_siteTableView->selectionModel(), 
+        SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), 
+        this,
+        SLOT(onSiteSelectionChanged(const QItemSelection&, const QItemSelection&)));            
 }
 
 TechBrowser::~TechBrowser()
@@ -108,6 +160,7 @@ void TechBrowser::setDatabase(std::shared_ptr<Database> db)
     if (m_db)
     {
         m_db->techLib()->removeLayerListener(m_layerInfoModel.get());
+        m_db->techLib()->removeSiteListener(m_siteInfoModel.get());
     }
 
     m_db = db;
@@ -120,6 +173,7 @@ void TechBrowser::setDatabase(std::shared_ptr<Database> db)
     }
 
     m_db->techLib()->addLayerListener(m_layerInfoModel.get());
+    m_db->techLib()->addSiteListener(m_siteInfoModel.get());
 
     if (m_db->techLib()->getNumberOfLayers() > 0)
     {
@@ -131,9 +185,20 @@ void TechBrowser::setDatabase(std::shared_ptr<Database> db)
         m_layerInfoModel->setLayer(nullptr);
     }
 
-    m_layerTableModel->setTechLib(m_db->techLib());
+    if (m_db->techLib()->getNumberOfSites() > 0)
+    {
+        auto site = m_db->techLib()->sites().at(0);
+        m_siteInfoModel->setSite(site);
+    }
+    else
+    {
+        m_siteInfoModel->setSite(nullptr);
+    }
 
-    // make sure all columns can expand
+    m_layerTableModel->setTechLib(m_db->techLib());
+    m_siteTableModel->setTechLib(m_db->techLib());
+
+    // make sure all columns of the layer table can expand
     for(size_t c=0; c < m_layerTableView->horizontalHeader()->count(); c++)
     {
         m_layerTableView->horizontalHeader()->setSectionResizeMode(
@@ -145,9 +210,25 @@ void TechBrowser::setDatabase(std::shared_ptr<Database> db)
         m_layerTreeView->header()->setSectionResizeMode(
             c, QHeaderView::Stretch);
     }
+
+    // make sure all columns of the site table can expand
+    for(size_t c=0; c < m_siteTableView->horizontalHeader()->count(); c++)
+    {
+        m_siteTableView->horizontalHeader()->setSectionResizeMode(
+            c, QHeaderView::Stretch);
+    }
+
+    for(size_t c=0; c < m_siteTreeView->header()->count(); c++)
+    {
+        m_siteTreeView->header()->setSectionResizeMode(
+            c, QHeaderView::Stretch);
+    }
+
     m_layerTreeView->expandAll();    
-    
     m_layerTableView->selectRow(0);
+    
+    m_siteTreeView->expandAll();    
+    m_siteTableView->selectRow(0);
 }
 
 void TechBrowser::refreshDatabase()
@@ -316,4 +397,59 @@ void TechBrowser::onChangeObsHatch()
             }            
         }        
     } 
+}
+
+void TechBrowser::onSiteSelectionChanged(const QItemSelection &cur, const QItemSelection &prev)
+{
+    QModelIndex index = m_siteTableView->currentIndex();
+
+    if (index.isValid())
+    {        
+        auto site = m_siteTableModel->getSite(index.row());
+        if (site != nullptr)
+        {
+            m_siteInfoModel->setSite(site);
+            m_siteTreeView->expandAll();
+
+#if 0
+            if (m_db != nullptr)
+            {
+                // make sure the layer render info database stays in sync
+                if (m_db->m_layerRenderInfoDB.size() != m_db->techLib()->layers().size())
+                {
+                    refreshDatabase();
+                }
+
+                auto info = m_db->m_layerRenderInfoDB[layer->name()];
+                if (info.isValid())
+                {
+                    m_colorButton->setEnabled(true);
+                    m_hatchButton->setEnabled(true);
+                    m_colorObsButton->setEnabled(true);
+                    m_hatchObsButton->setEnabled(true);
+                    m_colorButton->setColor(info->routing().getColor());
+                    m_hatchButton->setHatch(info->routing().getTexture());
+                    m_colorObsButton->setColor(info->obstruction().getColor());
+                    m_hatchObsButton->setHatch(info->obstruction().getTexture());
+                }
+                else
+                {
+                    m_colorButton->setDisabled(true);    
+                    m_hatchButton->setDisabled(true);
+                    m_colorObsButton->setDisabled(true);
+                    m_hatchObsButton->setDisabled(true);                    
+                }
+            }
+            else
+            {
+                m_colorButton->setDisabled(true);
+                m_hatchButton->setDisabled(true);
+                m_colorObsButton->setDisabled(true);
+                m_hatchObsButton->setDisabled(true);
+            }
+#endif
+            update();
+            Logging::doLog(Logging::LogType::VERBOSE, "Selected site %s\n", site->name().c_str());
+        }
+    }
 }

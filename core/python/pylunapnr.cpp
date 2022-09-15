@@ -18,6 +18,10 @@
 #include "types/pyinstances.h"
 #include "types/pynet.h"
 #include "types/pynets.h"
+#include "types/pylayerinfo.h"
+#include "types/pytechlayers.h"
+#include "types/pysiteinfo.h"
+#include "types/pytechsites.h"
 #include "pylunapnr.h"
 
 #include "common/logging.h"
@@ -562,6 +566,18 @@ static PyObject* PyInit_Luna()
     if (PyType_Ready(&PyNetsType) < 0)
         return nullptr;
 
+    if (PyType_Ready(&PyLayerInfoType) < 0)
+        return nullptr;
+
+    if (PyType_Ready(&PyTechLibLayersType) < 0)
+        return nullptr;        
+
+    if (PyType_Ready(&PySiteInfoType) < 0)
+        return nullptr;
+
+    if (PyType_Ready(&PyTechLibSitesType) < 0)
+        return nullptr;  
+
     auto m = PyModule_Create(&LunaModule);
     if (m == nullptr)
         return nullptr;
@@ -575,7 +591,11 @@ static PyObject* PyInit_Luna()
     incRefAndAddObject(m, &PyInstancesType);
     incRefAndAddObject(m, &PyNetType);
     incRefAndAddObject(m, &PyNetsType);
-    
+    incRefAndAddObject(m, &PyLayerInfoType);
+    incRefAndAddObject(m, &PyTechLibLayersType);
+    incRefAndAddObject(m, &PySiteInfoType);
+    incRefAndAddObject(m, &PyTechLibSitesType);
+
     return m;
 }
 
@@ -609,9 +629,17 @@ void Scripting::Python::init()
         Py_XDECREF(capsule);
     }
 
-    auto capsule2 = PyCapsule_New(m_design, "Luna.DesignPtr", nullptr);
+    capsule  = PyCapsule_New(m_design->m_techLib.get(), "Luna.TechLibraryPtr", nullptr);
+    
+    if (PyModule_AddObject(lunaModule, "TechLibraryPtr", capsule) < 0)
+    {
+        std::cout << "PyModule_AddObject failed!\n";
+        Py_XDECREF(capsule);
+    }
 
-    if (PyModule_AddObject(lunaModule, "DesignPtr", capsule2) < 0)
+    capsule = PyCapsule_New(m_design, "Luna.DesignPtr", nullptr);
+
+    if (PyModule_AddObject(lunaModule, "DesignPtr", capsule) < 0)
     {
         std::cout << "PyModule_AddObject failed!\n";
         Py_XDECREF(capsule);

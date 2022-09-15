@@ -226,8 +226,8 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
                 advance();
             }
         }
-        m_lineNum++;
-        m_col = 1;                 
+        //m_lineNum++;
+        //m_col = 1;                 
         return TOK_EOL; 
     }
 
@@ -404,8 +404,19 @@ bool Parser::parse(const std::string &lefstring)
             {
                 parseSite();
             }
+            else
+            {
+                if (!m_tokstr.empty())
+                {   
+                    Logging::doLog(Logging::LogType::VERBOSE, "  LEF skipping: %s on line %u\n", m_tokstr.c_str(), m_lineNum);
+                }                
+            }
             break;
         default:
+            if (!m_tokstr.empty())
+            {   
+                Logging::doLog(Logging::LogType::VERBOSE, "  LEF skipping: %s on line %u\n", m_tokstr.c_str(), m_lineNum);
+            }
             break;
         }
     } while(m_curtok != TOK_EOF);
@@ -2107,6 +2118,8 @@ bool Parser::parseVia()
         return false;
     }
 
+    onVia(viaName);
+
     return true;
 }
 
@@ -2143,7 +2156,7 @@ bool Parser::parseViaRule()
             error("Expected viarule name after END\n");
             return false;
         }
-    } while(m_tokstr == viaRuleName);
+    } while(m_tokstr != viaRuleName);
     
     m_curtok = tokenize(m_tokstr);
     if (m_curtok != TOK_EOL)
@@ -2151,6 +2164,8 @@ bool Parser::parseViaRule()
         error("Expected EOL after END <viarule name>\n");
         return false;
     }
+
+    onViaRule(viaRuleName);
 
     return true;
 }

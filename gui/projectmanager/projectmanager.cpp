@@ -7,6 +7,7 @@
 
 #include <QHeaderView>
 #include <QMessageBox>
+#include <QStringList>
 #include <QFileDialog>
 
 #include "projectmanager.h"
@@ -43,7 +44,7 @@ void ProjectManager::create()
 
     m_fileSetupManager = new GUI::FileSetupManager();
     m_fileSetupManager->header()->hide();
-    m_fileSetupManager->addCategory("LEF", ".lef", &m_projectSetup.m_lefFiles);
+    m_fileSetupManager->addCategory("LEF", QStringList{".lef",".tlef"}, &m_projectSetup.m_lefFiles);
     m_fileSetupManager->addCategory("LIB", ".lib", &m_projectSetup.m_libFiles);
     m_fileSetupManager->addCategory("Verilog", ".v", &m_projectSetup.m_verilogFiles);    
     m_fileSetupManager->addCategory("Timing constraints", ".sdc", &m_projectSetup.m_timingConstraintFiles);

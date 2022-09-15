@@ -175,6 +175,16 @@ std::string ChipDB::toString(const PlacementInfo &v)
     }
 }
 
+std::string ChipDB::toString(const SymmetryFlags &v)
+{
+    std::string symstr;
+    if (v.m_flags == SymmetryFlags::SYM_NONE) return "NONE";
+    if ((v.m_flags & SymmetryFlags::SYM_X) != 0) symstr += "X ";
+    if ((v.m_flags & SymmetryFlags::SYM_Y) != 0) symstr += "Y ";
+    if ((v.m_flags & SymmetryFlags::SYM_R90) != 0) symstr += "R90 ";
+    return symstr;
+}
+
 bool ChipDB::fromString(const char *v, ChipDB::PlacementInfo &result)
 {
     return fromString(std::string_view(v), result);

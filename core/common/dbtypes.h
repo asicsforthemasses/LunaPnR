@@ -489,6 +489,7 @@ namespace ChipDB
 
     std::string toString(const CellSubclass &v);
     std::string toString(const CellClass &v);
+    std::string toString(const SymmetryFlags &v);
 
     /** create a new string with upper case characters */
     std::string toUpper(const std::string &txt);

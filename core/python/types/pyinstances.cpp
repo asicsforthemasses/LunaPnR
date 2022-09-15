@@ -27,7 +27,7 @@ struct PyInstancesIterator
     {
         if (!m_netlist)
         {
-            return iterator();
+            return iterator{};
         }
         return m_netlist->m_instances.end();
     }
@@ -36,7 +36,7 @@ struct PyInstancesIterator
     {
         if (!m_netlist)
         {
-            return iterator();
+            return iterator{};
         }        
         return m_netlist->m_instances.begin();
     }

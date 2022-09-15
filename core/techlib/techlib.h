@@ -12,22 +12,22 @@
 namespace ChipDB
 {
 
-enum LayerType : uint8_t
+enum class LayerType : uint8_t
 {
-    LAYER_UNDEFINED = 0,
-    LAYER_ROUTING,
-    LAYER_CUT,
-    LAYER_MASTERSLICE,
-    LAYER_OVERLAP
+    UNDEFINED = 0,
+    ROUTING,
+    CUT,
+    MASTERSLICE,
+    OVERLAP
 };
 
 std::string toString(const LayerType &lt);
 
-enum LayerDirection : uint8_t
+enum class LayerDirection : uint8_t
 {
-    LAYERDIR_UNDEFINED = 0,
-    LAYERDIR_HORIZONTAL,
-    LAYERDIR_VERTICAL
+    UNDEFINED = 0,
+    HORIZONTAL,
+    VERTICAL
 };
 
 std::string toString(const LayerDirection &lt);
@@ -48,8 +48,8 @@ public:
         m_resistance(0.0),
         m_thickness(0.0),
         m_minArea(0.0),
-        m_type(LAYER_UNDEFINED),
-        m_dir(LAYERDIR_UNDEFINED)
+        m_type(LayerType::UNDEFINED),
+        m_dir(LayerDirection::UNDEFINED)
     {}
 
     LayerInfo(const std::string &name) 
@@ -64,8 +64,8 @@ public:
         m_resistance(0.0),
         m_thickness(0.0),
         m_minArea(0.0),
-        m_type(LAYER_UNDEFINED),
-        m_dir(LAYERDIR_UNDEFINED)        
+        m_type(LayerType::UNDEFINED),
+        m_dir(LayerDirection::UNDEFINED)
     {}
 
     IMPLEMENT_ACCEPT;
@@ -120,12 +120,14 @@ struct SiteInfo : public NamedObject
 
 #endif
 
-enum SiteClass : uint8_t
+enum class SiteClass : uint8_t
 {
-    SC_UNDEFINED = 0,
-    SC_PAD,
-    SC_CORE
+    UNDEFINED = 0,
+    PAD,
+    CORE
 };
+
+std::string toString(const SiteClass &cls);
 
 class SiteInfo
 {
@@ -133,12 +135,12 @@ public:
 
     SiteInfo()
     : m_size{0,0},
-      m_class(SC_UNDEFINED) {}
+      m_class(SiteClass::UNDEFINED) {}
     
     SiteInfo(const std::string &name) 
     : m_name(name),
       m_size{0,0},
-      m_class(SC_UNDEFINED) {}
+      m_class(SiteClass::UNDEFINED) {}
 
     //IMPLEMENT_ACCEPT;
 
@@ -177,16 +179,28 @@ public:
 
     KeyObjPair<LayerInfo> createLayer(const std::string &name);
     KeyObjPair<LayerInfo> lookupLayer(const std::string &name) const;
+    std::shared_ptr<LayerInfo> lookupLayer(const ChipDB::ObjectKey key) const;
 
     KeyObjPair<SiteInfo> createSiteInfo(const std::string &name);
     KeyObjPair<SiteInfo> lookupSiteInfo(const std::string &name) const; 
+    std::shared_ptr<SiteInfo> lookupSiteInfo(const ChipDB::ObjectKey key) const; 
 
-    auto layers() const noexcept
+    auto const& layers() const noexcept
     {
         return m_layers;
     }
 
-    auto sites() const noexcept
+    auto const& sites() const noexcept
+    {
+        return m_sites;
+    }
+
+    auto & layers() noexcept
+    {
+        return m_layers;
+    }
+
+    auto & sites() noexcept
     {
         return m_sites;
     }

@@ -11,9 +11,11 @@
 #include <QTreeView>
 #include <QGroupBox>
 #include <QFrame>
-#include <QHBoxLayout>
+#include <QBoxLayout>
+
 #include "../common/database.h"
 #include "../models/techlibinfomodel.h"
+#include "../models/techlibsitemodel.h"
 #include "../widgets/colorbutton.h"
 #include "../widgets/hatchbutton.h"
 
@@ -35,6 +37,7 @@ public:
 
 public slots:
     void onLayerSelectionChanged(const QItemSelection &cur, const QItemSelection &prev);
+    void onSiteSelectionChanged(const QItemSelection &cur, const QItemSelection &prev);
     void onLayerColorChanged();
     void onChangeHatch();
     void onLayerObsColorChanged();
@@ -43,10 +46,21 @@ public slots:
 protected:
     std::unique_ptr<LayerInfoModel>     m_layerInfoModel;
     std::unique_ptr<LayerTableModel>    m_layerTableModel;
-    
-    QHBoxLayout     *m_mainLayout;
-    QTableView      *m_layerTableView;
+    std::unique_ptr<SiteInfoModel>      m_siteInfoModel;
+    std::unique_ptr<SiteTableModel>     m_siteTableModel;
 
+    QVBoxLayout     *m_mainLayout;
+
+    QGroupBox       *m_layerGroupBox;
+    QGroupBox       *m_siteGroupBox;
+
+    QHBoxLayout     *m_layerLayout;
+    QHBoxLayout     *m_siteLayout;
+    
+    QTableView      *m_siteTableView;
+    QTreeView       *m_siteTreeView;
+
+    QTableView          *m_layerTableView;
     QTreeView           *m_layerTreeView;
     SelectColorButton   *m_colorButton;
     SelectHatchButton   *m_hatchButton;

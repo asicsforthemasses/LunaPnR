@@ -49,6 +49,16 @@ void ReaderImpl::onEndMacro(const std::string &macroName)
     m_curCell.reset();
 }
 
+void ReaderImpl::onVia(const std::string &viaName)
+{
+    Logging::doLog(Logging::LogType::VERBOSE,"LEF VIA: %s\n", viaName.c_str());
+}
+
+void ReaderImpl::onViaRule(const std::string &viaRuleName)
+{
+    Logging::doLog(Logging::LogType::VERBOSE,"LEF VIARULE: %s\n", viaRuleName.c_str());
+}
+
 void ReaderImpl::onSize(int64_t sx, int64_t sy)
 {   
     const double nm2microns = 0.001;
@@ -433,10 +443,10 @@ void ReaderImpl::onLayerType(const std::string &layerType)
     using OptionPair = std::pair<const char *, LayerType>;
 
     constexpr const std::array<OptionPair, 4> validOptions = {{ 
-        {"ROUTING", LAYER_ROUTING},
-        {"CUT", LAYER_CUT},
-        {"MASTERSLICE", LAYER_MASTERSLICE},
-        {"OVERLAP", LAYER_OVERLAP}
+        {"ROUTING", LayerType::ROUTING},
+        {"CUT", LayerType::CUT},
+        {"MASTERSLICE", LayerType::MASTERSLICE},
+        {"OVERLAP", LayerType::OVERLAP}
     }};
     
     std::string layerTypeUpper = toUpper(layerType);
@@ -450,7 +460,7 @@ void ReaderImpl::onLayerType(const std::string &layerType)
         }
     }
 
-    m_curLayerInfo->m_type = LAYER_UNDEFINED;
+    m_curLayerInfo->m_type = LayerType::UNDEFINED;
 
     Logging::doLog(Logging::LogType::WARNING, "Unknown layer type in LEF file: %s\n", layerType.c_str());
 }
@@ -520,16 +530,16 @@ void ReaderImpl::onLayerDirection(const std::string &direction)
 
     if (direction == "HORIZONTAL")
     {
-        m_curLayerInfo->m_dir = LAYERDIR_HORIZONTAL;
+        m_curLayerInfo->m_dir = LayerDirection::HORIZONTAL;
     }
     else if (direction == "VERTICAL")
     {
-        m_curLayerInfo->m_dir = LAYERDIR_VERTICAL;
+        m_curLayerInfo->m_dir = LayerDirection::VERTICAL;
     }
     else
     {
         Logging::doLog(Logging::LogType::WARNING,"Layer direction undefined - got %s\n", direction.c_str());
-        m_curLayerInfo->m_dir = LAYERDIR_UNDEFINED;
+        m_curLayerInfo->m_dir = LayerDirection::UNDEFINED;
     }
     
     // Other routing directions are not supported.
@@ -670,11 +680,11 @@ void ReaderImpl::onSiteClass(const std::string &siteClass)
 
     if (siteClass == "CORE")
     {
-        m_curSiteInfo->m_class = SC_CORE;
+        m_curSiteInfo->m_class = SiteClass::CORE;
     }
     else if (siteClass == "PAD")
     {
-        m_curSiteInfo->m_class = SC_PAD;
+        m_curSiteInfo->m_class = SiteClass::PAD;
     }
     else
     {
