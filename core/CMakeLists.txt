@@ -96,6 +96,7 @@ add_library(lunacore
     export/dot/dotwriter.cpp
     export/def/defwriter.cpp
     export/verilog/verilogwriter.cpp
+    export/txt/txtwriter.cpp
     python/pylunapnr.cpp
     python/converters.cpp
     python/consoleredirect.cpp

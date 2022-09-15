@@ -74,6 +74,20 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
         return;
     }
 
+    // write terminal placement / nets to file
+    std::ofstream netFile("netpos.txt");
+    if (netFile.good())
+    {
+        if (!LunaCore::TXT::write(netFile, netlist))
+        {
+            warning("  failed to write netpos.txt\n");
+        }
+    }
+    else
+    {
+        warning("  failed to open netpos.txt for writing\n");
+    }
+
     info("Placing fillers..\n");
     LunaCore::FillerHandler fillerHandler(*cellLib.get());
 

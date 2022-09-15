@@ -23,22 +23,22 @@ struct PyNetConstIterator
     ContainerType m_net;
     const_iterator m_iter;
 
-    auto end()
+    [[nodiscard]] const_iterator end() const
     {
         if (m_net)
         {
             return m_net->end();
         }
-        return const_iterator();
+        return const_iterator{};
     }
 
-    auto begin()
+    [[nodiscard]] const_iterator begin() const
     {
         if (m_net)
         {
             return m_net->begin();
         }
-        return const_iterator();
+        return const_iterator{};
     }
 };
 
