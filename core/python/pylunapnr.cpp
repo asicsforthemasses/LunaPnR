@@ -19,7 +19,9 @@
 #include "types/pynet.h"
 #include "types/pynets.h"
 #include "types/pylayerinfo.h"
-#include "types/pytechlib.h"
+#include "types/pytechlayers.h"
+#include "types/pysiteinfo.h"
+#include "types/pytechsites.h"
 #include "pylunapnr.h"
 
 #include "common/logging.h"
@@ -570,6 +572,12 @@ static PyObject* PyInit_Luna()
     if (PyType_Ready(&PyTechLibLayersType) < 0)
         return nullptr;        
 
+    if (PyType_Ready(&PySiteInfoType) < 0)
+        return nullptr;
+
+    if (PyType_Ready(&PyTechLibSitesType) < 0)
+        return nullptr;  
+
     auto m = PyModule_Create(&LunaModule);
     if (m == nullptr)
         return nullptr;
@@ -585,7 +593,9 @@ static PyObject* PyInit_Luna()
     incRefAndAddObject(m, &PyNetsType);
     incRefAndAddObject(m, &PyLayerInfoType);
     incRefAndAddObject(m, &PyTechLibLayersType);
-    
+    incRefAndAddObject(m, &PySiteInfoType);
+    incRefAndAddObject(m, &PyTechLibSitesType);
+
     return m;
 }
 

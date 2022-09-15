@@ -80,10 +80,24 @@ class LayersIterationTest(unittest.TestCase):
         Luna.loadLef("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef")
         Luna.loadLib("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib")        
         layers = Luna.TechLibLayers()
-        print("Number of layers: ", layers.layerCount())
-        print("Layer #1 name   : ", layers.getLayer(0).name)
+        print("Number of layers :", layers.layerCount())
+        print("Layer #1 name    :", layers.getLayer(0).name)
         for layer in layers:
             print("Layer:", layer.name)
+
+class SitesIterationTest(unittest.TestCase):
+
+    # test celllib and cell pin iteration
+    def test_SitesIteration(self):
+        banner("Sites Iteration test")
+        Luna.clear()
+        Luna.loadLef("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef")
+        Luna.loadLib("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib")        
+        sites = Luna.TechLibSites()
+        print("Number of sites :", sites.siteCount())
+        print("Site #1 name    :", sites.getSite(0).name)
+        for site in sites:
+            print("Site:", site.name)
 
 class TestImporters(unittest.TestCase):
     
