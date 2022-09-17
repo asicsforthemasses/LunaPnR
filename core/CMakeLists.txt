@@ -59,6 +59,7 @@ add_library(lunacore
     common/dbtypes.cpp
     common/fileutils.cpp
     common/matrix.cpp
+    common/geometry.cpp
     netlist/net.cpp
     netlist/instance.cpp
     netlist/netlist.cpp

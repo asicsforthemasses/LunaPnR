@@ -4,33 +4,44 @@
 
 setLogLevel("VERBOSE")
 
+cell_height = 10000
+cell_width  = 800
+
+rows = 100
+ys = cell_height * rows
+xs = ys
+
+xofs = 50000
+yofs = 50000
+pin_distance = 40000
+
 ## create floorplan
-createRegion("core", "core", 10000, 10000, 650400, 650000)
+createRegion("core", "core", xofs, yofs, xs, ys)
 
 setTopModule("mac32")
 
 ## place the pins
 xpos = 0
-xinc = 10000
-x = 10000
+xinc = 20000
+x = xofs+10000
 
 for idx in range(0,32): 
     pinName = "a_in[" + str(idx) + "]"
-    placeInstance(pinName, "mac32", x, 660000)
+    placeInstance(pinName, "mac32", x, yofs+ys+pin_distance)
     x = x + xinc
     pinName = "b_in[" + str(idx) + "]"
-    placeInstance(pinName, "mac32", x, 660000)
+    placeInstance(pinName, "mac32", x, yofs+ys+pin_distance)
     x = x + xinc    
 
-xinc = 10000
-x = 10000
+xinc = 20000
+x = xofs+10000
 
-placeInstance("clk", "mac32", x, 100000)
+placeInstance("clk", "mac32", x, yofs-pin_distance)
 x = x + xinc
-placeInstance("rst_an", "mac32", x, 0)
+placeInstance("rst_an", "mac32", x, yofs-pin_distance)
 x = x + xinc
 
 for idx in range(0,64):
     pinName = "data_out[" + str(idx) + "]"
-    placeInstance(pinName, "mac32", x, 0)
+    placeInstance(pinName, "mac32", x, yofs-pin_distance)
     x = x + xinc
