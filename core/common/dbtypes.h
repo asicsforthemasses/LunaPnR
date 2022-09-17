@@ -539,6 +539,7 @@ ChipDB::SymmetryFlags& operator+=(ChipDB::SymmetryFlags &lhs, const uint8_t &rhs
 
 std::ostream& operator<<(std::ostream& os, const ChipDB::Coord64& r);
 std::ostream& operator<<(std::ostream& os, const ChipDB::Rect64& r);
+std::ostream& operator<<(std::ostream& os, const ChipDB::Margins64& m);
 std::ostream& operator<<(std::ostream& os, const ChipDB::CellClass& cc);
 std::ostream& operator<<(std::ostream& os, const ChipDB::CellSubclass& sc);
 std::ostream& operator<<(std::ostream& os, const ChipDB::PlacementInfo& pi);

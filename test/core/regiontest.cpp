@@ -40,7 +40,8 @@ BOOST_AUTO_TEST_CASE(check_region_creation)
 
     std::cout << "Placement size without halo: " << regionWithoutHalo->getPlacementSize() << "\n";
     std::cout << "Placement size with halo   : " << regionWithHalo->getPlacementSize() << "\n";
-
+    std::cout << "Halo size                  : " << margins << "\n";
+    
     BOOST_CHECK(regionWithHalo->m_rows.size() == (expectedRowCount-2));
     BOOST_CHECK(regionWithHalo->getPlacementSize().m_x == (regionWithoutHalo->getPlacementSize().m_x-2*minCellSize.m_x));
     BOOST_CHECK(regionWithHalo->getPlacementSize().m_y == (regionWithoutHalo->getPlacementSize().m_y-2*minCellSize.m_y));
