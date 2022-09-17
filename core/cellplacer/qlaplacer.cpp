@@ -18,6 +18,12 @@ bool LunaCore::QLAPlacer::place(
 {
     double area = 0.0f;
 
+    if (region.getMinCellSize().isNullSize())
+    {
+        Logging::doLog(Logging::LogType::ERROR,"Cannot place: minimum cell size is 0.\n");
+        return false;
+    }
+
     const auto regionRect = region.m_rect;
 
     if (region.m_rows.empty())
@@ -97,7 +103,10 @@ bool LunaCore::QLAPlacer::place(
 
     Logging::doLog(Logging::LogType::VERBOSE, "Running final legalization.\n");
     LunaCore::Legalizer legalizer;
-    legalizer.legalizeRegion(region, netlist, 800);
+    if (!legalizer.legalizeRegion(region, netlist))
+    {
+        return false;
+    }
 
     Logging::doLog(Logging::LogType::INFO, "Placement done.\n");
 

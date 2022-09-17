@@ -3,8 +3,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 
 ## create floorplan
-createRegion("core", 10000, 10000, 170000, 30000)
-createRows("core", 0, 10000, 2)
+createRegion("core", "core", 10000, 10000, 170000, 30000)
 
 setTopModule("adder8")
 

@@ -73,10 +73,9 @@ public:
         }
     };
 
-    void legalizeRegion(
+    [[nodiscard]] bool legalizeRegion(
         const ChipDB::Region &region, 
-        ChipDB::Netlist &netlist, 
-        ChipDB::CoordType minCellWidth);
+        ChipDB::Netlist &netlist);
 
 protected:
 

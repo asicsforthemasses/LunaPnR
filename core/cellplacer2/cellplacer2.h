@@ -103,7 +103,7 @@ public:
      *  Recursive subregion division also stops when a subregion contains
      *  fewer than 'minInstances' cells/gates/instances.
     */
-    void place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
+    [[nodiscard]] bool place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
         std::size_t maxLevels, std::size_t minInstances);
 
 protected:

@@ -65,13 +65,31 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
 
     info("Using CellPlacer2\n");
     LunaCore::CellPlacer2::Placer placer;
-    placer.place(*netlist, *firstRegion, 20, 10);
+    if (!placer.place(*netlist, *firstRegion, 20, 10))
+    {
+        error("Placement failed\n");
+        return;
+    }
 
     auto cellLib = database.cellLib();
     if (!cellLib)
     {
         error("No cell library defined in database\n");
         return;
+    }
+
+    // write terminal placement / nets to file
+    std::ofstream netFile("netpos.txt");
+    if (netFile.good())
+    {
+        if (!LunaCore::TXT::write(netFile, netlist))
+        {
+            warning("  failed to write netpos.txt\n");
+        }
+    }
+    else
+    {
+        warning("  failed to open netpos.txt for writing\n");
     }
 
     info("Placing fillers..\n");

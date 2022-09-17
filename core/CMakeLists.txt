@@ -59,6 +59,7 @@ add_library(lunacore
     common/dbtypes.cpp
     common/fileutils.cpp
     common/matrix.cpp
+    common/geometry.cpp
     netlist/net.cpp
     netlist/instance.cpp
     netlist/netlist.cpp
@@ -96,6 +97,7 @@ add_library(lunacore
     export/dot/dotwriter.cpp
     export/def/defwriter.cpp
     export/verilog/verilogwriter.cpp
+    export/txt/txtwriter.cpp
     python/pylunapnr.cpp
     python/converters.cpp
     python/consoleredirect.cpp

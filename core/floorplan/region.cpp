@@ -7,9 +7,29 @@
 #include "common/logging.h"
 #include "region.h"
 
-ChipDB::Rect64 ChipDB::Region::getPlacementRect() const
+ChipDB::Rect64 ChipDB::Region::getPlacementRect() const noexcept
 {
     return m_rect.contracted(m_halo);
+}
+
+ChipDB::Size64 ChipDB::Region::getPlacementSize() const noexcept
+{
+    return m_rect.contracted(m_halo).getSize();
+}
+
+ChipDB::Size64 ChipDB::Region::getSize() const noexcept
+{
+    return m_rect.getSize();
+}
+
+ChipDB::Size64 ChipDB::Region::getMinCellSize() const noexcept
+{
+    return m_minCellSize;
+}
+
+void ChipDB::Region::setMinCellSize(const Size64 &minCellSize) noexcept
+{
+    m_minCellSize = minCellSize;
 }
 
 static double roundUp(double v, double resolution)
@@ -17,6 +37,45 @@ static double roundUp(double v, double resolution)
     return std::ceil(v / resolution) * resolution;
 }
 
+std::shared_ptr<ChipDB::Region> ChipDB::createRegion(
+    const std::string &regionName,
+    ChipDB::Rect64 regionRectIncludingHalo,
+    ChipDB::Size64 minCellSize, /* minimum cell size in nm */
+    std::optional<ChipDB::Margins64> halo
+)
+{
+    auto region = std::make_shared<ChipDB::Region>(regionName);
+    region->m_rect = regionRectIncludingHalo;
+    region->setMinCellSize(minCellSize);
+    if (halo)
+    {
+        region->m_halo = halo.value();
+    }
+
+    auto regionPlacementSize = region->getPlacementSize();
+
+    auto rowCount  = static_cast<int64_t>(std::floor(regionPlacementSize.m_y / minCellSize.m_y));
+    auto rowWidth  = minCellSize.m_x*static_cast<int64_t>(std::floor(regionPlacementSize.m_x / minCellSize.m_x));
+    auto rowHeight = minCellSize.m_y;
+
+    Logging::doLog(Logging::LogType::VERBOSE, "createRegion: %ld x %ld - #rows %ld\n", region->m_rect.width(), region->m_rect.height(),
+        rowCount);
+
+    // create rows inside region
+    auto placementLL = region->getPlacementRect().getLL();
+    for(size_t i=0; i<rowCount; i++)
+    {
+        region->m_rows.emplace_back();
+        region->m_rows.back().m_region = region;
+        region->m_rows.back().m_rect   = ChipDB::Rect64({placementLL.m_x, placementLL.m_y}, 
+            {placementLL.m_x+rowWidth, placementLL.m_y+rowHeight});
+        placementLL += {0,rowHeight};
+    }
+
+    return region;
+}
+
+#if 0
 std::shared_ptr<ChipDB::Region> ChipDB::createRegion(
     float   aspectRatio,    /// width / height
     int64_t minCellWidth, 
@@ -62,3 +121,4 @@ std::shared_ptr<ChipDB::Region> ChipDB::createRegion(
 
     return region;
 }
+#endif

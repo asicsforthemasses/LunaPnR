@@ -298,28 +298,39 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
     // Quoted string
     if (match('"'))
     {
+        // not sure what is legal but I've seen LEF files
+        // with a newline in a string. For example, Google GF180MCU does this
+        // in the tech lef file. 'PROPERTY LEF58_EOLENCLOSURE'
+        //
+        // the new strategy is to ignore newlines in a string
+        // and keep on reading..
+
         char c = peek();
-        while((c != '"') && (c != NEWLINE) && (c != CR))
+        //while((c != '"') && (c != NEWLINE) && (c != CR))
+        while((c != '"'))
         {
-            tokstr += c;
+            if ((c != NEWLINE) && (c != CR))
+            {
+                tokstr += c;
+            }
+
             advance();
             c = peek();
+            
+            if (c == 0)
+            {
+                // unexpected EOF!
+                error("Unexpected end of file. Missing closing \" in string?\n");
+                return TOK_ERR;
+            }
         }
 
         // skip closing quotes
         if (!match('"'))
-        {
-            error("Missing closing \" in string\n");
+        {            
             return TOK_ERR;
         }
-
-        // error on newline
-        c = peek();
-        if ((c == NEWLINE) || (c == CR))
-        {
-            error("Missing closing \" in string\n");
-            return TOK_ERR;
-        }
+        
         return TOK_STRING;
     }
 

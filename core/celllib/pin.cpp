@@ -37,7 +37,7 @@ KeyObjPair<PinInfo> PinInfoList::createPin(const std::string &name)
     if (!result.isValid())
     {
         m_pins.push_back(std::make_shared<PinInfo>(name));
-        return KeyObjPair<PinInfo>(m_pins.size()-1, m_pins.back());
+        return {static_cast<ObjectKey>(m_pins.size()-1), m_pins.back()};
     }
     
     // return the existing one
@@ -58,16 +58,16 @@ KeyObjPair<PinInfo> PinInfoList::operator[](const std::string &name) const
 
 KeyObjPair<PinInfo> PinInfoList::find(const std::string &name) const
 {
-    ssize_t key = 0;
+    ObjectKey key = 0;
     for(auto pin : m_pins)
     {
         if (pin->name() == name)
         {
-            return KeyObjPair<PinInfo>(key, pin);
+            return {key, pin};
         }
 
         key++;
     }
 
-    return KeyObjPair<PinInfo>();
+    return {};
 }

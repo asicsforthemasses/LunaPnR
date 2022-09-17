@@ -36,6 +36,15 @@ std::ostream& operator<<(std::ostream& os, const ChipDB::Rect64& r)
     return os;    
 }
 
+std::ostream& operator<<(std::ostream& os, const ChipDB::Margins64& m)
+{
+    os << "T: " << m.top() << " ";
+    os << "B: " << m.bottom() << " ";
+    os << "L: " << m.left() << " ";
+    os << "R: " << m.right();
+    return os;    
+}
+
 std::ostream& operator<<(std::ostream& os, const ChipDB::CellClass& cc)
 {
     os << ChipDB::toString(cc);

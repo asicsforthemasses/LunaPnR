@@ -42,4 +42,5 @@
 #include "../export/dot/dotwriter.h"
 #include "../export/verilog/verilogwriter.h"
 #include "../export/def/defwriter.h"
+#include "../export/txt/txtwriter.h"
 #include "../python/pylunapnr.h"

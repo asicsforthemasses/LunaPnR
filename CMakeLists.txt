@@ -18,7 +18,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 ## Setup LunaPnR version string
 ############################################################
 
-project(luna_pnr VERSION 0.1.3 HOMEPAGE_URL https://www.asicsforthemasses.com)
+project(luna_pnr VERSION 0.1.4 HOMEPAGE_URL https://www.asicsforthemasses.com)
 
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
     message("Building debug binaries")

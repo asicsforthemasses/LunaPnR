@@ -80,17 +80,17 @@ namespace ChipDB
             return *this;
         }
 
-        constexpr Coord64 operator+(const Coord64& rhs) const noexcept
+        [[nodiscard]] constexpr Coord64 operator+(const Coord64& rhs) const noexcept
         { 
             return Coord64{m_x + rhs.m_x, m_y + rhs.m_y};
         }
 
-        constexpr Coord64 operator-(const Coord64& rhs) const noexcept
+        [[nodiscard]] constexpr Coord64 operator-(const Coord64& rhs) const noexcept
         {
             return Coord64{m_x - rhs.m_x, m_y - rhs.m_y};
         } 
 
-        constexpr int64_t manhattanLength() const noexcept
+        [[nodiscard]] constexpr int64_t manhattanLength() const noexcept
         {
             return m_x + m_y;
         }
@@ -101,17 +101,24 @@ namespace ChipDB
             return Coord64{-m_x, -m_y};
         } 
 
-        constexpr bool operator==(const Coord64& other) const noexcept
+        [[nodiscard]]  constexpr bool operator==(const Coord64& other) const noexcept
         {
             return (m_x == other.m_x) && (m_y == other.m_y);
         }   
 
-        constexpr bool operator!=(const Coord64& other) const noexcept
+        [[nodiscard]] constexpr bool operator!=(const Coord64& other) const noexcept
         {
             return (m_x != other.m_x) || (m_y != other.m_y);
         }
 
+        [[nodiscard]] constexpr bool isNullSize() const noexcept
+        {
+            return (m_x == 0) && (m_y == 0);
+        }
+
     };
+
+    using Size64 = Coord64;
 
     struct Margins64
     {
@@ -126,6 +133,16 @@ namespace ChipDB
         {
             return (m_top == 0) && (m_bottom == 0) && (m_left == 0) && (m_right == 0);
         }
+
+        [[nodiscard]] constexpr auto& top() noexcept { return m_top; } 
+        [[nodiscard]] constexpr auto& bottom() noexcept { return m_bottom; }
+        [[nodiscard]] constexpr auto& left() noexcept { return m_left; }
+        [[nodiscard]] constexpr auto& right() noexcept { return m_right; }
+
+        [[nodiscard]] constexpr auto top() const noexcept { return m_top; }
+        [[nodiscard]] constexpr auto bottom() const noexcept { return m_bottom; }
+        [[nodiscard]] constexpr auto left() const noexcept { return m_left; }
+        [[nodiscard]] constexpr auto right() const noexcept { return m_right; }
 
         int64_t m_top;      ///< in nm
         int64_t m_bottom;   ///< in nm
@@ -522,6 +539,7 @@ ChipDB::SymmetryFlags& operator+=(ChipDB::SymmetryFlags &lhs, const uint8_t &rhs
 
 std::ostream& operator<<(std::ostream& os, const ChipDB::Coord64& r);
 std::ostream& operator<<(std::ostream& os, const ChipDB::Rect64& r);
+std::ostream& operator<<(std::ostream& os, const ChipDB::Margins64& m);
 std::ostream& operator<<(std::ostream& os, const ChipDB::CellClass& cc);
 std::ostream& operator<<(std::ostream& os, const ChipDB::CellSubclass& sc);
 std::ostream& operator<<(std::ostream& os, const ChipDB::PlacementInfo& pi);

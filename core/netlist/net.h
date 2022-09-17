@@ -80,19 +80,29 @@ public:
         return m_connections.size();
     }
 
-    auto begin() const
+    using iterator          = typename std::vector<NetConnect>::iterator;
+    using const_iterator    = typename std::vector<NetConnect>::const_iterator;
+    using value_type        = NetConnect;
+
+    [[nodiscard]] const_iterator begin() const
     {
         return m_connections.begin();
     }
 
-    auto end() const
+    [[nodiscard]] const_iterator end() const
     {
         return m_connections.end();
     }
-    
-    using iterator          = typename std::vector<NetConnect>::iterator;
-    using const_iterator    = typename std::vector<NetConnect>::const_iterator;
-    using value_type        = NetConnect;
+
+    [[nodiscard]] iterator begin()
+    {
+        return m_connections.begin();
+    }
+
+    [[nodiscard]] iterator end()
+    {
+        return m_connections.end();
+    }
 
 protected:
     std::string m_name;         ///< net name
