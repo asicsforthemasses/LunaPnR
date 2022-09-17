@@ -28,7 +28,7 @@ bool LunaCore::QLAPlacer::place(
 
     if (region.m_rows.empty())
     {
-        Logging::doLog(Logging::LogType::ERROR,"Cannot place: region has now rows\n");
+        Logging::doLog(Logging::LogType::ERROR,"Cannot place: region has no rows\n");
         return false;
     }
 
