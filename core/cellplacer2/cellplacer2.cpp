@@ -297,7 +297,7 @@ void Placer::place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
 
     auto utilization = static_cast<float>(totalCellArea / regionArea);
     Logging::doLog(Logging::LogType::INFO, "Region %s utilization is %f percent\n",
-        region.m_name.c_str(),
+        region.name().c_str(),
         utilization*100.0f);
 
     m_maxLevels = maxLevels;

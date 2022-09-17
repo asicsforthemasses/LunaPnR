@@ -10,6 +10,10 @@
 #include "netlist/instance.h"
 #include "netlist/netlist.h"
 
+/** Export net terminal positions in a simple text file format 
+ *  meant for testing the global router.
+ * 
+*/
 namespace LunaCore::TXT
 {
     bool write(std::ostream &os, const std::shared_ptr<ChipDB::Module> module);

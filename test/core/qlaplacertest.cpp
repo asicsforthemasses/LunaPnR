@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE(check_qla_netlist_placement)
     dstPin->m_pos = ChipDB::Coord64{1000,0};
     dstPin->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
 
-    auto region = std::make_shared<ChipDB::Region>();
+    auto region = std::make_shared<ChipDB::Region>("Core");
     region->m_rect = ChipDB::Rect64{{0,0}, {2000,1000}};
     region->m_rows.emplace_back();
     region->m_rows.back().m_rect = region->m_rect;

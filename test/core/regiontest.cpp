@@ -17,24 +17,33 @@ BOOST_AUTO_TEST_CASE(check_region_creation)
 {
     std::cout << "--== CHECK CREATE REGION ==--\n";
     
-    int64_t totalCellWidth = 500 * 3000;
-    int64_t cellHeight     = 5000;
+    ChipDB::Size64 minCellSize{800,10000};
+    ChipDB::Rect64 extents{{0,0},{100000,100000}};
 
-    auto cellArea = totalCellWidth * cellHeight;
+    const int expectedRowCount = std::floor(extents.getSize().m_y / minCellSize.m_y);
 
-    auto region = ChipDB::createRegion(
-        1.0 /* aspect ratio */,
-        1000 /* minCellWidth */,
-        cellHeight,
-        0 /* row Distance */,
-        totalCellWidth /* total cell width */
+    auto regionWithoutHalo = ChipDB::createRegion("Core",
+        extents,
+        minCellSize
     );
 
-    BOOST_CHECK(region != nullptr);
+    BOOST_CHECK(regionWithoutHalo != nullptr);
+    BOOST_CHECK(regionWithoutHalo->m_rows.size() == expectedRowCount);
+    BOOST_CHECK(regionWithoutHalo->getPlacementSize() == extents.getSize());
 
-    auto regionArea = region->m_rect.width() * region->m_rect.height();
+    ChipDB::Margins64 margins{minCellSize.m_y ,minCellSize.m_y, minCellSize.m_x, minCellSize.m_x};
+    auto regionWithHalo = ChipDB::createRegion("Core",
+        extents,
+        minCellSize,
+        margins
+    );
 
-    BOOST_CHECK(regionArea >= cellArea);
+    std::cout << "Placement size without halo: " << regionWithoutHalo->getPlacementSize() << "\n";
+    std::cout << "Placement size with halo   : " << regionWithHalo->getPlacementSize() << "\n";
+
+    BOOST_CHECK(regionWithHalo->m_rows.size() == (expectedRowCount-2));
+    BOOST_CHECK(regionWithHalo->getPlacementSize().m_x == (regionWithoutHalo->getPlacementSize().m_x-2*minCellSize.m_x));
+    BOOST_CHECK(regionWithHalo->getPlacementSize().m_y == (regionWithoutHalo->getPlacementSize().m_y-2*minCellSize.m_y));
 };
 
 
