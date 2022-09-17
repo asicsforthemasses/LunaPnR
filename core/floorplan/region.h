@@ -42,7 +42,7 @@ protected:
     std::string      m_name;        ///< region name
 };
 
-std::shared_ptr<Region> createRegion(
+[[nodiscard]] std::shared_ptr<Region> createRegion(
     const std::string &regionName,
     Rect64 regionRectIncludingHalo,     /* region extents including routing halo */
     Size64 minCellSize,                 /* minimum cell size in nm */

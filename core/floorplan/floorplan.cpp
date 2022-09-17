@@ -11,6 +11,17 @@ void Floorplan::clear()
     m_regions.clear();
 }
 
+KeyObjPair<Region> Floorplan::addRegion(std::shared_ptr<Region> regionPtr)
+{
+    auto optKeyObjPair = m_regions.add(regionPtr);
+    if (optKeyObjPair)
+    {
+        return optKeyObjPair.value();
+    }
+    
+    return KeyObjPair<Region>{};    
+}
+
 KeyObjPair<Region> Floorplan::createRegion(const std::string &name)
 {
     auto optKeyObjPair = m_regions.add(std::make_shared<Region>(name));

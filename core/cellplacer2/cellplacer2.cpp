@@ -285,9 +285,22 @@ void Placer::populateGatePositions(const ChipDB::Netlist &netlist, const ChipDB:
     }
 }
 
-void Placer::place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
+bool Placer::place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
     std::size_t maxLevels, std::size_t minInstances)
 {
+    // sanity checks
+    if (region.getMinCellSize().isNullSize())
+    {
+        Logging::doLog(Logging::LogType::ERROR,"Placer: minimum cell size has not been defined for the region!\n");
+        return false;
+    }
+
+    if (region.m_rows.size() == 0)
+    {
+        Logging::doLog(Logging::LogType::ERROR,"Placer: no row have been defined in the region!\n");
+        return false;
+    }
+
     // report utilization factor
     const double nm2um = 1.0e-3;
     double totalCellArea = LunaCore::NetlistTools::calcTotalCellArea(netlist);
@@ -339,13 +352,18 @@ void Placer::place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
 
     // legalise the cells
     LunaCore::Legalizer cellLegalizer;
-    cellLegalizer.legalizeRegion(region, netlist);
+    if (!cellLegalizer.legalizeRegion(region, netlist))
+    {
+        return false;
+    }
 
     auto hpwl = LunaCore::NetlistTools::calcHPWL(netlist);
     Logging::doLog(Logging::LogType::INFO, "HPWL = %f *1e6 nm\n", hpwl / 1.0e6);
     
     Logging::doLog(Logging::LogType::INFO, "Placement done\n");
     //TODO: end-case placement
+
+    return true;
 }
 
 void Placer::cycle(ChipDB::Netlist &netlist, std::deque<std::unique_ptr<PlacementRegion>> &regions)

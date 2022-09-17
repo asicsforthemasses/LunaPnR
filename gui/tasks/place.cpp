@@ -65,7 +65,11 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
 
     info("Using CellPlacer2\n");
     LunaCore::CellPlacer2::Placer placer;
-    placer.place(*netlist, *firstRegion, 20, 10);
+    if (!placer.place(*netlist, *firstRegion, 20, 10))
+    {
+        error("Placement failed\n");
+        return;
+    }
 
     auto cellLib = database.cellLib();
     if (!cellLib)

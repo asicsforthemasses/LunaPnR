@@ -62,13 +62,14 @@ std::shared_ptr<ChipDB::Region> ChipDB::createRegion(
         rowCount);
 
     // create rows inside region
-    int64_t ll_y = 0;
+    auto placementLL = region->getPlacementRect().getLL();
     for(size_t i=0; i<rowCount; i++)
     {
         region->m_rows.emplace_back();
         region->m_rows.back().m_region = region;
-        region->m_rows.back().m_rect   = ChipDB::Rect64({0,ll_y}, {rowWidth, rowHeight});
-        ll_y += rowHeight;
+        region->m_rows.back().m_rect   = ChipDB::Rect64({placementLL.m_x, placementLL.m_y}, 
+            {placementLL.m_x+rowWidth, placementLL.m_y+rowHeight});
+        placementLL += {0,rowHeight};
     }
 
     return region;

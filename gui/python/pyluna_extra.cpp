@@ -6,6 +6,8 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+#include <algorithm>
+#include <array>
 
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
@@ -53,6 +55,35 @@ static PyObject* pyLoadLayers(PyObject *self, PyObject *args)
         }
         
         Py_RETURN_NONE;
+    }
+    
+    return PyErr_Format(PyExc_RuntimeError, "loadLayers requires a filename argument");
+}
+
+///> setLogLevel(level : string)
+static PyObject* pySetLogLevel(PyObject *self, PyObject *args)
+{
+    const char *level = nullptr;
+    if (PyArg_ParseTuple(args, "s", &level))
+    {
+        static const std::array<const char*, 2> c_logLevelStr = {"NORMAL","VERBOSE"};
+        static const std::array<Logging::LogType, 2> c_logLevelVal = {Logging::LogType::INFO, Logging::LogType::VERBOSE};
+        
+        std::string upper(level);
+        std::transform(upper.begin(), upper.end(), upper.begin(), ::toupper);
+
+        std::size_t optIndex = 0;
+        for(auto const& option : c_logLevelStr)
+        {
+            if (upper == option)
+            {
+                Logging::setLogLevel(c_logLevelVal.at(optIndex));
+                Py_RETURN_NONE;
+            }
+            optIndex++;
+        }
+
+        return PyErr_Format(PyExc_RuntimeError, "Unknown log level option '%s'", level);
     }
     
     return PyErr_Format(PyExc_RuntimeError, "loadLayers requires a filename argument");
@@ -159,6 +190,7 @@ static PyMethodDef LunaExtraMethods[] =  // NOLINT(modernize-avoid-c-arrays)
     {"addHatch", pyAddHatch, METH_VARARGS, "add hatch to the hatch library"},
     {"cls", pyCls, METH_NOARGS, "clear console screen"},
     {"ls", pyLs, METH_NOARGS, "print current directory entries"},
+    {"setLogLevel", pySetLogLevel, METH_VARARGS, "set the log level"},
     {nullptr}
 };
 

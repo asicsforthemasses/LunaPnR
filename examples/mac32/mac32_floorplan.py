@@ -2,9 +2,10 @@
 #
 # SPDX-License-Identifier: GPL-3.0-only
 
+setLogLevel("VERBOSE")
+
 ## create floorplan
-createRegion("core", 10000, 10000, 650400, 650000)
-createRows("core", 0, 10000, 64)
+createRegion("core", "core", 10000, 10000, 650400, 650000)
 
 setTopModule("mac32")
 

@@ -209,7 +209,7 @@ static PyObject* pyClear(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
-///> createRegion(regionname : string, x : integer, y : integer, width : integer, height : integer)
+///> createRegion(regionname : string, sitename : string, x : integer, y : integer, width : integer, height : integer)
 static PyObject* pyCreateRegion(PyObject *self, PyObject *args)
 {
     auto designPtr = getDesign();
@@ -229,21 +229,31 @@ static PyObject* pyCreateRegion(PyObject *self, PyObject *args)
 
     long int x,y,width,height;
     const char *regionName;
-    if (PyArg_ParseTuple(args, "sllll", &regionName, &x, &y, &width, &height))
-    {        
-        auto regionKeyObjPair = designPtr->m_floorplan->createRegion(regionName);
-        if (!regionKeyObjPair.isValid())
+    const char *siteName;
+    if (PyArg_ParseTuple(args, "ssllll", &regionName, &siteName, &x, &y, &width, &height))
+    {   
+        auto regionKeyObjPair = designPtr->m_floorplan->lookupRegion(regionName);
+        if (regionKeyObjPair.isValid())
         {
             return PyErr_Format(PyExc_RuntimeError, "Region with name %s already exists!", regionName);
         }
 
-        regionKeyObjPair->m_rect = ChipDB::Rect64(ChipDB::Coord64{x,y}, ChipDB::Coord64{x+width,y+height});
+        auto siteInfo = designPtr->m_techLib->lookupSiteInfo(siteName);
+        if (!siteInfo.isValid())
+        {
+            return PyErr_Format(PyExc_RuntimeError, "Could not find site info for site %s!", siteName);
+        }
+
+        ChipDB::Rect64 regionRect{{x,y}, {x+width,y+height}};
+        auto regionPtr = ChipDB::createRegion(regionName, regionRect, siteInfo->m_size);
+
+        designPtr->m_floorplan->addRegion(regionPtr);
 
         // Success!
         Py_RETURN_NONE;        
     }
 
-    return PyErr_Format(PyExc_RuntimeError, "Wrong number or type of arguments");
+    return PyErr_Format(PyExc_RuntimeError, "Wrong number or type of arguments. Expected: region name, site name, x, y, width, height");
 }
 
 ///> removeRegion(regionname : string)
