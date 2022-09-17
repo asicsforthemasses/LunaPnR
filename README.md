@@ -8,7 +8,9 @@ SPDX-License-Identifier: GPL-3.0-only
 
 For more information, please visit the [homepage](https://www.asicsforthemasses.com "Luna PnR homepage").
 
-<figure><img src="doc/screenshots/screenshot_8_10_2021.png"></figure>
+<figure><img src="doc/screenshots/cellbrowser_2022.png"></figure>
+<figure><img src="doc/screenshots/techbrowser_2022.png"></figure>
+<figure><img src="doc/screenshots/mac32_floorplan_2022.png"></figure>
 
 ## Current development status
 * TLDR; Don't expect anything.
