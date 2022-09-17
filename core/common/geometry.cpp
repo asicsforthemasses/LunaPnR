@@ -3,6 +3,16 @@
 
 using namespace ChipDB;
 
+Interval Interval::merge(const Interval &other) const noexcept
+{
+    return {std::min(x1, other.x1), std::max(x2, other.x2)};
+}
+
+Interval Interval::common(const Interval &other) const noexcept
+{
+    return {std::max(x1, other.x1), std::min(x2, other.x2)};
+}
+
 bool IntervalList::addInterval(const Interval &v1)
 {
     if (!v1.isValid()) return false;
@@ -43,12 +53,12 @@ bool IntervalList::addInterval(const Interval &v1)
         // merging until there are no more overlaps
         
         auto v2 = *iter;
-        auto merged = Interval{std::min(v1.x1, v2.x1), std::max(v1.x2, v2.x2)};
+        auto merged = v1.merge(v2);
         iter = m_intervals.erase(iter);
         while ((iter != m_intervals.end()) && (merged.overlap(*iter)))
         {
             v2 = *iter;
-            merged = Interval{std::min(merged.x1, v2.x1), std::max(merged.x2, v2.x2)};
+            merged  = merged.merge(v2);
             iter = m_intervals.erase(iter);
         }
         m_intervals.insert(iter, merged);
@@ -60,4 +70,10 @@ bool IntervalList::addInterval(const Interval &v1)
 void IntervalList::clear()
 {
     m_intervals.clear();
+}
+
+std::ostream& operator<<(std::ostream& os, const ChipDB::Interval& v)
+{
+    os << v.x1 << ".." << v.x2;
+    return os;    
 }

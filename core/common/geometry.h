@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #pragma once
+#include <iostream>
 #include <vector>
 #include <variant>
 #include <list>
@@ -48,19 +49,43 @@ struct Interval
         if ((v.x1 > x2) && (v.x2 > x2)) return false;
         return true;
     }    
-};
 
+    bool operator == (const Interval &rhs) const noexcept
+    {
+        return (x1 == rhs.x1) && (x2 == rhs.x2);
+    }
+
+    bool operator != (const Interval &rhs) const noexcept
+    {
+        return (x1 != rhs.x1) || (x2 != rhs.x2);
+    }
+
+    bool operator < (const Interval &rhs) const noexcept
+    {
+        return (x2 < rhs.x1);
+    }
+
+    bool operator > (const Interval &rhs) const noexcept
+    {
+        return (x1 > rhs.x2);
+    }
+
+    [[nodiscard]] Interval merge(const Interval &other) const noexcept;
+    [[nodiscard]] Interval common(const Interval &other) const noexcept;
+};
 
 /** list of non-overlapping intervals sorted in the x direction, ascending */
 class IntervalList
 {
 public:
     
-    auto begin()    {return m_intervals.begin(); };
-    auto end()      {return m_intervals.end(); };
+    [[nodiscard]] auto size() const noexcept { return m_intervals.size(); }
 
-    auto begin() const  {return m_intervals.begin(); };
-    auto end() const    {return m_intervals.end(); };
+    [[nodiscard]] auto begin()    {return m_intervals.begin(); };
+    [[nodiscard]] auto end()      {return m_intervals.end(); };
+
+    [[nodiscard]] auto begin() const  {return m_intervals.begin(); };
+    [[nodiscard]] auto end() const    {return m_intervals.end(); };
 
     /** add an interval to the list. sorting and merging is performed automatically */
     bool addInterval(const Interval &v);
@@ -75,3 +100,5 @@ protected:
 };
 
 };
+
+std::ostream& operator<<(std::ostream& os, const ChipDB::Interval& v);
