@@ -339,7 +339,7 @@ void Placer::place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
 
     // legalise the cells
     LunaCore::Legalizer cellLegalizer;
-    cellLegalizer.legalizeRegion(region, netlist, 10000);
+    cellLegalizer.legalizeRegion(region, netlist);
 
     auto hpwl = LunaCore::NetlistTools::calcHPWL(netlist);
     Logging::doLog(Logging::LogType::INFO, "HPWL = %f *1e6 nm\n", hpwl / 1.0e6);

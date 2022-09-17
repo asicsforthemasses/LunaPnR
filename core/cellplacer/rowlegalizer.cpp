@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include "rowlegalizer.h"
+#include "common/logging.h"
+
 #include <list> 
 #include <cmath>
 
@@ -193,8 +195,10 @@ double LunaCore::Legalizer::calcRowCost(const std::vector<Cell> &cells, const Ro
     return cost;
 }
 
-void LunaCore::Legalizer::legalizeRegion(const ChipDB::Region &region, ChipDB::Netlist &netlist, ChipDB::CoordType minCellWidth)
+void LunaCore::Legalizer::legalizeRegion(const ChipDB::Region &region, ChipDB::Netlist &netlist)
 {
+    const auto minCellWidth  = region.getMinCellSize().m_x;
+
     // create a vector consisting of all placed but movable instances
     std::vector<Cell> cells;
     for(auto ins : netlist.m_instances)
@@ -227,7 +231,12 @@ void LunaCore::Legalizer::legalizeRegion(const ChipDB::Region &region, ChipDB::N
         }
     );
 
-    // create a vector consisting of rows present in the region
+    // create custom row legalizer Row objects that mirror the Rows in the region.
+    // FIXME: insert fixed objects into the row legalizer Rows.
+    //        things like fixed end-caps 
+    //        we also need some kind of provision for density constraints
+    //        w.r.t. decap and filler cells.
+    
     std::vector<Row> rows;
     rows.resize(region.m_rows.size());
     
