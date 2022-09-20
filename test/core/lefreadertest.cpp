@@ -24,6 +24,9 @@ BOOST_AUTO_TEST_CASE(can_read_lef)
     ChipDB::Design design;
     BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
+    BOOST_CHECK(design.m_techLib->getNumberOfLayers() > 0);
+    BOOST_CHECK(design.m_techLib->getNumberOfSites() > 0);
+
     std::cout << "  Found " << design.m_cellLib->size() << " cells\n";
     BOOST_CHECK(design.m_cellLib->size() == 37);
 

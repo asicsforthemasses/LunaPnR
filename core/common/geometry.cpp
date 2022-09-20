@@ -132,7 +132,7 @@ std::ostream& operator<<(std::ostream& os, const ChipDB::IntervalList& v)
     std::size_t count = v.size();
     if (count == 0)
     {
-        std::cout << "(empty)";
+        os << "(empty)";
     }
 
     for(auto const element : v)
@@ -147,91 +147,115 @@ std::ostream& operator<<(std::ostream& os, const ChipDB::IntervalList& v)
     return os;    
 }
 
+std::ostream& operator<<(std::ostream& os, const ChipDB::Rectangle& rect)
+{
+    os << rect.m_rect;
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, const ChipDB::Polygon& poly)
+{
+    std::size_t count = poly.m_points.size();
+    if (count == 0)
+    {
+        os << "(empty)";
+        return os;
+    }
+
+    os << "poly: ";
+
+    for(auto const& p : poly.m_points)
+    {
+        os << p;
+        if (count != 1)
+        {
+            os << "->";
+        }
+        count--;
+    }
+    return os;        
+}
+
 void ChipDB::findPinLocations(const GeometryObjects &objs,
     const ChipDB::Size64 &cellSize,
     const ChipDB::Coord64 &routingPitch,
     const ChipDB::CoordType routingWidth,
     const ChipDB::Coord64 &routingOffset)
-{
-    // find horizontal intersections
-    CoordType ypos = routingOffset.m_y;
-    while(ypos < cellSize.m_y)
+{    
+    ChipDB::Rect64 wireBox;
+    bool vertical = true;
+    if (vertical)
     {
-        IntervalList xIntersections;
-        for(auto const &obj : objs)
-        {
-            if (std::holds_alternative<ChipDB::Polygon>(obj))
-            {
-                // polygon
-            }
-            else
-            {
-                auto const& rect = std::get<ChipDB::Rectangle>(obj);
-                
-                // intersect top of wire
-                auto wTop = ypos + routingWidth/2;
-                auto wBot = ypos - routingWidth/2;
-
-                Interval wireTopInterval;
-                Interval wireBotInterval;
-
-                if ((wTop >= rect.bottom()) && (wTop <= rect.top()))
-                {
-                    wireTopInterval = Interval{rect.left(), rect.right()};
-                }
-                if ((wBot >= rect.bottom()) && (wBot <= rect.top()))
-                {
-                    wireBotInterval = Interval{rect.left(), rect.right()};
-                }
-                auto commonInterval = wireTopInterval.common(wireBotInterval);
-                if (commonInterval.isValid())
-                {
-                    xIntersections.addInterval(commonInterval);
-                }
-            }
-        }
-        std::cout << "x Intersections at y = " << ypos << " :" << xIntersections << "\n";
-
-        // now we check for vertical routing intersections
-        CoordType xpos = routingOffset.m_x;
+        ChipDB::CoordType xpos = 0;
         while(xpos < cellSize.m_x)
         {
-            IntervalList yIntersections;
+            auto ypos = routingOffset.m_y;
+            const auto w2 = routingWidth/2;
+            wireBox = ChipDB::Rect64{{xpos - w2, ypos},{xpos + w2, ypos + cellSize.m_y}};
+            
             for(auto const &obj : objs)
-            {
-                if (std::holds_alternative<ChipDB::Polygon>(obj))
+            {        
+                auto wire = ChipDB::Rectangle{wireBox};
+                if (std::holds_alternative<ChipDB::Rectangle>(obj))
                 {
-                    // polygon
+                    auto const& rect = std::get<ChipDB::Rectangle>(obj);
+                    auto overlap = wire.intersect(rect);
+                    if (overlap)
+                    {
+                        std::cout << "overlap: " << overlap.value() << "\n";
+                    }
+                }
+                else if (std::holds_alternative<ChipDB::Polygon>(obj))
+                {
+                    //TODO: polygon. check if we can promote to rectangle.
+                    auto const& poly = std::get<ChipDB::Polygon>(obj);
+                    std::cout << "findPinLocations: encountered unsupported Polygon: " << poly << "\n";
+                    return;
                 }
                 else
                 {
-                    auto const& rect = std::get<ChipDB::Rectangle>(obj);
-                    
-                    auto wRight = xpos + routingWidth/2;
-                    auto wLeft  = xpos - routingWidth/2;
-
-                    Interval wireLeftInterval;
-                    Interval wireRightInterval;
-
-                    if ((wRight >= rect.left()) && (wRight <= rect.right()))
-                    {
-                        wireRightInterval = Interval{rect.left(), rect.right()};
-                    }
-                    if ((wLeft >= rect.left()) && (wLeft <= rect.right()))
-                    {
-                        wireLeftInterval = Interval{rect.left(), rect.right()};
-                    }
-
-                    auto commonInterval = wireRightInterval.common(wireLeftInterval);
-                    if (commonInterval.isValid())
-                    {
-                        yIntersections.addInterval(commonInterval);
-                    }
+                    std::cout << "findPinLocations: invalid variant object\n";
+                    return;
                 }
             }
-
+            xpos += routingPitch.m_x;
         }
-
-        ypos += routingPitch.m_y;
+    }
+    else
+    {
+        ChipDB::CoordType ypos = 0;
+        while(ypos < cellSize.m_y)
+        {
+            auto xpos = routingOffset.m_x;
+            const auto h2 = routingWidth/2;
+            wireBox = ChipDB::Rect64{{xpos, ypos - h2},{xpos + cellSize.m_x, ypos + h2}};
+            
+            for(auto const &obj : objs)
+            {        
+                auto wire = ChipDB::Rectangle{wireBox};
+                if (std::holds_alternative<ChipDB::Rectangle>(obj))
+                {
+                    auto const& rect = std::get<ChipDB::Rectangle>(obj);
+                    auto overlap = wire.intersect(rect);
+                    if (overlap)
+                    {
+                        std::cout << "overlap: " << overlap.value() << "\n";
+                    }
+                }
+                else if (std::holds_alternative<ChipDB::Polygon>(obj))
+                {
+                    //TODO: polygon. check if we can promote to rectangle.
+                    auto const& poly = std::get<ChipDB::Polygon>(obj);
+                    std::cout << "findPinLocations: encountered unsupported Polygon: " << poly << "\n";
+                    return;
+                }
+                else
+                {
+                    std::cout << "findPinLocations: invalid variant object\n";
+                    return;
+                }
+            }
+            ypos += routingPitch.m_y;
+        }        
     }
 }

@@ -135,6 +135,8 @@ void findPinLocations(const GeometryObjects &objs,
 
 };  // namespace
 
+std::ostream& operator<<(std::ostream& os, const ChipDB::Polygon& poly);
+std::ostream& operator<<(std::ostream& os, const ChipDB::Rectangle& rect);
 std::ostream& operator<<(std::ostream& os, const ChipDB::Interval& v);
 std::ostream& operator<<(std::ostream& os, const ChipDB::IntervalList& v);
 
