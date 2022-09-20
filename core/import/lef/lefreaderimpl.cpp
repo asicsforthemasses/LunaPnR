@@ -428,6 +428,20 @@ void ReaderImpl::onLayer(const std::string &layerName)
 
 void ReaderImpl::onEndLayer(const std::string &layerName)
 {
+    // Note: if a layer offset is not specified by the LEF
+    //       the default is half the pitch!
+    // 
+    // LEF/DEF 5.7 Language Reference page 103.
+    // https://www.ispd.cc/contests/18/lefdefref.pdf
+
+    if (m_curLayerInfo)
+    {
+        if (m_curLayerInfo->m_offset.m_x < 0)
+        {
+            m_curLayerInfo->m_offset = ChipDB::Coord64{m_curLayerInfo->m_pitch.m_x/2, m_curLayerInfo->m_pitch.m_y/2};
+        }
+    }
+
     m_curLayerInfo.reset();
 }
 

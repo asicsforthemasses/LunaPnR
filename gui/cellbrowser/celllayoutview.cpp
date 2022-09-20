@@ -22,10 +22,17 @@ CellLayoutView::CellLayoutView(QWidget *parent) : QWidget(parent),
     m_mouseState(MouseState::None), m_db(nullptr)
 {
     m_viewport = {{-10000,-10000},{10000, 10000}};
+    setMouseTracking(true);
 }
 
 CellLayoutView::~CellLayoutView()
 {
+}
+
+void CellLayoutView::showCrosshair(bool enabled)
+{
+    m_crosshairEnabled = enabled;
+    update();
 }
 
 void CellLayoutView::fixCoordinates(QPointF &p1, QPointF &p2)
@@ -127,9 +134,32 @@ void CellLayoutView::mouseReleaseEvent(QMouseEvent *event)
 
 void CellLayoutView::mouseMoveEvent(QMouseEvent *event)
 {
-    auto offset = toChipDelta(m_mouseDownPos - event->pos());
-    m_viewport = m_viewportStartDrag.movedBy(offset);
-    update();
+    switch(m_mouseState)
+    {
+    case MouseState::Dragging:
+    {
+        auto offset = toChipDelta(m_mouseDownPos - event->pos());
+        m_viewport = m_viewportStartDrag.movedBy(offset);
+        update();
+    }
+        break;
+    case MouseState::None:
+        if (m_crosshairEnabled)
+        {
+            m_mousePos = event->pos();
+            update();
+        }
+        break;
+    }
+}
+
+void CellLayoutView::leaveEvent(QEvent *event)
+{
+    if (m_crosshairEnabled)
+    {
+        m_mousePos = QPoint{0,0};
+        update();
+    }
 }
 
 void CellLayoutView::wheelEvent(QWheelEvent *event)
@@ -302,6 +332,100 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
             }
         }
     }
+
+    bool m_showRouting = true;
+    if (m_showRouting)
+    {
+        drawRouting(painter, "metal2");
+        drawRouting(painter, "metal3");
+        drawRouting(painter, "met1");
+        drawRouting(painter, "met2");
+        drawRouting(painter, "Metal2");
+        drawRouting(painter, "Metal3");
+    }
+
+    if ((m_crosshairEnabled) && (!m_mousePos.isNull()) && (m_mouseState == MouseState::None))
+    {
+        painter.setPen(Qt::white);
+        painter.drawLine(m_mousePos.x(), 0, m_mousePos.x(), height());
+        painter.drawLine(0, m_mousePos.y(), width(), m_mousePos.y());
+
+        QFontMetrics fm(font());
+        auto offset = QPoint{4, -fm.descent()}; // descent seems to be negative.. so we need to subtract.
+
+        auto posInCell = toChip(m_mousePos);
+        QString posTxt = QString::asprintf("(%ld,%ld)", posInCell.m_x, posInCell.m_y);
+        painter.drawText(m_mousePos + offset, posTxt);
+    }
+}
+
+bool CellLayoutView::drawRouting(QPainter &painter, const std::string &layerName) const
+{
+    auto cellSize = m_cell.m_size;
+
+    auto layer = m_db->techLib()->lookupLayer(layerName);
+    if (!layer.isValid()) 
+    {
+        return false;
+    }
+    
+    auto info = getLayerRenderInfo(layerName);
+    if (!info.isValid())
+    {
+        return false;
+    }
+
+    if (layer->m_dir == ChipDB::LayerDirection::HORIZONTAL)
+    {
+        if (layer->m_pitch.m_y <= 0)
+        {
+            return false;
+        }
+
+        QBrush brush(info->routing().getColorPixmap());
+        brush.setColor(info->routing().getColor());
+
+        auto w2 = layer->m_width/2;
+        auto ypos = layer->m_offset.m_y;
+        while(ypos <= cellSize.m_y)
+        {
+            ChipDB::Rect64 wire{{0, ypos - w2}, {cellSize.m_x, ypos+w2}};
+            ypos += layer->m_pitch.m_y;
+        
+            auto ll = toScreen(wire.m_ll);
+            auto ur = toScreen(wire.m_ur);
+
+            painter.fillRect(QRectF{ll,ur}, brush);
+        }
+        return true;
+    }
+
+    if (layer->m_dir == ChipDB::LayerDirection::VERTICAL)
+    {
+        if (layer->m_pitch.m_x <= 0)
+        {
+            return false;
+        }
+
+        QBrush brush(info->routing().getColorPixmap());
+        brush.setColor(info->routing().getColor());
+
+        auto w2 = layer->m_width/2;
+        auto xpos = layer->m_offset.m_x;
+        while(xpos <= cellSize.m_x)
+        {
+            ChipDB::Rect64 wire{{xpos-w2, 0}, {xpos+w2, cellSize.m_y}};
+            xpos += layer->m_pitch.m_x;
+        
+            auto ll = toScreen(wire.m_ll);
+            auto ur = toScreen(wire.m_ur);
+
+            painter.fillRect(QRectF{ll,ur}, brush);
+        }
+        return true;
+    }
+
+    return false;
 }
 
 void CellLayoutView::drawGeometry(QPainter &painter, const ChipDB::GeometryObjects &objs,
