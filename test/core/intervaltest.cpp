@@ -22,6 +22,9 @@ BOOST_AUTO_TEST_CASE(various_interval_tests)
 
     BOOST_CHECK(I1.overlap({10,20}));
 
+    BOOST_CHECK(I1.contains(11));
+    BOOST_CHECK(!I1.contains(9));
+
     BOOST_CHECK(I1.overlap({7,20}));
     BOOST_CHECK(I1.overlap({7,40})); 
     BOOST_CHECK(I1.overlap({12,18}));
