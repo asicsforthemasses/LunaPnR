@@ -186,10 +186,11 @@ void ChipDB::findPinLocations(const GeometryObjects &objs,
     bool vertical = true;
     if (vertical)
     {
-        ChipDB::CoordType xpos = 0;
+        // vertical routing wires
+        ChipDB::CoordType xpos = routingOffset.m_x;
         while(xpos < cellSize.m_x)
         {
-            auto ypos = routingOffset.m_y;
+            ChipDB::CoordType ypos = 0;
             const auto w2 = routingWidth/2;
             wireBox = ChipDB::Rect64{{xpos - w2, ypos},{xpos + w2, ypos + cellSize.m_y}};
             
@@ -202,7 +203,12 @@ void ChipDB::findPinLocations(const GeometryObjects &objs,
                     auto overlap = wire.intersect(rect);
                     if (overlap)
                     {
-                        std::cout << "overlap: " << overlap.value() << "\n";
+                        // check that the pin has a minimum size
+                        auto const pinSize = overlap.value().getSize();
+                        if ((pinSize.m_x >= routingWidth) && (pinSize.m_y >= routingWidth))
+                        {
+                            std::cout << "overlap: " << overlap.value() << " size: " << pinSize << "\n";
+                        }
                     }
                 }
                 else if (std::holds_alternative<ChipDB::Polygon>(obj))
@@ -223,10 +229,11 @@ void ChipDB::findPinLocations(const GeometryObjects &objs,
     }
     else
     {
-        ChipDB::CoordType ypos = 0;
+        // horizontal routing wires
+        ChipDB::CoordType ypos = routingOffset.m_y;
         while(ypos < cellSize.m_y)
         {
-            auto xpos = routingOffset.m_x;
+            auto xpos = 0;
             const auto h2 = routingWidth/2;
             wireBox = ChipDB::Rect64{{xpos, ypos - h2},{xpos + cellSize.m_x, ypos + h2}};
             
@@ -239,7 +246,12 @@ void ChipDB::findPinLocations(const GeometryObjects &objs,
                     auto overlap = wire.intersect(rect);
                     if (overlap)
                     {
-                        std::cout << "overlap: " << overlap.value() << "\n";
+                        // check that the pin has a minimum size
+                        auto const pinSize = overlap.value().getSize();
+                        if ((pinSize.m_x >= routingWidth) && (pinSize.m_y >= routingWidth))
+                        {
+                            std::cout << "overlap: " << overlap.value() << " size: " << pinSize << "\n";
+                        }
                     }
                 }
                 else if (std::holds_alternative<ChipDB::Polygon>(obj))

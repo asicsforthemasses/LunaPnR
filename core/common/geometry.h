@@ -22,6 +22,7 @@ public:
     constexpr auto right() const noexcept {return m_rect.right(); }
     constexpr auto bottom() const noexcept {return m_rect.bottom(); }
     constexpr auto top() const noexcept {return m_rect.top(); }
+    constexpr auto getSize() const noexcept {return m_rect.getSize(); }
 
     std::optional<ChipDB::Rectangle> intersect(const Rectangle &r) const noexcept;
 
