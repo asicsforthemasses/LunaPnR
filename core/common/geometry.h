@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <variant>
+#include <optional>
 #include <list>
 
 #include "dbtypes.h"
@@ -21,6 +22,8 @@ public:
     constexpr auto right() const noexcept {return m_rect.right(); }
     constexpr auto bottom() const noexcept {return m_rect.bottom(); }
     constexpr auto top() const noexcept {return m_rect.top(); }
+
+    std::optional<ChipDB::Rectangle> intersect(const Rectangle &r) const noexcept;
 
     ChipDB::Rect64 m_rect;
 };
@@ -39,8 +42,8 @@ using GeometryObjects = std::vector<GeometryObject>;
 /** defined an interval between x1 and x2 */
 struct Interval
 {
-    CoordType x1;
-    CoordType x2;
+    CoordType x1{0};
+    CoordType x2{-1};
 
     /** returns true if x1 <= x2 */
     [[nodiscard]] constexpr bool isValid() const noexcept
@@ -127,6 +130,7 @@ protected:
 void findPinLocations(const GeometryObjects &objs, 
     const ChipDB::Size64 &cellSize,
     const ChipDB::Coord64 &routingPitch,
+    const ChipDB::CoordType routingWidth,
     const ChipDB::Coord64 &routingOffset);
 
 };  // namespace

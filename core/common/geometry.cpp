@@ -3,6 +3,38 @@
 
 using namespace ChipDB;
 
+std::optional<ChipDB::Rectangle> ChipDB::Rectangle::intersect(const Rectangle &r) const noexcept
+{
+    auto const& ll1 = m_rect.m_ll;
+    auto const& ll2 = r.m_rect.m_ll;
+    auto const& ur1 = m_rect.m_ur;
+    auto const& ur2 = r.m_rect.m_ur;
+
+    // check if the rectangles intersect
+    if ((ll1.m_x <= ur2.m_x) && (ur1.m_x >= ll2.m_x) &&
+        (ll1.m_y <= ur2.m_y) && (ur1.m_y >= ll2.m_y))
+    {
+        auto ll_x = std::max(ll1.m_x, ll2.m_x);
+        auto ll_y = std::max(ll1.m_y, ll2.m_y);
+        auto ur_x = std::min(ur1.m_x, ur2.m_x);
+        auto ur_y = std::min(ur1.m_y, ur2.m_y);
+
+        // avoid returning rectangles that have area=0
+        if ((ll_x == ur_x) || (ll_y == ur_y))
+        {
+            return std::nullopt;
+        }
+
+        return ChipDB::Rect64{{ll_x, ll_y}, {ur_x, ur_y}};
+    }
+    else
+    {
+        // no intersection
+        return std::nullopt;
+    }
+}
+
+
 Interval Interval::merge(const Interval &other) const noexcept
 {
     return {std::min(x1, other.x1), std::max(x2, other.x2)};
@@ -84,13 +116,25 @@ bool IntervalList::contains(const CoordType &p) const noexcept
 
 std::ostream& operator<<(std::ostream& os, const ChipDB::Interval& v)
 {
-    os << v.x1 << ".." << v.x2;
+    if (v.isValid())
+    {
+        os << v.x1 << ".." << v.x2;
+    }
+    else
+    {
+        os << "(empty)";
+    }
     return os;    
 }
 
 std::ostream& operator<<(std::ostream& os, const ChipDB::IntervalList& v)
 {
     std::size_t count = v.size();
+    if (count == 0)
+    {
+        std::cout << "(empty)";
+    }
+
     for(auto const element : v)
     {
         os << element;
@@ -106,6 +150,7 @@ std::ostream& operator<<(std::ostream& os, const ChipDB::IntervalList& v)
 void ChipDB::findPinLocations(const GeometryObjects &objs,
     const ChipDB::Size64 &cellSize,
     const ChipDB::Coord64 &routingPitch,
+    const ChipDB::CoordType routingWidth,
     const ChipDB::Coord64 &routingOffset)
 {
     // find horizontal intersections
@@ -122,18 +167,71 @@ void ChipDB::findPinLocations(const GeometryObjects &objs,
             else
             {
                 auto const& rect = std::get<ChipDB::Rectangle>(obj);
-                // use min/max in case the rect doesn't adhere
-                // to the conventions.
-                auto maxy = std::max(rect.top(), rect.bottom());
-                auto miny = std::min(rect.top(), rect.bottom());
-                auto maxx = std::max(rect.left(), rect.right());
-                auto minx = std::min(rect.left(), rect.right());
-                if ((ypos >= miny) && (ypos <= maxy))
+                
+                // intersect top of wire
+                auto wTop = ypos + routingWidth/2;
+                auto wBot = ypos - routingWidth/2;
+
+                Interval wireTopInterval;
+                Interval wireBotInterval;
+
+                if ((wTop >= rect.bottom()) && (wTop <= rect.top()))
                 {
-                    xIntersections.addInterval({minx,maxx});
+                    wireTopInterval = Interval{rect.left(), rect.right()};
+                }
+                if ((wBot >= rect.bottom()) && (wBot <= rect.top()))
+                {
+                    wireBotInterval = Interval{rect.left(), rect.right()};
+                }
+                auto commonInterval = wireTopInterval.common(wireBotInterval);
+                if (commonInterval.isValid())
+                {
+                    xIntersections.addInterval(commonInterval);
                 }
             }
         }
         std::cout << "x Intersections at y = " << ypos << " :" << xIntersections << "\n";
+
+        // now we check for vertical routing intersections
+        CoordType xpos = routingOffset.m_x;
+        while(xpos < cellSize.m_x)
+        {
+            IntervalList yIntersections;
+            for(auto const &obj : objs)
+            {
+                if (std::holds_alternative<ChipDB::Polygon>(obj))
+                {
+                    // polygon
+                }
+                else
+                {
+                    auto const& rect = std::get<ChipDB::Rectangle>(obj);
+                    
+                    auto wRight = xpos + routingWidth/2;
+                    auto wLeft  = xpos - routingWidth/2;
+
+                    Interval wireLeftInterval;
+                    Interval wireRightInterval;
+
+                    if ((wRight >= rect.left()) && (wRight <= rect.right()))
+                    {
+                        wireRightInterval = Interval{rect.left(), rect.right()};
+                    }
+                    if ((wLeft >= rect.left()) && (wLeft <= rect.right()))
+                    {
+                        wireLeftInterval = Interval{rect.left(), rect.right()};
+                    }
+
+                    auto commonInterval = wireRightInterval.common(wireLeftInterval);
+                    if (commonInterval.isValid())
+                    {
+                        yIntersections.addInterval(commonInterval);
+                    }
+                }
+            }
+
+        }
+
+        ypos += routingPitch.m_y;
     }
 }
