@@ -34,7 +34,6 @@ BOOST_AUTO_TEST_CASE(various_interval_tests)
     BOOST_CHECK(!(ChipDB::Interval{10,20} > ChipDB::Interval{30,40}));
 
     auto m1 = I1.merge({0,10});
-    std::cout << m1;
     BOOST_CHECK(m1.x1 == 0);
     BOOST_CHECK(m1.x2 == 20);
 
