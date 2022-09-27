@@ -136,5 +136,22 @@ BOOST_AUTO_TEST_CASE(global_router_cell_size2)
     Logging::setLogLevel(logLevel);
 };
 
+BOOST_AUTO_TEST_CASE(global_router_test)
+{
+    std::cout << "--== GLOBAL ROUTER TEST ==--\n";
+
+    auto logLevel = Logging::getLogLevel();
+    Logging::setLogLevel(Logging::LogType::VERBOSE);
+
+    LunaCore::GlobalRouter::Router router;
+
+    router.createGrid(10,10,{1,1});
+    BOOST_REQUIRE(router.grid() != nullptr);
+    auto result = router.route({5,0},{5,9});
+    
+    BOOST_CHECK(result);
+
+    Logging::setLogLevel(logLevel);
+}
 
 BOOST_AUTO_TEST_SUITE_END()

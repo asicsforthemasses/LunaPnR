@@ -9,6 +9,12 @@
 
 using namespace LunaCore;
 
+void GlobalRouter::Router::createGrid(const GCellCoordType width, const GCellCoordType height,
+    const ChipDB::Size64 &cellSize)
+{
+    m_grid = std::make_unique<Grid>(width, height, cellSize);
+}
+
 std::optional<GlobalRouter::TrackInfo> GlobalRouter::Router::calcNumberOfTracks(const ChipDB::Design &design,
     const std::string &siteName,
     const ChipDB::Size64 &extents) const
@@ -143,6 +149,9 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
     auto loc1 = m_grid->toGridCoord(p1);
     auto loc2 = m_grid->toGridCoord(p2);
 
+    if (!m_grid->isValidGridCoord(loc1)) return false;
+    if (!m_grid->isValidGridCoord(loc2)) return false;
+
     // if the locations are the same, routing isn't necessary.
     if (loc1 == loc2)
     {
@@ -158,5 +167,204 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
 
     m_grid->at(loc2).setTarget();
 
+    bool targetReached = false;
+    std::size_t evaluations = 0;
+
+    while(!targetReached)
+    {
+        if (wavefront.empty())
+        {
+            // no path found!
+            return false;
+        }
+
+        evaluations++;
+
+        // get the lowest cost item from the wavefront
+        const auto minCostItem = wavefront.getLowestCostItem();
+        const auto minCostPos  = minCostItem.m_gridpos;
+
+        wavefront.pop();
+
+        m_grid->at(minCostPos).setReached();
+
+        // if the cost of the wavefront item is larger than
+        // the one in the grid, skip the update.
+        auto cellCost = m_grid->at(minCostPos).cost();
+        if (cellCost <= minCostItem.m_pathCost)
+        {
+            //std::cout << "skipped\n";
+            continue;            
+        }
+
+        m_grid->at(minCostPos).setPredecessor(minCostItem.m_pred);
+        m_grid->at(minCostPos).setCost(minCostItem.m_pathCost);
+
+        auto const& gcell = m_grid->at(minCostPos);
+        if (gcell.isValid() && gcell.isTarget())
+        {
+            m_grid->clear();
+
+            // backtrack from target
+            auto backtrackPos = minCostPos;
+            bool doBacktrack = true;
+            while(doBacktrack)
+            {
+                auto const& gridCell = m_grid->at(backtrackPos);
+
+                // exit at the end of the track
+                if (gridCell.isSource())
+                {
+                    doBacktrack = false;
+                    continue;
+                }
+
+                // mark all the cells on the new path
+                // as a target to terminate the next segment
+                m_grid->at(backtrackPos).setTarget();
+                m_grid->at(backtrackPos).m_capacity++;
+
+                // go to the previous cell
+                switch(gridCell.getPredecessor())
+                {
+                case GlobalRouter::Predecessor::East:
+                    backtrackPos = east(backtrackPos);
+                    break;
+                case GlobalRouter::Predecessor::West:
+                    backtrackPos = west(backtrackPos);
+                    break;
+                case GlobalRouter::Predecessor::North:
+                    backtrackPos = north(backtrackPos);
+                    break;                    
+                case GlobalRouter::Predecessor::South:
+                    backtrackPos = south(backtrackPos);
+                    break; 
+                default:
+                    doBacktrack = false;
+                    break;                                       
+                };
+            }
+
+#if 0
+            // FIXME: horrible code!
+            // put all the sources on the wavefront
+            for(int y=0; y<m_grid->height(); y++)
+            {
+                for(int x=0; x<m_grid->width(); x++)
+                {
+                    if (m_grid.at(x,y).isSource())
+                    {
+                        wavefront.push(WavefrontItem{grid.at(x,y).getPredecessor(), GCellCoord{x,y}, 0 /* cost */});
+                    }
+                }
+            }
+#endif
+
+        }
+        else
+        {
+            // ******************************************************************************************
+            // ** NORTH/SOUTH **
+            // ******************************************************************************************        
+
+            auto northPos = north(minCostPos);
+            if (m_grid->isValidGridCoord(northPos))
+            {
+                auto newCost  = calcGridCost(minCostItem, northPos, GlobalRouter::Predecessor::South);
+                if (newCost)
+                    addWavefrontCell(wavefront, northPos, newCost.value(), GlobalRouter::Predecessor::South);
+            }
+
+            auto southPos = south(minCostPos);
+            if (m_grid->isValidGridCoord(southPos))
+            {
+                auto newCost = calcGridCost(minCostItem, southPos, GlobalRouter::Predecessor::North);
+                if (newCost)
+                    addWavefrontCell(wavefront, southPos, newCost.value(), GlobalRouter::Predecessor::North);
+            }
+
+            // ******************************************************************************************
+            // ** EAST/WEST **
+            // ******************************************************************************************        
+
+            auto eastPos = east(minCostPos);
+            if (m_grid->isValidGridCoord(eastPos))
+            {
+                auto newCost = calcGridCost(minCostItem, eastPos, GlobalRouter::Predecessor::West);
+                if (newCost)
+                    addWavefrontCell(wavefront, eastPos, newCost.value(), GlobalRouter::Predecessor::West);
+            }
+
+            auto westPos = west(minCostPos);
+            if (m_grid->isValidGridCoord(westPos))
+            {
+                auto newCost = calcGridCost(minCostItem, westPos, GlobalRouter::Predecessor::East);
+                if (newCost)
+                    addWavefrontCell(wavefront, westPos, newCost.value(), GlobalRouter::Predecessor::East);
+            }
+        }
+    }
+
+    std::cout << "  evaluations: " << evaluations << "\n";
+
     return true;
+}
+
+bool GlobalRouter::Router::addWavefrontCell(
+    Wavefront &wavefront, 
+    const GCellCoord &pos,
+    PathCostType newCost,
+    Predecessor pred)
+{
+    if (!m_grid) return false;
+
+    if (!m_grid->isValidGridCoord(pos)) return false;
+
+    // only put cells on the wavefront that haven't been reached before
+    if (!m_grid->at(pos).isReached())
+    {
+
+        if (m_grid->at(pos).isBlocked())
+        {
+            return false;
+        }
+
+        WavefrontItem item;
+        item.m_gridpos  = pos;
+        item.m_pathCost = newCost;
+        item.m_pred     = pred;
+        wavefront.push(item);
+        return true;
+    }
+
+    return false;
+}
+
+std::optional<GlobalRouter::PathCostType> GlobalRouter::Router::calcGridCost(const WavefrontItem &from, const GCellCoord &to, Predecessor expandDirection)
+{
+    const PathCostType cellCost    = 1;
+    const PathCostType bendPenalty = 2;
+
+    if (!m_grid) return std::nullopt;
+
+    if (m_grid->isValidGridCoord(to)) return std::nullopt;
+
+    PathCostType cost = cellCost;
+    if ((from.m_pred != expandDirection) && (from.m_pred != Predecessor::Undefined))
+    {
+        cost += bendPenalty;
+    }
+
+    auto destinationCapacity = m_grid->at(to).m_capacity;
+    if (destinationCapacity >= m_grid->maxCellCapacity())
+    {
+        return std::nullopt;
+    }
+
+    return cost + from.m_pathCost;
+}
+
+bool GlobalRouter::Router::route(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2)
+{
+    return routeSegment(p1, p2);
 }

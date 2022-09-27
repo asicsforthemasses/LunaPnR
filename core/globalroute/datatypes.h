@@ -28,4 +28,9 @@ namespace LunaCore::GlobalRouter
         West  = (4<<8)
     };
 
+    constexpr GCellCoord north(const GCellCoord &p) {return {p.m_x, p.m_y+1}; }
+    constexpr GCellCoord south(const GCellCoord &p) {return {p.m_x, p.m_y-1}; }
+    constexpr GCellCoord east(const GCellCoord &p) {return {p.m_x-1, p.m_y}; }
+    constexpr GCellCoord west(const GCellCoord &p) {return {p.m_x+1, p.m_y}; }
+
 };
