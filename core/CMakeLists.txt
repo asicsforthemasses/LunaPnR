@@ -113,10 +113,14 @@ add_library(lunacore
     python/types/pylayerinfo.cpp
     python/types/pytechlayers.cpp
     python/types/pysiteinfo.cpp
-    python/types/pytechsites.cpp    
+    python/types/pytechsites.cpp   
+    globalroute/globalrouter.cpp
+    globalroute/prim_private.cpp
+    globalroute/prim.cpp
     ${PLATFORMSRC}
     )
 
 target_include_directories(lunacore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(lunacore PRIVATE ${PYTHON_INCLUDE_DIRS})
+target_include_directories(lunacore PUBLIC ../contrib)
 target_link_libraries(lunacore Eigen3::Eigen ${PYTHON_LIBRARIES})

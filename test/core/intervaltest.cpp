@@ -22,6 +22,9 @@ BOOST_AUTO_TEST_CASE(various_interval_tests)
 
     BOOST_CHECK(I1.overlap({10,20}));
 
+    BOOST_CHECK(I1.contains(11));
+    BOOST_CHECK(!I1.contains(9));
+
     BOOST_CHECK(I1.overlap({7,20}));
     BOOST_CHECK(I1.overlap({7,40})); 
     BOOST_CHECK(I1.overlap({12,18}));
@@ -31,7 +34,6 @@ BOOST_AUTO_TEST_CASE(various_interval_tests)
     BOOST_CHECK(!(ChipDB::Interval{10,20} > ChipDB::Interval{30,40}));
 
     auto m1 = I1.merge({0,10});
-    std::cout << m1;
     BOOST_CHECK(m1.x1 == 0);
     BOOST_CHECK(m1.x2 == 20);
 

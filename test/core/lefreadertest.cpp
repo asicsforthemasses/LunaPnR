@@ -24,6 +24,9 @@ BOOST_AUTO_TEST_CASE(can_read_lef)
     ChipDB::Design design;
     BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
+    BOOST_CHECK(design.m_techLib->getNumberOfLayers() > 0);
+    BOOST_CHECK(design.m_techLib->getNumberOfSites() > 0);
+
     std::cout << "  Found " << design.m_cellLib->size() << " cells\n";
     BOOST_CHECK(design.m_cellLib->size() == 37);
 
@@ -53,12 +56,7 @@ BOOST_AUTO_TEST_CASE(can_read_lef)
     }
 
     auto pin = cellKeyObjPtr->lookupPin("A");
-    BOOST_CHECK(pin.isValid());
-
-    if (!pin.isValid())
-    {
-        return;
-    }
+    BOOST_REQUIRE(pin.isValid());
 
     BOOST_CHECK(pin->m_iotype == ChipDB::IOType::INPUT);
     BOOST_CHECK(!pin->m_pinLayout.empty()); // check that the pin has geometry
@@ -87,16 +85,13 @@ BOOST_AUTO_TEST_CASE(can_read_lef2)
     std::cout << "--== LEF READER NANGATE ==--\n";
     
     std::ifstream leffile("test/files/nangate/ocl.lef");
-    BOOST_CHECK(leffile.good());
-
-    if (!leffile.good())
-    {
-        std::cout << " skipping test because LEF fould could not be loaded\n";
-        return;
-    }
+    BOOST_REQUIRE(leffile.good());
 
     ChipDB::Design design;
     BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
+
+    BOOST_CHECK(design.m_techLib->getNumberOfLayers() > 0);
+    BOOST_CHECK(design.m_techLib->getNumberOfSites() > 0);
 
     std::cout << "  Found " << design.m_cellLib->size() << " cells\n";
     BOOST_CHECK(design.m_cellLib->size() == 138);
@@ -107,13 +102,7 @@ BOOST_AUTO_TEST_CASE(can_read_techlef2)
     std::cout << "--== LEF READER NANGATE TECH ==--\n";
     
     std::ifstream leffile("test/files/nangate/ocl.tech.lef");
-    BOOST_CHECK(leffile.good());
-
-    if (!leffile.good())
-    {
-        std::cout << " skipping test because LEF fould could not be loaded\n";
-        return;
-    }
+    BOOST_REQUIRE(leffile.good());
 
     ChipDB::Design design;
     BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));

@@ -70,6 +70,9 @@ endif(MSVC)
 ## Main project
 ############################################################
 
+enable_testing()
+
+add_subdirectory(contrib)
 add_subdirectory(tools)
 add_subdirectory(core)
 add_subdirectory(gui)
