@@ -114,7 +114,9 @@ add_library(lunacore
     python/types/pytechlayers.cpp
     python/types/pysiteinfo.cpp
     python/types/pytechsites.cpp   
-    globalroute/globalrouter.cpp 
+    globalroute/globalrouter.cpp
+    globalroute/prim_private.cpp
+    globalroute/prim.cpp
     ${PLATFORMSRC}
     )
 
