@@ -6,9 +6,26 @@
 #include <sstream>
 #include "prim.h"
 #include "prim_private.h"
+#include "tinysvgpp/src/tinysvgpp.h"
 
 using namespace LunaCore::Prim;
 using namespace LunaCore::Prim::Private;
+
+bool LunaCore::Prim::MSTreeNode::operator==(const MSTreeNode &rhs) noexcept
+{
+    if (m_pos != rhs.m_pos) return false;
+    if (m_parent != rhs.m_parent) return false;
+    if (m_self != rhs.m_self) return false;
+    
+    if (m_edges.size() != rhs.m_edges.size()) return false;
+    for(std::size_t idx=0; idx < m_edges.size(); idx++)
+    {
+        if (m_edges.at(idx).m_pos != rhs.m_edges.at(idx).m_pos) return false;
+        if (m_edges.at(idx).m_self != rhs.m_edges.at(idx).m_self) return false;
+    }
+
+    return true;
+}
 
 void LunaCore::Prim::MSTreeNode::addEdge(NodeId child, const ChipDB::Coord64 &childPos)
 {
@@ -31,9 +48,19 @@ MSTree LunaCore::Prim::prim(const std::vector<ChipDB::Coord64> &netNodes)
 
     MSTree tree;
     tree.resize(netNodes.size());
-    tree.at(0).m_parent = MSTreeNode::c_NoParent;
 
-    while(pqueue.empty())
+    std::size_t idx = 0;
+    for(auto &treeNode : tree)
+    {
+        treeNode.m_parent = MSTreeNode::c_NoParent;
+        treeNode.m_self = idx;
+        treeNode.m_pos  = netNodes.at(idx);
+        idx++;
+    }
+
+    tree.at(0).m_parent = 0;
+
+    while(!pqueue.empty())
     {
         std::unique_ptr<TreeEdge> minEdge;
         minEdge.reset(pqueue.top());      // take ownership of TreeEdge ptr
@@ -100,4 +127,117 @@ std::vector<ChipDB::Coord64> LunaCore::Prim::loadNetNodes(const std::string &src
     }    
 
     return std::move(nodes);
+}
+
+TinySVGPP::Point toSVGPoint(const ChipDB::Coord64 &p)
+{
+    return {static_cast<float>(p.m_x), static_cast<float>(p.m_y)};
+}
+
+void LunaCore::Prim::toSVG(std::ostream &os, const MSTree &tree)
+{
+    TinySVGPP::Canvas canvas;
+    using SVGPoint = TinySVGPP::Point;
+
+    // determine the node extents
+    TinySVGPP::Viewport vp;
+    vp.xmin = std::numeric_limits<float>::max();
+    vp.xmax = std::numeric_limits<float>::min();
+    vp.ymin = std::numeric_limits<float>::max();
+    vp.ymax = std::numeric_limits<float>::min();
+    for(auto const& node : tree)
+    {
+        vp.xmin = std::min((float)node.m_pos.m_x, vp.xmin);
+        vp.xmax = std::max((float)node.m_pos.m_x, vp.xmax);
+        vp.ymin = std::min((float)node.m_pos.m_y, vp.ymin);
+        vp.ymax = std::max((float)node.m_pos.m_y, vp.ymax);
+    }
+
+    auto border = std::max(vp.width(), vp.height())/10;
+
+    vp.xmin -= border * 0.5;
+    vp.xmax += border * 0.5;
+    vp.ymin -= border * 0.5;
+    vp.ymax += border * 0.5;
+
+    auto aspectScale = static_cast<float>(vp.height())/static_cast<float>(vp.width());
+    std::cout << "Aspect scale: " << aspectScale << "\n";
+    vp.canvasWidth = 2000;
+    vp.canvasHeight = std::ceil(vp.canvasWidth*aspectScale);
+
+    canvas.setSize(vp.canvasWidth, vp.canvasHeight);
+    canvas.fill("black").stroke("black").rect(0,0, vp.canvasWidth, vp.canvasHeight);
+
+    // draw all edges
+    canvas.stroke("green", 4.0).fill("green");
+    for(auto const& treeNode : tree)
+    {
+        auto p1 = treeNode.m_pos;
+        for(auto const& treeEdge : treeNode.m_edges)
+        {
+            auto p2 = treeEdge.m_pos;
+            //auto steinerPoint = LunaCore::LSteinerPoint(p1,p2,treeEdge.m_shape);
+#if 0
+            if (steinerPoint)
+            {
+                canvas.line(
+                    SVGPoint{vp.toWindow(SVGPoint{p1.m_x, p1.m_y})},
+                    SVGPoint{vp.toWindow(SVGPoint{steinerPoint->m_x, steinerPoint->m_y})}
+                );
+                canvas.line(
+                    SVGPoint{vp.toWindow(SVGPoint{steinerPoint->m_x, steinerPoint->m_y})},
+                    SVGPoint{vp.toWindow(SVGPoint{p2.m_x, p2.m_y})}                    
+                );
+            }
+            else
+            {
+                canvas.line(
+                    SVGPoint{vp.toWindow(SVGPoint{p1.m_x, p1.m_y})},
+                    SVGPoint{vp.toWindow(SVGPoint{p2.m_x, p2.m_y})}
+                );
+            }
+#else
+            canvas.line(
+                SVGPoint{vp.toWindow(toSVGPoint(p1))},
+                SVGPoint{vp.toWindow(toSVGPoint(p2))}
+            );
+#endif
+        }
+    }
+
+    // draw bounding boxes
+    canvas.stroke("white", 2.0).fill("none").opacity(0.5);
+    for(auto const& treeNode : tree)
+    {
+        auto p1 = treeNode.m_pos;
+        for(auto const& treeEdge : treeNode.m_edges)
+        {
+            auto p2 = treeEdge.m_pos;
+
+            if ((p1.m_x != p2.m_x) && (p1.m_y != p2.m_x))
+            {
+                canvas.rect(
+                    SVGPoint{vp.toWindow(toSVGPoint(p1))},
+                    SVGPoint{vp.toWindow(toSVGPoint(p2))}
+                );
+            }
+        }
+    }
+
+    // draw all the nodes
+    canvas.stroke("orange").fill("orange").opacity(1.0);
+    for(auto const& node : tree)
+    {
+        auto p = vp.toWindow(toSVGPoint(node.m_pos));
+        if (node.m_self == 0) 
+            canvas.stroke("red").circle(p, 6.0).stroke("orange");
+        else
+            canvas.circle(p, 2.0);
+
+        std::stringstream ss;
+        ss << node.m_self;
+        canvas.text(p + SVGPoint{5.0,-5.0}, ss.str());
+    }
+
+    canvas.toSVG(os);    
 }
