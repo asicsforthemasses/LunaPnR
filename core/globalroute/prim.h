@@ -36,6 +36,15 @@ struct MSTreeNode
 
 using MSTree = std::vector<MSTreeNode>;
 
+/** construct a separable minimum spanning tree from a number of net terminals 
+    based on: New Algorithms for the Rectilinear Steiner Tree
+    Problem", IEEE TRANSACTIONS ON COMPUTER-AIDED DESIGN, VOL 9 NO 2, FEBRUARY 1990.
+*/
 [[nodiscard]] MSTree prim(const std::vector<ChipDB::Coord64> &netNodes);
+
+/** utility function for testing. Loads net node positions from a string. 
+    Format: <number of nodes> <x1> <y1> <x2> <y2> ... <x_N> <y_N>
+*/
+std::vector<ChipDB::Coord64> loadNetNodes(const std::string &src);
 
 };

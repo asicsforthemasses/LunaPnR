@@ -3,11 +3,19 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <memory>
+#include <sstream>
 #include "prim.h"
 #include "prim_private.h"
 
 using namespace LunaCore::Prim;
 using namespace LunaCore::Prim::Private;
+
+void LunaCore::Prim::MSTreeNode::addEdge(NodeId child, const ChipDB::Coord64 &childPos)
+{
+    auto &edge = m_edges.emplace_back();
+    edge.m_pos = childPos;
+    edge.m_self = child;
+}
 
 MSTree LunaCore::Prim::prim(const std::vector<ChipDB::Coord64> &netNodes)
 {
@@ -68,4 +76,28 @@ MSTree LunaCore::Prim::prim(const std::vector<ChipDB::Coord64> &netNodes)
 
 
     return std::move(tree);
+}
+
+std::vector<ChipDB::Coord64> LunaCore::Prim::loadNetNodes(const std::string &src)
+{
+    std::vector<ChipDB::Coord64> nodes;
+    std::stringstream ss(src);
+
+    int Npoints = 0;
+    ss >> Npoints;
+
+    if (Npoints == 0) return {};
+
+    nodes.reserve(Npoints);
+
+    for(int p=0; p<Npoints; p++)
+    {
+        int64_t x,y;
+        ss >> x;
+        ss >> y;
+
+        nodes.emplace_back(ChipDB::Coord64{x,y});
+    }    
+
+    return std::move(nodes);
 }

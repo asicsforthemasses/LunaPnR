@@ -39,7 +39,7 @@ struct TreeEdgeCompare
 
 using PriorityQueue = std::priority_queue<TreeEdge*, std::vector<TreeEdge*>, TreeEdgeCompare>;
 
-CostTuple calcCost(const ChipDB::Coord64 &node1, const ChipDB::Coord64 &node2) noexcept
+inline CostTuple calcCost(const ChipDB::Coord64 &node1, const ChipDB::Coord64 &node2) noexcept
 {
     CostTuple t;
     t.m_dist = std::abs(node1.m_x - node2.m_x) + std::abs(node1.m_y - node2.m_y);
