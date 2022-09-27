@@ -142,6 +142,7 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
 {
     if (!m_grid)
     {
+        Logging::doLog(Logging::LogType::DEBUG, "GlobalRouter::Router::routeSegment m_grid == nullptr\n");
         return false;
     }
 
@@ -149,13 +150,23 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
     auto loc1 = m_grid->toGridCoord(p1);
     auto loc2 = m_grid->toGridCoord(p2);
 
-    if (!m_grid->isValidGridCoord(loc1)) return false;
-    if (!m_grid->isValidGridCoord(loc2)) return false;
+    if (!m_grid->isValidGridCoord(loc1))
+    {
+        Logging::doLog(Logging::LogType::VERBOSE, "GlobalRouter::Router::routeSegment loc1 is invalid\n");
+        return false;
+    } 
+
+    if (!m_grid->isValidGridCoord(loc2)) 
+    {
+        Logging::doLog(Logging::LogType::VERBOSE, "GlobalRouter::Router::routeSegment loc2 is invalid\n");
+        return false;
+    }
 
     // if the locations are the same, routing isn't necessary.
     if (loc1 == loc2)
     {
         m_grid->at(loc1).m_capacity++;
+        m_grid->at(loc1).setTarget();
         return true;
     }
 
@@ -166,6 +177,7 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
     wavefront.push(waveItem);
 
     m_grid->at(loc1).setSource();
+    m_grid->at(loc1).clearTarget(); // make sure we don't erroneously stop the route...
     m_grid->at(loc1).setReached();
     m_grid->at(loc2).setTarget();
 
@@ -177,6 +189,7 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
         if (wavefront.empty())
         {
             // no path found!
+            Logging::doLog(Logging::LogType::VERBOSE, "  maze: path not found\n");
             return false;
         }
 
@@ -207,6 +220,11 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
         {
             targetReached = true;
 
+            if (evaluations < 5)
+            {
+                std::cout << "!@#!@#\n";
+            }
+
             m_grid->clear();
 
             // backtrack from target
@@ -219,13 +237,16 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
                 // exit at the end of the track
                 if (gridCell.isSource())
                 {
+                    m_grid->at(backtrackPos).clearSource();
                     doBacktrack = false;
                     continue;
                 }
 
                 // mark all the cells on the new path
                 // as a target to terminate the next segment
-                m_grid->at(backtrackPos).setTarget();
+                m_grid->at(backtrackPos).setMark();
+                m_grid->at(backtrackPos).clearSource();
+                m_grid->at(backtrackPos).clearTarget();
                 m_grid->at(backtrackPos).m_capacity++;
 
                 // go to the previous cell
@@ -309,7 +330,7 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
         }
     }
 
-    std::cout << "  evaluations: " << evaluations << "\n";
+    Logging::doLog(Logging::LogType::VERBOSE, "  maze evaluations: %lu\n", evaluations);
 
     return true;
 }

@@ -136,9 +136,9 @@ BOOST_AUTO_TEST_CASE(global_router_cell_size2)
     Logging::setLogLevel(logLevel);
 };
 
-BOOST_AUTO_TEST_CASE(global_router_test)
+BOOST_AUTO_TEST_CASE(global_router_test_simple)
 {
-    std::cout << "--== GLOBAL ROUTER TEST ==--\n";
+    std::cout << "--== GLOBAL ROUTER TEST (simple) ==--\n";
 
     auto logLevel = Logging::getLogLevel();
     Logging::setLogLevel(Logging::LogType::VERBOSE);
@@ -177,5 +177,53 @@ BOOST_AUTO_TEST_CASE(global_router_test)
 
     Logging::setLogLevel(logLevel);
 }
+
+BOOST_AUTO_TEST_CASE(global_router_test_complex)
+{
+    std::cout << "--== GLOBAL ROUTER TEST (complex) ==--\n";
+
+    // use PRIM to decompose the net into segments
+    const std::string src{R"(65 80000 10000  106800 120000  122000 140000  130800 150000  123600 70000  151600 150000  110000 90000  126000 120000  127600 100000  127600 90000  116400 50000  126000 110000  116400 80000  113200 150000  97200 180000  95600 140000  90800 110000  90800 100000  108400 110000  108400 100000  90800 130000  95600 170000  95600 150000  108400 130000  89200 120000  71600 140000  93200 80000  71600 120000  71600 110000  174000 90000  174000 110000  174000 60000  106000 70000  71600 130000  66800 80000  71600 60000  86800 70000  71600 90000  69200 70000  70800 160000  123600 230000  123600 240000  68400 150000  71600 50000  71600 100000  70800 190000  67600 180000  66800 200000  141200 230000  141200 260000  70800 170000  93200 60000  70000 210000  123600 270000  123600 180000  122800 190000  126000 280000  123600 260000  140400 190000  126000 220000  123600 200000  126000 250000  123600 210000  143600 160000  126000 130000)"};
+
+    auto netNodes = LunaCore::Prim::loadNetNodes(src);
+
+    BOOST_REQUIRE(netNodes.size() == 65);
+
+    auto tree = LunaCore::Prim::prim(netNodes);
+    BOOST_CHECK(tree.size() == 65);
+
+    auto logLevel = Logging::getLogLevel();
+    Logging::setLogLevel(Logging::LogType::VERBOSE);
+
+    LunaCore::GlobalRouter::Router router;
+    router.createGrid(1200,1200,{250,250});
+    BOOST_REQUIRE(router.grid() != nullptr);
+
+    // iterate over the tree edges and route them
+    std::cout << "Routing complex net..\n";
+    std::size_t nodes = tree.size();
+
+    for(auto const& treeNode : tree)
+    {
+        auto p1 = treeNode.m_pos;
+        for(auto const& edge : treeNode.m_edges)
+        {
+            auto p2 = edge.m_pos;
+            auto result = router.route(p1,p2);
+            BOOST_CHECK(result);
+        }
+        std::cout << "*" << std::flush;
+    }
+
+    std::cout << "\n";
+
+    router.grid()->exportToPGM("complexroute.pgm");
+
+    std::ofstream ofile("complexroute.svg");
+    LunaCore::Prim::toSVG(ofile, tree);
+
+    Logging::setLogLevel(logLevel);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()

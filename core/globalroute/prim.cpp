@@ -141,6 +141,7 @@ void LunaCore::Prim::toSVG(std::ostream &os, const MSTree &tree)
 
     // determine the node extents
     TinySVGPP::Viewport vp;
+    vp.flipY = true;
     vp.xmin = std::numeric_limits<float>::max();
     vp.xmax = std::numeric_limits<float>::min();
     vp.ymin = std::numeric_limits<float>::max();
