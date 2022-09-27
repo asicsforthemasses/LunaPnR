@@ -6,7 +6,10 @@
 
 #include <optional>
 #include <utility>
+#include <memory>
+#include "datatypes.h"
 #include "design/design.h"
+#include "grid.h"
 
 namespace LunaCore::GlobalRouter
 {
@@ -20,18 +23,17 @@ public:
         const std::string &siteName,
         int hRoutes, int vRoutes) const;
 
-    struct Tracks
-    {
-        int horizontal;
-        int vertical;
-    };
-
-    std::optional<Tracks> calcNumberOfTracks(const ChipDB::Design &design,
+    std::optional<TrackInfo> calcNumberOfTracks(const ChipDB::Design &design,
         const std::string &siteName,
         const ChipDB::Size64 &extents) const;
 
 protected:
+    /** route a single track segment from point p1 to point p2 
+     *  and update the grid capacity.
+    */
+    bool routeSegment(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2);
 
+    std::unique_ptr<Grid> m_grid;
 };
 
 };

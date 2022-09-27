@@ -1,10 +1,15 @@
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include <cmath>
 #include "globalrouter.h"
+#include "wavefront.h"
 #include "common/logging.h"
 
 using namespace LunaCore;
 
-std::optional<GlobalRouter::Router::Tracks> GlobalRouter::Router::calcNumberOfTracks(const ChipDB::Design &design,
+std::optional<GlobalRouter::TrackInfo> GlobalRouter::Router::calcNumberOfTracks(const ChipDB::Design &design,
     const std::string &siteName,
     const ChipDB::Size64 &extents) const
 {
@@ -46,7 +51,7 @@ std::optional<GlobalRouter::Router::Tracks> GlobalRouter::Router::calcNumberOfTr
     auto hTracks = static_cast<int>(std::floor(horizontalTracks));
     auto vTracks = static_cast<int>(std::floor(verticalTracks));
 
-    return Tracks{hTracks, vTracks};
+    return TrackInfo{hTracks, vTracks};
 }
 
 std::optional<ChipDB::Size64> GlobalRouter::Router::determineGridCellSize(const ChipDB::Design &design, 
@@ -125,4 +130,33 @@ std::optional<ChipDB::Size64> GlobalRouter::Router::determineGridCellSize(const 
         w, h);
 
     return ChipDB::Size64{w,h};
+}
+
+bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2)
+{
+    if (!m_grid)
+    {
+        return false;
+    }
+
+    // convert nm coordinates into grid coordinates
+    auto loc1 = m_grid->toGridCoord(p1);
+    auto loc2 = m_grid->toGridCoord(p2);
+
+    // if the locations are the same, routing isn't necessary.
+    if (loc1 == loc2)
+    {
+        m_grid->at(loc1).m_capacity++;
+        return true;
+    }
+
+    Wavefront wavefront;
+    WavefrontItem waveItem;
+    waveItem.m_gridpos  = loc1;
+    waveItem.m_pathCost = 0;
+    wavefront.push(waveItem);
+
+    m_grid->at(loc2).setTarget();
+
+    return true;
 }
