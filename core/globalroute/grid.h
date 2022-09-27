@@ -48,7 +48,7 @@ struct GCell
     constexpr bool isReached() const {return (m_flags & reachedFlag) != 0; }
     constexpr bool isBlocked() const {return (m_flags & blockedFlag) != 0; }
     constexpr bool isMarked() const {return (m_flags & markedFlag) != 0; }
-    constexpr bool isValid() const {return (m_flags & invalidFlag) != 0; }
+    constexpr bool isValid() const {return (m_flags & invalidFlag) == 0; }
 
     constexpr void resetFlags()     { m_flags = 0; }
     constexpr void setReached()     { m_flags |= reachedFlag; }
@@ -98,8 +98,13 @@ public:
 
     /** clears the reached flag and resets the grid cost */
     void clear();
+    
+    /** clears all the flags in preparation for a new route */
+    void clearAll();
 
     bool exportToPGM(const std::string &filename) const;
+
+    auto const& gcells() const noexcept {return m_grid; };
 
 protected:
     int             m_maxCapacity{200};

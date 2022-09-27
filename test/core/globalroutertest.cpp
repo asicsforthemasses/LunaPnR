@@ -145,11 +145,35 @@ BOOST_AUTO_TEST_CASE(global_router_test)
 
     LunaCore::GlobalRouter::Router router;
 
-    router.createGrid(10,10,{1,1});
+    // check for a simple vertical route
+
+    router.createGrid(100,100,{1,1});
     BOOST_REQUIRE(router.grid() != nullptr);
-    auto result = router.route({5,0},{5,9});
+    auto result = router.route({49,0},{49,49});
     
     BOOST_CHECK(result);
+
+    // check that a second (horizontal) route will stop
+    // early at the nearest target found.
+    router.grid()->exportToPGM("route1.pgm");
+
+    result = router.route({0,49},{99,49});
+    BOOST_CHECK(result);
+
+    router.grid()->exportToPGM("route2.pgm");
+
+    // check that a simple vertical route will go around
+    // a blocked part of the grid
+
+    router.clearGrid();
+    router.setBlockage({50,10});
+    router.setBlockage({49,10});
+    router.setBlockage({48,10});
+
+    result = router.route({49,0},{49,49});
+    BOOST_CHECK(result);
+
+    router.grid()->exportToPGM("route3.pgm");
 
     Logging::setLogLevel(logLevel);
 }

@@ -154,3 +154,12 @@ bool GlobalRouter::Grid::exportToPGM(const std::string &filename) const
 
     return true;
 }
+
+void GlobalRouter::Grid::clearAll()
+{   
+    for(auto &cell : m_grid)
+    {
+        cell.resetFlags();
+        cell.m_cost = std::numeric_limits<decltype(cell.m_cost)>::max();
+    }
+}

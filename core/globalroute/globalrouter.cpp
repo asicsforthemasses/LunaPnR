@@ -165,6 +165,8 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
     waveItem.m_pathCost = 0;
     wavefront.push(waveItem);
 
+    m_grid->at(loc1).setSource();
+    m_grid->at(loc1).setReached();
     m_grid->at(loc2).setTarget();
 
     bool targetReached = false;
@@ -203,6 +205,8 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
         auto const& gcell = m_grid->at(minCostPos);
         if (gcell.isValid() && gcell.isTarget())
         {
+            targetReached = true;
+
             m_grid->clear();
 
             // backtrack from target
@@ -347,7 +351,7 @@ std::optional<GlobalRouter::PathCostType> GlobalRouter::Router::calcGridCost(con
 
     if (!m_grid) return std::nullopt;
 
-    if (m_grid->isValidGridCoord(to)) return std::nullopt;
+    if (!m_grid->isValidGridCoord(to)) return std::nullopt;
 
     PathCostType cost = cellCost;
     if ((from.m_pred != expandDirection) && (from.m_pred != Predecessor::Undefined))
@@ -367,4 +371,18 @@ std::optional<GlobalRouter::PathCostType> GlobalRouter::Router::calcGridCost(con
 bool GlobalRouter::Router::route(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2)
 {
     return routeSegment(p1, p2);
+}
+
+void GlobalRouter::Router::clearGrid()
+{
+    if (m_grid) m_grid->clearAll();
+}
+
+void GlobalRouter::Router::setBlockage(const ChipDB::Coord64 &p)
+{
+    if (m_grid)
+    {
+        auto pos = m_grid->toGridCoord(p);
+        m_grid->at(pos).setBlocked();
+    }
 }

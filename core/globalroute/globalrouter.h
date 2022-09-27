@@ -36,9 +36,15 @@ public:
     /** get a raw pointer to the grid */
     const Grid* grid() const {return m_grid.get(); }
 
+    /** set a blockage at Chip coordinates p. The underlying grid cell will be set to blocked. */
+    void setBlockage(const ChipDB::Coord64 &p);
+
     /** route two points */
     [[nodiscard]] bool route(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2);
     //bool routeNet(const std::vector<ChipDB::Coord64> &netNodes);
+
+    /** clear the grid for a new route */
+    void clearGrid();
 
 protected:
     /** route a single track segment from point p1 to point p2 
