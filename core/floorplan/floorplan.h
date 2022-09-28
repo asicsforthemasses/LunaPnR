@@ -23,7 +23,7 @@ public:
 
     /** create a region with the specified name and add it to the floorplan. returns an invalid KeyObjPair if a region 
      *  of the same name already exists */
-    KeyObjPair<Region> createRegion(const std::string &name);
+    KeyObjPair<Region> createRegion(const std::string &name, const std::string &site);
     
     std::shared_ptr<Region> lookupRegion(ChipDB::ObjectKey key) const;
     KeyObjPair<Region> lookupRegion(const std::string &name) const;
