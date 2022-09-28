@@ -155,12 +155,12 @@ BOOST_AUTO_TEST_CASE(global_router_test_simple)
 
     // check that a second (horizontal) route will stop
     // early at the nearest target found.
-    router.grid()->exportToPGM("route1.pgm");
+    router.grid()->exportToPPM("route1.ppm");
 
     result = router.route({0,49},{99,49});
     BOOST_CHECK(result);
 
-    router.grid()->exportToPGM("route2.pgm");
+    router.grid()->exportToPPM("route2.ppm");
 
     // check that a simple vertical route will go around
     // a blocked part of the grid
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_simple)
     result = router.route({49,0},{49,49});
     BOOST_CHECK(result);
 
-    router.grid()->exportToPGM("route3.pgm");
+    router.grid()->exportToPPM("route3.ppm");
 
     Logging::setLogLevel(logLevel);
 }
@@ -201,6 +201,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex)
 
     // iterate over the tree edges and route them
     std::cout << "Routing complex net..\n";
+
     std::size_t nodes = tree.size();
 
     for(auto const& treeNode : tree)
@@ -217,13 +218,37 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex)
 
     std::cout << "\n";
 
-    router.grid()->exportToPGM("complexroute.pgm");
+    router.grid()->exportToPPM("complexroute.ppm");
 
     std::ofstream ofile("complexroute.svg");
     LunaCore::Prim::toSVG(ofile, tree);
 
+    //TODO: compare resulting route with reference
+
     Logging::setLogLevel(logLevel);
 }
 
+BOOST_AUTO_TEST_CASE(global_router_test_complex2)
+{
+    std::cout << "--== GLOBAL ROUTER TEST (complex, high-level interface) ==--\n";
+
+    // use PRIM to decompose the net into segments
+    const std::string src{R"(65 80000 10000  106800 120000  122000 140000  130800 150000  123600 70000  151600 150000  110000 90000  126000 120000  127600 100000  127600 90000  116400 50000  126000 110000  116400 80000  113200 150000  97200 180000  95600 140000  90800 110000  90800 100000  108400 110000  108400 100000  90800 130000  95600 170000  95600 150000  108400 130000  89200 120000  71600 140000  93200 80000  71600 120000  71600 110000  174000 90000  174000 110000  174000 60000  106000 70000  71600 130000  66800 80000  71600 60000  86800 70000  71600 90000  69200 70000  70800 160000  123600 230000  123600 240000  68400 150000  71600 50000  71600 100000  70800 190000  67600 180000  66800 200000  141200 230000  141200 260000  70800 170000  93200 60000  70000 210000  123600 270000  123600 180000  122800 190000  126000 280000  123600 260000  140400 190000  126000 220000  123600 200000  126000 250000  123600 210000  143600 160000  126000 130000)"};
+
+    auto netNodes = LunaCore::Prim::loadNetNodes(src);
+
+    BOOST_REQUIRE(netNodes.size() == 65);
+
+    LunaCore::GlobalRouter::Router router;
+    router.createGrid(1200,1200,{250,250});
+    BOOST_REQUIRE(router.grid() != nullptr);
+
+    std::cout << "Routing complex net..\n";
+    BOOST_CHECK(router.routeNet(netNodes));
+
+    router.grid()->exportToPPM("complexroute2.ppm");
+
+    //TODO: compare resulting route with reference
+}
 
 BOOST_AUTO_TEST_SUITE_END()

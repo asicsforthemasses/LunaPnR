@@ -90,9 +90,16 @@ namespace ChipDB
             return Coord64{m_x - rhs.m_x, m_y - rhs.m_y};
         } 
 
-        [[nodiscard]] constexpr int64_t manhattanLength() const noexcept
+        /** Manhattan/rectilinear length of (0,0) to this point. */
+        [[nodiscard]] int64_t manhattanLength() const noexcept
         {
-            return m_x + m_y;
+            return std::abs(m_x) + std::abs(m_y);
+        }
+
+        /** Manhattan/rectilinear distance between two points */
+        [[nodiscard]] int64_t manhattanDistance(const Coord64& rhs) const noexcept
+        {
+            return std::abs(m_x-rhs.m_x) + std::abs(m_y-rhs.m_y);
         }
 
         // unary minus

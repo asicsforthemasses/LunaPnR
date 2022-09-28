@@ -82,9 +82,6 @@ MSTree LunaCore::Prim::prim(const std::vector<ChipDB::Coord64> &netNodes)
                 if (minEdge->from >= 0)
                 {
                     tree.at(minEdge->from).addEdge(minEdge->to, netNodes.at(minEdge->to));
-                    //auto &edge = tree.at(minEdge->from).addEdge(minEdge->m_dest, netNodes.at(minEdge->m_dest));                    
-                    //edge.m_src  = minEdge->from;
-                    //edge.m_dest = minEdge->to;
                 }
                 if (minEdge->to != 0) tree.at(minEdge->to).m_parent = minEdge->from;
             }
