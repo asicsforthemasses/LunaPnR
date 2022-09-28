@@ -254,14 +254,65 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex2)
     router.createGrid(1200,1200,{250,250});
     BOOST_REQUIRE(router.grid() != nullptr);
 
-    std::cout << "Routing complex net..\n";
-    BOOST_CHECK(router.routeNet(netNodes));
+    auto logLevel = Logging::getLogLevel();
+    Logging::setLogLevel(Logging::LogType::VERBOSE);
 
-    auto bitmap = router.grid()->generateBitmap();
+    std::cout << "Routing complex net..\n";
+
+    auto segTree = router.routeNet(netNodes);
+    BOOST_REQUIRE(segTree.m_ok);
+
+    Logging::setLogLevel(logLevel);
+
+    // generate a bitmap using the returned segments and compare the output
+    LunaCore::GlobalRouter::Grid replicaGrid(1200,1200, {250,250});
+
+    for(const auto& seg : segTree.segments())
+    {
+        auto pos = seg.m_start;
+        auto count = seg.m_length;
+        while(count > 0)
+        {
+            replicaGrid.at(pos).setMark();
+            count--;
+            switch(seg.m_dir)
+            {
+            case LunaCore::GlobalRouter::Direction::East:
+                pos.m_x--;
+                break;
+            case LunaCore::GlobalRouter::Direction::West:
+                pos.m_x++;
+                break;   
+            case LunaCore::GlobalRouter::Direction::North:
+                pos.m_y++;
+                break;                                
+            case LunaCore::GlobalRouter::Direction::South:
+                pos.m_y--;
+                break;                  
+            }
+        }
+    }
+
+    auto bitmap = replicaGrid.generateBitmap();
     LunaCore::PPM::write("test/files/results/complexroute2.ppm", bitmap);
 
     //compare resulting route with reference
-    BOOST_CHECK(Helpers::compareBitmapToPPM("test/files/ppm/complexroute2.ppm", bitmap));
+    auto check = Helpers::compareBitmapToPPM("test/files/ppm/complexroute2.ppm", bitmap);
+    BOOST_CHECK(check);
+
+    // if the check fails, write a diff bitmap for human checking
+    if (!check)
+    {
+        auto checkBm = LunaCore::PPM::read("test/files/ppm/complexroute2.ppm");
+        BOOST_REQUIRE(checkBm);
+
+        auto diffBm = Helpers::createDiffBitmap(bitmap, checkBm.value());
+        BOOST_REQUIRE(diffBm);
+
+        LunaCore::PPM::write("test/files/results/complexroute2_diff.ppm", diffBm.value());
+    }
+    
+    
 }
 
 BOOST_AUTO_TEST_SUITE_END()

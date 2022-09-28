@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <cmath>
+#include <queue>
 #include "globalrouter.h"
 #include "wavefront.h"
 #include "prim.h"
@@ -166,7 +167,7 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
     // if the locations are the same, routing isn't necessary.
     if (loc1 == loc2)
     {
-        m_grid->at(loc1).m_capacity++;
+        //m_grid->at(loc1).m_capacity++;
         m_grid->at(loc1).setTarget();
         return true;
     }
@@ -249,7 +250,7 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
                 m_grid->at(backtrackPos).setMark();
                 m_grid->at(backtrackPos).clearSource();
                 m_grid->at(backtrackPos).clearTarget();
-                m_grid->at(backtrackPos).m_capacity++;
+                //m_grid->at(backtrackPos).m_capacity++;
 
                 // go to the previous cell
                 switch(gridCell.getPredecessor())
@@ -421,12 +422,13 @@ bool GlobalRouter::Router::route(const ChipDB::Coord64 &p1, const ChipDB::Coord6
     return routeSegment(p1, p2);
 }
 
-bool GlobalRouter::Router::routeNet(const std::vector<ChipDB::Coord64> &netNodes)
+GlobalRouter::Router::NetRouteResult GlobalRouter::Router::routeNet(const std::vector<ChipDB::Coord64> &netNodes)
 {
+    NetRouteResult invalid;
     if (!m_grid)
     {
         Logging::doLog(Logging::LogType::ERROR, "GlobalRouter::Router::routeNet grid is nullptr - createGrid wasn't called.\n");
-        return false;
+        return invalid;
     }
 
     auto tree = LunaCore::Prim::prim(netNodes);
@@ -434,7 +436,7 @@ bool GlobalRouter::Router::routeNet(const std::vector<ChipDB::Coord64> &netNodes
     if (tree.size() != netNodes.size())
     {
         Logging::doLog(Logging::LogType::ERROR, "GlobalRouter::Prim didn't return enough nodes (expected %lu but got %lu).\n", netNodes.size(), tree.size());
-        return false;        
+        return invalid;        
     }
 
     m_grid->clearAll();
@@ -448,11 +450,12 @@ bool GlobalRouter::Router::routeNet(const std::vector<ChipDB::Coord64> &netNodes
             if (!result) 
             {
                 Logging::doLog(Logging::LogType::ERROR,"GlobalRouter::Router::routeNet could not complete route\n");
-                return false;
+                return invalid;
             }
         }
     }
-    return true;
+
+    return std::move(generateSegmentTree(tree.at(0).m_pos));
 }
 
 void GlobalRouter::Router::clearGrid()
@@ -467,4 +470,204 @@ void GlobalRouter::Router::setBlockage(const ChipDB::Coord64 &p)
         auto pos = m_grid->toGridCoord(p);
         m_grid->at(pos).setBlocked();
     }
+}
+
+GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTree(const ChipDB::Coord64 &start) const
+{
+    NetRouteResult result;
+
+    if (!m_grid) 
+    {
+        Logging::doLog(Logging::LogType::ERROR, "GlobalRouter::Router::generateSegmentTree grid is nullptr - createGrid wasn't called.\n");
+        return result;
+    }
+
+    auto const gridStartCoord = m_grid->toGridCoord(start);
+
+    if (!m_grid->isValidGridCoord(gridStartCoord))
+    {
+        Logging::doLog(Logging::LogType::ERROR, "GlobalRouter::Router::generateSegmentTree starting point is not within the grid!\n");
+        return result;
+    }
+
+    using PosAndNetSegmentPtr = std::pair<GCellCoord /* current position */, NetSegment*>;
+    SegmentList &seg = result.m_segList;
+    std::queue<PosAndNetSegmentPtr> queue;
+
+    // initialize the queue and segment list
+    // by trying all direction from the starting point
+
+    auto newPos = east(gridStartCoord);
+    if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
+    {
+        auto newSegment = seg.createNewSegment(gridStartCoord, Direction::East);
+        newSegment->m_length = 2;   // next point and the starting point are included.
+        queue.push({newPos, newSegment});
+    }
+
+    newPos = west(gridStartCoord);
+    if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
+    {
+        auto newSegment = seg.createNewSegment(gridStartCoord, Direction::West);
+        newSegment->m_length = 2;   // next point and the starting point are included.
+        queue.push({newPos, newSegment});
+    }
+    
+    newPos = north(gridStartCoord);
+    if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
+    {
+        auto newSegment = seg.createNewSegment(gridStartCoord, Direction::North);
+        newSegment->m_length = 2;   // next point and the starting point are included.
+        queue.push({newPos, newSegment});
+    }                
+
+    newPos = south(gridStartCoord);
+    if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
+    {
+        auto newSegment = seg.createNewSegment(gridStartCoord, Direction::South);
+        newSegment->m_length = 2;   // next point and the starting point are included.
+        queue.push({newPos, newSegment});
+    }                                
+
+    while(!queue.empty())
+    {
+        auto curPosAndSeg = queue.front();
+        auto const curPos = curPosAndSeg.first;
+        auto curSegPtr    = curPosAndSeg.second;
+
+        queue.pop();
+        switch(curSegPtr->m_dir)
+        {
+        case Direction::Undefined:
+            {
+                Logging::doLog(Logging::LogType::ERROR, "GlobalRouter::Router::generateSegmentTree found an undefined segment direction.\n");
+                return result;
+            }
+            break;
+        case Direction::East:
+            {
+                auto newPos = east(curPos);
+                if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
+                {
+                    curSegPtr->m_length++;
+                    curSegPtr->m_dir = Direction::East;
+                    queue.push({newPos, curSegPtr});
+                }
+                
+                // try a change of direction
+                newPos = north(curPos);
+                if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
+                {
+                    auto newSegment = seg.createNewSegment(curPos, Direction::North);
+                    newSegment->m_length = 2;
+                    queue.push({newPos, newSegment});
+                }
+
+                newPos = south(curPos);
+                if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
+                {
+                    auto newSegment = seg.createNewSegment(curPos, Direction::South);
+                    newSegment->m_length = 2;
+                    queue.push({newPos, newSegment});
+                }
+            }
+            break;
+        case Direction::West:
+            {
+                auto newPos = west(curPos);
+                if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
+                {
+                    curSegPtr->m_length++;
+                    curSegPtr->m_dir = Direction::West;
+                    queue.push({newPos, curSegPtr});
+                }
+                
+                // try a change of direction
+                newPos = north(curPos);
+                if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
+                {
+                    auto newSegment = seg.createNewSegment(curPos, Direction::North);
+                    newSegment->m_length = 2;
+                    queue.push({newPos, newSegment});
+                }
+
+                newPos = south(curPos);
+                if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
+                {
+                    auto newSegment = seg.createNewSegment(curPos, Direction::South);
+                    newSegment->m_length = 2;
+                    queue.push({newPos, newSegment});
+                }
+            }
+            break;
+        case Direction::North:
+            {
+                auto newPos = north(curPos);
+                if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
+                {
+                    curSegPtr->m_length++;
+                    curSegPtr->m_dir = Direction::North;
+                    queue.push({newPos, curSegPtr});
+                }
+                
+                // try a change of direction
+                newPos = east(curPos);
+                if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
+                {
+                    auto newSegment = seg.createNewSegment(curPos, Direction::East);
+                    newSegment->m_length = 2;
+                    queue.push({newPos, newSegment});
+                }
+
+                newPos = west(curPos);
+                if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
+                {
+                    auto newSegment = seg.createNewSegment(curPos, Direction::West);
+                    newSegment->m_length = 2;
+                    queue.push({newPos, newSegment});
+                }
+            }
+            break;
+        case Direction::South:
+            {
+                auto newPos = south(curPos);
+                if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
+                {
+                    curSegPtr->m_length++;
+                    curSegPtr->m_dir = Direction::South;
+                    queue.push({newPos, curSegPtr});
+                }
+                
+                // try a change of direction
+                newPos = east(curPos);
+                if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
+                {
+                    auto newSegment = seg.createNewSegment(curPos, Direction::East);
+                    newSegment->m_length = 2;
+                    queue.push({newPos, newSegment});
+                }
+
+                newPos = west(curPos);
+                if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
+                {
+                    auto newSegment = seg.createNewSegment(curPos, Direction::West);
+                    newSegment->m_length = 2;
+                    queue.push({newPos, newSegment});
+                }
+            }
+            break;            
+        }
+
+        m_grid->at(curPos).clearMark();
+    }
+
+#if 0
+    for(auto const& segment: seg.m_segments)
+    {
+        std::cout << "  start: " << segment.m_start << " len: " << segment.m_length << " dir: " << segment.m_dir << "\n";
+    }
+#endif
+
+    result.m_ok = true;
+    return std::move(result);
 }
