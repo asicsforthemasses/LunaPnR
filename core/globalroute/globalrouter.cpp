@@ -5,6 +5,7 @@
 #include <cmath>
 #include "globalrouter.h"
 #include "wavefront.h"
+#include "prim.h"
 #include "common/logging.h"
 
 using namespace LunaCore;
@@ -176,6 +177,7 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
     waveItem.m_pathCost = 0;
     wavefront.push(waveItem);
 
+    m_grid->at(loc1).setMark();
     m_grid->at(loc1).setSource();
     m_grid->at(loc1).clearTarget(); // make sure we don't erroneously stop the route...
     m_grid->at(loc1).setReached();
@@ -295,7 +297,7 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
             auto northPos = north(minCostPos);
             if (m_grid->isValidGridCoord(northPos))
             {
-                auto newCost  = calcGridCost(minCostItem, northPos, GlobalRouter::Predecessor::South);
+                auto newCost  = calcGridCostDirected(minCostItem, northPos, loc2, GlobalRouter::Predecessor::South);
                 if (newCost)
                     addWavefrontCell(wavefront, northPos, newCost.value(), GlobalRouter::Predecessor::South);
             }
@@ -303,7 +305,7 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
             auto southPos = south(minCostPos);
             if (m_grid->isValidGridCoord(southPos))
             {
-                auto newCost = calcGridCost(minCostItem, southPos, GlobalRouter::Predecessor::North);
+                auto newCost = calcGridCostDirected(minCostItem, southPos, loc2, GlobalRouter::Predecessor::North);
                 if (newCost)
                     addWavefrontCell(wavefront, southPos, newCost.value(), GlobalRouter::Predecessor::North);
             }
@@ -315,7 +317,7 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
             auto eastPos = east(minCostPos);
             if (m_grid->isValidGridCoord(eastPos))
             {
-                auto newCost = calcGridCost(minCostItem, eastPos, GlobalRouter::Predecessor::West);
+                auto newCost = calcGridCostDirected(minCostItem, eastPos, loc2, GlobalRouter::Predecessor::West);
                 if (newCost)
                     addWavefrontCell(wavefront, eastPos, newCost.value(), GlobalRouter::Predecessor::West);
             }
@@ -323,7 +325,7 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
             auto westPos = west(minCostPos);
             if (m_grid->isValidGridCoord(westPos))
             {
-                auto newCost = calcGridCost(minCostItem, westPos, GlobalRouter::Predecessor::East);
+                auto newCost = calcGridCostDirected(minCostItem, westPos, loc2, GlobalRouter::Predecessor::East);
                 if (newCost)
                     addWavefrontCell(wavefront, westPos, newCost.value(), GlobalRouter::Predecessor::East);
             }
@@ -389,9 +391,68 @@ std::optional<GlobalRouter::PathCostType> GlobalRouter::Router::calcGridCost(con
     return cost + from.m_pathCost;
 }
 
+std::optional<GlobalRouter::PathCostType> GlobalRouter::Router::calcGridCostDirected(const WavefrontItem &from, const GCellCoord &to, const GCellCoord &destination, Predecessor expandDirection)
+{
+    const PathCostType cellCost    = 1;
+    const PathCostType bendPenalty = 2;
+    const PathCostType borderSlack = 0;
+
+    if (!m_grid) return std::nullopt;
+
+    if (!m_grid->isValidGridCoord(to)) return std::nullopt;
+
+    PathCostType cost = cellCost;
+    if ((from.m_pred != expandDirection) && (from.m_pred != Predecessor::Undefined))
+    {
+        cost += bendPenalty;
+    }
+
+    auto destinationCapacity = m_grid->at(to).m_capacity;
+    if (destinationCapacity >= m_grid->maxCellCapacity())
+    {
+        return std::nullopt;
+    }
+
+    return cost + from.m_pathCost + std::max(to.manhattanDistance(destination) - borderSlack, (int64_t)0);
+}
+
 bool GlobalRouter::Router::route(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2)
 {
     return routeSegment(p1, p2);
+}
+
+bool GlobalRouter::Router::routeNet(const std::vector<ChipDB::Coord64> &netNodes)
+{
+    if (!m_grid)
+    {
+        Logging::doLog(Logging::LogType::ERROR, "GlobalRouter::Router::routeNet grid is nullptr - createGrid wasn't called.\n");
+        return false;
+    }
+
+    auto tree = LunaCore::Prim::prim(netNodes);
+
+    if (tree.size() != netNodes.size())
+    {
+        Logging::doLog(Logging::LogType::ERROR, "GlobalRouter::Prim didn't return enough nodes (expected %lu but got %lu).\n", netNodes.size(), tree.size());
+        return false;        
+    }
+
+    m_grid->clearAll();
+    for(auto const& treeNode : tree)
+    {
+        auto p1 = treeNode.m_pos;
+        for(auto const& edge : treeNode.m_edges)
+        {
+            auto p2 = edge.m_pos;
+            auto result = routeSegment(p1,p2);
+            if (!result) 
+            {
+                Logging::doLog(Logging::LogType::ERROR,"GlobalRouter::Router::routeNet could not complete route\n");
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 void GlobalRouter::Router::clearGrid()

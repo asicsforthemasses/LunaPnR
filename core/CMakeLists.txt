@@ -93,9 +93,11 @@ add_library(lunacore
     import/verilog/veriloglexer.cpp
     import/verilog/verilogparser.cpp
     import/verilog/verilogreader.cpp
+    import/ppm/ppmreader.cpp
     export/svg/svgwriter.cpp
     export/dot/dotwriter.cpp
     export/def/defwriter.cpp
+    export/ppm/ppmwriter.cpp
     export/verilog/verilogwriter.cpp
     export/txt/txtwriter.cpp
     python/pylunapnr.cpp

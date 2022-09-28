@@ -11,7 +11,7 @@ namespace LunaCore::GlobalRouter
 {
     using GCellCoordType = ChipDB::CoordType;
     using GCellCoord = ChipDB::Coord64;
-    using PathCostType = uint64_t;
+    using PathCostType = int64_t;
 
     struct TrackInfo
     {

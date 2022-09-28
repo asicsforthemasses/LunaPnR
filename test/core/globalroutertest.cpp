@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include "lunacore.h"
+#include "testhelpers.h"
 
 #include <string>
 #include <sstream>
@@ -146,22 +147,27 @@ BOOST_AUTO_TEST_CASE(global_router_test_simple)
     LunaCore::GlobalRouter::Router router;
 
     // check for a simple vertical route
-
     router.createGrid(100,100,{1,1});
     BOOST_REQUIRE(router.grid() != nullptr);
     auto result = router.route({49,0},{49,49});
     
     BOOST_CHECK(result);
 
+    auto route1bm = router.grid()->generateBitmap();
+    LunaCore::PPM::write("test/files/results/route1.ppm", route1bm);
+
+    BOOST_CHECK(Helpers::compareBitmapToPPM("test/files/ppm/route1.ppm", route1bm));
+
     // check that a second (horizontal) route will stop
     // early at the nearest target found.
-    router.grid()->exportToPGM("route1.pgm");
-
     result = router.route({0,49},{99,49});
     BOOST_CHECK(result);
 
-    router.grid()->exportToPGM("route2.pgm");
+    auto route2bm = router.grid()->generateBitmap();
+    LunaCore::PPM::write("test/files/results/route2.ppm", route2bm);
 
+    BOOST_CHECK(Helpers::compareBitmapToPPM("test/files/ppm/route2.ppm", route2bm));
+    
     // check that a simple vertical route will go around
     // a blocked part of the grid
 
@@ -173,7 +179,10 @@ BOOST_AUTO_TEST_CASE(global_router_test_simple)
     result = router.route({49,0},{49,49});
     BOOST_CHECK(result);
 
-    router.grid()->exportToPGM("route3.pgm");
+    auto route3bm = router.grid()->generateBitmap();
+    LunaCore::PPM::write("test/files/results/route3.ppm", route3bm);
+
+    BOOST_CHECK(Helpers::compareBitmapToPPM("test/files/ppm/route3.ppm", route3bm));
 
     Logging::setLogLevel(logLevel);
 }
@@ -201,6 +210,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex)
 
     // iterate over the tree edges and route them
     std::cout << "Routing complex net..\n";
+
     std::size_t nodes = tree.size();
 
     for(auto const& treeNode : tree)
@@ -217,13 +227,41 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex)
 
     std::cout << "\n";
 
-    router.grid()->exportToPGM("complexroute.pgm");
+    auto bitmap = router.grid()->generateBitmap();
+    LunaCore::PPM::write("test/files/results/complexroute.ppm", bitmap);
 
-    std::ofstream ofile("complexroute.svg");
+    std::ofstream ofile("test/files/results/complexroute.svg");
     LunaCore::Prim::toSVG(ofile, tree);
+
+    //compare resulting route with reference
+    BOOST_CHECK(Helpers::compareBitmapToPPM("test/files/ppm/complexroute.ppm", bitmap));
 
     Logging::setLogLevel(logLevel);
 }
 
+BOOST_AUTO_TEST_CASE(global_router_test_complex2)
+{
+    std::cout << "--== GLOBAL ROUTER TEST (complex, high-level interface) ==--\n";
+
+    // use PRIM to decompose the net into segments
+    const std::string src{R"(65 80000 10000  106800 120000  122000 140000  130800 150000  123600 70000  151600 150000  110000 90000  126000 120000  127600 100000  127600 90000  116400 50000  126000 110000  116400 80000  113200 150000  97200 180000  95600 140000  90800 110000  90800 100000  108400 110000  108400 100000  90800 130000  95600 170000  95600 150000  108400 130000  89200 120000  71600 140000  93200 80000  71600 120000  71600 110000  174000 90000  174000 110000  174000 60000  106000 70000  71600 130000  66800 80000  71600 60000  86800 70000  71600 90000  69200 70000  70800 160000  123600 230000  123600 240000  68400 150000  71600 50000  71600 100000  70800 190000  67600 180000  66800 200000  141200 230000  141200 260000  70800 170000  93200 60000  70000 210000  123600 270000  123600 180000  122800 190000  126000 280000  123600 260000  140400 190000  126000 220000  123600 200000  126000 250000  123600 210000  143600 160000  126000 130000)"};
+
+    auto netNodes = LunaCore::Prim::loadNetNodes(src);
+
+    BOOST_REQUIRE(netNodes.size() == 65);
+
+    LunaCore::GlobalRouter::Router router;
+    router.createGrid(1200,1200,{250,250});
+    BOOST_REQUIRE(router.grid() != nullptr);
+
+    std::cout << "Routing complex net..\n";
+    BOOST_CHECK(router.routeNet(netNodes));
+
+    auto bitmap = router.grid()->generateBitmap();
+    LunaCore::PPM::write("test/files/results/complexroute2.ppm", bitmap);
+
+    //compare resulting route with reference
+    BOOST_CHECK(Helpers::compareBitmapToPPM("test/files/ppm/complexroute2.ppm", bitmap));
+}
 
 BOOST_AUTO_TEST_SUITE_END()

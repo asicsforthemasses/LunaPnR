@@ -5,6 +5,7 @@
 #include <limits>
 #include <fstream>
 #include "grid.h"
+#include "export/ppm/ppmwriter.h"
 
 using namespace LunaCore;
 
@@ -86,28 +87,24 @@ void GlobalRouter::Grid::clear()
     }
 }
 
-bool GlobalRouter::Grid::exportToPGM(const std::string &filename) const
+PPM::Bitmap GlobalRouter::Grid::generateBitmap() const noexcept
 {
-    std::ofstream ofile(filename);
-    if (!ofile.good()) return false;
-    if (!ofile.is_open()) return false;
+    constexpr PPM::RGB netColor{0,255,0,0};
+    constexpr PPM::RGB congestedColor{255,0,0,0};
 
-    int maxColorValue = 255;
-    ofile << "P6\n" << width() << " " << height() << "\n" << maxColorValue << "\n";
+    constexpr PPM::RGB terminalColor{255,0,255,0};
+    constexpr PPM::RGB blockColor{255,0,0,0};
 
-    constexpr RGB netColor{0,255,0,0};
-    constexpr RGB congestedColor{255,0,0,0};
-
-    constexpr RGB terminalColor{255,0,255,0};
-    constexpr RGB blockColor{255,0,0,0};
-
-    std::vector<RGB> bitmap(width()*height());
+    PPM::Bitmap bm;
+    bm.m_width = width();
+    bm.m_height = height();
+    bm.m_data.resize(width()*height());
 
     for(int y=0; y<height(); ++y)
     {
         for(int x=0; x<width(); ++x)
         {
-            RGB pixel{0,0,0,0};
+            PPM::RGB pixel{0,0,0,0};
 
             auto capacity = at(x,y).m_capacity;
             if (capacity > m_maxCapacity) capacity = m_maxCapacity;
@@ -126,9 +123,20 @@ bool GlobalRouter::Grid::exportToPGM(const std::string &filename) const
                 pixel = blockColor;
             }
 
-            bitmap.at(width()*y + x) = pixel;
+            bm.m_data.at(width()*y + x) = pixel;
         }
     }
+
+    return std::move(bm);
+}
+
+#if 0
+bool GlobalRouter::Grid::exportToPPM(const std::string &filename) const
+{
+    std::ofstream ofile(filename);
+    if (!ofile.good()) return false;
+    if (!ofile.is_open()) return false;
+
 
 #if 0
     for(auto const& net : nets)
@@ -143,17 +151,11 @@ bool GlobalRouter::Grid::exportToPGM(const std::string &filename) const
     }
 #endif
 
-    for(int y=0; y<height(); ++y)
-    {
-        auto h_offset = (height() - y - 1) * width();
-        for(int x=0; x<width(); ++x)
-        {
-            ofile.write(reinterpret_cast<const char*>(&bitmap.at(h_offset + x)), 3);
-        }
-    }    
+    PPM::write(ofile, bitmap, width());
 
     return true;
 }
+#endif
 
 void GlobalRouter::Grid::clearAll()
 {   

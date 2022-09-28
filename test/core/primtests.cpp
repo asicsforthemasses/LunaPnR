@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE(check_prim_routines)
         BOOST_CHECK(checkTree.at(idx) == tree.at(idx));
     }
 
-    const std::string filename("PrimCheck.svg");
+    const std::string filename("test/files/results/PrimCheck.svg");
 
     std::ofstream ofile(filename);
     if (ofile.good())

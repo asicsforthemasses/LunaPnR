@@ -39,9 +39,11 @@ public:
     /** set a blockage at Chip coordinates p. The underlying grid cell will be set to blocked. */
     void setBlockage(const ChipDB::Coord64 &p);
 
-    /** route two points */
+    /** route two points - mainly for testing. */
     [[nodiscard]] bool route(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2);
-    //bool routeNet(const std::vector<ChipDB::Coord64> &netNodes);
+
+    /** route a complete net */
+    [[nodiscard]] bool routeNet(const std::vector<ChipDB::Coord64> &netNodes);
 
     /** clear the grid for a new route */
     void clearGrid();
@@ -58,7 +60,11 @@ protected:
         PathCostType newCost,
         Predecessor pred);
 
+    /** generic LEE maze router cost function. */
     [[nodiscard]] std::optional<PathCostType> calcGridCost(const WavefrontItem &from, const GCellCoord &to, Predecessor expandDirection);
+
+    /** A more depth-first oriented / directed maze router cost function. */
+    [[nodiscard]] std::optional<PathCostType> calcGridCostDirected(const WavefrontItem &from, const GCellCoord &to, const GCellCoord &destination, Predecessor expandDirection);
 
     std::unique_ptr<Grid> m_grid;
 };

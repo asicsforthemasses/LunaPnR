@@ -8,6 +8,7 @@
 #include <vector>
 #include <cassert>
 #include "datatypes.h"
+#include "import/ppm/ppmreader.h"
 
 namespace LunaCore::GlobalRouter
 {
@@ -102,7 +103,7 @@ public:
     /** clears all the flags in preparation for a new route */
     void clearAll();
 
-    bool exportToPGM(const std::string &filename) const;
+    [[nodiscard]] PPM::Bitmap generateBitmap() const noexcept;
 
     auto const& gcells() const noexcept {return m_grid; };
 
@@ -117,25 +118,6 @@ protected:
 
     mutable GCell m_invalidCell;
 
-    struct RGB
-    {
-        uint8_t r,g,b, dummy{0};
-
-        constexpr bool isBlack() const
-        {
-            return (r==0) && (g==0) && (b==0);
-        }
-
-    } __attribute__((packed));    
-
-    constexpr RGB interpolate(const RGB &col1, const RGB &col2, float frac) const
-    {
-        if (frac > 1.0f) frac = 1.0f;
-        uint8_t r = static_cast<uint8_t>(col1.r + (col2.r-col1.r)*frac);
-        uint8_t g = static_cast<uint8_t>(col1.g + (col2.g-col1.g)*frac);
-        uint8_t b = static_cast<uint8_t>(col1.b + (col2.b-col1.b)*frac);
-        return RGB{r,g,b,0};
-    }    
 };
 
 };
