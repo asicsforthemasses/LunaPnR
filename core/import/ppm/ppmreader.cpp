@@ -1,8 +1,26 @@
+
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
+#include <fstream>
+#include <regex>
 #include "ppmreader.h"
 #include "common/logging.h"
-#include <regex>
 
-std::optional<LunaCore::PPM::PPMBitmap> 
+
+std::optional<LunaCore::PPM::Bitmap> LunaCore::PPM::read(const std::string &filename)
+{
+    std::ifstream ifile(filename);
+    if (!ifile.good())
+    {
+        return std::nullopt;
+    }
+
+    return read(ifile);
+}
+
+std::optional<LunaCore::PPM::Bitmap> 
     LunaCore::PPM::read(std::istream &is)
 {
     if (!is.good()) return std::nullopt;
@@ -40,7 +58,7 @@ std::optional<LunaCore::PPM::PPMBitmap>
             return std::nullopt;  
         }
 
-        LunaCore::PPM::PPMBitmap bm;
+        LunaCore::PPM::Bitmap bm;
         bm.m_width  = width;
         bm.m_height = height;
         bm.m_data.resize(width*height);

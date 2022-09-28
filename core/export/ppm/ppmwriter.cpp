@@ -2,25 +2,40 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
+#include <fstream>
 #include "common/logging.h"
 #include "ppmwriter.h"
 
-bool LunaCore::PPM::write(std::ostream &os, const std::vector<RGB> &data, std::size_t width)
+bool LunaCore::PPM::write(const std::string &filename, const Bitmap &bm)
+{
+    std::ofstream ofile(filename);
+    if (!ofile.good())
+    {
+        return false;
+    }
+    if (!ofile.is_open())
+    {
+        return false;
+    }
+
+    return write(ofile, bm);
+}
+
+bool LunaCore::PPM::write(std::ostream &os, const Bitmap &bm)
 {
     if (!os.good()) return false;
-    if (width == 0) return false;
+    if (bm.m_width == 0) return false;
 
     const int maxColorValue = 255;
-    const std::size_t height = data.size() / width;
 
-    os << "P6 " << width << " " << height << " " << maxColorValue << "\n";
+    os << "P6 " << bm.m_width << " " << bm.m_height << " " << maxColorValue << "\n";
 
-    for(int y=0; y<height; ++y)
+    for(int y=0; y<bm.m_height; ++y)
     {
-        auto h_offset = (height - y - 1) * width;
-        for(int x=0; x<width; ++x)
+        auto h_offset = (bm.m_height - y - 1) * bm.m_width;
+        for(int x=0; x<bm.m_width; ++x)
         {
-            os.write(reinterpret_cast<const char*>(&data.at(h_offset + x)), 3);
+            os.write(reinterpret_cast<const char*>(&bm.m_data.at(h_offset + x)), 3);
         }
     }       
 

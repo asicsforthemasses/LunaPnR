@@ -8,6 +8,7 @@
 #include <vector>
 #include <cassert>
 #include "datatypes.h"
+#include "import/ppm/ppmreader.h"
 
 namespace LunaCore::GlobalRouter
 {
@@ -102,7 +103,7 @@ public:
     /** clears all the flags in preparation for a new route */
     void clearAll();
 
-    bool exportToPPM(const std::string &filename) const;
+    [[nodiscard]] PPM::Bitmap generateBitmap() const noexcept;
 
     auto const& gcells() const noexcept {return m_grid; };
 

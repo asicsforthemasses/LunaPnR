@@ -5,21 +5,14 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <string>
 #include <optional>
 
-#include "export/ppm/ppmwriter.h"
-#include "ppmreader.h"
+#include "export/ppm/ppm.h"
 
 namespace LunaCore::PPM
 {
-
-    struct PPMBitmap
-    {
-        std::size_t m_width{0};
-        std::size_t m_height{0};
-        std::vector<RGB> m_data;
-    };
-
-    std::optional<PPMBitmap> read(std::istream &is);
+    std::optional<Bitmap> read(std::istream &is);
+    std::optional<Bitmap> read(const std::string &filename);
 
 }; //namespace

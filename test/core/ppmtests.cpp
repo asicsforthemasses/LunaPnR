@@ -17,33 +17,25 @@ BOOST_AUTO_TEST_CASE(check_PPM_IO)
 {
     std::cout << "--== CHECK PPM I/O ==--\n";
     
-    const int width  = 256;
-    const int height = 256;
-    std::vector<LunaCore::PPM::RGB> bitmap(256*256, {0,0,0,0});
+    LunaCore::PPM::Bitmap bm;
+    bm.m_height = 256;
+    bm.m_width = 256;
+    bm.m_data.resize(256*256, {0,0,0,0});
 
-    for(int x=0; x<width; x++)
+    for(int x=0; x<bm.m_width; x++)
     {
-        bitmap.at(x) = {255,255,255,0};
+        bm.m_data.at(x) = {255,255,255,0};
     }
 
-    std::ofstream ofile("test/files/results/test256x256.ppm");
-    BOOST_REQUIRE(ofile.good());
-    BOOST_REQUIRE(ofile.is_open());
-
-    BOOST_CHECK(LunaCore::PPM::write(ofile, bitmap, width));
-    ofile.close();
+    BOOST_CHECK(LunaCore::PPM::write("test/files/results/test256x256.ppm", bm));
 
     // check if we can read our own output..
-    std::ifstream ifile("test/files/results/test256x256.ppm");
-    BOOST_REQUIRE(ifile.good());
-    BOOST_REQUIRE(ifile.is_open());    
-
-    auto bm = LunaCore::PPM::read(ifile);
-    BOOST_CHECK(bm);
-    BOOST_CHECK(bm->m_width==256);
-    BOOST_CHECK(bm->m_height==256);
+    auto checkbm = LunaCore::PPM::read("test/files/results/test256x256.ppm");
+    BOOST_CHECK(checkbm);
+    BOOST_CHECK(checkbm->m_width==256);
+    BOOST_CHECK(checkbm->m_height==256);
     
-    BOOST_CHECK(bm->m_data == bitmap);
+    BOOST_CHECK(checkbm->m_data == bm.m_data);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

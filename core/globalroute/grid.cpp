@@ -87,19 +87,18 @@ void GlobalRouter::Grid::clear()
     }
 }
 
-bool GlobalRouter::Grid::exportToPPM(const std::string &filename) const
+PPM::Bitmap GlobalRouter::Grid::generateBitmap() const noexcept
 {
-    std::ofstream ofile(filename);
-    if (!ofile.good()) return false;
-    if (!ofile.is_open()) return false;
-
     constexpr PPM::RGB netColor{0,255,0,0};
     constexpr PPM::RGB congestedColor{255,0,0,0};
 
     constexpr PPM::RGB terminalColor{255,0,255,0};
     constexpr PPM::RGB blockColor{255,0,0,0};
 
-    std::vector<PPM::RGB> bitmap(width()*height());
+    PPM::Bitmap bm;
+    bm.m_width = width();
+    bm.m_height = height();
+    bm.m_data.resize(width()*height());
 
     for(int y=0; y<height(); ++y)
     {
@@ -124,9 +123,20 @@ bool GlobalRouter::Grid::exportToPPM(const std::string &filename) const
                 pixel = blockColor;
             }
 
-            bitmap.at(width()*y + x) = pixel;
+            bm.m_data.at(width()*y + x) = pixel;
         }
     }
+
+    return std::move(bm);
+}
+
+#if 0
+bool GlobalRouter::Grid::exportToPPM(const std::string &filename) const
+{
+    std::ofstream ofile(filename);
+    if (!ofile.good()) return false;
+    if (!ofile.is_open()) return false;
+
 
 #if 0
     for(auto const& net : nets)
@@ -145,6 +155,7 @@ bool GlobalRouter::Grid::exportToPPM(const std::string &filename) const
 
     return true;
 }
+#endif
 
 void GlobalRouter::Grid::clearAll()
 {   
