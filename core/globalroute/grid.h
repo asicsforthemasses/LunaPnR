@@ -60,6 +60,8 @@ struct GCell
     constexpr void clearSource()    { m_flags &= ~sourceFlag; }
     constexpr void setMark()        { m_flags |= markedFlag; }
     constexpr void clearMark()      { m_flags &= ~markedFlag; }
+    constexpr void setTerminal()    { m_flags |= markedFlag; }
+    constexpr void clearTerminal()  { m_flags &= ~markedFlag; }
     constexpr void setBlocked()     { m_flags |= blockedFlag; }
     constexpr void clearBlocked()   { m_flags &= ~blockedFlag; }
 
@@ -72,6 +74,7 @@ struct GCell
     static constexpr uint16_t invalidFlag   = 8;
     static constexpr uint16_t blockedFlag   = 16;
     static constexpr uint16_t markedFlag    = 32;
+    static constexpr uint16_t terminalFlag  = 64;
 };
 
 /** Global router grid */

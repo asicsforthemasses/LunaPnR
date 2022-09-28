@@ -42,8 +42,20 @@ public:
     /** route two points - mainly for testing. */
     [[nodiscard]] bool route(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2);
 
+    struct NetRouteResult
+    {
+        SegmentList m_segList;      ///< list of segments representing the routed net.
+        bool        m_ok{false};
+
+        [[nodiscard]] auto const& segments() const noexcept
+        {
+            return m_segList.m_segments;
+        }
+
+    };
+
     /** route a complete net */
-    [[nodiscard]] bool routeNet(const std::vector<ChipDB::Coord64> &netNodes);
+    [[nodiscard]] NetRouteResult routeNet(const std::vector<ChipDB::Coord64> &netNodes);
 
     /** clear the grid for a new route */
     void clearGrid();
@@ -53,6 +65,10 @@ protected:
      *  and update the grid capacity.
     */
     [[nodiscard]] bool routeSegment(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2);
+
+    /** follow the mark path in the bitmap and recover the routing.
+    */
+    NetRouteResult generateSegmentTree(const ChipDB::Coord64 &start) const;
 
     bool addWavefrontCell(
         Wavefront &wavefront,

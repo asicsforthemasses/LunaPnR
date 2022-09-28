@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
 #pragma once
 #include <cstdint>
 #include <vector>
@@ -8,7 +12,7 @@ namespace LunaCore::PPM
     /** color tripple stored in a 4-byte structure */
     struct RGB
     {
-        uint8_t r,g,b, dummy{0};
+        uint8_t r{0},g{0},b{0}, dummy{0};
 
         [[nodiscard]] constexpr bool isBlack() const noexcept
         {
@@ -18,6 +22,11 @@ namespace LunaCore::PPM
         [[nodiscard]] constexpr bool operator==(const RGB &rhs) const noexcept
         {
             return (r==rhs.r) && (g==rhs.g) && (b==rhs.b);
+        }
+
+        [[nodiscard]] constexpr bool operator!=(const RGB &rhs) const noexcept
+        {
+            return (r!=rhs.r) || (g!=rhs.g) || (b!=rhs.b);
         }
 
     } __attribute__((packed));
@@ -40,3 +49,9 @@ namespace LunaCore::PPM
     };
 
 };
+
+inline std::ostream& operator<<(std::ostream &os, const LunaCore::PPM::RGB &pixel)
+{
+    os << "R: " << (int)pixel.r << " G: " << (int)pixel.g << " B: " << (int)pixel.b << " D: " << (int)pixel.dummy;
+    return os;
+}

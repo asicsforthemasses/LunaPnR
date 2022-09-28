@@ -5,6 +5,8 @@
 #pragma once
 
 #include <cstdint>
+#include <list>
+#include <iostream>
 #include "common/dbtypes.h"
 
 namespace LunaCore::GlobalRouter
@@ -33,4 +35,53 @@ namespace LunaCore::GlobalRouter
     constexpr GCellCoord east(const GCellCoord &p) {return {p.m_x-1, p.m_y}; }
     constexpr GCellCoord west(const GCellCoord &p) {return {p.m_x+1, p.m_y}; }
 
+    enum class Direction
+    {
+        Undefined, North, South, East, West
+    };
+
+    struct NetSegment
+    {
+        GCellCoord      m_start{0,0};   ///< grid starting coordinate
+        GCellCoordType  m_length{1};    ///< length in blocks
+        Direction       m_dir{Direction::Undefined};
+    };
+
+    struct SegmentList
+    {
+        NetSegment* createNewSegment(const GCellCoord &start, Direction dir)
+        {
+            auto segPtr = &m_segments.emplace_back();
+            segPtr->m_start = start;
+            segPtr->m_dir = dir;
+            segPtr->m_length = 1;
+            return segPtr;
+        }
+        
+        std::list<NetSegment> m_segments;
+    };
+
 };
+
+inline std::ostream& operator<< (std::ostream &os, const LunaCore::GlobalRouter::Direction &dir)
+{
+    switch(dir)
+    {
+    case LunaCore::GlobalRouter::Direction::East:
+        os << "East";
+        break;
+    case LunaCore::GlobalRouter::Direction::West:
+        os << "West";
+        break;     
+    case LunaCore::GlobalRouter::Direction::North:
+        os << "North";
+        break;
+    case LunaCore::GlobalRouter::Direction::South:
+        os << "South";
+        break;                  
+    case LunaCore::GlobalRouter::Direction::Undefined:
+        os << "Undefined";
+        break;        
+    }
+    return os;
+}
