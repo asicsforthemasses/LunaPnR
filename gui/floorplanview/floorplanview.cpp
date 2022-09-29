@@ -247,7 +247,6 @@ void FloorplanView::paintEvent(QPaintEvent *event)
     drawRegions(painter);
     drawInstances(painter);
     if (m_showNets) drawNets(painter);
-    //if (m_showGlobalRouterGrid) drawGlobalRouterGrid(painter);
 
     if (m_overlay != nullptr)
     {
@@ -622,13 +621,4 @@ void FloorplanView::drawLeftRuler(QPainter &p)
     p.drawLine(rulerWidth, 0, rulerWidth, height());
 
     p.setClipping(false);
-}
-
-void FloorplanView::drawGlobalRouterGrid(QPainter &p, const std::shared_ptr<LunaCore::GlobalRouter::Grid> grid)
-{
-    if (!m_db)
-    {
-        return;
-    }
-
 }

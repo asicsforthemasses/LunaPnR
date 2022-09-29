@@ -67,8 +67,6 @@ protected:
 
     void drawNet(QPainter &p, const std::shared_ptr<ChipDB::Net> net);
     
-    void drawGlobalRouterGrid(QPainter &p, const std::shared_ptr<LunaCore::GlobalRouter::Grid> grid);
-
     Viewport m_viewPort;    
 
     enum class MouseState
@@ -88,7 +86,6 @@ protected:
 
     bool  m_crosshairEnabled{true};
     bool  m_showNets{false};
-    bool  m_showGlobalRouterGrid{false};
 };
 
 };  // namespace
