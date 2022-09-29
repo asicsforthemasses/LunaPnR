@@ -170,7 +170,6 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
     // if the locations are the same, routing isn't necessary.
     if (loc1 == loc2)
     {
-        //m_grid->at(loc1).m_capacity++;
         m_grid->at(loc1).setTarget();
         return true;
     }
@@ -269,22 +268,6 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
                     break;                                       
                 };
             }
-
-#if 0
-            // FIXME: horrible code!
-            // put all the sources on the wavefront
-            for(int y=0; y<m_grid->height(); y++)
-            {
-                for(int x=0; x<m_grid->width(); x++)
-                {
-                    if (m_grid.at(x,y).isSource())
-                    {
-                        wavefront.push(WavefrontItem{grid.at(x,y).getPredecessor(), GCellCoord{x,y}, 0 /* cost */});
-                    }
-                }
-            }
-#endif
-
         }
         else
         {
@@ -446,7 +429,8 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::routeNet(const std::v
             auto result = routeSegment(p1,p2);
             if (!result) 
             {
-                Logging::doLog(Logging::LogType::ERROR,"GlobalRouter::Router::routeNet could not complete route %s\n", netName.c_str());
+                Logging::doLog(Logging::LogType::ERROR,"GlobalRouter::Router::routeNet could not complete route %s (%lu nodes)\n", 
+                    netName.c_str(), netNodes.size());
                 return invalid;
             }
         }

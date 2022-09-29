@@ -133,17 +133,37 @@ void Tasks::GlobalRoute::execute(GUI::Database &database, ProgressCallback callb
     // help to update the GUI ..
     std::this_thread::yield();
 
+    // sort nets according to the number of nodes
+    const std::size_t totalNets = netlist->m_nets.size();
+    std::vector<ChipDB::ObjectKey> netKeys(totalNets);
+
+    std::size_t idx = 0;
+    for(auto const netKeyPair : netlist->m_nets)
+    {
+        netKeys.at(idx++) = netKeyPair.key();
+    }
+
+    std::sort(netKeys.begin(), netKeys.end(), 
+        [&netlist](auto const &key1, auto const &key2)
+        {
+            return netlist->m_nets.at(key1)->numberOfConnections() < netlist->m_nets.at(key2)->numberOfConnections();
+        }
+    );
+
     auto logLevel = Logging::getLogLevel();
     Logging::setLogLevel(Logging::LogType::INFO);
 
-    for(auto const netKeyPair : netlist->m_nets)
+    std::size_t netsRouted  = 0;
+    for(auto const netKey : netKeys)
     {
+        auto net = netlist->m_nets.at(netKey);
+
         std::size_t index = 0;
         std::vector<ChipDB::Coord64> netNodes;
-        netNodes.resize(netKeyPair->numberOfConnections());
+        netNodes.resize(net->numberOfConnections());
 
         // write locations of all the terminals
-        for(auto netConnect : *netKeyPair)
+        for(auto netConnect : *net)
         {
             auto ins = netlist->lookupInstance(netConnect.m_instanceKey);
             if (!ins->isPlaced())
@@ -157,14 +177,29 @@ void Tasks::GlobalRoute::execute(GUI::Database &database, ProgressCallback callb
             netNodes.at(index++) = ins->m_pos;
         }
 
-        auto segList = grouter.routeNet(netNodes, netKeyPair->name());
+        auto segList = grouter.routeNet(netNodes, net->name());
         if (!segList.m_ok)
-        {            
+        {   
+            auto debugBitmap = grouter.grid()->generateCapacityBitmap();
+            LunaCore::PPM::write("globalroutegrid_fail.ppm", debugBitmap);
+
+            std::stringstream ss;
+            ss << "  routed " << netsRouted << " of " << totalNets << " nets\n";
+            info(ss.str());
+
             error("Routing failed!\n");
             Logging::setLogLevel(logLevel);
             return;
         }
+        netsRouted++;
     }
+
+    ss.str("");
+    ss << "  routed " << netsRouted << " of " << totalNets << " nets\n";
+    info(ss.str());
+
+    auto debugBitmap = grouter.grid()->generateCapacityBitmap();
+    LunaCore::PPM::write("globalroutegrid_ok.ppm", debugBitmap);
 
     info("Routing complete!\n");
     Logging::setLogLevel(logLevel);

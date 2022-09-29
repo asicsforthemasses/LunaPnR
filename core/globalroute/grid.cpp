@@ -87,6 +87,40 @@ void GlobalRouter::Grid::clearReachedAndResetCost()
     }
 }
 
+PPM::Bitmap GlobalRouter::Grid::generateCapacityBitmap() const noexcept
+{
+    constexpr PPM::RGB uncongestedColor{0,255,0,0};
+    constexpr PPM::RGB congestedColor{255,0,0,0};
+
+    PPM::Bitmap bm;
+    bm.m_width = width();
+    bm.m_height = height();
+    bm.m_data.resize(width()*height());
+
+    for(int y=0; y<height(); ++y)
+    {
+        for(int x=0; x<width(); ++x)
+        {
+            PPM::RGB pixel{0,0,0,0};
+
+            auto capacity = at(x,y).m_capacity;
+            if (capacity > m_maxCapacity) capacity = m_maxCapacity;
+
+            pixel = interpolate(uncongestedColor, congestedColor, capacity/static_cast<float>(m_maxCapacity));
+
+            if ((x == 0) || (y == 0) || (x == width()-1) || (y == height()-1))
+            {
+                pixel = {255,255,255,0};
+            }
+
+            bm.m_data.at(width()*y + x) = pixel;
+        }
+    }
+
+    return std::move(bm);
+}
+
+
 PPM::Bitmap GlobalRouter::Grid::generateBitmap() const noexcept
 {
     constexpr PPM::RGB netColor{0,255,0,0};

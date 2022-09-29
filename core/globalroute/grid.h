@@ -109,7 +109,11 @@ public:
     /** clears all the flags, reset costs and capacity in preparation for a new route */
     void clearGrid();
 
+    /** create a routing bitmap, showing the latest route */
     [[nodiscard]] PPM::Bitmap generateBitmap() const noexcept;
+
+    /** create a capacity bitmap, showing capacity from green to red */
+    [[nodiscard]] PPM::Bitmap generateCapacityBitmap() const noexcept;
 
     auto const& gcells() const noexcept {return m_grid; };
 
