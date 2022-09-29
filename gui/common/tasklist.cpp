@@ -11,6 +11,7 @@
 #include "tasks/readallfiles.h"
 #include "tasks/preflightchecks.h"
 #include "tasks/createfloorplan.h"
+#include "tasks/globalroute.h"
 #include "tasks/place.h"
 
 #include <QApplication>
@@ -26,6 +27,7 @@ TaskList::TaskList(QObject *projectManager) : m_projectManager(projectManager)
     createTask("CreateFloorplan", new Tasks::CreateFloorplan);    
     createTask("PLACE", new Tasks::Place);
     createTask("TIMINGREPORT1", new Tasks::CheckTiming);
+    createTask("GLOBALROUTE", new Tasks::GlobalRoute);
 }
 
 TaskList::~TaskList()

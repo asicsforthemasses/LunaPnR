@@ -78,6 +78,7 @@ set (LUNA_SRC_FILES
     tasks/preflightchecks.cpp
     tasks/createfloorplan.cpp
     tasks/place.cpp
+    tasks/globalroute.cpp
     python/types/pyprojectlef.cpp
     python/types/pyprojectlib.cpp
     python/types/pyprojectverilog.cpp

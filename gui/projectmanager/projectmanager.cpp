@@ -117,6 +117,11 @@ void ProjectManager::create()
 
     blockFrame = new GUI::BlockFrame();
     
+    actionTile = new GUI::FlatActionTile("Route", "://images/floorplan.png", "://images/go.png", "GLOBALROUTE");
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    m_tiles.push_back(actionTile);
+    blockFrame->addWidget(actionTile);
+
     //actionTile = new GUI::FlatActionTile("CTS setup", "://images/floorplan.png", "://images/properties.png");
     //connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onCTSSetup);
     //blockFrame->addWidget(actionTile);

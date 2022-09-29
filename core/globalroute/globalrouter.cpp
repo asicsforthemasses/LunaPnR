@@ -154,13 +154,15 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
 
     if (!m_grid->isValidGridCoord(loc1))
     {
-        Logging::doLog(Logging::LogType::VERBOSE, "GlobalRouter::Router::routeSegment loc1 is invalid\n");
+        Logging::doLog(Logging::LogType::VERBOSE, "GlobalRouter::Router::routeSegment loc1 (%lu,%lu) is invalid\n",
+            loc1.m_x, loc1.m_y);
         return false;
     } 
 
     if (!m_grid->isValidGridCoord(loc2)) 
     {
-        Logging::doLog(Logging::LogType::VERBOSE, "GlobalRouter::Router::routeSegment loc2 is invalid\n");
+        Logging::doLog(Logging::LogType::VERBOSE, "GlobalRouter::Router::routeSegment loc2 (%lu,%lu) is invalid\n",
+            loc2.m_x, loc2.m_y);
         return false;
     }
 
@@ -223,11 +225,12 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
         {
             targetReached = true;
 
+#if 0
             if (evaluations < 5)
             {
                 std::cout << "!@#!@#\n";
             }
-
+#endif
             m_grid->clear();
 
             // backtrack from target
