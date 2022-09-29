@@ -1,0 +1,17 @@
+
+ghdl lfsr31.vhd -e LFSR31
+
+proc 
+flatten
+synth -run coarse 
+techmap 
+
+dfflibmap -liberty ../../test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib
+abc -liberty ../../test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib -liberty ../../test/files/iit_stdcells_extra/fake_ties018.lib
+
+splitnets -ports
+
+hilomap -hicell TIEHI Y -locell TIELO Y
+
+clean -purge
+write_verilog -noexpr lfsr31_netlist.v
