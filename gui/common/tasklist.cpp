@@ -26,8 +26,9 @@ TaskList::TaskList(QObject *projectManager) : m_projectManager(projectManager)
     createTask("PreflightChecks", new Tasks::PreflightChecks);
     createTask("CreateFloorplan", new Tasks::CreateFloorplan);    
     createTask("PLACE", new Tasks::Place);
-    createTask("TIMINGREPORT1", new Tasks::CheckTiming);
+    createTask("TIMINGREPORT1", new Tasks::CheckTiming(Tasks::CheckTiming::Mode::BARE));
     createTask("GLOBALROUTE", new Tasks::GlobalRoute);
+    createTask("TIMINGREPORT2", new Tasks::CheckTiming(Tasks::CheckTiming::Mode::WITHSPEF));
 }
 
 TaskList::~TaskList()

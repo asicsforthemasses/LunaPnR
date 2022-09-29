@@ -45,6 +45,7 @@
 #include "../export/def/defwriter.h"
 #include "../export/txt/txtwriter.h"
 #include "../export/ppm/ppmwriter.h"
+#include "../export/spef/spefwriter.h"
 #include "../globalroute/globalrouter.h"
 #include "../globalroute/prim.h"
 #include "../globalroute/lshape.h"
