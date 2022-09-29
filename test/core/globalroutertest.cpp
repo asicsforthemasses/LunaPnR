@@ -147,7 +147,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_simple)
     LunaCore::GlobalRouter::Router router;
 
     // check for a simple vertical route
-    router.createGrid(100,100,{1,1});
+    router.createGrid(100,100,{1,1}, 100);
     BOOST_REQUIRE(router.grid() != nullptr);
     auto result = router.route({49,0},{49,49});
     
@@ -205,7 +205,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex)
     Logging::setLogLevel(Logging::LogType::VERBOSE);
 
     LunaCore::GlobalRouter::Router router;
-    router.createGrid(1200,1200,{250,250});
+    router.createGrid(1200,1200,{250,250}, 100);
     BOOST_REQUIRE(router.grid() != nullptr);
 
     // iterate over the tree edges and route them
@@ -251,7 +251,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex2)
     BOOST_REQUIRE(netNodes.size() == 65);
 
     LunaCore::GlobalRouter::Router router;
-    router.createGrid(1200,1200,{250,250});
+    router.createGrid(1200,1200,{250,250}, 100);
     BOOST_REQUIRE(router.grid() != nullptr);
 
     auto logLevel = Logging::getLogLevel();
@@ -259,10 +259,30 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex2)
 
     std::cout << "Routing complex net..\n";
 
-    auto segTree = router.routeNet(netNodes);
+    auto segTree = router.routeNet(netNodes, "testnet");
     BOOST_REQUIRE(segTree.m_ok);
 
     Logging::setLogLevel(logLevel);
+
+    // check that all GCells have capacity 1 or less
+    bool foundCellWithCapacityOne = false;
+    auto const gheight = router.grid()->height();
+    auto const gwidth  = router.grid()->width();
+    for(auto y=0; y<gheight; y++)
+    {
+        for(auto x=0; x<gwidth; x++)
+        {
+            auto const& cell = router.grid()->at(x,y);
+            BOOST_CHECK(cell.m_capacity <= 1);
+            if (cell.m_capacity == 1)
+            {
+                foundCellWithCapacityOne = true;
+            }
+        }
+    }
+
+    // check that we found at least one cell of capacity == 1    
+    BOOST_CHECK(foundCellWithCapacityOne);
 
     // generate a bitmap using the returned segments and compare the output
     LunaCore::GlobalRouter::Grid replicaGrid(1200,1200, {250,250});

@@ -73,6 +73,20 @@ void Tasks::GlobalRoute::execute(GUI::Database &database, ProgressCallback callb
     ss << "GCell size = " << gcellSize->m_x << " by " << gcellSize->m_y << " nm\n";
     info(ss.str());
 
+    // calculate actual number of tracks in the GCell
+    auto trackInfo = grouter.calcNumberOfTracks(database.design(), site->name(), gcellSize.value());
+    if (!trackInfo)
+    {
+        error("Could not determine the number of tracks in a GCell!\n");
+        return;
+    }
+
+    ss.str("");
+    ss << "GCell tracks: H=" << trackInfo->horizontal << " V=" << trackInfo->vertical << "\n";
+    info(ss.str());
+
+    auto routingCapacity = trackInfo->horizontal + trackInfo->vertical;
+
     // HACK: check the extents of the instances to determine the
     // routable area.
     // we really should define the DIE area first..
@@ -111,10 +125,16 @@ void Tasks::GlobalRoute::execute(GUI::Database &database, ProgressCallback callb
     ss << "Grid size = " << gridWidth << " by " << gridHeight << " cells\n";
     info(ss.str());
 
-    grouter.createGrid(gridWidth, gridHeight, gcellSize.value());
+    grouter.createGrid(gridWidth, gridHeight, gcellSize.value(), routingCapacity);
 
     // route all the nets
     info("Routing nets...\n");
+
+    // help to update the GUI ..
+    std::this_thread::yield();
+
+    auto logLevel = Logging::getLogLevel();
+    Logging::setLogLevel(Logging::LogType::INFO);
 
     for(auto const netKeyPair : netlist->m_nets)
     {
@@ -137,15 +157,16 @@ void Tasks::GlobalRoute::execute(GUI::Database &database, ProgressCallback callb
             netNodes.at(index++) = ins->m_pos;
         }
 
-        auto segList = grouter.routeNet(netNodes);
+        auto segList = grouter.routeNet(netNodes, netKeyPair->name());
         if (!segList.m_ok)
-        {
+        {            
             error("Routing failed!\n");
+            Logging::setLogLevel(logLevel);
             return;
         }
     }
 
     info("Routing complete!\n");
-
+    Logging::setLogLevel(logLevel);
     done();
 }
