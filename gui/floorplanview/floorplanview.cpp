@@ -58,7 +58,6 @@ constexpr const ChipDB::Coord64 deltaFromScreen(const QPointF &screenp1, const Q
 
 FloorplanView::FloorplanView(QWidget *parent) : QWidget(parent), m_db(nullptr), 
     m_mouseState(MouseState::None),
-    m_overlay(nullptr),
     m_crosshairEnabled(true)
 {
     // make sure viewport pixels are 1:1
@@ -248,10 +247,11 @@ void FloorplanView::paintEvent(QPaintEvent *event)
     drawRegions(painter);
     drawInstances(painter);
     if (m_showNets) drawNets(painter);
+    //if (m_showGlobalRouterGrid) drawGlobalRouterGrid(painter);
 
     if (m_overlay != nullptr)
     {
-        m_overlay->paint(painter);
+        m_overlay->paint(painter, m_viewPort);
     }
 
     if (m_crosshairEnabled && (!m_mousePos.isNull()) && (m_mouseState == MouseState::None))
@@ -624,3 +624,11 @@ void FloorplanView::drawLeftRuler(QPainter &p)
     p.setClipping(false);
 }
 
+void FloorplanView::drawGlobalRouterGrid(QPainter &p, const std::shared_ptr<LunaCore::GlobalRouter::Grid> grid)
+{
+    if (!m_db)
+    {
+        return;
+    }
+
+}

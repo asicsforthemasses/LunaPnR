@@ -225,13 +225,7 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
         {
             targetReached = true;
 
-#if 0
-            if (evaluations < 5)
-            {
-                std::cout << "!@#!@#\n";
-            }
-#endif
-            m_grid->clear();
+            m_grid->clearReachedAndResetCost();
 
             // backtrack from target
             auto backtrackPos = minCostPos;
@@ -253,7 +247,6 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
                 m_grid->at(backtrackPos).setMark();
                 m_grid->at(backtrackPos).clearSource();
                 m_grid->at(backtrackPos).clearTarget();
-                //m_grid->at(backtrackPos).m_capacity++;
 
                 // go to the previous cell
                 switch(gridCell.getPredecessor())
@@ -442,7 +435,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::routeNet(const std::v
         return invalid;        
     }
 
-    m_grid->clearAll();
+    m_grid->clearAllFlagsAndResetCost();
     for(auto const& treeNode : tree)
     {
         auto p1 = treeNode.m_pos;
@@ -461,9 +454,9 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::routeNet(const std::v
     return std::move(generateSegmentTree(tree.at(0).m_pos));
 }
 
-void GlobalRouter::Router::clearGrid()
+void GlobalRouter::Router::clearGridForNewRoute()
 {
-    if (m_grid) m_grid->clearAll();
+    if (m_grid) m_grid->clearAllFlagsAndResetCost();
 }
 
 void GlobalRouter::Router::setBlockage(const ChipDB::Coord64 &p)

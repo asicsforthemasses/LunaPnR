@@ -54,7 +54,7 @@ public:
     HatchLibrary      m_hatchLib;
     ProjectSetup      m_projectSetup;
 
-protected:    
+protected:
     ChipDB::Design  m_design;
 };
 

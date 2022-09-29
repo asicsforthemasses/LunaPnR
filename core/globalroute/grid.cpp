@@ -21,7 +21,7 @@ GlobalRouter::Grid::Grid(const GCellCoordType width, const GCellCoordType height
     m_height = height;
     m_cellSize = cellSize;
     m_grid.resize(width*height);
-    clear();
+    clearGrid();
 }
 
 GlobalRouter::GCellCoord GlobalRouter::Grid::toGridCoord(const ChipDB::Coord64 &p) const noexcept
@@ -78,7 +78,7 @@ GlobalRouter::GCell& GlobalRouter::Grid::at(const GCellCoord &p)
     return m_grid.at(p.m_y*m_width + p.m_x);
 }
 
-void GlobalRouter::Grid::clear()
+void GlobalRouter::Grid::clearReachedAndResetCost()
 {
     for(auto &cell : m_grid)
     {
@@ -157,11 +157,21 @@ bool GlobalRouter::Grid::exportToPPM(const std::string &filename) const
 }
 #endif
 
-void GlobalRouter::Grid::clearAll()
+void GlobalRouter::Grid::clearAllFlagsAndResetCost()
 {   
     for(auto &cell : m_grid)
     {
         cell.resetFlags();
+        cell.m_cost = std::numeric_limits<decltype(cell.m_cost)>::max();
+    }
+}
+
+void GlobalRouter::Grid::clearGrid()
+{
+    for(auto &cell : m_grid)
+    {
+        cell.resetFlags();
+        cell.m_capacity = 0;
         cell.m_cost = std::numeric_limits<decltype(cell.m_cost)>::max();
     }
 }

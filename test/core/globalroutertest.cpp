@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_simple)
     // check that a simple vertical route will go around
     // a blocked part of the grid
 
-    router.clearGrid();
+    router.clearGridForNewRoute();
     router.setBlockage({50,10});
     router.setBlockage({49,10});
     router.setBlockage({48,10});

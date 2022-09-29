@@ -13,7 +13,7 @@ namespace GUI
 
 struct FloorplanOverlayBase
 {
-    virtual void paint(QPainter &painter) = 0;
+    virtual void paint(QPainter &painter, const Viewport &vp) = 0;
 };
 
 class FloorplanView : public QWidget
@@ -67,6 +67,8 @@ protected:
 
     void drawNet(QPainter &p, const std::shared_ptr<ChipDB::Net> net);
     
+    void drawGlobalRouterGrid(QPainter &p, const std::shared_ptr<LunaCore::GlobalRouter::Grid> grid);
+
     Viewport m_viewPort;    
 
     enum class MouseState
@@ -79,13 +81,14 @@ protected:
     QPoint m_mouseDownPos;
     QPoint m_mousePos;
 
-    FloorplanOverlayBase* m_overlay;
+    FloorplanOverlayBase* m_overlay{nullptr};
 
     std::shared_ptr<Database> m_db;
     bool  m_dirty{true};
 
     bool  m_crosshairEnabled{true};
     bool  m_showNets{false};
+    bool  m_showGlobalRouterGrid{false};
 };
 
 };  // namespace

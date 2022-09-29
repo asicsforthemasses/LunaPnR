@@ -57,8 +57,8 @@ public:
     /** route a complete net */
     [[nodiscard]] NetRouteResult routeNet(const std::vector<ChipDB::Coord64> &netNodes);
 
-    /** clear the grid for a new route */
-    void clearGrid();
+    /** clear the grid for a new route, capacity values remain in tact */
+    void clearGridForNewRoute();
 
 protected:
     /** route a single track segment from point p1 to point p2 
