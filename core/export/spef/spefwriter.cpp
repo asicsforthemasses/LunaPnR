@@ -14,8 +14,33 @@ static std::string quoted(const std::string &str)
     return "\"" + str + "\"";
 }
 
+static std::string escapeSPEFString(const std::string &str)
+{
+    std::string result;
+    result.reserve(str.size());
+    for(auto c : str)
+    {
+        if (c == '[')
+        {
+            result += '\\';
+        }
+        else if (c == ']')
+        {
+            result += '\\';
+        }
+        result += c;
+    }
+    return result;
+}
+
 bool LunaCore::SPEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> module)
 {
+    if (!os.good())
+    {
+        Logging::doLog(Logging::LogType::ERROR, "SPEF writer: output stream is invalid!\n");
+        return false;
+    }
+
     if (!module)
     {
         Logging::doLog(Logging::LogType::ERROR, "SPEF writer: module is nullptr!\n");
@@ -83,8 +108,9 @@ bool LunaCore::SPEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Modul
 
     for(auto const netKeyPair : nets)
     {
-        os << "*D_NET " << netKeyPair->name() << " 0.0\n";
+        os << "*D_NET " << escapeSPEFString(netKeyPair->name()) << " 0.0\n";
 
+        os << "*CONN\n";
         // write the connections
         bool portNet = netKeyPair->m_isPortNet;
         for(auto const& conn : *netKeyPair)
@@ -110,11 +136,11 @@ bool LunaCore::SPEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Modul
                 os << "*I " << ins->name() << ":" << pin.name() << " ";
                 if (pin.m_pinInfo->isInput())
                 {
-                    os << "I *C " << ins->m_pos.m_x/1000.0 << " " << ins->m_pos.m_y/1000.0 << " L " << pin.m_pinInfo->m_cap*FaradToPicofarad << "\n";
+                    os << "I *C " << ins->m_pos.m_x/1000.0 << " " << ins->m_pos.m_y/1000.0 << " *L " << pin.m_pinInfo->m_cap*FaradToPicofarad << "\n";
                 }
                 else
                 {
-                    os << "O *C " << ins->m_pos.m_x/1000.0 << " " << ins->m_pos.m_y/1000.0 << " L " << pin.m_pinInfo->m_cap*FaradToPicofarad << " ";
+                    os << "O *C " << ins->m_pos.m_x/1000.0 << " " << ins->m_pos.m_y/1000.0 << " ";
                     os << "*D " << ins->getArchetypeName() << "\n";
                 }
             }

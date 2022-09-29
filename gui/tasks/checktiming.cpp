@@ -28,7 +28,19 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
     {
         // create SPEF file
         info("Creating SPEF file..\n");
-        LunaCore::SPEF::write(spefTempFile->m_stream, topModule);
+
+        //std::stringstream ss;
+        //LunaCore::SPEF::write(ss, topModule);
+        //std::cout << ss.str() << "\n";
+
+        if (!LunaCore::SPEF::write(spefTempFile->m_stream, topModule))
+        {
+            error("SPEF file creation failed!");
+            return;
+        }
+
+        spefTempFile->close();   // close but keep the file in existence
+        //std::cout << "SPEF tmp file: " << spefTempFile->m_name << "\n";
     }
 
     auto tclContents = createTCL(database, topModule->name(), spefTempFile->m_name);
