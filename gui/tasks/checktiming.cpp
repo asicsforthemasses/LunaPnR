@@ -23,7 +23,7 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
 
     info(Logging::fmt("Checking timing using module: %s\n", topModule->name().c_str()));
 
-    auto spefTempFile = ChipDB::createTempFile(".spef");
+    auto spefTempFile = ChipDB::createTempFile("spef");
     if (m_mode == Mode::WITHSPEF)
     {
         // create SPEF file

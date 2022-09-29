@@ -17,4 +17,4 @@ hilomap -hicell TIEHI Y -locell TIELO Y
 splitnets -ports
 
 clean -purge
-write_verilog -noexpr mac32_netlist.v
+write_verilog -renameprefix ins -noexpr mac32_netlist.v

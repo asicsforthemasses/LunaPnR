@@ -14,4 +14,4 @@ splitnets -ports
 hilomap -hicell TIEHI Y -locell TIELO Y
 
 clean -purge
-write_verilog -noexpr lfsr31_netlist.v
+write_verilog -renameprefix ins -noexpr lfsr31_netlist.v

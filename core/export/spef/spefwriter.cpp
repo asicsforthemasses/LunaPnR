@@ -29,19 +29,20 @@ bool LunaCore::SPEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Modul
     // remove end of lines from the time string
     timeString.erase(std::remove(timeString.begin(), timeString.end(), '\n'), timeString.cend());
 
-    os << "*SPEF                " << quoted("IEEE 1481-2009") << "\n";
-    os << "*DESIGN              " << quoted(module->name()) << "\n";
-    os << "*DATE                " << quoted(timeString) << "\n";
-    os << "*VENDOR              " << quoted(LUNAVERSIONSTRING) << "\n";
-    os << "*PROGRAM             " << quoted(LUNAVERSIONSTRING) << "\n";
-    os << "*DESIGN_FLOW         " << quoted("FULL_CONNECTIVITY") << "\n";
-    os << "*DIVIDER             /\n";
-    os << "*DELIMITER           :\n";
-    os << "*BUS_DELIMITER       [ ]\n";
-    os << "*T_UNIT 1 NS         \n";
-    os << "*C_UNIT 1 PF         \n";
-    os << "*R_UNIT 1 OHM        \n";
-    os << "*L_UNIT 1 HENRY      \n";
+    os << "*SPEF        " << quoted("IEEE 1481-2009") << "\n";
+    os << "*DESIGN      " << quoted(module->name()) << "\n";
+    os << "*DATE        " << quoted(timeString) << "\n";
+    os << "*VENDOR      " << quoted(LUNAVERSIONSTRING) << "\n";
+    os << "*PROGRAM     " << quoted(LUNAVERSIONSTRING) << "\n";
+    os << "*VERSION     " << quoted("1.1.0") << "\n";
+    os << "*DESIGN_FLOW " << quoted("EXTERNAL_LOADS") << "\n";
+    os << "*DIVIDER /\n";
+    os << "*DELIMITER :\n";
+    os << "*BUS_DELIMITER [ ]\n";
+    os << "*T_UNIT 1 NS\n";
+    os << "*C_UNIT 1 PF\n";
+    os << "*R_UNIT 1 OHM\n";
+    os << "*L_UNIT 1 HENRY\n";
     os << "\n";
 
     const float FaradToPicofarad = 1.0e12f;
@@ -55,7 +56,7 @@ bool LunaCore::SPEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Modul
     os << "*PORTS\n";
     for(auto const portPins : module->m_pins)
     {
-        os << "* " << portPins->name() << " ";
+        os << portPins->name() << " ";
         switch(portPins->m_iotype)
         {
         case ChipDB::IOType::INPUT:
