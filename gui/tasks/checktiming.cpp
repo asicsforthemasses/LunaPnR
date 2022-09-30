@@ -40,7 +40,9 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
         }
 
         spefTempFile->close();   // close but keep the file in existence
-        //std::cout << "SPEF tmp file: " << spefTempFile->m_name << "\n";
+
+        //FIXME: remove this.
+        ChipDB::copyFile(spefTempFile->m_name, "debug.spef");
     }
 
     auto tclContents = createTCL(database, topModule->name(), spefTempFile->m_name);

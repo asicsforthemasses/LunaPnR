@@ -139,6 +139,24 @@ bool ChipDB::renameFile(const std::string &oldName, const std::string &newName) 
     return false;
 }
 
+bool ChipDB::copyFile(const std::string &srcName, const std::string &copyName) noexcept
+{
+    std::filesystem::path from(srcName);
+    std::filesystem::path to(copyName);
+    std::error_code ec;
+
+    auto const options = std::filesystem::copy_options::overwrite_existing;
+
+    std::filesystem::copy_file(from, to, options, ec);
+
+    if (!ec)
+    {
+        return false;
+    }
+
+    return false;
+}
+
 bool ChipDB::fileExists(const std::string &filename) noexcept
 {
     std::filesystem::path path(filename);

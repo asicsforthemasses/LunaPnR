@@ -84,21 +84,25 @@ public:
     using const_iterator    = typename std::vector<NetConnect>::const_iterator;
     using value_type        = NetConnect;
 
+    /** connections iterator end */
     [[nodiscard]] const_iterator begin() const
     {
         return m_connections.begin();
     }
 
+    /** connections iterator end */
     [[nodiscard]] const_iterator end() const
     {
         return m_connections.end();
     }
 
+    /** connections iterator begin */
     [[nodiscard]] iterator begin()
     {
         return m_connections.begin();
     }
 
+    /** connections iterator end */
     [[nodiscard]] iterator end()
     {
         return m_connections.end();
