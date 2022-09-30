@@ -39,12 +39,13 @@ static double roundUp(double v, double resolution)
 
 std::shared_ptr<ChipDB::Region> ChipDB::createRegion(
     const std::string &regionName,
+    const std::string &siteName,
     ChipDB::Rect64 regionRectIncludingHalo,
     ChipDB::Size64 minCellSize, /* minimum cell size in nm */
     std::optional<ChipDB::Margins64> halo
 )
 {
-    auto region = std::make_shared<ChipDB::Region>(regionName);
+    auto region = std::make_shared<ChipDB::Region>(regionName, siteName);
     region->m_rect = regionRectIncludingHalo;
     region->setMinCellSize(minCellSize);
     if (halo)

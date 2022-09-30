@@ -12,12 +12,25 @@ namespace Tasks
 class CheckTiming : public Task
 {
 public:
-    CheckTiming() = default;
+
+    enum class Mode
+    {
+        BARE,
+        WITHSPEF
+    };
+
+    CheckTiming(Mode mode) : m_mode(mode) {}
+
     virtual ~CheckTiming() = default;
 
 protected:
-    std::string createTCL(const GUI::Database &database, const std::string &topModuleName) const;
+    std::string createTCL(const GUI::Database &database, 
+        const std::string &topModuleName,
+        const std::string &spefFilename) const;
+        
     void execute(GUI::Database &database, ProgressCallback callback) override;
+
+    Mode m_mode{Mode::BARE};
 };
 
 };

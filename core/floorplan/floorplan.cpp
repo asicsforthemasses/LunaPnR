@@ -22,9 +22,9 @@ KeyObjPair<Region> Floorplan::addRegion(std::shared_ptr<Region> regionPtr)
     return KeyObjPair<Region>{};    
 }
 
-KeyObjPair<Region> Floorplan::createRegion(const std::string &name)
+KeyObjPair<Region> Floorplan::createRegion(const std::string &name, const std::string &site)
 {
-    auto optKeyObjPair = m_regions.add(std::make_shared<Region>(name));
+    auto optKeyObjPair = m_regions.add(std::make_shared<Region>(name, site));
     if (optKeyObjPair)
     {
         return optKeyObjPair.value();

@@ -18,11 +18,17 @@ class Region
 {
 public:
 
-    Region(const std::string &regionName) : m_name(regionName) {}
+    Region(const std::string &regionName, const std::string &siteName) 
+        : m_name(regionName), m_site(siteName) {}
 
     std::string name() const noexcept
     {
         return m_name;
+    }
+
+    std::string site() const noexcept
+    {
+        return m_site;
     }
 
     Rect64           m_rect;    ///< size of the region (includes halo)
@@ -40,10 +46,12 @@ public:
 protected:
     Size64           m_minCellSize; ///< minimum cell size, information from LEF SITE definition
     std::string      m_name;        ///< region name
+    std::string      m_site;        ///< site name
 };
 
 [[nodiscard]] std::shared_ptr<Region> createRegion(
     const std::string &regionName,
+    const std::string &siteName,
     Rect64 regionRectIncludingHalo,     /* region extents including routing halo */
     Size64 minCellSize,                 /* minimum cell size in nm */
     std::optional<Margins64> halo = std::nullopt

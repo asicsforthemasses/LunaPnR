@@ -31,7 +31,7 @@ public:
 
     /** create a new grid, the old one is destroyed. */
     void createGrid(const GCellCoordType width, const GCellCoordType height,
-        const ChipDB::Size64 &cellSize);
+        const ChipDB::Size64 &cellSize, const int64_t cellCapacity);
 
     /** get a raw pointer to the grid */
     const Grid* grid() const {return m_grid.get(); }
@@ -55,10 +55,11 @@ public:
     };
 
     /** route a complete net */
-    [[nodiscard]] NetRouteResult routeNet(const std::vector<ChipDB::Coord64> &netNodes);
+    [[nodiscard]] NetRouteResult routeNet(const std::vector<ChipDB::Coord64> &netNodes,
+        const std::string &netName);
 
-    /** clear the grid for a new route */
-    void clearGrid();
+    /** clear the grid for a new route, capacity values remain in tact */
+    void clearGridForNewRoute();
 
 protected:
     /** route a single track segment from point p1 to point p2 
@@ -68,7 +69,7 @@ protected:
 
     /** follow the mark path in the bitmap and recover the routing.
     */
-    NetRouteResult generateSegmentTree(const ChipDB::Coord64 &start) const;
+    NetRouteResult generateSegmentTreeAndUpdateCapacity(const ChipDB::Coord64 &start) const;
 
     bool addWavefrontCell(
         Wavefront &wavefront,

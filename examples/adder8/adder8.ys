@@ -15,4 +15,4 @@ splitnets -ports
 hilomap -hicell TIEHI Y -locell TIELO Y
 
 clean -purge
-write_verilog -noexpr adder8_netlist.v
+write_verilog -renameprefix ins -noexpr adder8_netlist.v

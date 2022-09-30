@@ -245,7 +245,7 @@ static PyObject* pyCreateRegion(PyObject *self, PyObject *args)
         }
 
         ChipDB::Rect64 regionRect{{x,y}, {x+width,y+height}};
-        auto regionPtr = ChipDB::createRegion(regionName, regionRect, siteInfo->m_size);
+        auto regionPtr = ChipDB::createRegion(regionName, siteName, regionRect, siteInfo->m_size);
 
         designPtr->m_floorplan->addRegion(regionPtr);
 

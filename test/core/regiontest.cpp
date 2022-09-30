@@ -22,7 +22,7 @@ BOOST_AUTO_TEST_CASE(check_region_creation)
 
     const int expectedRowCount = std::floor(extents.getSize().m_y / minCellSize.m_y);
 
-    auto regionWithoutHalo = ChipDB::createRegion("Core",
+    auto regionWithoutHalo = ChipDB::createRegion("Core", "core",
         extents,
         minCellSize
     );
@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(check_region_creation)
     BOOST_CHECK(regionWithoutHalo->getPlacementSize() == extents.getSize());
 
     ChipDB::Margins64 margins{minCellSize.m_y ,minCellSize.m_y, minCellSize.m_x, minCellSize.m_x};
-    auto regionWithHalo = ChipDB::createRegion("Core",
+    auto regionWithHalo = ChipDB::createRegion("Core", "core",
         extents,
         minCellSize,
         margins

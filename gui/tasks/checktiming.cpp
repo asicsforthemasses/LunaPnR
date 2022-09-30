@@ -23,7 +23,29 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
 
     info(Logging::fmt("Checking timing using module: %s\n", topModule->name().c_str()));
 
-    auto tclContents = createTCL(database, topModule->name());
+    auto spefTempFile = ChipDB::createTempFile("spef");
+    if (m_mode == Mode::WITHSPEF)
+    {
+        // create SPEF file
+        info("Creating SPEF file..\n");
+
+        //std::stringstream ss;
+        //LunaCore::SPEF::write(ss, topModule);
+        //std::cout << ss.str() << "\n";
+
+        if (!LunaCore::SPEF::write(spefTempFile->m_stream, topModule))
+        {
+            error("SPEF file creation failed!");
+            return;
+        }
+
+        spefTempFile->close();   // close but keep the file in existence
+
+        //FIXME: remove this.
+        ChipDB::copyFile(spefTempFile->m_name, "debug.spef");
+    }
+
+    auto tclContents = createTCL(database, topModule->name(), spefTempFile->m_name);
 
     // create a temporary file to give to OpenSTA
     auto tclFileDescriptor = ChipDB::createTempFile("tcl");
@@ -125,7 +147,9 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
     done();
 }
 
-std::string Tasks::CheckTiming::createTCL(const GUI::Database &database, const std::string &topModuleName) const
+std::string Tasks::CheckTiming::createTCL(const GUI::Database &database, 
+    const std::string &topModuleName,
+    const std::string &spefFilename) const
 {
     std::stringstream tcl;
 
@@ -141,6 +165,12 @@ std::string Tasks::CheckTiming::createTCL(const GUI::Database &database, const s
 
     tcl << "link_design " << topModuleName << "\n";
 
+
+    if (m_mode == Mode::WITHSPEF)
+    {
+        tcl << "read_spef " << spefFilename << "\n";
+    }
+
     for(auto const& sdc : database.m_projectSetup.m_timingConstraintFiles)
     {
         tcl << "read_sdc " << sdc << "\n";
@@ -155,3 +185,4 @@ std::string Tasks::CheckTiming::createTCL(const GUI::Database &database, const s
 
     return tcl.str();
 }
+

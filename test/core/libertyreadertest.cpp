@@ -34,14 +34,30 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty)
 
     // check parameters of NANDX1 cell
     auto cellKeyObjPair = design.m_cellLib->lookupCell("NAND2X1");
-    BOOST_CHECK(cellKeyObjPair.isValid());
+    BOOST_REQUIRE(cellKeyObjPair.isValid());
     BOOST_CHECK(cellKeyObjPair->m_pins.size() == 3);
 
     std::cout << "  NAND2X1 pins:\n";
     for(auto pinInfoPtr : cellKeyObjPair->m_pins)
     {
         std::cout << "    " << pinInfoPtr->name() << "  max cap " << pinInfoPtr->m_maxCap << "  function: " << pinInfoPtr->m_function << "\n";
-    }    
+    }   
+
+    // check pins of a complex cell, like FAX1
+    auto fax1 = design.m_cellLib->lookupCell("FAX1");
+    BOOST_REQUIRE(fax1.isValid());
+    std::cout << "  FAX1 pin count: " << fax1->m_pins.size() << "\n";
+    BOOST_CHECK(fax1->m_pins.size() == 5);
+
+    for(auto pinInfoPtr : fax1->m_pins)
+    {
+        std::cout << "    " << pinInfoPtr->name() << "  max cap " << pinInfoPtr->m_maxCap << "  function: " << pinInfoPtr->m_function << "\n";
+    } 
+
+    auto ysPin = fax1->lookupPin("YS");
+    BOOST_REQUIRE(ysPin.isValid());
+    BOOST_CHECK(ysPin->isOutput());
+
 }
 
 BOOST_AUTO_TEST_CASE(can_read_Liberty2)

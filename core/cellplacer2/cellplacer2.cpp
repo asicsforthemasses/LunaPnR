@@ -256,7 +256,9 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
     ofile.close();
 #endif
 
-    if (fixups != 0) std::cout << "  Number of gate fixups: " << fixups << "\n";
+    // FIXME: check this in the future:
+    //        is this still relevant?
+    //if (fixups != 0) std::cout << "  Number of gate fixups: " << fixups << "\n";
 }
 
 void Placer::populateGatePositions(const ChipDB::Netlist &netlist, const ChipDB::Region &region)

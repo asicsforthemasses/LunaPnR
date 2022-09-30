@@ -100,13 +100,20 @@ public:
     void setMaxCellCapacity(int64_t cap) noexcept { m_maxCapacity = cap; assert(cap >= 0); }
     [[nodiscard]] auto maxCellCapacity() const noexcept { return m_maxCapacity; }
 
-    /** clears the reached flag and resets the grid cost */
-    void clear();
+    /** clears the reached flag and resets the grid cost to infinity */
+    void clearReachedAndResetCost();
     
-    /** clears all the flags in preparation for a new route */
-    void clearAll();
+    /** clears all the flags and cost in preparation for a new route */
+    void clearAllFlagsAndResetCost();
 
+    /** clears all the flags, reset costs and capacity in preparation for a new route */
+    void clearGrid();
+
+    /** create a routing bitmap, showing the latest route */
     [[nodiscard]] PPM::Bitmap generateBitmap() const noexcept;
+
+    /** create a capacity bitmap, showing capacity from green to red */
+    [[nodiscard]] PPM::Bitmap generateCapacityBitmap() const noexcept;
 
     auto const& gcells() const noexcept {return m_grid; };
 

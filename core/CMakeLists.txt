@@ -100,6 +100,7 @@ add_library(lunacore
     export/ppm/ppmwriter.cpp
     export/verilog/verilogwriter.cpp
     export/txt/txtwriter.cpp
+    export/spef/spefwriter.cpp
     python/pylunapnr.cpp
     python/converters.cpp
     python/consoleredirect.cpp

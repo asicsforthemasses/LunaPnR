@@ -13,7 +13,7 @@ namespace GUI
 
 struct FloorplanOverlayBase
 {
-    virtual void paint(QPainter &painter) = 0;
+    virtual void paint(QPainter &painter, const Viewport &vp) = 0;
 };
 
 class FloorplanView : public QWidget
@@ -79,7 +79,7 @@ protected:
     QPoint m_mouseDownPos;
     QPoint m_mousePos;
 
-    FloorplanOverlayBase* m_overlay;
+    FloorplanOverlayBase* m_overlay{nullptr};
 
     std::shared_ptr<Database> m_db;
     bool  m_dirty{true};

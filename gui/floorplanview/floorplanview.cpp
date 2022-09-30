@@ -58,7 +58,6 @@ constexpr const ChipDB::Coord64 deltaFromScreen(const QPointF &screenp1, const Q
 
 FloorplanView::FloorplanView(QWidget *parent) : QWidget(parent), m_db(nullptr), 
     m_mouseState(MouseState::None),
-    m_overlay(nullptr),
     m_crosshairEnabled(true)
 {
     // make sure viewport pixels are 1:1
@@ -251,7 +250,7 @@ void FloorplanView::paintEvent(QPaintEvent *event)
 
     if (m_overlay != nullptr)
     {
-        m_overlay->paint(painter);
+        m_overlay->paint(painter, m_viewPort);
     }
 
     if (m_crosshairEnabled && (!m_mousePos.isNull()) && (m_mouseState == MouseState::None))
@@ -623,4 +622,3 @@ void FloorplanView::drawLeftRuler(QPainter &p)
 
     p.setClipping(false);
 }
-

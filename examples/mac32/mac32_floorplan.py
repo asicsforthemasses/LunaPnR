@@ -22,7 +22,7 @@ setTopModule("mac32")
 
 ## place the pins
 xpos = 0
-xinc = 20000
+xinc = 16000
 x = xofs+10000
 
 for idx in range(0,32): 
@@ -33,7 +33,7 @@ for idx in range(0,32):
     placeInstance(pinName, "mac32", x, yofs+ys+pin_distance)
     x = x + xinc    
 
-xinc = 20000
+xinc = 16000
 x = xofs+10000
 
 placeInstance("clk", "mac32", x, yofs-pin_distance)

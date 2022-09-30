@@ -12,9 +12,10 @@
 using namespace LunaCore;
 
 void GlobalRouter::Router::createGrid(const GCellCoordType width, const GCellCoordType height,
-    const ChipDB::Size64 &cellSize)
+    const ChipDB::Size64 &cellSize, const int64_t cellCapacity)
 {
     m_grid = std::make_unique<Grid>(width, height, cellSize);
+    m_grid->setMaxCellCapacity(cellCapacity);
 }
 
 std::optional<GlobalRouter::TrackInfo> GlobalRouter::Router::calcNumberOfTracks(const ChipDB::Design &design,
@@ -154,20 +155,21 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
 
     if (!m_grid->isValidGridCoord(loc1))
     {
-        Logging::doLog(Logging::LogType::VERBOSE, "GlobalRouter::Router::routeSegment loc1 is invalid\n");
+        Logging::doLog(Logging::LogType::VERBOSE, "GlobalRouter::Router::routeSegment loc1 (%lu,%lu) is invalid\n",
+            loc1.m_x, loc1.m_y);
         return false;
     } 
 
     if (!m_grid->isValidGridCoord(loc2)) 
     {
-        Logging::doLog(Logging::LogType::VERBOSE, "GlobalRouter::Router::routeSegment loc2 is invalid\n");
+        Logging::doLog(Logging::LogType::VERBOSE, "GlobalRouter::Router::routeSegment loc2 (%lu,%lu) is invalid\n",
+            loc2.m_x, loc2.m_y);
         return false;
     }
 
     // if the locations are the same, routing isn't necessary.
     if (loc1 == loc2)
     {
-        //m_grid->at(loc1).m_capacity++;
         m_grid->at(loc1).setTarget();
         return true;
     }
@@ -223,12 +225,7 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
         {
             targetReached = true;
 
-            if (evaluations < 5)
-            {
-                std::cout << "!@#!@#\n";
-            }
-
-            m_grid->clear();
+            m_grid->clearReachedAndResetCost();
 
             // backtrack from target
             auto backtrackPos = minCostPos;
@@ -250,7 +247,6 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
                 m_grid->at(backtrackPos).setMark();
                 m_grid->at(backtrackPos).clearSource();
                 m_grid->at(backtrackPos).clearTarget();
-                //m_grid->at(backtrackPos).m_capacity++;
 
                 // go to the previous cell
                 switch(gridCell.getPredecessor())
@@ -272,22 +268,6 @@ bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB:
                     break;                                       
                 };
             }
-
-#if 0
-            // FIXME: horrible code!
-            // put all the sources on the wavefront
-            for(int y=0; y<m_grid->height(); y++)
-            {
-                for(int x=0; x<m_grid->width(); x++)
-                {
-                    if (m_grid.at(x,y).isSource())
-                    {
-                        wavefront.push(WavefrontItem{grid.at(x,y).getPredecessor(), GCellCoord{x,y}, 0 /* cost */});
-                    }
-                }
-            }
-#endif
-
         }
         else
         {
@@ -422,7 +402,7 @@ bool GlobalRouter::Router::route(const ChipDB::Coord64 &p1, const ChipDB::Coord6
     return routeSegment(p1, p2);
 }
 
-GlobalRouter::Router::NetRouteResult GlobalRouter::Router::routeNet(const std::vector<ChipDB::Coord64> &netNodes)
+GlobalRouter::Router::NetRouteResult GlobalRouter::Router::routeNet(const std::vector<ChipDB::Coord64> &netNodes, const std::string &netName)
 {
     NetRouteResult invalid;
     if (!m_grid)
@@ -439,7 +419,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::routeNet(const std::v
         return invalid;        
     }
 
-    m_grid->clearAll();
+    m_grid->clearAllFlagsAndResetCost();
     for(auto const& treeNode : tree)
     {
         auto p1 = treeNode.m_pos;
@@ -449,18 +429,19 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::routeNet(const std::v
             auto result = routeSegment(p1,p2);
             if (!result) 
             {
-                Logging::doLog(Logging::LogType::ERROR,"GlobalRouter::Router::routeNet could not complete route\n");
+                Logging::doLog(Logging::LogType::ERROR,"GlobalRouter::Router::routeNet could not complete route %s (%lu nodes)\n", 
+                    netName.c_str(), netNodes.size());
                 return invalid;
             }
         }
     }
 
-    return std::move(generateSegmentTree(tree.at(0).m_pos));
+    return std::move(generateSegmentTreeAndUpdateCapacity(tree.at(0).m_pos));
 }
 
-void GlobalRouter::Router::clearGrid()
+void GlobalRouter::Router::clearGridForNewRoute()
 {
-    if (m_grid) m_grid->clearAll();
+    if (m_grid) m_grid->clearAllFlagsAndResetCost();
 }
 
 void GlobalRouter::Router::setBlockage(const ChipDB::Coord64 &p)
@@ -472,7 +453,7 @@ void GlobalRouter::Router::setBlockage(const ChipDB::Coord64 &p)
     }
 }
 
-GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTree(const ChipDB::Coord64 &start) const
+GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTreeAndUpdateCapacity(const ChipDB::Coord64 &start) const
 {
     NetRouteResult result;
 
@@ -497,12 +478,15 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTree(c
     // initialize the queue and segment list
     // by trying all direction from the starting point
 
+    m_grid->at(gridStartCoord).m_capacity++;
+
     auto newPos = east(gridStartCoord);
     if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
     {
         auto newSegment = seg.createNewSegment(gridStartCoord, Direction::East);
         newSegment->m_length = 2;   // next point and the starting point are included.
         queue.push({newPos, newSegment});
+        m_grid->at(newPos).m_capacity++;
     }
 
     newPos = west(gridStartCoord);
@@ -511,6 +495,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTree(c
         auto newSegment = seg.createNewSegment(gridStartCoord, Direction::West);
         newSegment->m_length = 2;   // next point and the starting point are included.
         queue.push({newPos, newSegment});
+        m_grid->at(newPos).m_capacity++;
     }
     
     newPos = north(gridStartCoord);
@@ -519,6 +504,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTree(c
         auto newSegment = seg.createNewSegment(gridStartCoord, Direction::North);
         newSegment->m_length = 2;   // next point and the starting point are included.
         queue.push({newPos, newSegment});
+        m_grid->at(newPos).m_capacity++;
     }                
 
     newPos = south(gridStartCoord);
@@ -527,6 +513,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTree(c
         auto newSegment = seg.createNewSegment(gridStartCoord, Direction::South);
         newSegment->m_length = 2;   // next point and the starting point are included.
         queue.push({newPos, newSegment});
+        m_grid->at(newPos).m_capacity++;
     }                                
 
     while(!queue.empty())
@@ -552,6 +539,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTree(c
                     curSegPtr->m_length++;
                     curSegPtr->m_dir = Direction::East;
                     queue.push({newPos, curSegPtr});
+                    m_grid->at(newPos).m_capacity++;
                 }
                 
                 // try a change of direction
@@ -561,6 +549,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTree(c
                     auto newSegment = seg.createNewSegment(curPos, Direction::North);
                     newSegment->m_length = 2;
                     queue.push({newPos, newSegment});
+                    m_grid->at(newPos).m_capacity++;
                 }
 
                 newPos = south(curPos);
@@ -569,6 +558,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTree(c
                     auto newSegment = seg.createNewSegment(curPos, Direction::South);
                     newSegment->m_length = 2;
                     queue.push({newPos, newSegment});
+                    m_grid->at(newPos).m_capacity++;
                 }
             }
             break;
@@ -580,6 +570,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTree(c
                     curSegPtr->m_length++;
                     curSegPtr->m_dir = Direction::West;
                     queue.push({newPos, curSegPtr});
+                    m_grid->at(newPos).m_capacity++;
                 }
                 
                 // try a change of direction
@@ -589,6 +580,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTree(c
                     auto newSegment = seg.createNewSegment(curPos, Direction::North);
                     newSegment->m_length = 2;
                     queue.push({newPos, newSegment});
+                    m_grid->at(newPos).m_capacity++;
                 }
 
                 newPos = south(curPos);
@@ -597,6 +589,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTree(c
                     auto newSegment = seg.createNewSegment(curPos, Direction::South);
                     newSegment->m_length = 2;
                     queue.push({newPos, newSegment});
+                    m_grid->at(newPos).m_capacity++;
                 }
             }
             break;
@@ -608,6 +601,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTree(c
                     curSegPtr->m_length++;
                     curSegPtr->m_dir = Direction::North;
                     queue.push({newPos, curSegPtr});
+                    m_grid->at(newPos).m_capacity++;
                 }
                 
                 // try a change of direction
@@ -617,6 +611,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTree(c
                     auto newSegment = seg.createNewSegment(curPos, Direction::East);
                     newSegment->m_length = 2;
                     queue.push({newPos, newSegment});
+                    m_grid->at(newPos).m_capacity++;
                 }
 
                 newPos = west(curPos);
@@ -625,6 +620,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTree(c
                     auto newSegment = seg.createNewSegment(curPos, Direction::West);
                     newSegment->m_length = 2;
                     queue.push({newPos, newSegment});
+                    m_grid->at(newPos).m_capacity++;
                 }
             }
             break;
@@ -636,6 +632,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTree(c
                     curSegPtr->m_length++;
                     curSegPtr->m_dir = Direction::South;
                     queue.push({newPos, curSegPtr});
+                    m_grid->at(newPos).m_capacity++;
                 }
                 
                 // try a change of direction
@@ -645,6 +642,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTree(c
                     auto newSegment = seg.createNewSegment(curPos, Direction::East);
                     newSegment->m_length = 2;
                     queue.push({newPos, newSegment});
+                    m_grid->at(newPos).m_capacity++;
                 }
 
                 newPos = west(curPos);
@@ -653,6 +651,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTree(c
                     auto newSegment = seg.createNewSegment(curPos, Direction::West);
                     newSegment->m_length = 2;
                     queue.push({newPos, newSegment});
+                    m_grid->at(newPos).m_capacity++;
                 }
             }
             break;            

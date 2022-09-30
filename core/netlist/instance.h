@@ -130,6 +130,16 @@ public:
         return m_name;
     }
 
+    /** get the name of the instance */
+    [[nodiscard]] ChipDB::Rect64 rect() const noexcept
+    {
+        if (m_cell)
+        {
+            return {m_pos, m_pos+ m_cell->m_size};
+        }
+        return {m_pos,m_pos};
+    }
+
     struct Pin
     {
         constexpr bool isValid() const
