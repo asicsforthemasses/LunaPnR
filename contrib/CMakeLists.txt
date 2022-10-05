@@ -17,7 +17,8 @@ if (MSVC)
     if (NOT EXISTS eigen3/CMakeLists.txt)
 
         message(STATUS "retrieving Eigen3...")
-        set(EIGEN_ARCHIVE S{CMAKE_CURRENT_SOURCE_DIR}/"eigen-3.4.0.tar.gz")
+        set(EIGEN_ARCHIVE "S{CMAKE_CURRENT_SOURCE_DIR}/eigen-3.4.0.tar.gz")
+        message(STATUS "  location: ${EIGEN_ARCHIVE}")
         file(DOWNLOAD "https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz" ${EIGEN_ARCHIVE} INACTIVITY_TIMEOUT 10)
         add_custom_command(
             OUTPUT eigen3/CMakeLists.txt
