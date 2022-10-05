@@ -12,7 +12,6 @@ install:
   - set BOOST_ROOT=C:\Libraries\boost_1_77_0
   - set PATH=%QTDIR%;%BOOST_ROOT%;%PATH%;
   - set CMAKE_PREFIX_PATH=%QTDIR%;%BOOST_ROOT%;%CMAKE_PREFIX_PATH%
-
 before_build:
 
   - mkdir build
