@@ -8,7 +8,7 @@ cache:
   - c:\Eigen3\
 
 install:
-  - dir C:\Qt\5.13.2\msvc2017\bin
+  - dir C:\Qt\
   - set QTDIR=C:\Qt\5.13.2\msvc2017\bin
   - set PATH=%QTDIR%;%PATH%;
   - set CMAKE_PREFIX_PATH=%QTDIR%;%CMAKE_PREFIX_PATH%
