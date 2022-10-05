@@ -21,7 +21,7 @@ if (MSVC)
         set(EIGEN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/eigen3")
         message(STATUS "  location: ${EIGEN_ARCHIVE}")
         file(DOWNLOAD "https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz" ${EIGEN_ARCHIVE} INACTIVITY_TIMEOUT 10)
-        file(ARCHIVE_EXTRACT ${EIGEN_ARCHIVE} DESTINATION ${EIGEN_DIR})
+        file(ARCHIVE_EXTRACT INPUT ${EIGEN_ARCHIVE} DESTINATION ${EIGEN_DIR})
     endif()        
 
     add_subdirectory(eigen3)
