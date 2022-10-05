@@ -18,15 +18,10 @@ if (MSVC)
 
         message(STATUS "retrieving Eigen3...")
         set(EIGEN_ARCHIVE "${CMAKE_CURRENT_SOURCE_DIR}/eigen-3.4.0.tar.gz")
+        set(EIGEN_DIR "${CMAKE_CURRENT_SOURCE_DIR}/eigen3")
         message(STATUS "  location: ${EIGEN_ARCHIVE}")
         file(DOWNLOAD "https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz" ${EIGEN_ARCHIVE} INACTIVITY_TIMEOUT 10)
-        add_custom_command(
-            OUTPUT eigen3/CMakeLists.txt
-            COMMAND ${CMAKE_COMMAND} -E tar xzf ${EIGEN_ARCHIVE}
-            DEPENDS ${EIGEN_ARCHIVE}
-            COMMENT "Unpacking Eigen3 archive"
-            VERBATIM
-        )
+        file(ARCHIVE_EXTRACT ${EIGEN_ARCHIVE} DESTINATION ${EIGEN_DIR})
     endif()        
 
     add_subdirectory(eigen3)
