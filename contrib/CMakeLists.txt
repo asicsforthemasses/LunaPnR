@@ -14,6 +14,7 @@ endif()
 ############################################################
 
 if (MSVC)
+    message(STATUS "retrieving Eigen3...")
     set(EIGEN_ARCHIVE "eigen-3.4.0.tar.gz")
     file(DOWNLOAD "https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz" ${EIGEN_ARCHIVE} INACTIVITY_TIMEOUT 10)
     file(ARCHIVE_EXTRACT INPUT ${EIGEN_ARCHIVE} DESTINATION "eigen3")
