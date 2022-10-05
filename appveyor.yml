@@ -11,7 +11,9 @@ install:
   - cmd: if not exist c:\Eigen3 (
             curl -L -o eigen-3.4.0.tar.gz https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz &&
             cmake -E tar zxf eigen-3.4.0.tar.gz &&
+            dir &&
             cd eigen-3.4.0 &&
+            dir &&
             mkdir build &&
             cd build &&
             cmake -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="c:\Eigen3" .. &&
