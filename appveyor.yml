@@ -4,6 +4,10 @@
 
 os: Visual Studio 2022
 
+branches:
+  only:
+    - stable
+
 install:
   - dir C:\Qt
   - dir C:\Qt\5.15
