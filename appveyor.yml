@@ -18,7 +18,8 @@ install:
             cd build &&
             cmake -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="c:\Eigen3" .. &&
             cmake --build . --target install --config Release &&
-            cd ..\.     
+            cd ..\.. &&
+            dir    
           ) else (echo Using cached Eigen3)
 
 before_build:
