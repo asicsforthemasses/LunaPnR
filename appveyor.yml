@@ -8,8 +8,10 @@ cache:
   - c:\Eigen3\
 
 install:
+  - dir C:\Qt
   - dir C:\Qt\5.15
-  - set QTDIR=C:\Qt\5.15\msvc2017\bin
+  - dir C:\Qt\5.15\msvc2019_64
+  - set QTDIR=C:\Qt\5.15\msvc2019_64\bin
   - set PATH=%QTDIR%;%PATH%;
   - set CMAKE_PREFIX_PATH=%QTDIR%;%CMAKE_PREFIX_PATH%
   - cmd: if not exist c:\Eigen3 (
