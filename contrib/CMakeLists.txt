@@ -14,9 +14,19 @@ endif()
 ############################################################
 
 if (MSVC)
-    message(STATUS "retrieving Eigen3...")
-    set(EIGEN_ARCHIVE "eigen-3.4.0.tar.gz")
-    file(DOWNLOAD "https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz" ${EIGEN_ARCHIVE} INACTIVITY_TIMEOUT 10)
-    file(ARCHIVE_EXTRACT INPUT ${EIGEN_ARCHIVE} DESTINATION "eigen3")
+    if (NOT EXISTS eigen3/CMakeLists.txt)
+
+        message(STATUS "retrieving Eigen3...")
+        set(EIGEN_ARCHIVE "eigen-3.4.0.tar.gz")
+        file(DOWNLOAD "https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz" ${EIGEN_ARCHIVE} INACTIVITY_TIMEOUT 10)
+        add_custom_command(
+            OUTPUT eigen3/CMakeLists.txt
+            COMMAND ${CMAKE_COMMAND} -E tar xzf S{CMAKE_CURRENT_SOURCE_DIR}/${EIGEN_ARCHIVE}
+            DEPENDS S{CMAKE_CURRENT_SOURCE_DIR}/${EIGEN_ARCHIVE}
+            COMMENT "Unpacking Eigen3 archive"
+            VERBATIM
+        )
+    endif()        
+
     add_subdirectory(eigen3)
 endif(MSVC)
