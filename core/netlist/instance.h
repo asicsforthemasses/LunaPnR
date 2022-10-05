@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <array>
 #include "common/visitor.h"
 #include "celllib/cell.h"
 #include "celllib/module.h"
