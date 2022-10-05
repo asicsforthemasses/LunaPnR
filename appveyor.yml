@@ -12,8 +12,9 @@ install:
   - dir C:\Qt\5.15
   - dir C:\Qt\5.15\msvc2019_64
   - set QTDIR=C:\Qt\5.15\msvc2019_64\bin
-  - set PATH=%QTDIR%;%PATH%;
-  - set CMAKE_PREFIX_PATH=%QTDIR%;%CMAKE_PREFIX_PATH%
+  - set BOOST_ROOT=C:\Libraries\boost_1_77_0
+  - set PATH=%QTDIR%;%BOOST_ROOT%;%PATH%;
+  - set CMAKE_PREFIX_PATH=%QTDIR%;%BOOST_ROOT%;%CMAKE_PREFIX_PATH%
   - cmd: if not exist c:\Eigen3 (
             curl -L -o eigen-3.4.0.tar.gz https://gitlab.com/libeigen/eigen/-/archive/3.4.0/eigen-3.4.0.tar.gz &&
             cmake -E tar zxf eigen-3.4.0.tar.gz &&
