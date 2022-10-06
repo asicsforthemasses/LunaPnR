@@ -5,7 +5,6 @@ SPDX-License-Identifier: GPL-3.0-only
 # Luna Place and Route
 
 [![Linux Build Status](https://www.travis-ci.com/asicsforthemasses/LunaPnR.svg?branch=stable)](https://www.travis-ci.com/asicsforthemasses/LunaPnR)
-
 [![Windows Build status](https://ci.appveyor.com/api/projects/status/4nyinpf1ydmoeggp/branch/stable?svg=true)](https://ci.appveyor.com/project/asicsforthemasses/lunapnr/branch/stable)
 
 For more information, please visit the [homepage](https://www.asicsforthemasses.com "Luna PnR homepage").
