@@ -19,6 +19,9 @@ For more information, please visit the [homepage](https://www.asicsforthemasses.
 * Tech browser works.
 * Has layer rendering customization.
 * Reads [flat Verilog netlists](https://github.com/asicsforthemasses/LunaPnR/tree/main/test/files/verilog) (no busses - expand them, YMMV).
+* Uses/requires external OpenSTA to perform static timing analysis.
+* Has a global router based on directed/depth-first search.
+* Has an integrated Python 3 based console.
 
 LunaPnR can read the [SKY130](https://github.com/asicsforthemasses/sky130_testing), OSU 180nm, Nangate/FreePDK 45nm cell libraries.
 
