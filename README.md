@@ -44,9 +44,11 @@ Supported distributions are:
 * Ubuntu 22.04 LTS.
 
 ## Building on Windows
-* open the Developer Command Prompt for VS 2019.
+* open the Developer Command Prompt for VS 2022.
 * make sure to set the BOOST_ROOT environment variable to the location of the BOOST libraries.
 * run bootstrap_release.bat in the top level project dir.
+* enter the build directory and type 'ninja'.
+* LunaPnR application will be available in ./gui/lunapnr
 
 <br/><br/>
 ## Sponsors
