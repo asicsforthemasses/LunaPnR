@@ -113,8 +113,8 @@ target_link_libraries(lunapnr lunacore Qt5::Widgets)
 target_include_directories(lunapnr PUBLIC ../core/include ${PYTHON_INCLUDE_DIRS} .)
 
 ## Make Debian/Ubuntu happy: this way the executable is not detected as a shared lib :-/
-target_compile_options(lunapnr PUBLIC -fno-pie -no-pie)
-target_link_options(lunapnr PUBLIC -fno-pie -no-pie)
+#target_compile_options(lunapnr PUBLIC -fno-pie -no-pie)
+#target_link_options(lunapnr PUBLIC -fno-pie -no-pie)
 
 set_property(TARGET lunapnr PROPERTY AUTOMOC ON)
 set_property(TARGET lunapnr PROPERTY AUTOUIC ON)

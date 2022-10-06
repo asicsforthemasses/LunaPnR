@@ -10,24 +10,27 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ## Make Debian/Ubuntu happy: this way the executable is not detected as a shared lib :-/
-set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 ############################################################
 ## Setup LunaPnR version string
+##
+## inspired by https://jonathanhamberg.com/post/cmake-embedding-git-hash/
+##
 ############################################################
 
 project(luna_pnr VERSION 0.1.5 HOMEPAGE_URL https://www.asicsforthemasses.com)
 
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
-    message("Building debug binaries")
-    set(LUNAVERSION "\"LunaPnR version ${CMAKE_PROJECT_VERSION} DEBUG\"")
+    message("!!!! Building debug binaries !!!!")
+    set(LUNAVERSIONSTRING "LunaPnR version ${CMAKE_PROJECT_VERSION} DEBUG")
 ELSE()
-    set(LUNAVERSION "\"LunaPnR version ${CMAKE_PROJECT_VERSION}\"")
+    set(LUNAVERSIONSTRING "LunaPnR version ${CMAKE_PROJECT_VERSION}")
 ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
 
-message(${LUNAVERSION})
+message(STATUS LunaPnR Version: ${LUNAVERSIONSTRING})
 
-add_definitions(-DLUNAVERSIONSTRING=${LUNAVERSION})
+configure_file(${PROJECT_SOURCE_DIR}/version/version.cpp.in ${PROJECT_SOURCE_DIR}/version/version.cpp @ONLY)
 
 ############################################################
 ## Setup Compiler version string
@@ -67,6 +70,8 @@ endif(MSVC)
 ############################################################
 
 enable_testing()
+
+include_directories(${PROJECT_SOURCE_DIR}/version)
 
 add_subdirectory(contrib)
 add_subdirectory(tools)

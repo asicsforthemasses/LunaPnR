@@ -5,6 +5,7 @@
 #include <fstream>
 #include <chrono>
 
+#include "version.h"
 #include "common/logging.h"
 #include "design/design.h"
 #include "spefwriter.h"

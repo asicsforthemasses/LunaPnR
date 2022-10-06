@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
+#include "version.h"
 #include "common/logging.h"
 #include "defwriter.h"
 
@@ -34,7 +35,7 @@ LunaCore::DEF::Private::WriterImpl::WriterImpl(std::ostream &os) : m_os(os)
 
 LunaCore::DEF::Private::WriterImpl::~WriterImpl()
 {
-    m_os << "# Generated with " LUNAVERSIONSTRING "\n\n";
+    m_os << "# Generated with " << LUNAVERSIONSTRING << "\n\n";
     m_os << "VERSION 5.4 ;\n";
     m_os << "BUSBITCHARS \"[]\" ;\n";
     m_os << "DIVIDERCHAR \"/\" ;\n";
