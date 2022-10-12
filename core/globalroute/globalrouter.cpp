@@ -523,6 +523,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTreeAn
         auto curSegPtr    = curPosAndSeg.second;
 
         queue.pop();
+
         switch(curSegPtr->m_dir)
         {
         case Direction::Undefined:
@@ -546,7 +547,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTreeAn
                 newPos = north(curPos);
                 if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
                 {
-                    auto newSegment = seg.createNewSegment(curPos, Direction::North);
+                    auto newSegment = seg.createNewSegment(curPos, Direction::North, curSegPtr);
                     newSegment->m_length = 2;
                     queue.push({newPos, newSegment});
                     m_grid->at(newPos).m_capacity++;
@@ -555,7 +556,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTreeAn
                 newPos = south(curPos);
                 if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
                 {
-                    auto newSegment = seg.createNewSegment(curPos, Direction::South);
+                    auto newSegment = seg.createNewSegment(curPos, Direction::South, curSegPtr);
                     newSegment->m_length = 2;
                     queue.push({newPos, newSegment});
                     m_grid->at(newPos).m_capacity++;
@@ -577,7 +578,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTreeAn
                 newPos = north(curPos);
                 if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
                 {
-                    auto newSegment = seg.createNewSegment(curPos, Direction::North);
+                    auto newSegment = seg.createNewSegment(curPos, Direction::North, curSegPtr);
                     newSegment->m_length = 2;
                     queue.push({newPos, newSegment});
                     m_grid->at(newPos).m_capacity++;
@@ -586,7 +587,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTreeAn
                 newPos = south(curPos);
                 if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
                 {
-                    auto newSegment = seg.createNewSegment(curPos, Direction::South);
+                    auto newSegment = seg.createNewSegment(curPos, Direction::South, curSegPtr);
                     newSegment->m_length = 2;
                     queue.push({newPos, newSegment});
                     m_grid->at(newPos).m_capacity++;
@@ -608,7 +609,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTreeAn
                 newPos = east(curPos);
                 if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
                 {
-                    auto newSegment = seg.createNewSegment(curPos, Direction::East);
+                    auto newSegment = seg.createNewSegment(curPos, Direction::East, curSegPtr);
                     newSegment->m_length = 2;
                     queue.push({newPos, newSegment});
                     m_grid->at(newPos).m_capacity++;
@@ -617,7 +618,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTreeAn
                 newPos = west(curPos);
                 if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
                 {
-                    auto newSegment = seg.createNewSegment(curPos, Direction::West);
+                    auto newSegment = seg.createNewSegment(curPos, Direction::West, curSegPtr);
                     newSegment->m_length = 2;
                     queue.push({newPos, newSegment});
                     m_grid->at(newPos).m_capacity++;
@@ -639,7 +640,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTreeAn
                 newPos = east(curPos);
                 if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
                 {
-                    auto newSegment = seg.createNewSegment(curPos, Direction::East);
+                    auto newSegment = seg.createNewSegment(curPos, Direction::East, curSegPtr);
                     newSegment->m_length = 2;
                     queue.push({newPos, newSegment});
                     m_grid->at(newPos).m_capacity++;
@@ -648,7 +649,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTreeAn
                 newPos = west(curPos);
                 if (m_grid->isValidGridCoord(newPos) && m_grid->at(newPos).isMarked())
                 {
-                    auto newSegment = seg.createNewSegment(curPos, Direction::West);
+                    auto newSegment = seg.createNewSegment(curPos, Direction::West, curSegPtr);
                     newSegment->m_length = 2;
                     queue.push({newPos, newSegment});
                     m_grid->at(newPos).m_capacity++;
@@ -659,13 +660,6 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::generateSegmentTreeAn
 
         m_grid->at(curPos).clearMark();
     }
-
-#if 0
-    for(auto const& segment: seg.m_segments)
-    {
-        std::cout << "  start: " << segment.m_start << " len: " << segment.m_length << " dir: " << segment.m_dir << "\n";
-    }
-#endif
 
     result.m_ok = true;
     return std::move(result);

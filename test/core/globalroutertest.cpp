@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex)
     BOOST_REQUIRE(netNodes.size() == 65);
 
     auto tree = LunaCore::Prim::prim(netNodes);
-    BOOST_CHECK(tree.size() == 65);
+    BOOST_CHECK(tree.size() == 65);    
 
     auto logLevel = Logging::getLogLevel();
     Logging::setLogLevel(Logging::LogType::VERBOSE);
@@ -261,6 +261,36 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex2)
 
     auto segTree = router.routeNet(netNodes, "testnet");
     BOOST_REQUIRE(segTree.m_ok);
+
+    // check that all the tree segments
+    // have a parent except the first four    
+    bool regularNode = false;
+    std::size_t segCounter = 0;
+    ChipDB::Coord64 startPos{0,0};
+    for(auto const& seg : segTree.segments())
+    {
+        if (segCounter == 0)
+        {
+            BOOST_CHECK(seg.m_parent == nullptr);   // 1st node can never have a parent assigned!
+            BOOST_CHECK(regularNode == false);
+            startPos = seg.m_start;
+        }
+        else if (startPos != seg.m_start)
+        {
+            // first and remaining regular nodes should end up here.
+            // they all should have a valid parent
+            regularNode = false;
+            BOOST_CHECK(seg.m_parent != nullptr);
+            BOOST_CHECK(segCounter > 0);    // must have at least one head node.
+        }
+        else
+        {
+            // multiple head nodes
+            BOOST_CHECK(seg.m_parent == nullptr);   // head nodes can never have a parent
+            BOOST_CHECK(segCounter <= 3);           // can never have more than 4 head nodes (E, W, N, S)
+        }
+        segCounter++;
+    }
 
     Logging::setLogLevel(logLevel);
 

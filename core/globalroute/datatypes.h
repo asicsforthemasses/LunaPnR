@@ -45,16 +45,18 @@ namespace LunaCore::GlobalRouter
         GCellCoord      m_start{0,0};   ///< grid starting coordinate
         GCellCoordType  m_length{1};    ///< length in blocks
         Direction       m_dir{Direction::Undefined};
+        NetSegment*     m_parent{nullptr};
     };
 
     struct SegmentList
     {
-        NetSegment* createNewSegment(const GCellCoord &start, Direction dir)
+        NetSegment* createNewSegment(const GCellCoord &start, Direction dir, NetSegment *parent = nullptr)
         {
             auto segPtr = &m_segments.emplace_back();
             segPtr->m_start = start;
             segPtr->m_dir = dir;
             segPtr->m_length = 1;
+            segPtr->m_parent = parent;
             return segPtr;
         }
         
