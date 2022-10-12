@@ -29,10 +29,6 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
         // create SPEF file
         info("Creating SPEF file..\n");
 
-        //std::stringstream ss;
-        //LunaCore::SPEF::write(ss, topModule);
-        //std::cout << ss.str() << "\n";
-
         if (!LunaCore::SPEF::write(spefTempFile->m_stream, topModule))
         {
             error("SPEF file creation failed!");
@@ -88,7 +84,9 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
 
     auto timeUnits = parser.timeUnits();
 
+    // ******************************************************************************************
     // report the paths
+    // ******************************************************************************************
     info("** Path report **");
     std::size_t pathsReported = 0;
     std::size_t warnings = 0;
@@ -119,6 +117,7 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
         warnings++;
     }
 
+    //Note: SPEF warnings are reported here too ..
     if (!parser.setupWarnings().empty())
     {
         warning("** Timing analysis found the following issues with your setup **\n");
@@ -128,6 +127,23 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
             warnings++;
         }
     }
+
+    // ******************************************************************************************
+    // report SPEF errors
+    // ******************************************************************************************
+
+    if (m_mode == Mode::WITHSPEF)
+    {
+        if (!parser.foundSPEFReport())
+        {
+            error("  OpenSTA is expected to report SPEF setup but no report was found!\n");
+            timingErrors = true;
+        }
+    }
+
+    // ******************************************************************************************
+    // report Timing errors
+    // ******************************************************************************************
 
     if (timingErrors) 
     {
@@ -141,7 +157,14 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
     }
     else
     {
-        info("** Timing checks passed **\n");
+        if (m_mode == Mode::WITHSPEF)
+        {
+            info("** Timing checks with parasitics passed **\n");
+        }
+        else
+        {
+            info("** Timing checks passed **\n");
+        }
     }
 
     done();
@@ -180,6 +203,11 @@ std::string Tasks::CheckTiming::createTCL(const GUI::Database &database,
     tcl << "report_units\n";
     tcl << R"(puts "#CHECKSETUP")" "\n";
     tcl << "check_setup\n";
+    if (m_mode == Mode::WITHSPEF)
+    {
+        tcl << R"(puts "#CHECKSPEF")" "\n";
+        tcl << "report_parasitic_annotation\n";
+    }
     tcl << R"(puts "#REPORTCHECKS")" "\n";
     tcl << "report_checks\n";
 

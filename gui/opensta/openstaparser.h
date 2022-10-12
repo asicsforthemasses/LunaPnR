@@ -25,6 +25,10 @@ Warning: There are 2 input ports missing set_input_delay.
 Warning: There are 64 unclocked register/latch pins.
 Warning: There are 128 unconstrained endpoints.
 
+#SPEFCHECKS
+Found 0 unannotated nets.
+Found 0 partially unannotated nets.
+
 #REPORTCHECKS
 
 Startpoint: b_in[1] (input port clocked by clk)
@@ -117,9 +121,23 @@ public:
         return m_setupWarnings;
     }
 
-    auto timeUnits() const
+    auto timeUnits() const noexcept
     {
         return std::make_pair(m_timeMult, m_timeUnit);
+    }
+
+    /** returns true if OpenSTA reported SPEF setup checks. */
+    [[nodiscard]] bool foundSPEFReport() const noexcept
+    {
+        return m_foundSPEFReport;
+    }
+
+    /** returns true if OpenSTA found no problems in the SPEF setup 
+     *  i.e. all nets were fully annotated.
+    */
+    [[nodiscard]] bool SPEFChecksOk() const noexcept
+    {
+        return m_SPEFChecksOk;
     }
 
 protected:
@@ -128,6 +146,7 @@ protected:
         NONE,
         UNITS,
         CHECKSETUP,
+        CHECKSPEF,
         REPORTCHECKS
     };
 
@@ -140,6 +159,12 @@ protected:
     std::regex m_reSlack{R"(\s*([0-9.]*)\s*slack)"};
     std::regex m_reTimeUnit{R"(\s*time\s*([0-9])([a-z]*))"};
     std::regex m_reWarning{R"(\s*Warning:\s*(.*))"};
+
+    std::regex m_spefCheck1{R"(Found\s(\d)\sunannotated\snets)"};
+    std::regex m_spefCheck2{R"(Found\s(\d)\spartially\sunannotated\snets)"};
+
+    bool        m_SPEFChecksOk{true};
+    bool        m_foundSPEFReport{false};
 
     double      m_timeMult{1.0f};
     std::string m_timeUnit{"ns"};

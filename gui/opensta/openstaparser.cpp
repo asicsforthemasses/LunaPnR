@@ -9,6 +9,8 @@ using namespace GUI;
 
 void OpenSTAParser::reset()
 {
+    m_SPEFChecksOk=true;
+    m_foundSPEFReport=false;
     m_state = ParseState::NONE;
     m_response.str("");
     m_response.clear(); // clear any error flags
@@ -24,6 +26,11 @@ bool OpenSTAParser::submitLine(const std::string &line)
     else if (line.substr(0,11) == "#CHECKSETUP")
     {
         m_state = ParseState::CHECKSETUP;
+        return true;
+    }
+    else if (line.substr(0,10) == "#CHECKSPEF")
+    {
+        m_state = ParseState::CHECKSPEF;
         return true;
     }
     else if (line.substr(0,13) == "#REPORTCHECKS")
@@ -52,6 +59,36 @@ bool OpenSTAParser::submitLine(const std::string &line)
             m_setupWarnings.push_back(matches.str(1));
         }
         break;
+    case ParseState::CHECKSPEF:
+        if (std::regex_search(line, matches, m_spefCheck1))
+        {
+            m_foundSPEFReport = true;            
+            auto netCount = std::stod(matches.str(1));
+            if (netCount > 0)
+            {
+                m_SPEFChecksOk = false;
+                m_setupWarnings.push_back(matches.str(1));
+            }
+            else
+            {
+                Logging::doLog(Logging::LogType::VERBOSE,"CheckTiming: all nets have SPEF annotations\n");
+            }
+        }
+        else if (std::regex_search(line, matches, m_spefCheck2))
+        {
+            m_foundSPEFReport = true;
+            auto netCount = std::stod(matches.str(1));
+            if (netCount > 0)
+            {
+                m_SPEFChecksOk = false;
+                m_setupWarnings.push_back(matches.str(1));
+            }
+            else
+            {
+                Logging::doLog(Logging::LogType::VERBOSE,"CheckTiming: all nets have SPEF annotations\n");
+            }
+        }
+        break;        
     case ParseState::REPORTCHECKS:
         if (std::regex_search(line, matches, m_reSourcePath))
         {
