@@ -39,8 +39,10 @@ public:
     /** set a blockage at Chip coordinates p. The underlying grid cell will be set to blocked. */
     void setBlockage(const ChipDB::Coord64 &p);
 
-    /** route two points - mainly for testing. */
+#if 0
+    /** route two points - this function is mainly for testing. */
     [[nodiscard]] bool route(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2);
+#endif
 
     struct NetRouteResult
     {
@@ -62,10 +64,13 @@ public:
     void clearGridForNewRoute();
 
 protected:
+    /** route a two-point connection between p1 and p2. Used cells are marked so they can be extracted later. */
+    [[nodiscard]] bool routeTwoPointRoute(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2);
+
     /** route a single track segment from point p1 to point p2 
      *  and update the grid capacity.
     */
-    [[nodiscard]] bool routeSegment(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2);
+    //[[nodiscard]] bool ext(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2);
 
     /** follow the mark path in the bitmap and recover the routing.
     */

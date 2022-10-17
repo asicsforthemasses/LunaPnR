@@ -81,5 +81,4 @@ BOOST_AUTO_TEST_CASE(Solver)
     BOOST_CHECK(error < 1e-4f);
 }
 
-
 BOOST_AUTO_TEST_SUITE_END()

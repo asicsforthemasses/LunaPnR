@@ -141,7 +141,7 @@ std::optional<ChipDB::Size64> GlobalRouter::Router::determineGridCellSize(const 
     return ChipDB::Size64{w,h};
 }
 
-bool GlobalRouter::Router::routeSegment(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2)
+bool GlobalRouter::Router::routeTwoPointRoute(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2)
 {
     if (!m_grid)
     {
@@ -397,11 +397,6 @@ std::optional<GlobalRouter::PathCostType> GlobalRouter::Router::calcGridCostDire
     return cost + from.m_pathCost + std::max(to.manhattanDistance(destination) - borderSlack, (int64_t)0);
 }
 
-bool GlobalRouter::Router::route(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2)
-{
-    return routeSegment(p1, p2);
-}
-
 GlobalRouter::Router::NetRouteResult GlobalRouter::Router::routeNet(const std::vector<ChipDB::Coord64> &netNodes, const std::string &netName)
 {
     NetRouteResult invalid;
@@ -419,6 +414,7 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::routeNet(const std::v
         return invalid;        
     }
 
+    NetRouteResult netRouteResult;
     m_grid->clearAllFlagsAndResetCost();
     for(auto const& treeNode : tree)
     {
@@ -426,13 +422,19 @@ GlobalRouter::Router::NetRouteResult GlobalRouter::Router::routeNet(const std::v
         for(auto const& edge : treeNode.m_edges)
         {
             auto p2 = edge.m_pos;
-            auto result = routeSegment(p1,p2);
+            auto result = routeTwoPointRoute(p1,p2);
+
+            //FIXME: we should extract the segment here
+            //       and not route all the segments first.
+            
             if (!result) 
             {
                 Logging::doLog(Logging::LogType::ERROR,"GlobalRouter::Router::routeNet could not complete route %s (%lu nodes)\n", 
                     netName.c_str(), netNodes.size());
                 return invalid;
             }
+
+            //auto segment = extractSegment(p1,p2);
         }
     }
 

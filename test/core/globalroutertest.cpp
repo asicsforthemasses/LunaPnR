@@ -13,6 +13,27 @@
 #include <algorithm>
 #include <boost/test/unit_test.hpp>
 
+/** expose private methods of the LunaCore::GlobalRouter::Router to make things testable */
+class TestableRouter : public LunaCore::GlobalRouter::Router
+{
+public:
+
+    NetRouteResult generateSegmentTreeAndUpdateCapacity(const ChipDB::Coord64 &start) const
+    {
+        return LunaCore::GlobalRouter::Router::generateSegmentTreeAndUpdateCapacity(start);
+    }
+
+    bool routeTwoPointRoute(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2)
+    {
+        return LunaCore::GlobalRouter::Router::routeTwoPointRoute(p1,p2);
+    }
+
+    auto& at(const ChipDB::Coord64 &pos)
+    {
+        return m_grid->at(pos);
+    }
+};
+
 BOOST_AUTO_TEST_SUITE(GlobalRouterTest)
 
 BOOST_AUTO_TEST_CASE(global_router_cell_size)
@@ -144,12 +165,12 @@ BOOST_AUTO_TEST_CASE(global_router_test_simple)
     auto logLevel = Logging::getLogLevel();
     Logging::setLogLevel(Logging::LogType::VERBOSE);
 
-    LunaCore::GlobalRouter::Router router;
+    TestableRouter router;
 
     // check for a simple vertical route
     router.createGrid(100,100,{1,1}, 100);
     BOOST_REQUIRE(router.grid() != nullptr);
-    auto result = router.route({49,0},{49,49});
+    auto result = router.routeTwoPointRoute({49,0},{49,49});
     
     BOOST_CHECK(result);
 
@@ -160,7 +181,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_simple)
 
     // check that a second (horizontal) route will stop
     // early at the nearest target found.
-    result = router.route({0,49},{99,49});
+    result = router.routeTwoPointRoute({0,49},{99,49});
     BOOST_CHECK(result);
 
     auto route2bm = router.grid()->generateBitmap();
@@ -176,7 +197,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_simple)
     router.setBlockage({49,10});
     router.setBlockage({48,10});
 
-    result = router.route({49,0},{49,49});
+    result = router.routeTwoPointRoute({49,0},{49,49});
     BOOST_CHECK(result);
 
     auto route3bm = router.grid()->generateBitmap();
@@ -204,7 +225,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex)
     auto logLevel = Logging::getLogLevel();
     Logging::setLogLevel(Logging::LogType::VERBOSE);
 
-    LunaCore::GlobalRouter::Router router;
+    TestableRouter router;
     router.createGrid(1200,1200,{250,250}, 100);
     BOOST_REQUIRE(router.grid() != nullptr);
 
@@ -219,7 +240,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex)
         for(auto const& edge : treeNode.m_edges)
         {
             auto p2 = edge.m_pos;
-            auto result = router.route(p1,p2);
+            auto result = router.routeTwoPointRoute(p1,p2);
             BOOST_CHECK(result);
         }
         std::cout << "*" << std::flush;
@@ -364,5 +385,28 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex2)
     
     
 }
+
+
+BOOST_AUTO_TEST_CASE(global_router_parallel_routes)
+{
+    std::cout << "--== CHECK GLOBAL ROUTER (parallel routes) ==--\n";
+    
+    TestableRouter router;
+    router.createGrid(100,100,{1,1}, 100);
+    BOOST_REQUIRE(router.grid() != nullptr);
+
+    // create two parallel routes
+    for(int x=25; x<75; x++)
+    {
+        router.at({x,50}).setMark();
+        router.at({x,51}).setMark();
+    }
+
+    auto tree = router.generateSegmentTreeAndUpdateCapacity({25,50});
+
+    std::cout << "Tree has " << tree.segments().size() << " segments\n";
+    BOOST_CHECK(tree.segments().size() == 3);
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()
