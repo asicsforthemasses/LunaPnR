@@ -122,6 +122,7 @@ add_library(lunacore
     globalroute/prim.cpp
     globalroute/grid.cpp
     globalroute/wavefront.cpp
+    cts/cts.cpp
     ../version/version.cpp
     ${PLATFORMSRC}
     )
