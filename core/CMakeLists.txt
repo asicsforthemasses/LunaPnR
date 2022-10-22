@@ -90,6 +90,9 @@ add_library(lunacore
     import/lef/lefparser.cpp
     import/lef/lefreaderimpl.cpp
     import/lef/lefreader.cpp
+    import/def/defparser.cpp
+    import/def/defreaderimpl.cpp
+    import/def/defreader.cpp    
     import/verilog/veriloglexer.cpp
     import/verilog/verilogparser.cpp
     import/verilog/verilogreader.cpp

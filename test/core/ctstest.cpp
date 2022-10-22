@@ -35,8 +35,10 @@ BOOST_AUTO_TEST_CASE(check_cts)
     BOOST_REQUIRE(netlist);
 
     BOOST_CHECK(LunaCore::CTS::doStuff("clk_doesnt_exist", *netlist) == false);
-    BOOST_CHECK(LunaCore::CTS::doStuff("clk", *netlist));
+    BOOST_CHECK(LunaCore::CTS::doStuff("clk", *netlist) == false);  // fails because cells have not been placed
 
+
+    
 
 #if 0
     // iterate over all the cells that receive a clock
