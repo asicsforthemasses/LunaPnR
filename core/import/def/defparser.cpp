@@ -884,7 +884,7 @@ std::optional<ChipDB::Coord64> Parser::parsePoint()
     {
         try
         {
-            pos.m_x = std::stold(yNumStr);
+            pos.m_y = std::stold(yNumStr);
         }
         catch(const std::invalid_argument&)
         {

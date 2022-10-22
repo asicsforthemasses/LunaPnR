@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include <memory>
 #include "defparser.h"
 #include "common/dbtypes.h"
 #include "design/design.h"
@@ -26,6 +27,8 @@ public:
     void onEndParse() override;
 
 protected:
+    std::shared_ptr<ChipDB::Module>     m_module;       ///< current module being processed
+    std::shared_ptr<ChipDB::Instance>   m_instance;     ///< current instance being processed
     Design     &m_design;
 };
 
