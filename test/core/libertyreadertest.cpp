@@ -19,7 +19,7 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty)
     std::cout << "--== LIBERTY READER ==--\n";
     
     std::ifstream libertyfile("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib");
-    BOOST_CHECK(libertyfile.good());
+    BOOST_REQUIRE(libertyfile.good());
 
     ChipDB::Design design;
     BOOST_CHECK(ChipDB::Liberty::Reader::load(design, libertyfile));
@@ -65,12 +65,7 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty2)
     std::cout << "--== LIBERTY READER NANGATE==--\n";
     
     std::ifstream libertyfile("test/files/nangate/lpocl_functional.lib");
-    BOOST_CHECK(libertyfile.good());
-
-    if (!libertyfile.good())
-    {
-        std::cout << "  !! skipping test: liberty file not present!\n";
-    }
+    BOOST_REQUIRE(libertyfile.good());
 
     ChipDB::Design design;
     BOOST_CHECK(ChipDB::Liberty::Reader::load(design, libertyfile));
@@ -91,12 +86,7 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty3)
     std::cout << "--== LIBERTY READER NANGATE 2==--\n";
     
     std::ifstream libertyfile("test/files/nangate/ocl_functional.lib");
-    BOOST_CHECK(libertyfile.good());
-
-    if (!libertyfile.good())
-    {
-        std::cout << "  !! skipping test: liberty file not present!\n";
-    }
+    BOOST_REQUIRE(libertyfile.good());
 
     ChipDB::Design design;
     BOOST_CHECK(ChipDB::Liberty::Reader::load(design, libertyfile));
@@ -112,5 +102,32 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty3)
 #endif
 }
 
+BOOST_AUTO_TEST_CASE(can_read_Liberty4)
+{
+    std::cout << "--== LIBERTY READER SKY130 ==--\n";
+    
+    std::ifstream libertyfile("test/files/sky130/sky130_fd_sc_hd__tt_025C_1v80.lib");
+    BOOST_REQUIRE(libertyfile.good());
+
+    ChipDB::Design design;
+    BOOST_CHECK(ChipDB::Liberty::Reader::load(design, libertyfile));
+
+    std::cout << "  Found " << design.m_cellLib->size() << " cells:\n";
+    BOOST_CHECK(design.m_cellLib->size() == 138);
+}
+
+BOOST_AUTO_TEST_CASE(can_read_Liberty5)
+{
+    std::cout << "--== LIBERTY READER SKY130 2 ==--\n";
+    
+    std::ifstream libertyfile("test/files/sky130/sky130_fd_sc_hd__tt_100C_1v80.lib");
+    BOOST_REQUIRE(libertyfile.good());
+
+    ChipDB::Design design;
+    BOOST_CHECK(ChipDB::Liberty::Reader::load(design, libertyfile));
+
+    std::cout << "  Found " << design.m_cellLib->size() << " cells:\n";
+    BOOST_CHECK(design.m_cellLib->size() == 138);
+}
 
 BOOST_AUTO_TEST_SUITE_END()

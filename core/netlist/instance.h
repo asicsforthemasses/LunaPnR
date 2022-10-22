@@ -216,6 +216,12 @@ public:
         return ConnectionIterators(this);
     }
 
+    /** returns true if this is a CORE filler cell */
+    [[nodiscard]] bool isCoreFiller() const noexcept;
+
+    /** returns true if this is a CORE decap cell */
+    [[nodiscard]] bool isCoreDecap() const noexcept;
+
     Coord64         m_pos{0,0};                                     ///< lower-left position of the instance
     Orientation     m_orientation{Orientation::R0};                 ///< orientation of the cell instance
     PlacementInfo   m_placementInfo{PlacementInfo::UNPLACED};       ///< placement status

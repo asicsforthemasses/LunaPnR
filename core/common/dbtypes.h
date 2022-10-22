@@ -497,6 +497,7 @@ namespace ChipDB
         INOUT,         ///< PAD subtype
         POWER,         ///< PAD subtype
         SPACER,        ///< PAD or CORE subtype
+        DECAP,         ///< CORE subtype (unique to LunaPnR)
         AREAIO,        ///< PAD subtype
         FEEDTHRU,      ///< CORE subtype
         TIEHIGH,       ///< CORE subtype

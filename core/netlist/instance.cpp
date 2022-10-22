@@ -136,6 +136,22 @@ size_t Instance::getNumberOfPins() const
     return m_cell->m_pins.size();
 }
 
+/** returns true if this is a CORE filler cell */
+bool Instance::isCoreFiller() const noexcept
+{
+    if (!m_cell) return false;
+
+    return ((m_cell->m_subclass == ChipDB::CellSubclass::SPACER) && (m_cell->m_class == ChipDB::CellClass::CORE));
+}
+
+/** returns true if this is a CORE decap cell */
+bool Instance::isCoreDecap() const noexcept
+{
+    if (!m_cell) return false;
+
+    return ((m_cell->m_subclass == ChipDB::CellSubclass::DECAP) && (m_cell->m_class == ChipDB::CellClass::CORE));
+}
+
 #if 0
 // **********************************************************************
 //  PinInstance implementation

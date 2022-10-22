@@ -6,7 +6,8 @@
 #include "common/logging.h"
 #include "defwriter.h"
 
-bool LunaCore::DEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod)
+bool LunaCore::DEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod, 
+    const WriterOptions &options)
 {
     auto writer = std::make_unique<LunaCore::DEF::Private::WriterImpl>(os);
 
@@ -16,9 +17,23 @@ bool LunaCore::DEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Module
         return false;
     }
 
+    std::size_t skippedFillers = 0;
+    std::size_t skippedDecap   = 0;
     writer->m_designName = mod->name();
     for(auto ins : mod->m_netlist->m_instances)
     {
+        if ((!options.exportFillers) && (ins->isCoreFiller()))
+        {
+            skippedFillers++;
+            continue;
+        }
+
+        if ((!options.exportDecap) && (ins->isCoreDecap()))
+        {
+            skippedDecap++;
+            continue;
+        }
+
         if (!writer->write(ins.ptr()))
         {
             Logging::doLog(Logging::LogType::ERROR,"DEF writer: failed to write file\n");
@@ -26,7 +41,16 @@ bool LunaCore::DEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Module
         }
     }
 
+    Logging::doLog(Logging::LogType::VERBOSE, "DEF writer: skipped %ul filler cells and %ul decap cells",
+        skippedFillers, skippedDecap);
+
     return true;
+}
+
+bool LunaCore::DEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod)
+{
+    WriterOptions options;
+    return write(os, mod, options);
 }
 
 LunaCore::DEF::Private::WriterImpl::WriterImpl(std::ostream &os) : m_os(os)
@@ -64,7 +88,7 @@ ChipDB::Coord64 LunaCore::DEF::Private::WriterImpl::toDEFCoordinates(const ChipD
         dbunits = 100;
     }
 
-    return ChipDB::Coord64(pos.m_x * dbunits / 1000, pos.m_y * dbunits / 1000);
+    return {pos.m_x * dbunits / 1000, pos.m_y * dbunits / 1000};
 }
 
 bool LunaCore::DEF::Private::WriterImpl::write(const std::shared_ptr<ChipDB::Instance> instance)
@@ -127,7 +151,9 @@ bool LunaCore::DEF::Private::WriterImpl::write(const std::shared_ptr<ChipDB::Ins
     }
     else
     {
-        // what to do when cells are unplaced?
+        m_ss << "  - " << instance->name() << " " << instance->getArchetypeName() << "\n";
+        m_ss << "    + UNPLACED ;\n";
+        m_cellCount++;
     }
 
     return true;
