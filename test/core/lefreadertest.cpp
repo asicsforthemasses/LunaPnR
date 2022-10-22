@@ -127,7 +127,45 @@ BOOST_AUTO_TEST_CASE(can_read_techlef2)
     BOOST_CHECK(design.m_techLib->sites().at(0)->m_symmetry.m_flags == ChipDB::SymmetryFlags::SYM_Y);
     BOOST_CHECK(design.m_techLib->sites().at(0)->m_class == ChipDB::SiteClass::CORE);
     BOOST_CHECK((design.m_techLib->sites().at(0)->m_size == ChipDB::Coord64{190,1400}));
+}
 
+BOOST_AUTO_TEST_CASE(can_read_lef3)
+{
+    std::cout << "--== LEF READER SKY130 TECH+CELL ==--\n";
+    
+    std::ifstream leffile("test/files/sky130/sky130_fd_sc_hd.tlef");
+    BOOST_REQUIRE(leffile.good());
+
+    std::ifstream leffile2("test/files/sky130/sky130_fd_sc_hd.lef");
+    BOOST_REQUIRE(leffile2.good());
+
+    ChipDB::Design design;
+    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
+    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile2));
+
+    std::cout << "  Found " << design.m_techLib->getNumberOfLayers() << " layers:\n";
+    BOOST_CHECK(design.m_techLib->getNumberOfLayers() == 13);
+
+    for(auto const layerKeyObjPair : design.m_techLib->layers())
+    {
+        std::cout << "    " << layerKeyObjPair->name() << "\n";
+    }
+
+    std::cout << "  Found " << design.m_techLib->getNumberOfSites() << " sites:\n";
+    BOOST_CHECK(design.m_techLib->getNumberOfSites() == 2);
+    for(auto const site : design.m_techLib->sites())
+    {
+        std::cout << "    " << site->name() << "\n";
+    }
+
+    // check site parameters
+    BOOST_CHECK(design.m_techLib->sites().at(0)->name() == "unithd");
+    BOOST_CHECK(design.m_techLib->sites().at(0)->m_symmetry.m_flags == ChipDB::SymmetryFlags::SYM_Y);
+    BOOST_CHECK(design.m_techLib->sites().at(0)->m_class == ChipDB::SiteClass::CORE);
+    BOOST_CHECK((design.m_techLib->sites().at(0)->m_size == ChipDB::Coord64{460, 2720}));
+
+    std::cout << "  Found " << design.m_cellLib->size() << " cells\n";
+    BOOST_CHECK(design.m_cellLib->size() == 441);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
