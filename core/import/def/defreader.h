@@ -14,6 +14,11 @@ namespace ChipDB::DEF
 class Reader
 {
 public:
+    /** loads placement information from the DEF file into the database.
+     *  The database needs to contain a valid netlist and all
+     *  cells/instances referenced in the DEF file must
+     *  exist.
+    */
     static bool load(Design &design, std::istream &source);
 };
 

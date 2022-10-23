@@ -9,7 +9,9 @@ build
 test/files/iitcells_lib*
 test/files/iit_stdcells
 test/files/nangate
+test/files/sky130
 test/files/results
 version/version.cpp
 noshare
+attic
 _packages
