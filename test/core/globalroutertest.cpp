@@ -371,6 +371,16 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex2)
         }
     }
 
+    // check that all net node positions have been marked
+    for(auto const& node : netNodes)
+    {
+        auto gcoord = replicaGrid.toGridCoord(node);
+        BOOST_CHECK_MESSAGE(replicaGrid.at(gcoord).isMarked(), "gcoord = " << gcoord.m_x << " " << gcoord.m_y << "  coord = " << node.m_x << " " << node.m_y);
+
+        auto gcoord2 = router.grid()->toGridCoord(node);
+        BOOST_CHECK_MESSAGE(router.grid()->at(gcoord2).isMarked(), "gcoord2 = " << gcoord2.m_x << " " << gcoord2.m_y << "  coord2 = " << node.m_x << " " << node.m_y);
+    }
+
     auto bitmap = replicaGrid.generateBitmap();
     LunaCore::PPM::write("test/files/results/complexroute2.ppm", bitmap);
 
@@ -387,7 +397,10 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex2)
         auto diffBm = Helpers::createDiffBitmap(bitmap, checkBm.value());
         BOOST_REQUIRE(diffBm);
 
-        LunaCore::PPM::write("test/files/results/complexroute2_diff.ppm", diffBm.value());
+        if (!LunaCore::PPM::write("test/files/results/complexroute2_diff.ppm", diffBm.value()))
+        {
+            std::cerr << "Error writing bitmap file test/files/results/complexroute2_diff.ppm\n";
+        }
     }
 }
 

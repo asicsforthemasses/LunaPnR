@@ -50,7 +50,7 @@ struct GCell
     constexpr bool isBlocked() const {return (m_flags & blockedFlag) != 0; }
     constexpr bool isMarked() const {return (m_flags & markedFlag) != 0; }
     constexpr bool isValid() const {return (m_flags & invalidFlag) == 0; }
-    constexpr bool isExtracted() const {return (m_flags & extractedFlag) == 0; }
+    constexpr bool isExtracted() const {return (m_flags & extractedFlag) != 0; }
 
     constexpr void resetFlags()     { m_flags = 0; }
     constexpr void setReached()     { m_flags |= reachedFlag; }

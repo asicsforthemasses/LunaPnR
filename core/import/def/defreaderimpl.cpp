@@ -45,13 +45,13 @@ void ReaderImpl::onDesign(const std::string &designName)
 
 void ReaderImpl::onEndDesign(const std::string &designName)
 {
-    Logging::doLog(Logging::LogType::INFO, "DEFReader: end design %s\n", designName.c_str());
+    Logging::doLog(Logging::LogType::VERBOSE, "DEFReader: end design %s\n", designName.c_str());
     m_module.reset();
 }
 
 void ReaderImpl::onComponent(const std::string &insName, const std::string &archetype)
 {
-    Logging::doLog(Logging::LogType::INFO, "DEFReader: ins %s archetype %s\n", insName.c_str(), archetype.c_str());
+    Logging::doLog(Logging::LogType::VERBOSE, "DEFReader: ins %s archetype %s\n", insName.c_str(), archetype.c_str());
     
     if (!m_module) return;    
     

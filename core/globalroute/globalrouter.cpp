@@ -271,10 +271,8 @@ std::optional<LunaCore::GlobalRouter::SegmentList> GlobalRouter::Router::routeTw
                     curSegment = segments.createNewSegment(backtrackPos, 
                         predecessorToDirection(gridCell.getPredecessor()), curSegment);
                 }
-                else
-                {
-                    curSegment->m_length++;
-                }
+
+                curSegment->m_length++;
 
                 // mark all the cells on the new path
                 m_grid->at(backtrackPos).setMark();
@@ -468,6 +466,8 @@ std::optional<LunaCore::GlobalRouter::SegmentList> GlobalRouter::Router::routeNe
         }
     }
 
+    updateCapacity(allSegments);
+
     return std::move(allSegments);
 }
 
@@ -496,14 +496,19 @@ void GlobalRouter::Router::updateCapacity(const SegmentList &segments) const
     {
         assert(seg != nullptr);
 
-        auto gridCoord = m_grid->toGridCoord(seg->m_start);
+        //auto gridCoord = m_grid->toGridCoord(seg->m_start);
+        auto gridCoord = seg->m_start;
 
         auto cellCount = seg->m_length;
         while(cellCount > 0)
         {
             if (!m_grid->isValidGridCoord(gridCoord))
             {
-                Logging::doLog(Logging::LogType::ERROR, "GlobalRouter::Router::updateCapacity point is not within the grid!\n");
+                std::stringstream ss;
+                ss << "GlobalRouter::Router::updateCapacity point " << gridCoord << " is not within the grid!";
+                ss << "  segment start: " << seg->m_start << " len: " << seg->m_length << "\n";
+                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                return;
             }
 
             // check if already visited..
