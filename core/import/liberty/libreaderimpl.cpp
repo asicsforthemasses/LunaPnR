@@ -191,14 +191,6 @@ void ReaderImpl::onSimpleAttribute(const std::string &name, const std::string &v
             return;
         }
 
-        /*
-
-            is_decap_cell : true | false;  
-            is_filler_cell : true | false;  
-            is_tap_cell : true | false;
-
-            */
-
         if (name == "cell_leakage_power")
         {
             m_curCell->m_leakagePower = std::stof(value) * m_leakagePowerUnit;
@@ -213,6 +205,19 @@ void ReaderImpl::onSimpleAttribute(const std::string &name, const std::string &v
                 m_curCell->m_area = std::stod(value);
             }
         }
+        else if (name == "is_decap_cell")
+        {
+            m_curCell->m_class    = ChipDB::CellClass::CORE;
+            m_curCell->m_subclass = ChipDB::CellSubclass::DECAP;
+        }
+        else if (name == "is_filler_cell")
+        {
+            m_curCell->m_subclass = ChipDB::CellSubclass::SPACER;
+        }        
+        else if (name == "is_tap_cell")
+        {
+            m_curCell->m_subclass = ChipDB::CellSubclass::WELLTAP;
+        }                
     }
     break;
     default:

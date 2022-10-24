@@ -4,7 +4,8 @@ SPDX-License-Identifier: GPL-3.0-only
 -->
 # Luna Place and Route
 
-[![Build Status](https://www.travis-ci.com/asicsforthemasses/LunaPnR.svg?branch=stable)](https://www.travis-ci.com/asicsforthemasses/LunaPnR)
+[![Linux Build Status](https://www.travis-ci.com/asicsforthemasses/LunaPnR.svg?branch=stable)](https://www.travis-ci.com/asicsforthemasses/LunaPnR)
+[![Windows Build status](https://ci.appveyor.com/api/projects/status/4nyinpf1ydmoeggp/branch/stable?svg=true)](https://ci.appveyor.com/project/asicsforthemasses/lunapnr/branch/stable)
 
 For more information, please visit the [homepage](https://www.asicsforthemasses.com "Luna PnR homepage").
 
@@ -18,6 +19,9 @@ For more information, please visit the [homepage](https://www.asicsforthemasses.
 * Tech browser works.
 * Has layer rendering customization.
 * Reads [flat Verilog netlists](https://github.com/asicsforthemasses/LunaPnR/tree/main/test/files/verilog) (no busses - expand them, YMMV).
+* Uses/requires external OpenSTA to perform static timing analysis.
+* Has a global router based on directed/depth-first search.
+* Has an integrated Python 3 based console.
 
 LunaPnR can read the [SKY130](https://github.com/asicsforthemasses/sky130_testing), OSU 180nm, Nangate/FreePDK 45nm cell libraries.
 
@@ -43,9 +47,11 @@ Supported distributions are:
 * Ubuntu 22.04 LTS.
 
 ## Building on Windows
-* open the Developer Command Prompt for VS 2019.
+* open the Developer Command Prompt for VS 2022.
 * make sure to set the BOOST_ROOT environment variable to the location of the BOOST libraries.
 * run bootstrap_release.bat in the top level project dir.
+* enter the build directory and type 'ninja'.
+* LunaPnR application will be available in ./gui/lunapnr
 
 <br/><br/>
 ## Sponsors

@@ -50,6 +50,7 @@ struct GCell
     constexpr bool isBlocked() const {return (m_flags & blockedFlag) != 0; }
     constexpr bool isMarked() const {return (m_flags & markedFlag) != 0; }
     constexpr bool isValid() const {return (m_flags & invalidFlag) == 0; }
+    constexpr bool isExtracted() const {return (m_flags & extractedFlag) != 0; }
 
     constexpr void resetFlags()     { m_flags = 0; }
     constexpr void setReached()     { m_flags |= reachedFlag; }
@@ -64,6 +65,8 @@ struct GCell
     constexpr void clearTerminal()  { m_flags &= ~markedFlag; }
     constexpr void setBlocked()     { m_flags |= blockedFlag; }
     constexpr void clearBlocked()   { m_flags &= ~blockedFlag; }
+    constexpr void setExtracted()   { m_flags |= extractedFlag; }
+    constexpr void clearExtraced()  { m_flags &= ~extractedFlag; }
 
     constexpr void setInvalid()      { m_flags |= invalidFlag; }
     constexpr void clearInvalid()    { m_flags &= ~invalidFlag; }
@@ -75,6 +78,7 @@ struct GCell
     static constexpr uint16_t blockedFlag   = 16;
     static constexpr uint16_t markedFlag    = 32;
     static constexpr uint16_t terminalFlag  = 64;
+    static constexpr uint16_t extractedFlag = 128;
 };
 
 /** Global router grid */

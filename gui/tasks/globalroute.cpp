@@ -178,7 +178,7 @@ void Tasks::GlobalRoute::execute(GUI::Database &database, ProgressCallback callb
         }
 
         auto segList = grouter.routeNet(netNodes, net->name());
-        if (!segList.m_ok)
+        if (!segList)
         {   
             auto debugBitmap = grouter.grid()->generateCapacityBitmap();
             LunaCore::PPM::write("globalroutegrid_fail.ppm", debugBitmap);

@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
+#include "version.h"
 #include "aboutdialog.h"
 #include <QBoxLayout>
 #include <QPushButton>
@@ -30,13 +31,13 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
         EIGEN_MINOR_VERSION);
 
     // build information string    
-    info += "<h2>" LUNAVERSIONSTRING "</h2>";
+    info += "<h2>" + QString(LUNAVERSIONSTRING) + "</h2>";
     info += "<h3>License: GPL v3</h3>";
-    info += "Compiled on " __DATE__ " using " COMPILERVERSIONSTRING "<br>";
+    info += "Compiled on " __DATE__ " using " + QString(COMPILERVERSIONSTRING) + "<br>";
     info += "Additional libraries:";
     info += "<ul>";
-    info += "<li>Qt version     " QT_VERSION_STR "</li>";
-    info += "<li>Python version " PY_VERSION "</li>";
+    info += "<li>Qt version     " + QString(QT_VERSION_STR) + "</li>";
+    info += "<li>Python version " + QString(PY_VERSION) + "</li>";
     info += "<li>Eigen3 version " + eigenVersion + "</li>";
     info += "</ul>";
 

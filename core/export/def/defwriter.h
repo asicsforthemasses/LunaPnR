@@ -13,6 +13,17 @@
 
 namespace LunaCore::DEF
 {
+    struct WriterOptions
+    {
+        bool exportFillers{true};   ///< if true, it exports filler cells
+        bool exportDecap{true};     ///< if true, it exports decap cells
+    };
+
+    /** write a module as a DEF file - exports depend on the options. */
+    bool write(std::ostream &os, const std::shared_ptr<ChipDB::Module> module,
+        const WriterOptions &options);
+
+    /** write a module as a DEF file - exports everything. */
     bool write(std::ostream &os, const std::shared_ptr<ChipDB::Module> module);
 };
 

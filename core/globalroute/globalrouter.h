@@ -39,37 +39,19 @@ public:
     /** set a blockage at Chip coordinates p. The underlying grid cell will be set to blocked. */
     void setBlockage(const ChipDB::Coord64 &p);
 
-    /** route two points - mainly for testing. */
-    [[nodiscard]] bool route(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2);
-
-    struct NetRouteResult
-    {
-        SegmentList m_segList;      ///< list of segments representing the routed net.
-        bool        m_ok{false};
-
-        [[nodiscard]] auto const& segments() const noexcept
-        {
-            return m_segList.m_segments;
-        }
-
-    };
-
     /** route a complete net */
-    [[nodiscard]] NetRouteResult routeNet(const std::vector<ChipDB::Coord64> &netNodes,
+    [[nodiscard]] std::optional<SegmentList> routeNet(const std::vector<ChipDB::Coord64> &netNodes,
         const std::string &netName);
 
     /** clear the grid for a new route, capacity values remain in tact */
     void clearGridForNewRoute();
 
 protected:
-    /** route a single track segment from point p1 to point p2 
-     *  and update the grid capacity.
-    */
-    [[nodiscard]] bool routeSegment(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2);
+    /** route a two-point connection between p1 and p2. Used cells are marked so they can be extracted later. */
+    [[nodiscard]] std::optional<SegmentList> routeTwoPointRoute(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2);
 
-    /** follow the mark path in the bitmap and recover the routing.
-    */
-    NetRouteResult generateSegmentTreeAndUpdateCapacity(const ChipDB::Coord64 &start) const;
+    /** follow the mark path in the bitmap and recover the routing. */
+    void updateCapacity(const SegmentList &segments) const;
 
     bool addWavefrontCell(
         Wavefront &wavefront,

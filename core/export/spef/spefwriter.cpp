@@ -5,6 +5,7 @@
 #include <fstream>
 #include <chrono>
 
+#include "version.h"
 #include "common/logging.h"
 #include "design/design.h"
 #include "spefwriter.h"
@@ -227,8 +228,12 @@ bool LunaCore::SPEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Modul
                 // for now we take the OSU/TSMC180 value of 0.08 ohm per square
                 // each wire is 300nm wide, so a length of 300 nm is 0.08 ohms
                 const float RperSqInOhms = 0.08f;
-                const float trackWidth   = 300.0f;
+                const float trackWidth   = 300.0f;  // in nm.
 
+                const float area_um2 = (trackWidth/1000.0f) * (d/1000.0f);
+                const float cap_pf = (3.8e-17 * area_um2) / 1.0e-12;
+
+                os << "// capacitance in pf: " << cap_pf << "\n";
                 os << resCounter << " " << srcName << " " << dstName << " ";
                 os << (RperSqInOhms*static_cast<float>(d/trackWidth)) << "\n";
                 resCounter++;

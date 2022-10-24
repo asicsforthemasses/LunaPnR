@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <cassert>
+#include "version.h"
 #include "common/logging.h"
 
 #include "celllib/celllib.h"

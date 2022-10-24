@@ -12,7 +12,7 @@ namespace LunaCore::PPM
     /** color tripple stored in a 4-byte structure */
     struct RGB
     {
-        uint8_t r{0},g{0},b{0}, dummy{0};
+        uint8_t r{0},g{0},b{0},dummy{0};
 
         [[nodiscard]] constexpr bool isBlack() const noexcept
         {
@@ -29,7 +29,13 @@ namespace LunaCore::PPM
             return (r!=rhs.r) || (g!=rhs.g) || (b!=rhs.b);
         }
 
-    } __attribute__((packed));
+    };
+
+    /** function to check if the RGB is packed into one 4-bytes word */
+    inline void checkPacking()
+    {
+        static_assert(sizeof(RGB) == 4);
+    };
 
     /** interpolate two colors. frac = 0.0 .. 1.0 */
     constexpr RGB interpolate(const RGB &col1, const RGB &col2, float frac)

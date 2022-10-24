@@ -105,14 +105,15 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
         info("  succeeded!\n");
     }
 
-#if 0
-    bool ok = true;
-    if (!ok)
+    // temporarily save the placement as a DEF file
+    std::ofstream deffile("placement.def");
+    LunaCore::DEF::WriterOptions options;
+    options.exportDecap   = false;
+    options.exportFillers = false;
+    if (LunaCore::DEF::write(deffile, topModule, options))
     {
-        error("Placement failed!\n");
-        return;
+        info("  DEF file written.\n");
     }
-#endif
 
     done();
 }
