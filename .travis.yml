@@ -4,31 +4,18 @@
 
 dist: jammy
 language: cpp
+compiler: gcc
 
 branches:
   only:
   - stable
 
-matrix:
-  include:
-    - os: linux
-      compiler: gcc
-      addons:
-        apt:
-          sources: ['ubuntu-toolchain-r-test']
-          packages: ['g++11']
-      env: COMPILER=g++-11
-    - os: linux
-      compiler: gcc
-      addons:
-        apt:
-          sources: ['ubuntu-toolchain-r-test']
-          packages: ['g++12']
-      env: COMPILER=g++-12
-
 addons:
   apt:
+    sources: 
+      - ubuntu-toolchain-r/test
     packages:
+      - gcc-12
       - wget
       - cmake
       - build-essential
