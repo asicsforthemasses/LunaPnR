@@ -11,14 +11,14 @@ branches:
 
 matrix:
   include:
-    - os:linux
+    - os: linux
       compiler: gcc
       addons:
         apt:
           sources: ['ubuntu-toolchain-r-test']
           packages: ['g++11']
       env: COMPILER=g++-11
-    - os:linux
+    - os: linux
       compiler: gcc
       addons:
         apt:
