@@ -2,6 +2,47 @@
 #include "cts.h"
 #include "cts_private.h"
 
+struct 
+{
+    constexpr bool operator()(const LunaCore::CTS::Node &n1, const LunaCore::CTS::Node &n2) const
+    {
+        return n1.m_pos.m_x < n2.m_pos.m_x;
+    }
+} sortX;
+
+struct 
+{
+    constexpr bool operator()(const LunaCore::CTS::Node &n1, const LunaCore::CTS::Node &n2) const
+    {
+        return n1.m_pos.m_y < n2.m_pos.m_y;
+    }
+} sortY;
+
+
+void subdivide(std::vector<LunaCore::CTS::Node> &nodes, bool xaxis)
+{
+    if (nodes.size() <= 4) return;
+
+    std::vector<LunaCore::CTS::Node> group1;
+    std::vector<LunaCore::CTS::Node> group2;
+
+    group1.reserve(1 + nodes.size()/2);
+    group2.reserve(1 + nodes.size()/2);
+
+    if (xaxis)
+    {
+        std::sort(nodes.begin(), nodes.end(), sortX);
+    }
+    else
+    {
+        std::sort(nodes.begin(), nodes.end(), sortY);
+    }
+
+    nodes.clear();
+    subdivide(group1, !xaxis);
+    subdivide(group2, !xaxis);
+}
+
 bool LunaCore::CTS::doStuff(const std::string &clockNetName, ChipDB::Netlist &netlist)
 {
     auto clockNet = netlist.lookupNet(clockNetName);
