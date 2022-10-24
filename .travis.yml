@@ -18,7 +18,6 @@ matrix:
           sources: ['ubuntu-toolchain-r-test']
           packages: ['g++11']
       env: COMPILER=g++-11
-
     - os:linux
       compiler: gcc
       addons:
