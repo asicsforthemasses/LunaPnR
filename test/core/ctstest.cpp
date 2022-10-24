@@ -34,41 +34,8 @@ BOOST_AUTO_TEST_CASE(check_cts)
     auto netlist = mod->m_netlist;
     BOOST_REQUIRE(netlist);
 
-    BOOST_CHECK(LunaCore::CTS::doStuff("clk_doesnt_exist", *netlist) == false);
-    BOOST_CHECK(LunaCore::CTS::doStuff("clk", *netlist) == false);  // fails because cells have not been placed
-
-
-    
-
-#if 0
-    // iterate over all the cells that receive a clock
-    std::size_t sinks = 0;
-    std::size_t sources = 0;
-
-    std::vector<ChipDB::ObjectKey> m_sinks;
-    std::vector<ChipDB::ObjectKey> m_sources;
-    m_sinks.reserve(clkNet->numberOfConnections());
-
-    for(auto const& conn : *clkNet)
-    {
-        auto ins = netlist->lookupInstance(conn.m_instanceKey);
-        BOOST_REQUIRE(ins);
-
-        auto pin = ins->getPin(conn.m_pinKey);
-        std::cout << "  Ins: " << ins->name() << "(" << ins->getArchetypeName() << "):" << pin.name() << "\n";
-
-        if (pin.m_pinInfo->isInput())
-        {
-            sinks++;
-            m_sinks.push_back(conn.m_instanceKey);
-        }
-        if (pin.m_pinInfo->isOutput())
-        {
-            sources++;
-        }
-    }
-    std::cout << "  clk net has " << sinks << " sinks and " << sources << " sources\n";
-#endif
+    BOOST_CHECK(!LunaCore::CTS::doStuff("clk_doesnt_exist", *netlist));
+    BOOST_CHECK(!LunaCore::CTS::doStuff("clk", *netlist));  // fails because cells have not been placed
 
 }
 
