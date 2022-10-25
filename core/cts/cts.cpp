@@ -1,6 +1,24 @@
+#include <cassert>
 #include "common/logging.h"
 #include "cts.h"
 #include "cts_private.h"
+
+using namespace LunaCore::CTS;
+
+ClockTreeNode::ClockTreeNode(ClockTreeNode* parent) : m_parent(parent)
+{
+}
+
+ClockTreeNode::~ClockTreeNode()
+{
+    for(auto childPtr : m_children)
+    {
+        if (childPtr != nullptr)
+        {
+            delete childPtr;
+        }
+    }
+}
 
 struct 
 {
@@ -19,15 +37,22 @@ struct
 } sortY;
 
 
-void subdivide(std::vector<LunaCore::CTS::Node> &nodes, bool xaxis)
+void subdivide(std::vector<LunaCore::CTS::Node> &nodes, bool xaxis, 
+    ClockTreeNode *parent)
 {
-    if (nodes.size() <= 4) return;
+    if (nodes.size() <= 4) 
+    {
+        assert(parent != nullptr);
 
-    std::vector<LunaCore::CTS::Node> group1;
-    std::vector<LunaCore::CTS::Node> group2;
+        for(auto const& node : nodes)
+        {
+            parent->addCell(node.m_insKey);
+        }
+        return;
+    }
 
-    group1.reserve(1 + nodes.size()/2);
-    group2.reserve(1 + nodes.size()/2);
+    // medianIndex is the index where the second group begins
+    auto medianIndex = nodes.size()/2;
 
     if (xaxis)
     {
@@ -38,19 +63,31 @@ void subdivide(std::vector<LunaCore::CTS::Node> &nodes, bool xaxis)
         std::sort(nodes.begin(), nodes.end(), sortY);
     }
 
+    std::vector<LunaCore::CTS::Node> group1(nodes.begin(), nodes.begin()+medianIndex);
+    std::vector<LunaCore::CTS::Node> group2(nodes.begin()+medianIndex, nodes.end());
     nodes.clear();
-    subdivide(group1, !xaxis);
-    subdivide(group2, !xaxis);
+
+    auto child1 = new ClockTreeNode(parent);
+    auto child2 = new ClockTreeNode(parent);
+
+    parent->setChild(0, child1);
+    parent->setChild(1, child2);
+
+    subdivide(group1, !xaxis, child1);
+    subdivide(group2, !xaxis, child2);
 }
 
-bool LunaCore::CTS::doStuff(const std::string &clockNetName, ChipDB::Netlist &netlist)
+std::unique_ptr<LunaCore::CTS::ClockTreeNode> LunaCore::CTS::doStuff(const std::string &clockNetName, ChipDB::Netlist &netlist)
 {
     auto clockNet = netlist.lookupNet(clockNetName);
     if (!clockNet.isValid())
     {
         Logging::doLog(Logging::LogType::ERROR, "CTS cannot find the specified clock net %s\n", clockNetName.c_str());
-        return false;
+        return nullptr;
     }
+
+    //TODO:
+    //FIXME: remove the driving cell from the list!
 
     std::vector<Node> clkNodes;
     clkNodes.reserve(clockNet->numberOfConnections());
@@ -61,13 +98,13 @@ bool LunaCore::CTS::doStuff(const std::string &clockNetName, ChipDB::Netlist &ne
         if (!ins)
         {
             Logging::doLog(Logging::LogType::ERROR, "CTS cannot find instance with key %d\n", conn.m_instanceKey);
-            return false;
+            return nullptr;
         }
 
         if (!ins->isPlaced())
         {
             Logging::doLog(Logging::LogType::ERROR, "CTS: instance %s has not been placed - aborting!\n", ins->name().c_str());
-            return false;
+            return nullptr;
         }
 
         auto &newNode = clkNodes.emplace_back();
@@ -75,5 +112,9 @@ bool LunaCore::CTS::doStuff(const std::string &clockNetName, ChipDB::Netlist &ne
         newNode.m_pos    = ins->m_pos;
     }
 
-    return true;
+    auto headNode = std::make_unique<LunaCore::CTS::ClockTreeNode>(nullptr);
+
+    subdivide(clkNodes, true, headNode.get());
+
+    return std::move(headNode);
 }

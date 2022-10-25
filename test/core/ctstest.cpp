@@ -13,63 +13,65 @@
 
 BOOST_AUTO_TEST_SUITE(CTSTest)
 
+void dumpLeaves(LunaCore::CTS::ClockTreeNode *node)
+{
+    if (node == nullptr) return;
+    if (node->isLeaf())
+    {
+        std::cout << " leaf: ";
+        for(auto const& key : node->cells())
+        {
+            std::cout << " " << key;
+        }
+        std::cout << "\n";
+    }
+    else
+    {
+        for(auto child : node->children())
+        {
+            dumpLeaves(child);
+        }        
+    }
+}
+
 BOOST_AUTO_TEST_CASE(check_cts)
 {
     std::cout << "--== CHECK CTS ==--\n";
         
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_REQUIRE(leffile.good());
+    
+    std::ifstream leffile2("test/files/iit_stdcells_extra/fake_ties018.lef");
+    BOOST_REQUIRE(leffile2.good());
 
     ChipDB::Design design;
     BOOST_REQUIRE(ChipDB::LEF::Reader::load(design, leffile));
+    BOOST_REQUIRE(ChipDB::LEF::Reader::load(design, leffile2));
 
-    std::ifstream verilogfile("test/files/verilog/picorv32.v");
+    std::ifstream verilogfile("test/files/verilog/femtorv32_quark.v");
     BOOST_REQUIRE(verilogfile.good());
 
     BOOST_REQUIRE(ChipDB::Verilog::Reader::load(design, verilogfile));
     
-    auto mod = design.m_moduleLib->lookupModule("picorv32");
+    auto mod = design.m_moduleLib->lookupModule("FemtoRV32");
     BOOST_REQUIRE(mod.isValid());
 
     auto netlist = mod->m_netlist;
     BOOST_REQUIRE(netlist);
 
-    BOOST_CHECK(LunaCore::CTS::doStuff("clk_doesnt_exist", *netlist) == false);
-    BOOST_CHECK(LunaCore::CTS::doStuff("clk", *netlist) == false);  // fails because cells have not been placed
+    BOOST_CHECK(!LunaCore::CTS::doStuff("clk_doesnt_exist", *netlist));
+    BOOST_CHECK(!LunaCore::CTS::doStuff("clk", *netlist));  // fails because cells have not been placed
 
+    // read placement of cells using DEF reader
+    std::ifstream deffile("test/files/def/femtorv32_quark.def");
+    BOOST_REQUIRE(deffile.good());
 
-    
+    BOOST_REQUIRE(ChipDB::DEF::Reader::load(design, deffile));
 
-#if 0
-    // iterate over all the cells that receive a clock
-    std::size_t sinks = 0;
-    std::size_t sources = 0;
+    auto clocktree = LunaCore::CTS::doStuff("clk", *netlist);
+    BOOST_CHECK(clocktree);  // this should _not_ fail
 
-    std::vector<ChipDB::ObjectKey> m_sinks;
-    std::vector<ChipDB::ObjectKey> m_sources;
-    m_sinks.reserve(clkNet->numberOfConnections());
-
-    for(auto const& conn : *clkNet)
-    {
-        auto ins = netlist->lookupInstance(conn.m_instanceKey);
-        BOOST_REQUIRE(ins);
-
-        auto pin = ins->getPin(conn.m_pinKey);
-        std::cout << "  Ins: " << ins->name() << "(" << ins->getArchetypeName() << "):" << pin.name() << "\n";
-
-        if (pin.m_pinInfo->isInput())
-        {
-            sinks++;
-            m_sinks.push_back(conn.m_instanceKey);
-        }
-        if (pin.m_pinInfo->isOutput())
-        {
-            sources++;
-        }
-    }
-    std::cout << "  clk net has " << sinks << " sinks and " << sources << " sources\n";
-#endif
-
+    dumpLeaves(clocktree.get());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

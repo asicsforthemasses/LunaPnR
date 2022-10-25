@@ -1,0 +1,16 @@
+
+read_verilog femtorv32_quark.v
+
+synth -top FemtoRV32
+
+dfflibmap -liberty ../../test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib
+abc -liberty ../../test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib -liberty ../../test/files/iit_stdcells_extra/fake_ties018.lib
+
+splitnets -ports
+
+# for now, we'll use fake tie cells
+hilomap -hicell TIEHI Y -locell TIELO Y
+
+opt_clean -purge
+clean
+write_verilog -noexpr femtorv32_quark_netlist.v
