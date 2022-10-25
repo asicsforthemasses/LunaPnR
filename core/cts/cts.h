@@ -39,6 +39,11 @@ public:
         m_children.at(index) = child;
     }
 
+    constexpr bool isLeaf() const noexcept
+    {
+        return (m_children[0] == nullptr) && (m_children[1] == nullptr);
+    }
+
 protected:
     ClockTreeNode* m_parent{nullptr};
     std::vector<ChipDB::ObjectKey>  m_cells;

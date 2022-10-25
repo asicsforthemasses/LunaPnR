@@ -51,9 +51,6 @@ void subdivide(std::vector<LunaCore::CTS::Node> &nodes, bool xaxis,
         return;
     }
 
-    std::vector<LunaCore::CTS::Node> group1;
-    std::vector<LunaCore::CTS::Node> group2;
-
     // medianIndex is the index where the second group begins
     auto medianIndex = nodes.size()/2;
 
@@ -66,11 +63,9 @@ void subdivide(std::vector<LunaCore::CTS::Node> &nodes, bool xaxis,
         std::sort(nodes.begin(), nodes.end(), sortY);
     }
 
-    group1.reserve(1 + medianIndex);
-    group2.reserve(1 + medianIndex);
-
-    std::copy(nodes.begin(), nodes.begin()+medianIndex, group1.begin());
-    std::copy(nodes.begin()+medianIndex, nodes.end(), group2.begin());
+    std::vector<LunaCore::CTS::Node> group1(nodes.begin(), nodes.begin()+medianIndex);
+    std::vector<LunaCore::CTS::Node> group2(nodes.begin()+medianIndex, nodes.end());
+    nodes.clear();
 
     auto child1 = new ClockTreeNode(parent);
     auto child2 = new ClockTreeNode(parent);
@@ -78,7 +73,6 @@ void subdivide(std::vector<LunaCore::CTS::Node> &nodes, bool xaxis,
     parent->setChild(0, child1);
     parent->setChild(1, child2);
 
-    nodes.clear();
     subdivide(group1, !xaxis, child1);
     subdivide(group2, !xaxis, child2);
 }
@@ -91,6 +85,9 @@ std::unique_ptr<LunaCore::CTS::ClockTreeNode> LunaCore::CTS::doStuff(const std::
         Logging::doLog(Logging::LogType::ERROR, "CTS cannot find the specified clock net %s\n", clockNetName.c_str());
         return nullptr;
     }
+
+    //TODO:
+    //FIXME: remove the driving cell from the list!
 
     std::vector<Node> clkNodes;
     clkNodes.reserve(clockNet->numberOfConnections());
