@@ -2,3 +2,5 @@
 [submodule "contrib/tinysvgpp"]
 	path = contrib/tinysvgpp
 	url = https://bitbucket.org/trcwm/tinysvgpp.git
+	branch = main
+	
