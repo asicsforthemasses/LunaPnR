@@ -28,7 +28,7 @@ For more information, please visit the [homepage](https://www.asicsforthemasses.
 LunaPnR can read the [SKY130](https://github.com/asicsforthemasses/sky130_testing), OSU 180nm, Nangate/FreePDK 45nm cell libraries.
 
 ## Build requirements
-* GCC 9.3 or higher
+* GCC (tested with version 11.3)
 * CMake 3.20 or higher
 * Ninja-build
 * Qt 5.12 or higher (qttools5-dev-tools, qtbase5-dev)
