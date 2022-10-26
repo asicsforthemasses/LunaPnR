@@ -120,7 +120,9 @@ std::vector<ChipDB::Coord64> LunaCore::Prim::loadNetNodes(const std::string &src
         ss >> x;
         ss >> y;
 
-        nodes.emplace_back(ChipDB::Coord64{x,y});
+        auto &newNode = nodes.emplace_back();
+        newNode.m_x = x;
+        newNode.m_y = y;
     }    
 
     return std::move(nodes);

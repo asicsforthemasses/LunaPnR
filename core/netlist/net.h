@@ -51,8 +51,8 @@ public:
         NetConnect(InstanceObjectKey insKey, PinObjectKey pinKey) 
             : m_instanceKey(insKey), m_pinKey(pinKey) {}
 
-        InstanceObjectKey   m_instanceKey;
-        PinObjectKey        m_pinKey;
+        InstanceObjectKey   m_instanceKey{ChipDB::ObjectNotFound};
+        PinObjectKey        m_pinKey{ChipDB::ObjectNotFound};
 
         friend constexpr bool operator==(const NetConnect &lhs, const NetConnect &rhs)
         {
