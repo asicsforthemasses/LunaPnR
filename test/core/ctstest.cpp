@@ -158,6 +158,10 @@ BOOST_AUTO_TEST_CASE(check_cts)
     std::cout << "  min segs : " << minSegs << "  max segs : " << maxSegs << "\n";
     std::cout << "  min segs index : " << minSegIndex << "  max segs index : " << maxSegIndex << "\n";
 
+    // make sure the starting points are instances
+    BOOST_CHECK(tree.value().at(minSegIndex).m_insKey != ChipDB::ObjectNotFound);
+    BOOST_CHECK(tree.value().at(maxSegIndex).m_insKey != ChipDB::ObjectNotFound);
+
     // write out the min and max routes
     TinySVGPP::Canvas canvas2;
     canvas2.setSize(vp.canvasWidth, vp.canvasHeight);
