@@ -16,9 +16,6 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 ############################################################
 ## Setup LunaPnR version string
-##
-## inspired by https://jonathanhamberg.com/post/cmake-embedding-git-hash/
-##
 ############################################################
 
 project(luna_pnr VERSION 0.1.5 HOMEPAGE_URL https://www.asicsforthemasses.com)

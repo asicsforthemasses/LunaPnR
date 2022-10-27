@@ -1,120 +1,269 @@
 #include <cassert>
 #include "common/logging.h"
 #include "cts.h"
-#include "cts_private.h"
+//#include "cts_private.h"
 
 using namespace LunaCore::CTS;
 
-ClockTreeNode::ClockTreeNode(ClockTreeNode* parent) : m_parent(parent)
+void MeanAndMedianCTS::recursiveSubdivision(const ChipDB::Netlist &netlist, CTSNodeList &nodes,
+    SegmentList &segments)
 {
-}
-
-ClockTreeNode::~ClockTreeNode()
-{
-    for(auto childPtr : m_children)
-    {
-        if (childPtr != nullptr)
-        {
-            delete childPtr;
-        }
-    }
-}
-
-struct 
-{
-    constexpr bool operator()(const LunaCore::CTS::Node &n1, const LunaCore::CTS::Node &n2) const
-    {
-        return n1.m_pos.m_x < n2.m_pos.m_x;
-    }
-} sortX;
-
-struct 
-{
-    constexpr bool operator()(const LunaCore::CTS::Node &n1, const LunaCore::CTS::Node &n2) const
-    {
-        return n1.m_pos.m_y < n2.m_pos.m_y;
-    }
-} sortY;
-
-
-void subdivide(std::vector<LunaCore::CTS::Node> &nodes, bool xaxis, 
-    ClockTreeNode *parent)
-{
-    if (nodes.size() <= 4) 
-    {
-        assert(parent != nullptr);
-
-        for(auto const& node : nodes)
-        {
-            parent->addCell(node.m_insKey);
-        }
+    if (nodes.size() == 1) 
+    {        
         return;
     }
 
-    // medianIndex is the index where the second group begins
-    auto medianIndex = nodes.size()/2;
-
-    if (xaxis)
+    if (nodes.size() == 0) 
     {
-        std::sort(nodes.begin(), nodes.end(), sortX);
-    }
-    else
-    {
-        std::sort(nodes.begin(), nodes.end(), sortY);
+        return;
     }
 
-    std::vector<LunaCore::CTS::Node> group1(nodes.begin(), nodes.begin()+medianIndex);
-    std::vector<LunaCore::CTS::Node> group2(nodes.begin()+medianIndex, nodes.end());
+    auto LeftRight = nodes.split(netlist, CTSNodeList::Axis::X);
+    auto &left  = LeftRight.first;
+    auto &right = LeftRight.second;
+
+    auto center     = nodes.mean(netlist);
+    auto leftCoord  = left.mean(netlist);
+    auto rightCoord = right.mean(netlist);
+
+    // we don't need the incoming list anymore
     nodes.clear();
 
-    auto child1 = new ClockTreeNode(parent);
-    auto child2 = new ClockTreeNode(parent);
+    auto topSegIndex = segments.size()-1;
 
-    parent->setChild(0, child1);
-    parent->setChild(1, child2);
+    // route from center to leftCoord
+    auto leftSegIndex = segments.createSegment(center, leftCoord, topSegIndex);
 
-    subdivide(group1, !xaxis, child1);
-    subdivide(group2, !xaxis, child2);
+    // route from center to rightCoord
+    auto rightSegIndex = segments.createSegment(center, rightCoord, topSegIndex);
+    
+    auto BLTL = left.split(netlist, CTSNodeList::Axis::Y);  // bottom and top left
+    auto BRTR = right.split(netlist, CTSNodeList::Axis::Y); // bottom and top right
+    auto &bl  = BLTL.first;
+    auto &tl  = BLTL.second;
+    auto &br  = BRTR.first;
+    auto &tr  = BRTR.second;
+
+    auto blCoord = bl.mean(netlist);
+    auto tlCoord = tl.mean(netlist);
+    auto brCoord = br.mean(netlist);
+    auto trCoord = tr.mean(netlist);
+
+    // route from leftCoord  -> blCoord, leftCoord  -> tlCoord
+    if (!bl.empty()) 
+    {
+        if (bl.size() == 1)
+            segments.createSegment(leftCoord, blCoord, leftSegIndex, bl.front().m_insKey);
+        else
+            segments.createSegment(leftCoord, blCoord, leftSegIndex);
+    }
+
+    if (!tl.empty()) 
+    {
+        if (tl.size() == 1)
+            segments.createSegment(leftCoord, tlCoord, leftSegIndex, tl.front().m_insKey);
+        else
+            segments.createSegment(leftCoord, tlCoord, leftSegIndex);
+    }
+    
+    // route from rightCoord -> brCoord, rightCoord -> trCoord
+    if (!br.empty()) 
+    {
+        if (br.size() == 1)
+            segments.createSegment(rightCoord, brCoord, rightSegIndex, br.front().m_insKey);
+        else
+            segments.createSegment(rightCoord, brCoord, rightSegIndex);
+    }
+    
+    if (!tr.empty()) 
+    {
+        if (tr.size() == 1)
+            segments.createSegment(rightCoord, trCoord, rightSegIndex, tr.front().m_insKey);
+        else
+            segments.createSegment(rightCoord, trCoord, rightSegIndex);
+    }
+    
+    // we don't need the intermediate lists anymore
+    left.clear();
+    right.clear();
+
+    recursiveSubdivision(netlist, bl, segments);
+    recursiveSubdivision(netlist, tl, segments);
+    recursiveSubdivision(netlist, br, segments);
+    recursiveSubdivision(netlist, tr, segments);
 }
 
-std::unique_ptr<LunaCore::CTS::ClockTreeNode> LunaCore::CTS::doStuff(const std::string &clockNetName, ChipDB::Netlist &netlist)
+std::optional<MeanAndMedianCTS::SegmentList> MeanAndMedianCTS::generateTree
+    (const std::string &clockNetName, ChipDB::Netlist &netlist)
 {
+    // create list of nodes
+    CTSNodeList topList;
+
     auto clockNet = netlist.lookupNet(clockNetName);
     if (!clockNet.isValid())
     {
         Logging::doLog(Logging::LogType::ERROR, "CTS cannot find the specified clock net %s\n", clockNetName.c_str());
-        return nullptr;
+        return std::nullopt;
     }
 
-    //TODO:
-    //FIXME: remove the driving cell from the list!
-
-    std::vector<Node> clkNodes;
+    CTSNodeList clkNodes;
     clkNodes.reserve(clockNet->numberOfConnections());
 
-    for(auto const& conn : *clockNet)
+    std::size_t driverCount = 0;
+    ChipDB::Coord64 driverPos;
+
+    for(auto conn : *clockNet)
     {
         auto ins = netlist.lookupInstance(conn.m_instanceKey);
         if (!ins)
         {
             Logging::doLog(Logging::LogType::ERROR, "CTS cannot find instance with key %d\n", conn.m_instanceKey);
-            return nullptr;
+            return std::nullopt;
         }
 
         if (!ins->isPlaced())
         {
-            Logging::doLog(Logging::LogType::ERROR, "CTS: instance %s has not been placed - aborting!\n", ins->name().c_str());
-            return nullptr;
+            Logging::doLog(Logging::LogType::ERROR, "CTS: instance %s (%s) has not been placed - aborting!\n", ins->name().c_str(), ins->getArchetypeName().c_str());
+            return std::nullopt;
         }
 
-        auto &newNode = clkNodes.emplace_back();
-        newNode.m_insKey = conn.m_instanceKey;
-        newNode.m_pos    = ins->m_pos;
+        auto pin = ins->getPin(conn.m_pinKey);
+        if (!pin.isValid())
+        {
+            Logging::doLog(Logging::LogType::ERROR, "CTS: pin with key %ld on instance %s is invalid - aborting!\n", conn.m_pinKey, ins->name().c_str());
+            return std::nullopt;            
+        }
+
+        if (!pin.m_pinInfo)
+        {
+            Logging::doLog(Logging::LogType::ERROR, "CTS: pin info with key %ld on instance %s is invalid - aborting!\n", conn.m_pinKey, ins->name().c_str());
+            return std::nullopt;            
+        }
+
+        if (pin.m_pinInfo->isOutput())
+        {
+            driverCount++;
+            driverPos = ins->m_pos;
+        }
+        else
+        {
+            clkNodes.push_back(conn.m_instanceKey);
+        }
     }
 
-    auto headNode = std::make_unique<LunaCore::CTS::ClockTreeNode>(nullptr);
+    if (driverCount == 0)
+    {
+        Logging::doLog(Logging::LogType::ERROR, "CTS: could not find a driver for clock net - aborting!\n");
+        return std::nullopt;                    
+    }
 
-    subdivide(clkNodes, true, headNode.get());
+    if (driverCount > 1)
+    {
+        Logging::doLog(Logging::LogType::ERROR, "CTS: clock net has more than one driver - aborting!\n");
+        return std::nullopt;                    
+    }
 
-    return std::move(headNode);
+    if (clkNodes.size() == 0)
+    {
+        Logging::doLog(Logging::LogType::ERROR, "CTS: did not find any instances - aborting!\n");
+        return std::nullopt;
+    }
+
+    SegmentList segments;
+    segments.createSegment(driverPos, {0,0}, -1);   // add the driver node
+    recursiveSubdivision(netlist, clkNodes, segments);
+
+    if (segments.size() > 1)
+    {
+        // connect the driver to the
+        // rest of the network
+        segments.at(0).m_end = segments.at(1).m_start;
+    }
+
+    // add a segment from the net driver to the first destination
+    return std::move(segments);
 }
+
+void CTSNodeList::insertAtEnd(ContainerType::const_iterator s, ContainerType::const_iterator e)
+{
+    m_nodes.insert(m_nodes.end(), s,e);
+}
+
+/** split the node list into two equal parts, based on the median location along the specified axis */
+std::pair<CTSNodeList, CTSNodeList> CTSNodeList::split(const ChipDB::Netlist &netlist, Axis axis)
+{
+    CTSNodeList leftList;   // or bottom, depending on axis
+    CTSNodeList rightList;  // or top
+
+    auto expectedNodes = (m_nodes.size() + 1) / 2;
+    leftList.reserve(expectedNodes);
+    rightList.reserve(expectedNodes);
+
+    sortAlongAxis(netlist, axis);
+    leftList.insertAtEnd(m_nodes.begin(), m_nodes.begin() + expectedNodes);
+    rightList.insertAtEnd(m_nodes.begin() + expectedNodes, m_nodes.end());
+
+    auto const diff = std::abs(static_cast<int>(leftList.size()) - static_cast<int>(rightList.size()));
+    assert(diff < 2);
+
+    return {leftList, rightList};
+};
+
+void CTSNodeList::sortAlongAxis(const ChipDB::Netlist &netlist, const Axis axis)
+{
+    auto const& instances = netlist.m_instances;
+    if (axis == Axis::X)
+    {
+        std::sort(m_nodes.begin(), m_nodes.end(), 
+            [&instances](const CTSNode &node1, const CTSNode &node2)
+            {
+                return instances[node1.m_insKey]->m_pos.m_x < instances[node2.m_insKey]->m_pos.m_x;
+            }
+        );
+
+        if (instances.size() >= 2)
+        {
+            assert(instances[0]->m_pos.m_x <= instances[1]->m_pos.m_x);
+        }
+    }    
+    else
+    {
+        std::sort(m_nodes.begin(), m_nodes.end(), 
+            [&instances](const CTSNode &node1, const CTSNode &node2)
+            {
+                return instances[node1.m_insKey]->m_pos.m_y < instances[node2.m_insKey]->m_pos.m_y;
+            }
+        );        
+
+        if (instances.size() >= 2)
+        {
+            assert(instances[0]->m_pos.m_y <= instances[1]->m_pos.m_y);
+        }        
+    }
+}
+
+
+ChipDB::Coord64 CTSNodeList::mean(const ChipDB::Netlist &netlist) const
+{
+    // prevent a division by zero later on..
+    if (m_nodes.size() == 0) return ChipDB::Coord64{0,0};
+
+    float total_x{0};
+    float total_y{0};
+    auto const& instances = netlist.m_instances;
+    for(auto const& node : m_nodes)
+    {   
+        auto const &ins = instances[node.m_insKey];
+        assert(ins);
+        total_x += static_cast<float>(ins->m_pos.m_x);
+        total_y += static_cast<float>(ins->m_pos.m_y);
+    }
+
+    total_x /= static_cast<float>(m_nodes.size());
+    total_y /= static_cast<float>(m_nodes.size());
+
+    return {static_cast<ChipDB::CoordType>(total_x), 
+        static_cast<ChipDB::CoordType>(total_y)};
+}
+
+

@@ -239,5 +239,5 @@ void LunaCore::Prim::toSVG(std::ostream &os, const MSTree &tree)
         canvas.text(p + SVGPoint{5.0,-5.0}, ss.str());
     }
 
-    canvas.toSVG(os);    
+    canvas.toSVG(os);
 }

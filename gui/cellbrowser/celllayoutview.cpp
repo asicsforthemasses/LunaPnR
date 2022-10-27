@@ -244,7 +244,7 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
     const int64_t nm = m_cell.m_size.m_x % 1000;
     const int64_t um = m_cell.m_size.m_x / 1000;
 
-    char txtbuf[20];
+    char txtbuf[32];
     snprintf(txtbuf, sizeof(txtbuf), "%ld.%03ld um", um, nm);
     
     drawCenteredText(painter, txtrect.center(), txtbuf, font(), Qt::black);

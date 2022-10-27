@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include "lunacore.h"
+#include "tinysvgpp/src/tinysvgpp.h"
 
 #include <string>
 #include <sstream>
@@ -13,31 +14,18 @@
 
 BOOST_AUTO_TEST_SUITE(CTSTest)
 
-void dumpLeaves(LunaCore::CTS::ClockTreeNode *node)
+TinySVGPP::Point toSVGPoint(const ChipDB::Coord64 &p)
 {
-    if (node == nullptr) return;
-    if (node->isLeaf())
-    {
-        std::cout << " leaf: ";
-        for(auto const& key : node->cells())
-        {
-            std::cout << " " << key;
-        }
-        std::cout << "\n";
-    }
-    else
-    {
-        for(auto child : node->children())
-        {
-            dumpLeaves(child);
-        }        
-    }
+    return {static_cast<float>(p.m_x), static_cast<float>(p.m_y)};
 }
+
 
 BOOST_AUTO_TEST_CASE(check_cts)
 {
     std::cout << "--== CHECK CTS ==--\n";
-        
+
+    LunaCore::CTS::MeanAndMedianCTS cts;
+
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_REQUIRE(leffile.good());
     
@@ -59,8 +47,8 @@ BOOST_AUTO_TEST_CASE(check_cts)
     auto netlist = mod->m_netlist;
     BOOST_REQUIRE(netlist);
 
-    BOOST_CHECK(!LunaCore::CTS::doStuff("clk_doesnt_exist", *netlist));
-    BOOST_CHECK(!LunaCore::CTS::doStuff("clk", *netlist));  // fails because cells have not been placed
+    BOOST_CHECK(!cts.generateTree("clk_doesnt_exist", *netlist));
+    BOOST_CHECK(!cts.generateTree("clk", *netlist));  // fails because cells have not been placed
 
     // read placement of cells using DEF reader
     std::ifstream deffile("test/files/def/femtorv32_quark.def");
@@ -68,10 +56,169 @@ BOOST_AUTO_TEST_CASE(check_cts)
 
     BOOST_REQUIRE(ChipDB::DEF::Reader::load(design, deffile));
 
-    auto clocktree = LunaCore::CTS::doStuff("clk", *netlist);
-    BOOST_CHECK(clocktree);  // this should _not_ fail
+    auto tree = cts.generateTree("clk", *netlist);
+    BOOST_REQUIRE(tree);
 
-    dumpLeaves(clocktree.get());
+    TinySVGPP::Canvas canvas;
+    using SVGPoint = TinySVGPP::Point;
+    
+    TinySVGPP::Viewport vp;
+    vp.canvasWidth = 2000;
+    vp.canvasHeight = 2000;
+
+    vp.xmin = 0;
+    vp.xmax = 100000;
+    vp.ymin = 0;
+    vp.ymax = 100000;
+    vp.flipY = true;
+
+    canvas.setSize(vp.canvasWidth, vp.canvasHeight);
+    canvas.fill("black").stroke("black").rect(0,0, vp.canvasWidth, vp.canvasHeight);
+
+    // draw all terminals    
+    for(auto const& segment : tree.value())
+    {
+        canvas.stroke("green", 1.0).fill("green");
+        canvas.circle(vp.toWindow(toSVGPoint(segment.m_start)), 2);
+        if (segment.m_insKey != ChipDB::ObjectNotFound)
+        {
+            canvas.stroke("red", 1.0).fill("red");
+        }
+
+        canvas.circle(vp.toWindow(toSVGPoint(segment.m_end)), 2);
+
+        canvas.stroke("yellow", 2.0).fill("yellow");
+        canvas.line(
+            SVGPoint{vp.toWindow(toSVGPoint(segment.m_start))},
+            SVGPoint{vp.toWindow(toSVGPoint(segment.m_end))}
+        );
+    }
+
+    std::ofstream svgfile("test/files/results/cts.svg");
+    canvas.toSVG(svgfile);
+
+    // collect all the end points
+
+    std::list<LunaCore::CTS::MeanAndMedianCTS::SegmentIndex> endNodes;
+    std::size_t index=0;
+    for(auto const& segment : tree.value())
+    {
+        if (segment.m_insKey != ChipDB::ObjectNotFound)
+        {
+            endNodes.push_back(index);            
+        }
+        index++;
+    }
+
+    // check that the number of end nodes we found
+    // is equal to the number of sinks on the clk net
+    auto clkNet = netlist->lookupNet("clk");
+    BOOST_REQUIRE(clkNet.isValid());
+    BOOST_CHECK(endNodes.size() == (clkNet->numberOfConnections() - 1));
+
+    ChipDB::CoordType minL = std::numeric_limits<ChipDB::CoordType>::max();
+    ChipDB::CoordType maxL = std::numeric_limits<ChipDB::CoordType>::min();
+    int minSegs = std::numeric_limits<int>::max();
+    int maxSegs = std::numeric_limits<int>::min();
+    int minSegIndex = std::numeric_limits<int>::max();
+    int maxSegIndex = std::numeric_limits<int>::min();
+
+    for(auto const& segmentIndex : endNodes)
+    {
+        int segs = 0;
+        auto index = segmentIndex;
+
+        ChipDB::CoordType lenToSink = 0;
+        while (index > 0)
+        {
+            auto const& seg = tree.value().at(index);
+            auto L = seg.m_start.manhattanDistance(seg.m_end);
+            lenToSink += L;
+            index = seg.m_parent;
+            segs++;
+        }
+
+        minL = std::min(minL, lenToSink);
+        maxL = std::max(maxL, lenToSink);
+
+        if (minSegs > segs)
+        {
+            minSegs = segs;
+            minSegIndex = segmentIndex;
+        }
+
+        if (maxSegs < segs)
+        {
+            maxSegs = segs;
+            maxSegIndex = segmentIndex;
+        }
+    }
+
+    std::cout << "  min : " << minL << "  max : " << maxL << "\n";
+    std::cout << "  min segs : " << minSegs << "  max segs : " << maxSegs << "\n";
+    std::cout << "  min segs index : " << minSegIndex << "  max segs index : " << maxSegIndex << "\n";
+
+    // write out the min and max routes
+    TinySVGPP::Canvas canvas2;
+    canvas2.setSize(vp.canvasWidth, vp.canvasHeight);
+    canvas2.fill("black").stroke("black").rect(0,0, vp.canvasWidth, vp.canvasHeight);
+
+    index = minSegIndex;
+    while (index > 0)
+    {
+        auto const& seg = tree.value().at(index);
+
+        canvas2.stroke("green", 1.0).fill("green");
+        canvas2.circle(vp.toWindow(toSVGPoint(seg.m_start)), 2);
+        if (seg.m_insKey != ChipDB::ObjectNotFound)
+        {
+            canvas2.stroke("red", 1.0).fill("red");
+        }
+
+        canvas2.circle(vp.toWindow(toSVGPoint(seg.m_end)), 2);
+
+        canvas2.stroke("yellow", 2.0).fill("yellow");
+        canvas2.line(
+            SVGPoint{vp.toWindow(toSVGPoint(seg.m_start))},
+            SVGPoint{vp.toWindow(toSVGPoint(seg.m_end))}
+        );
+
+        index = seg.m_parent;
+    }
+
+    std::ofstream svgfile2("test/files/results/cts_minroute.svg");
+    canvas2.toSVG(svgfile2);
+
+    TinySVGPP::Canvas canvas3;
+    canvas3.setSize(vp.canvasWidth, vp.canvasHeight);
+    canvas3.fill("black").stroke("black").rect(0,0, vp.canvasWidth, vp.canvasHeight);
+
+    index = maxSegIndex;
+    while (index > 0)
+    {
+        auto const& seg = tree.value().at(index);
+
+        canvas3.stroke("green", 1.0).fill("green");
+        canvas3.circle(vp.toWindow(toSVGPoint(seg.m_start)), 2);
+        if (seg.m_insKey != ChipDB::ObjectNotFound)
+        {
+            canvas3.stroke("red", 1.0).fill("red");
+        }
+
+        canvas3.circle(vp.toWindow(toSVGPoint(seg.m_end)), 2);
+
+        canvas3.stroke("yellow", 2.0).fill("yellow");
+        canvas3.line(
+            SVGPoint{vp.toWindow(toSVGPoint(seg.m_start))},
+            SVGPoint{vp.toWindow(toSVGPoint(seg.m_end))}
+        );
+
+        index = seg.m_parent;
+    }
+
+    std::ofstream svgfile3("test/files/results/cts_maxroute.svg");
+    canvas3.toSVG(svgfile3);
+
 }
 
 BOOST_AUTO_TEST_SUITE_END()
