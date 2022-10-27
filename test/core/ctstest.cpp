@@ -129,7 +129,7 @@ BOOST_AUTO_TEST_CASE(check_cts)
         auto index = segmentIndex;
 
         ChipDB::CoordType lenToSink = 0;
-        while (index > 0)
+        while (index >= 0)
         {
             auto const& seg = tree.value().at(index);
             auto L = seg.m_start.manhattanDistance(seg.m_end);
@@ -163,10 +163,15 @@ BOOST_AUTO_TEST_CASE(check_cts)
     canvas2.setSize(vp.canvasWidth, vp.canvasHeight);
     canvas2.fill("black").stroke("black").rect(0,0, vp.canvasWidth, vp.canvasHeight);
 
-    index = minSegIndex;
-    while (index > 0)
+    std::cout << "Checkpoint #0\n";
+
+    int segIndex = minSegIndex;
+    while (segIndex >= 0)
     {
-        auto const& seg = tree.value().at(index);
+        BOOST_REQUIRE(segIndex >= 0);
+        BOOST_REQUIRE(segIndex < tree.value().size());
+
+        auto const& seg = tree.value().at(segIndex);
 
         canvas2.stroke("green", 1.0).fill("green");
         canvas2.circle(vp.toWindow(toSVGPoint(seg.m_start)), 2);
@@ -183,20 +188,28 @@ BOOST_AUTO_TEST_CASE(check_cts)
             SVGPoint{vp.toWindow(toSVGPoint(seg.m_end))}
         );
 
-        index = seg.m_parent;
+        segIndex = seg.m_parent;
     }
+
+    std::cout << "Checkpoint #1\n";
 
     std::ofstream svgfile2("test/files/results/cts_minroute.svg");
     canvas2.toSVG(svgfile2);
+    svgfile2.close();
+
+    std::cout << "Checkpoint #2\n";
 
     TinySVGPP::Canvas canvas3;
     canvas3.setSize(vp.canvasWidth, vp.canvasHeight);
     canvas3.fill("black").stroke("black").rect(0,0, vp.canvasWidth, vp.canvasHeight);
 
-    index = maxSegIndex;
-    while (index > 0)
+    segIndex = maxSegIndex;
+    while (segIndex >= 0)
     {
-        auto const& seg = tree.value().at(index);
+        BOOST_REQUIRE(segIndex >= 0);
+        BOOST_REQUIRE(segIndex < tree.value().size());
+
+        auto const& seg = tree.value().at(segIndex);
 
         canvas3.stroke("green", 1.0).fill("green");
         canvas3.circle(vp.toWindow(toSVGPoint(seg.m_start)), 2);
@@ -213,11 +226,14 @@ BOOST_AUTO_TEST_CASE(check_cts)
             SVGPoint{vp.toWindow(toSVGPoint(seg.m_end))}
         );
 
-        index = seg.m_parent;
+        segIndex = seg.m_parent;
     }
+
+    std::cout << "Checkpoint #3\n";
 
     std::ofstream svgfile3("test/files/results/cts_maxroute.svg");
     canvas3.toSVG(svgfile3);
+    svgfile3.close();
 
 }
 

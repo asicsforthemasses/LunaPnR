@@ -137,7 +137,8 @@ public:
     std::optional<SegmentList> generateTree(const std::string &clockNetName, ChipDB::Netlist &netlist);
 
 protected:
-    void recursiveSubdivision(const ChipDB::Netlist &netlist, CTSNodeList &nodes, SegmentList &segments);
+    void recursiveSubdivision(const ChipDB::Netlist &netlist, CTSNodeList &nodes, 
+        SegmentList &segments, SegmentIndex topSegIndex = 0);
 };
 
 };

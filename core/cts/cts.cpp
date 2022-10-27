@@ -6,7 +6,7 @@
 using namespace LunaCore::CTS;
 
 void MeanAndMedianCTS::recursiveSubdivision(const ChipDB::Netlist &netlist, CTSNodeList &nodes,
-    SegmentList &segments)
+    SegmentList &segments, SegmentIndex topSegIndex)
 {
     if (nodes.size() == 1) 
     {        
@@ -22,6 +22,9 @@ void MeanAndMedianCTS::recursiveSubdivision(const ChipDB::Netlist &netlist, CTSN
     auto &left  = LeftRight.first;
     auto &right = LeftRight.second;
 
+    assert(left.size() >= 1);
+    assert(right.size() >= 1);
+
     auto center     = nodes.mean(netlist);
     auto leftCoord  = left.mean(netlist);
     auto rightCoord = right.mean(netlist);
@@ -29,14 +32,12 @@ void MeanAndMedianCTS::recursiveSubdivision(const ChipDB::Netlist &netlist, CTSN
     // we don't need the incoming list anymore
     nodes.clear();
 
-    auto topSegIndex = segments.size()-1;
-
     // route from center to leftCoord
     auto leftSegIndex = segments.createSegment(center, leftCoord, topSegIndex);
 
     // route from center to rightCoord
     auto rightSegIndex = segments.createSegment(center, rightCoord, topSegIndex);
-    
+
     auto BLTL = left.split(netlist, CTSNodeList::Axis::Y);  // bottom and top left
     auto BRTR = right.split(netlist, CTSNodeList::Axis::Y); // bottom and top right
     auto &bl  = BLTL.first;
@@ -50,47 +51,51 @@ void MeanAndMedianCTS::recursiveSubdivision(const ChipDB::Netlist &netlist, CTSN
     auto trCoord = tr.mean(netlist);
 
     // route from leftCoord  -> blCoord, leftCoord  -> tlCoord
+    SegmentIndex bl_top = -1;
     if (!bl.empty()) 
     {
         if (bl.size() == 1)
-            segments.createSegment(leftCoord, blCoord, leftSegIndex, bl.front().m_insKey);
+            bl_top = segments.createSegment(leftCoord, blCoord, leftSegIndex, bl.front().m_insKey);
         else
-            segments.createSegment(leftCoord, blCoord, leftSegIndex);
+            bl_top = segments.createSegment(leftCoord, blCoord, leftSegIndex);
     }
 
+    SegmentIndex tl_top = -1;
     if (!tl.empty()) 
     {
         if (tl.size() == 1)
-            segments.createSegment(leftCoord, tlCoord, leftSegIndex, tl.front().m_insKey);
+            tl_top = segments.createSegment(leftCoord, tlCoord, leftSegIndex, tl.front().m_insKey);
         else
-            segments.createSegment(leftCoord, tlCoord, leftSegIndex);
+            tl_top = segments.createSegment(leftCoord, tlCoord, leftSegIndex);
     }
     
     // route from rightCoord -> brCoord, rightCoord -> trCoord
+    SegmentIndex br_top = -1;
     if (!br.empty()) 
     {
         if (br.size() == 1)
-            segments.createSegment(rightCoord, brCoord, rightSegIndex, br.front().m_insKey);
+            br_top = segments.createSegment(rightCoord, brCoord, rightSegIndex, br.front().m_insKey);
         else
-            segments.createSegment(rightCoord, brCoord, rightSegIndex);
+            br_top = segments.createSegment(rightCoord, brCoord, rightSegIndex);
     }
     
+    SegmentIndex tr_top = -1;
     if (!tr.empty()) 
     {
         if (tr.size() == 1)
-            segments.createSegment(rightCoord, trCoord, rightSegIndex, tr.front().m_insKey);
+            tr_top = segments.createSegment(rightCoord, trCoord, rightSegIndex, tr.front().m_insKey);
         else
-            segments.createSegment(rightCoord, trCoord, rightSegIndex);
+            tr_top = segments.createSegment(rightCoord, trCoord, rightSegIndex);
     }
     
     // we don't need the intermediate lists anymore
     left.clear();
     right.clear();
 
-    recursiveSubdivision(netlist, bl, segments);
-    recursiveSubdivision(netlist, tl, segments);
-    recursiveSubdivision(netlist, br, segments);
-    recursiveSubdivision(netlist, tr, segments);
+    recursiveSubdivision(netlist, bl, segments, bl_top);
+    recursiveSubdivision(netlist, tl, segments, tl_top);
+    recursiveSubdivision(netlist, br, segments, br_top);
+    recursiveSubdivision(netlist, tr, segments, tr_top);
 }
 
 std::optional<MeanAndMedianCTS::SegmentList> MeanAndMedianCTS::generateTree
@@ -221,9 +226,9 @@ void CTSNodeList::sortAlongAxis(const ChipDB::Netlist &netlist, const Axis axis)
             }
         );
 
-        if (instances.size() >= 2)
+        if (m_nodes.size() >= 2)
         {
-            assert(instances[0]->m_pos.m_x <= instances[1]->m_pos.m_x);
+            assert(instances[m_nodes.at(0).m_insKey]->m_pos.m_x <= instances[m_nodes.at(1).m_insKey]->m_pos.m_x);
         }
     }    
     else
@@ -235,9 +240,9 @@ void CTSNodeList::sortAlongAxis(const ChipDB::Netlist &netlist, const Axis axis)
             }
         );        
 
-        if (instances.size() >= 2)
+        if (m_nodes.size() >= 2)
         {
-            assert(instances[0]->m_pos.m_y <= instances[1]->m_pos.m_y);
+            assert(instances[m_nodes.at(0).m_insKey]->m_pos.m_y <= instances[m_nodes.at(1).m_insKey]->m_pos.m_y);
         }        
     }
 }
