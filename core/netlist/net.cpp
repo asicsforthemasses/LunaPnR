@@ -12,7 +12,7 @@ bool Net::hasConnection(InstanceObjectKey insKey, PinObjectKey pinKey) const
     const NetConnect connection(insKey, pinKey);
 
     auto iter = std::find_if(m_connections.begin(), m_connections.end(),
-        [connection](auto listConn)
+        [connection](auto const& listConn)
         {
             return listConn == connection;
         }
@@ -31,7 +31,7 @@ bool Net::removeConnection(InstanceObjectKey insKey, PinObjectKey pinKey)
     const NetConnect connection(insKey, pinKey);
 
     auto iter = std::find_if(m_connections.begin(), m_connections.end(),
-        [connection](auto listConn)
+        [connection](auto const& listConn)
         {
             return listConn == connection;
         }

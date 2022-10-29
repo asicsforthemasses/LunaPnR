@@ -56,7 +56,6 @@ KeyObjPair<Net> Netlist::lookupNet(const std::string &name)
     return m_nets[name];
 }
 
-
 bool Netlist::connect(InstanceObjectKey insKey, PinObjectKey pinKey, NetObjectKey netKey)
 {
     auto ins = m_instances[insKey];

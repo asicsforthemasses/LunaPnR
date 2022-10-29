@@ -175,6 +175,8 @@ public:
     virtual Pin getPin(PinObjectKey pinKey) const;
     virtual Pin getPin(const std::string &pinName) const;
     virtual bool setPinNet(PinObjectKey pinKey, NetObjectKey netKey);
+    virtual bool disconnectPin(PinObjectKey pinKey);
+    
     virtual size_t getNumberOfPins() const;
 
     class ConnectionIterators

@@ -90,15 +90,15 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
     std::cout << "--== VERILOG NETLIST READER MULTIPLIER ==--\n";
     
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
-    BOOST_CHECK(leffile.good());
+    BOOST_REQUIRE(leffile.good());
 
     ChipDB::Design design;
-    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
+    BOOST_REQUIRE(ChipDB::LEF::Reader::load(design, leffile));
 
     std::ifstream verilogfile("test/files/verilog/multiplier.v");
-    BOOST_CHECK(verilogfile.good());
+    BOOST_REQUIRE(verilogfile.good());
 
-    BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
+    BOOST_REQUIRE(ChipDB::Verilog::Reader::load(design, verilogfile));
 
     // check the design
     std::cout << "  Found " << design.m_moduleLib->size() << " modules\n";
@@ -165,15 +165,15 @@ BOOST_AUTO_TEST_CASE(can_read_nerv32)
     std::cout << "--== VERILOG NETLIST READER NERV ==--\n";
     
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
-    BOOST_CHECK(leffile.good());
+    BOOST_REQUIRE(leffile.good());
 
     ChipDB::Design design;
-    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
+    BOOST_REQUIRE(ChipDB::LEF::Reader::load(design, leffile));
 
     std::ifstream verilogfile("test/files/verilog/nerv_tsmc018.v");
-    BOOST_CHECK(verilogfile.good());
+    BOOST_REQUIRE(verilogfile.good());
 
-    BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
+    BOOST_REQUIRE(ChipDB::Verilog::Reader::load(design, verilogfile));
 
     // check the design
     std::cout << "  Found " << design.m_moduleLib->size() << " modules\n";
@@ -181,32 +181,53 @@ BOOST_AUTO_TEST_CASE(can_read_nerv32)
     BOOST_CHECK(design.m_moduleLib->lookupModule("nerv").isValid());
     
     auto mod = design.m_moduleLib->lookupModule("nerv");
-    if (mod.isValid())
+    BOOST_REQUIRE(mod.isValid());
+
+    std::cout << "  module has " << mod->m_netlist->m_instances.size() << " instances\n";
+    BOOST_CHECK(mod->m_netlist->m_instances.size() != 0);
+
+    std::cout << "  module has " << mod->m_netlist->m_nets.size() << " nets\n";
+    BOOST_CHECK(mod->m_netlist->m_nets.size() != 0);
+
+    std::cout << "  module has " << mod->m_pins.size() << " pins\n";
+    BOOST_CHECK(mod->m_pins.size() != 0);                
+
+    // check that module pins have a __pin instance in the netlist
+    for(auto modPin : mod->m_pins)
     {
-        std::cout << "  module has " << mod->m_netlist->m_instances.size() << " instances\n";
-        BOOST_CHECK(mod->m_netlist->m_instances.size() != 0);
-
-        std::cout << "  module has " << mod->m_netlist->m_nets.size() << " nets\n";
-        BOOST_CHECK(mod->m_netlist->m_nets.size() != 0);
-
-        std::cout << "  module has " << mod->m_pins.size() << " pins\n";
-        BOOST_CHECK(mod->m_pins.size() != 0);                
-
-        // check that module pins have a __pin instance in the netlist
-        for(auto modPin : mod->m_pins)
-        {
-            BOOST_CHECK(mod->m_netlist->m_instances.at(modPin->name()).isValid());
-        }
-
-        // determine cell area
-        double area = 0;
-        for(auto ins : mod->m_netlist->m_instances)
-        {
-            area += ins->getArea();
-        }
-
-        std::cout << "  module area " << area << " um²\n";        
+        BOOST_CHECK(mod->m_netlist->m_instances.at(modPin->name()).isValid());
     }
+
+    // determine cell area
+    double area = 0;
+    for(auto ins : mod->m_netlist->m_instances)
+    {
+        area += ins->getArea();
+    }
+
+    std::cout << "  module area " << area << " um²\n";        
+
+    auto netlist = mod->m_netlist;
+
+    // check that there is a clk instance
+    auto clkins = netlist->lookupInstance("clock");
+    BOOST_CHECK(clkins.isValid());
+    
+    // check that this has one output pin.
+    BOOST_CHECK(clkins->getNumberOfPins() == 1);
+    auto pin = clkins->getPin(0);
+
+    BOOST_REQUIRE(pin.isValid());
+    BOOST_CHECK(pin.m_pinInfo->isOutput());
+
+    // check that the clk pin is connected to a net
+    BOOST_CHECK(pin.netKey() != ChipDB::ObjectNotFound);
+
+    auto net = netlist->lookupNet(pin.netKey());
+    BOOST_REQUIRE(net);
+
+    std::cout << "  clk net has " << net->numberOfConnections() << " connections\n";
+    BOOST_CHECK(net->numberOfConnections() > 1);       
 }
 
 BOOST_AUTO_TEST_CASE(can_read_picorv32)
@@ -214,15 +235,19 @@ BOOST_AUTO_TEST_CASE(can_read_picorv32)
     std::cout << "--== VERILOG NETLIST READER PICORV32 ==--\n";
     
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
-    BOOST_CHECK(leffile.good());
+    BOOST_REQUIRE(leffile.good());
+
+    std::ifstream leffile2("test/files/iit_stdcells_extra/fake_ties018.lef");
+    BOOST_REQUIRE(leffile2.good());
 
     ChipDB::Design design;
-    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
+    BOOST_REQUIRE(ChipDB::LEF::Reader::load(design, leffile));
+    BOOST_REQUIRE(ChipDB::LEF::Reader::load(design, leffile2));
 
     std::ifstream verilogfile("test/files/verilog/picorv32.v");
-    BOOST_CHECK(verilogfile.good());
+    BOOST_REQUIRE(verilogfile.good());
 
-    BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
+    BOOST_REQUIRE(ChipDB::Verilog::Reader::load(design, verilogfile));
 
     // check the design
     std::cout << "  Found " << design.m_moduleLib->size() << " modules\n";
@@ -230,36 +255,149 @@ BOOST_AUTO_TEST_CASE(can_read_picorv32)
     BOOST_CHECK(design.m_moduleLib->lookupModule("picorv32").isValid());
     
     auto mod = design.m_moduleLib->lookupModule("picorv32");
-    if (mod.isValid())
+    BOOST_REQUIRE(mod.isValid());
+
+    BOOST_CHECK(mod->m_netlist.get() != nullptr);
+
+    std::cout << "  module has " << mod->m_netlist->m_instances.size() << " instances\n";
+    BOOST_CHECK(mod->m_netlist->m_instances.size() != 0);
+
+    std::cout << "  module has " << mod->m_netlist->m_nets.size() << " nets\n";
+    BOOST_CHECK(mod->m_netlist->m_nets.size() != 0);
+
+    std::cout << "  module has " << mod->m_pins.size() << " pins\n";
+    BOOST_CHECK(mod->m_pins.size() != 0);       
+
+    // check that module pins have a __pin instance in the netlist
+    for(auto modPin : mod->m_pins)
     {
-        BOOST_CHECK(mod->m_netlist.get() != nullptr);
-
-        std::cout << "  module has " << mod->m_netlist->m_instances.size() << " instances\n";
-        BOOST_CHECK(mod->m_netlist->m_instances.size() != 0);
-
-        std::cout << "  module has " << mod->m_netlist->m_nets.size() << " nets\n";
-        BOOST_CHECK(mod->m_netlist->m_nets.size() != 0);
-
-        std::cout << "  module has " << mod->m_pins.size() << " pins\n";
-        BOOST_CHECK(mod->m_pins.size() != 0);       
-
-        // check that module pins have a __pin instance in the netlist
-        for(auto modPin : mod->m_pins)
-        {
-            BOOST_CHECK(mod->m_netlist->m_instances.at(modPin->m_name).isValid());
-        }
-
-        // determine cell area
-        double area = 0;
-        for(auto ins : mod->m_netlist->m_instances)
-        {
-            area += ins->getArea();
-        }
-
-        std::cout << "  module area " << area << " um²\n";
+        BOOST_CHECK(mod->m_netlist->m_instances.at(modPin->m_name).isValid());
     }
+
+    // determine cell area
+    double area = 0;
+    for(auto ins : mod->m_netlist->m_instances)
+    {
+        area += ins->getArea();
+    }
+
+    std::cout << "  module area " << area << " um²\n";
+
+    auto netlist = mod->m_netlist;
+    
+    // check that there is a clk instance
+    auto clkins = netlist->lookupInstance("clk");
+    BOOST_CHECK(clkins.isValid());
+    
+    // check that this has one output pin.
+    BOOST_CHECK(clkins->getNumberOfPins() == 1);
+    auto pin = clkins->getPin(0);
+
+    BOOST_REQUIRE(pin.isValid());
+    BOOST_CHECK(pin.m_pinInfo->isOutput());
+
+    // check that the clk pin is connected to a net
+    BOOST_CHECK(pin.netKey() != ChipDB::ObjectNotFound);
+
+    auto net = netlist->lookupNet(pin.netKey());
+    BOOST_REQUIRE(net);
+
+    std::cout << "  clk net has " << net->numberOfConnections() << " connections\n";
+    BOOST_CHECK(net->numberOfConnections() > 1);    
 }
 
+BOOST_AUTO_TEST_CASE(can_read_FemtoRV32)
+{
+    std::cout << "--== VERILOG NETLIST READER FemtoRV32 ==--\n";
+    
+    std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
+    BOOST_REQUIRE(leffile.good());
+
+    std::ifstream leffile2("test/files/iit_stdcells_extra/fake_ties018.lef");
+    BOOST_REQUIRE(leffile2.good());
+
+    ChipDB::Design design;
+    BOOST_REQUIRE(ChipDB::LEF::Reader::load(design, leffile));
+    BOOST_REQUIRE(ChipDB::LEF::Reader::load(design, leffile2));
+
+    std::ifstream verilogfile("test/files/verilog/femtorv32_quark.v");
+    BOOST_REQUIRE(verilogfile.good());
+
+    BOOST_REQUIRE(ChipDB::Verilog::Reader::load(design, verilogfile));
+
+    // check the design
+    std::cout << "  Found " << design.m_moduleLib->size() << " modules\n";
+    BOOST_CHECK(design.m_moduleLib->size() == 1);
+    BOOST_CHECK(design.m_moduleLib->lookupModule("FemtoRV32").isValid());
+    
+    auto mod = design.m_moduleLib->lookupModule("FemtoRV32");
+    BOOST_REQUIRE(mod.isValid());
+
+    BOOST_CHECK(mod->m_netlist.get() != nullptr);
+
+    std::cout << "  module has " << mod->m_netlist->m_instances.size() << " instances\n";
+    BOOST_CHECK(mod->m_netlist->m_instances.size() != 0);
+
+    std::cout << "  module has " << mod->m_netlist->m_nets.size() << " nets\n";
+    BOOST_CHECK(mod->m_netlist->m_nets.size() != 0);
+
+    std::cout << "  module has " << mod->m_pins.size() << " pins\n";
+    BOOST_CHECK(mod->m_pins.size() != 0);       
+
+    // check that module pins have a __pin instance in the netlist
+    for(auto modPin : mod->m_pins)
+    {
+        BOOST_CHECK(mod->m_netlist->m_instances.at(modPin->m_name).isValid());
+    }
+
+    // determine cell area
+    double area = 0;
+    for(auto ins : mod->m_netlist->m_instances)
+    {
+        area += ins->getArea();
+    }
+
+    std::cout << "  module area " << area << " um²\n";
+
+    auto netlist = mod->m_netlist;
+    
+    // check that there is a clk instance
+    auto clkins = netlist->lookupInstance("clk");
+    BOOST_CHECK(clkins.isValid());
+    
+    // check that this has one output pin.
+    BOOST_CHECK(clkins->getNumberOfPins() == 1);
+    auto pin = clkins->getPin(0);
+
+    BOOST_REQUIRE(pin.isValid());
+    BOOST_CHECK(pin.m_pinInfo->isOutput());
+
+    // check that the clk pin is connected to a net
+    BOOST_CHECK(pin.netKey() != ChipDB::ObjectNotFound);
+
+    auto net = netlist->lookupNet(pin.netKey());
+    BOOST_REQUIRE(net);
+
+    std::cout << "  clk net has " << net->numberOfConnections() << " connections\n";
+    BOOST_CHECK(net->numberOfConnections() > 1);
+
+    // check that the clock network is connected to the pin instance
+    auto const insKey = clkins.key();
+    auto iter = std::find_if(net->begin(), net->end(),
+        [insKey](auto const netconnect)
+        {
+            return (netconnect.m_instanceKey == insKey);
+        }
+    );
+
+    BOOST_CHECK_MESSAGE(iter != net->end(), "pin instance was not found on clock net..");
+
+    auto driver = netlist->lookupInstance(iter->m_instanceKey);
+    BOOST_REQUIRE(driver);
+
+    std::cout << "  clk source: " << driver->name() << " archetype: " << driver->getArchetypeName() << "\n";
+    std::cout << "         pin: " << ChipDB::toString(driver->getPin(0).m_pinInfo->m_iotype) << "\n";
+}
 
 
 BOOST_AUTO_TEST_SUITE_END()

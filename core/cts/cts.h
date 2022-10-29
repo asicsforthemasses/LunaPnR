@@ -11,11 +11,40 @@
 namespace LunaCore::CTS
 {
 
-struct CTSNode
+struct CTSNull
 {
-    ChipDB::ObjectKey m_insKey; ///< instance key into netlist
 };
 
+/** a terminal node on the clock network */
+struct CTSNode
+{
+    ChipDB::ObjectKey m_insKey{ChipDB::ObjectNotFound}; ///< instance key into netlist
+    ChipDB::ObjectKey m_pinKey{ChipDB::ObjectNotFound}; ///< instance pin key connected to clock
+    float             m_capacitance{0.0f};
+
+    [[nodiscard]] constexpr bool isValid() const noexcept
+    {
+        return (m_insKey != ChipDB::ObjectNotFound) && (m_pinKey != ChipDB::ObjectNotFound);
+    }
+};
+
+struct CTSBuffer
+{
+    CTSBuffer(const std::string &cellName, float pinCapacitance) 
+        : m_cellName(cellName), m_capacitance(pinCapacitance)
+    {    
+    }
+
+    std::string m_cellName;
+    float       m_capacitance{0.0f};
+
+    [[nodiscard]] bool isValid() const noexcept
+    {
+        return ((!m_cellName.empty()) && (m_capacitance > 0.0f));
+    }
+};
+
+/** list of terminal nodes on the clock network */
 class CTSNodeList
 {
 public:
@@ -61,9 +90,11 @@ public:
         return m_nodes.front();
     }
 
-    void push_back(const ChipDB::InstanceObjectKey key)
+    void push_back(const ChipDB::InstanceObjectKey insKey, 
+        const ChipDB::InstanceObjectKey pinKey,
+        float pinCapacitance)
     {
-        m_nodes.push_back({key});
+        m_nodes.push_back(CTSNode{insKey, pinKey, pinCapacitance});
     }
 
     void insertAtEnd(ContainerType::const_iterator s, ContainerType::const_iterator e);
@@ -83,14 +114,76 @@ class MeanAndMedianCTS
 public:
     using SegmentIndex = int;
 
+    /** routing segment on the clock network 
+     *  if m_insKey != ChipDB::ObjectNotFound, it means
+     *  that there is a buffer or terminal cell at
+     *  the end.
+    */
     struct Segment
     {
         ChipDB::Coord64 m_start;
         ChipDB::Coord64 m_end;
-        SegmentIndex m_parent{-1};
-        ChipDB::InstanceObjectKey m_insKey{ChipDB::ObjectNotFound};
+        SegmentIndex    m_parent{-1};
+        std::variant<CTSNull, CTSNode, CTSBuffer> m_cell{CTSNull{}}; ///< clock end point or buffer cell
+        std::vector<SegmentIndex> m_children;
+
+        void addChild(ChipDB::InstanceObjectKey key)
+        {
+            m_children.push_back(key);
+        }
+
+        /** true if the clock network ends at this segment */
+        [[nodiscard]] bool isTerminal() const noexcept
+        {
+            return m_children.empty();
+        }
+
+        /** true if the clock network has a cell (buffer or clocked cell) at this segment end */
+        [[nodiscard]] constexpr bool hasCell() const noexcept
+        {
+            if (std::holds_alternative<CTSBuffer>(m_cell))
+            {
+                return std::get<CTSBuffer>(m_cell).isValid();
+            }
+            else if (std::holds_alternative<CTSNode>(m_cell))
+            {
+                return std::get<CTSNode>(m_cell).isValid();
+            }            
+            return false;
+        }
+
+        /** true if the clock network has a buffer at this segment end */
+        [[nodiscard]] constexpr bool hasBuffer() const noexcept
+        {
+            if (std::holds_alternative<CTSBuffer>(m_cell))
+            {
+                return std::get<CTSBuffer>(m_cell).isValid();
+            }
+            return false;
+        }
+
+        /** true if the clock network has a non-buffer at this segment end */
+        [[nodiscard]] constexpr bool hasClockedCell() const noexcept
+        {
+            if (std::holds_alternative<CTSNode>(m_cell))
+            {
+                return std::get<CTSNode>(m_cell).isValid();
+            }
+            return false;
+        }
+
+        /** check if the segment is valid. 
+         *  segments without a cell are always valid
+         *  terminal segments _must_ have a valid cell
+        */
+        [[nodiscard]] bool isValid() const noexcept
+        {
+            if (!isTerminal()) return true;
+            return (isTerminal() && hasCell());
+        }
     };
 
+    /** a list of segments, describing the clock network. */
     class SegmentList
     {
     public:
@@ -101,16 +194,27 @@ public:
 
         SegmentList(SegmentList &&) = default;
 
+        /** create a segment without a cell attached */
         SegmentIndex createSegment(const ChipDB::Coord64 &s, const ChipDB::Coord64 &e,
             SegmentIndex parentIndex)
         {
-            return createSegment(s,e,parentIndex, ChipDB::ObjectNotFound);
+            auto &seg = m_segments.emplace_back();
+            seg.m_start = s;
+            seg.m_end   = e;
+            seg.m_cell  = CTSNull{};
+            seg.m_parent = parentIndex;
+            return m_segments.size() - 1;
         }
 
+        /** create a segment with a cell attached */
         SegmentIndex createSegment(const ChipDB::Coord64 &s, const ChipDB::Coord64 &e,
-            SegmentIndex parentIndex, ChipDB::InstanceObjectKey insKey)
+            SegmentIndex parentIndex, const CTSNode &ctsnode)
         {
-            m_segments.push_back({s,e, parentIndex, insKey});
+            auto &seg = m_segments.emplace_back();
+            seg.m_start = s;
+            seg.m_end   = e;
+            seg.m_cell  = ctsnode;
+            seg.m_parent = parentIndex;
             return m_segments.size() - 1;
         }
 
@@ -134,9 +238,26 @@ public:
         std::vector<Segment> m_segments;
     };
 
+    /* Returns a list of routing segments describing the clock tree.
+       All instances must be valid. All pins must be valid. 
+    */
     std::optional<SegmentList> generateTree(const std::string &clockNetName, ChipDB::Netlist &netlist);
 
+    float calcSegmentLoadCapacitance(SegmentIndex index, const SegmentList &segments, const ChipDB::Netlist &netlist) const;
+
+    struct CTSInfo
+    {
+        std::string m_cellName;
+        std::string m_inputPinName;
+        std::string m_outputPinName;
+        float       m_pinCapacitance{0.0f};
+        float       m_maxCap{0.0f};
+    };
+
+    float insertBuffers(SegmentList &segments, SegmentIndex segIndex, const CTSInfo &ctsInfo);
+
 protected:
+    
     void recursiveSubdivision(const ChipDB::Netlist &netlist, CTSNodeList &nodes, 
         SegmentList &segments, SegmentIndex topSegIndex = 0);
 };

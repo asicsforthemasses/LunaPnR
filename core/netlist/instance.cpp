@@ -124,6 +124,11 @@ bool Instance::setPinNet(PinObjectKey pinKey, NetObjectKey netKey)
     return false;
 }
 
+bool Instance::disconnectPin(PinObjectKey pinKey)
+{
+    return setPinNet(pinKey, ChipDB::ObjectNotFound);
+}
+
 size_t Instance::getNumberOfPins() const
 {
     // check if the cell is present

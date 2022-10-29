@@ -32,9 +32,13 @@ BOOST_AUTO_TEST_CASE(check_cts)
     std::ifstream leffile2("test/files/iit_stdcells_extra/fake_ties018.lef");
     BOOST_REQUIRE(leffile2.good());
 
+    std::ifstream libfile("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib");
+    BOOST_REQUIRE(libfile.good());
+
     ChipDB::Design design;
     BOOST_REQUIRE(ChipDB::LEF::Reader::load(design, leffile));
     BOOST_REQUIRE(ChipDB::LEF::Reader::load(design, leffile2));
+    BOOST_REQUIRE(ChipDB::Liberty::Reader::load(design, libfile));
 
     std::ifstream verilogfile("test/files/verilog/femtorv32_quark.v");
     BOOST_REQUIRE(verilogfile.good());
@@ -63,7 +67,7 @@ BOOST_AUTO_TEST_CASE(check_cts)
     using SVGPoint = TinySVGPP::Point;
     
     TinySVGPP::Viewport vp;
-    vp.canvasWidth = 2000;
+    vp.canvasWidth  = 2000;
     vp.canvasHeight = 2000;
 
     vp.xmin = 0;
@@ -80,7 +84,7 @@ BOOST_AUTO_TEST_CASE(check_cts)
     {
         canvas.stroke("green", 1.0).fill("green");
         canvas.circle(vp.toWindow(toSVGPoint(segment.m_start)), 2);
-        if (segment.m_insKey != ChipDB::ObjectNotFound)
+        if (segment.hasCell())
         {
             canvas.stroke("red", 1.0).fill("red");
         }
@@ -103,7 +107,7 @@ BOOST_AUTO_TEST_CASE(check_cts)
     std::size_t index=0;
     for(auto const& segment : tree.value())
     {
-        if (segment.m_insKey != ChipDB::ObjectNotFound)
+        if (segment.hasCell())
         {
             endNodes.push_back(index);            
         }
@@ -114,6 +118,8 @@ BOOST_AUTO_TEST_CASE(check_cts)
     // is equal to the number of sinks on the clk net
     auto clkNet = netlist->lookupNet("clk");
     BOOST_REQUIRE(clkNet.isValid());
+    std::cout << "  End node count: " << endNodes.size() << "\n";
+    std::cout << "  Net connects  : " << clkNet->numberOfConnections() << "\n";
     BOOST_CHECK(endNodes.size() == (clkNet->numberOfConnections() - 1));
 
     ChipDB::CoordType minL = std::numeric_limits<ChipDB::CoordType>::max();
@@ -154,20 +160,18 @@ BOOST_AUTO_TEST_CASE(check_cts)
         }
     }
 
-    std::cout << "  min : " << minL << "  max : " << maxL << "\n";
-    std::cout << "  min segs : " << minSegs << "  max segs : " << maxSegs << "\n";
-    std::cout << "  min segs index : " << minSegIndex << "  max segs index : " << maxSegIndex << "\n";
+    std::cout << "  Min : " << minL << "  max : " << maxL << "\n";
+    std::cout << "  Min segs : " << minSegs << "  max segs : " << maxSegs << "\n";
+    std::cout << "  Min segs index : " << minSegIndex << "  max segs index : " << maxSegIndex << "\n";
 
     // make sure the starting points are instances
-    BOOST_CHECK(tree.value().at(minSegIndex).m_insKey != ChipDB::ObjectNotFound);
-    BOOST_CHECK(tree.value().at(maxSegIndex).m_insKey != ChipDB::ObjectNotFound);
+    BOOST_CHECK(tree.value().at(minSegIndex).hasCell());
+    BOOST_CHECK(tree.value().at(maxSegIndex).hasCell());
 
     // write out the min and max routes
     TinySVGPP::Canvas canvas2;
     canvas2.setSize(vp.canvasWidth, vp.canvasHeight);
     canvas2.fill("black").stroke("black").rect(0,0, vp.canvasWidth, vp.canvasHeight);
-
-    std::cout << "Checkpoint #0\n";
 
     int segIndex = minSegIndex;
     while (segIndex >= 0)
@@ -179,7 +183,7 @@ BOOST_AUTO_TEST_CASE(check_cts)
 
         canvas2.stroke("green", 1.0).fill("green");
         canvas2.circle(vp.toWindow(toSVGPoint(seg.m_start)), 2);
-        if (seg.m_insKey != ChipDB::ObjectNotFound)
+        if (seg.hasCell())
         {
             canvas2.stroke("red", 1.0).fill("red");
         }
@@ -195,13 +199,9 @@ BOOST_AUTO_TEST_CASE(check_cts)
         segIndex = seg.m_parent;
     }
 
-    std::cout << "Checkpoint #1\n";
-
     std::ofstream svgfile2("test/files/results/cts_minroute.svg");
     canvas2.toSVG(svgfile2);
     svgfile2.close();
-
-    std::cout << "Checkpoint #2\n";
 
     TinySVGPP::Canvas canvas3;
     canvas3.setSize(vp.canvasWidth, vp.canvasHeight);
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE(check_cts)
 
         canvas3.stroke("green", 1.0).fill("green");
         canvas3.circle(vp.toWindow(toSVGPoint(seg.m_start)), 2);
-        if (seg.m_insKey != ChipDB::ObjectNotFound)
+        if (seg.hasCell())
         {
             canvas3.stroke("red", 1.0).fill("red");
         }
@@ -233,12 +233,75 @@ BOOST_AUTO_TEST_CASE(check_cts)
         segIndex = seg.m_parent;
     }
 
-    std::cout << "Checkpoint #3\n";
-
     std::ofstream svgfile3("test/files/results/cts_maxroute.svg");
     canvas3.toSVG(svgfile3);
     svgfile3.close();
 
+    // get the total capacitance of the clock network
+    auto cap = cts.calcSegmentLoadCapacitance(0, tree.value(), *netlist);
+    auto capPerNode = cap / static_cast<float>(endNodes.size());
+    std::cout << "  Net capacitance    : " << cap << " F\n";
+    std::cout << "  Average cap per ins: " << capPerNode << " F (expected = 0.0279235e-12)\n";
+
+    BOOST_CHECK_CLOSE(capPerNode, 0.0279235e-12, 0.0001);    // this number comes from the DFFPOSX1 CLK pin.
+
+    // insert buffers
+    auto bufferCell = design.m_cellLib->lookupCell("CLKBUF2");
+    BOOST_REQUIRE(bufferCell.isValid());
+
+    auto bufferInput = bufferCell->lookupPin("A");
+    BOOST_REQUIRE(bufferInput.isValid());
+
+    LunaCore::CTS::MeanAndMedianCTS::CTSInfo ctsinfo;
+
+    ctsinfo.m_pinCapacitance = bufferInput->m_cap;
+    ctsinfo.m_inputPinName = "A";
+    ctsinfo.m_outputPinName = "Y";
+    ctsinfo.m_maxCap = 0.2e-12;     // 200 fF, no idea if this is realistic
+    ctsinfo.m_cellName = "CLKBUF2";
+
+    float driveCap = cts.insertBuffers(tree.value(), 0, ctsinfo);
+    std::cout << "  Buffered net has " << driveCap << " F at the input\n";
+
+    // count the number of buffers
+    std::size_t numberOfBuffers = 0;
+    for(auto const& seg : tree.value())
+    {
+        if (seg.hasBuffer())
+            numberOfBuffers++;
+    }
+
+    std::cout << "  Net has " << numberOfBuffers << " inserted clock buffers\n";
+
+    // make a copy of the connections so we can iterator over it
+    // while we erase items from the original list.
+    std::vector<ChipDB::Net::NetConnect> connections(clkNet->begin(), clkNet->end());
+    
+    bool ok = true;
+    for(auto conn : connections)
+    {    
+        ok = ok && clkNet->removeConnection(conn.m_instanceKey, conn.m_pinKey);
+        auto ins = netlist->lookupInstance(conn.m_instanceKey);
+        if (ins)
+        {
+            // only remove the sinks
+            if (ins->getPin(conn.m_pinKey).m_pinInfo->isInput())
+            {
+                std::cout << "    Removing " << ins->name() << "\n";
+                ok = ok && ins->disconnectPin(conn.m_pinKey);
+            }
+        }
+        else
+        {
+            ok = false;
+        }
+    }
+
+    BOOST_CHECK(ok);
+
+    // there should be only 1 connection left
+    std::cout << "  Connections after removing sinks: " << clkNet->numberOfConnections() << "\n";
+    BOOST_CHECK(clkNet->numberOfConnections() == 1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
