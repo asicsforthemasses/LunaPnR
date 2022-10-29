@@ -279,8 +279,7 @@ BOOST_AUTO_TEST_CASE(check_cts)
     
     bool ok = true;
     for(auto conn : connections)
-    {    
-        ok = ok && clkNet->removeConnection(conn.m_instanceKey, conn.m_pinKey);
+    {            
         auto ins = netlist->lookupInstance(conn.m_instanceKey);
         if (ins)
         {
@@ -289,6 +288,7 @@ BOOST_AUTO_TEST_CASE(check_cts)
             {
                 std::cout << "    Removing " << ins->name() << "\n";
                 ok = ok && ins->disconnectPin(conn.m_pinKey);
+                ok = ok && clkNet->removeConnection(conn.m_instanceKey, conn.m_pinKey);
             }
         }
         else
