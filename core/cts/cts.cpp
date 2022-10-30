@@ -303,35 +303,41 @@ float MeanAndMedianCTS::calcSegmentLoadCapacitance(SegmentIndex index, const Seg
     return totalCap;
 }
 
-float MeanAndMedianCTS::insertBuffers(SinkList &sinks, 
-        SegmentList &segments, 
+MeanAndMedianCTS::BufferResult MeanAndMedianCTS::insertBuffers(SegmentList &segments, 
         SegmentIndex segIndex, 
         ChipDB::Netlist &netlist,
         const CTSInfo &ctsInfo)
 {
+    BufferResult bresult;
+
     // depth first, bottom up buffer insertion
     auto const& seg = segments.at(segIndex);
-
-    float totalCap = 0.0f;
-    for(auto const& child : seg.m_children)
-    {
-        totalCap += insertBuffers(sinks, segments, child, netlist, ctsInfo);
-    }
 
     // if this segments has a cell, it is a leaf / terminal
     // add it to the sink list.
     if (seg.hasCell())
     {
-        sinks.push_back({seg.m_cell.m_insKey, seg.m_cell.m_pinKey});
-        return seg.m_cell.m_capacitance;
+        bresult.m_list.push_back({seg.m_cell.m_insKey, seg.m_cell.m_pinKey});
+        bresult.m_totalCapacitance = seg.m_cell.m_capacitance;
+        return bresult;
+    }
+
+    for(auto const& child : seg.m_children)
+    {
+        auto subtreeResult = insertBuffers(segments, child, netlist, ctsInfo);
+        
+        bresult.m_totalCapacitance += subtreeResult.m_totalCapacitance;
+
+        // add the sinks to the current list
+        bresult.m_list.insert(bresult.m_list.end(), subtreeResult.m_list.begin(), subtreeResult.m_list.end());
     }
 
     // if we exceed the max capacitance,
     // we should insert a buffer here.
-    if (totalCap >= ctsInfo.m_maxCap)
+    if (bresult.m_totalCapacitance >= ctsInfo.m_maxCap)
     {
         std::stringstream ss;
-        ss << "ctsbuffer_" << netlist.createUniqueID();
+        ss << "ctsbuffer_L" << seg.m_level << "_" << netlist.createUniqueID();
         auto bufferIns = std::make_shared<ChipDB::Instance>(ss.str(), 
             ChipDB::InstanceType::CELL, ctsInfo.m_bufferCell);
         auto bufInsKeyPtrOpt = netlist.m_instances.add(bufferIns);
@@ -363,7 +369,7 @@ float MeanAndMedianCTS::insertBuffers(SinkList &sinks,
             throw std::runtime_error(sserr.str());
         }
 
-        for(auto const& sink : sinks)
+        for(auto const& sink : bresult.m_list)
         {
             // connect net to instance
             bufNet->addConnection(sink.m_instanceKey, sink.m_pinKey);
@@ -385,14 +391,10 @@ float MeanAndMedianCTS::insertBuffers(SinkList &sinks,
         }
 
         // clear the sink list and put the input to the buffer in the list
-        sinks.clear();
-
-        sinks.push_back({bufInsKeyPtr.key(), ctsInfo.m_inputPinKey});
-
-        // the capacitance from this point onwards
-        // is the input capacitance of the buffer cell
-        totalCap = ctsInfo.m_pinCapacitance;
+        bresult.m_list.clear();
+        bresult.m_list.push_back({bufInsKeyPtr.key(), ctsInfo.m_inputPinKey});
+        bresult.m_totalCapacitance = ctsInfo.m_pinCapacitance;
     }
 
-    return totalCap;
+    return bresult;
 }

@@ -216,7 +216,13 @@ public:
 
     using SinkList = std::list<ChipDB::Net::NetConnect>;
 
-    float insertBuffers(SinkList &sinks, 
+    struct BufferResult
+    {
+        SinkList m_list;
+        float    m_totalCapacitance{0.0};
+    };
+
+    BufferResult insertBuffers(
         SegmentList &segments, 
         SegmentIndex segIndex, 
         ChipDB::Netlist &netlist,
