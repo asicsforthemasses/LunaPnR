@@ -447,6 +447,7 @@ BOOST_AUTO_TEST_CASE(check_cts)
     BOOST_CHECK(ok);
 
     //TODO: connect top_connections to clk pin
+    
 }
 
 BOOST_AUTO_TEST_SUITE_END()
