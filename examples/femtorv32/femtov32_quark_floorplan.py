@@ -28,7 +28,7 @@ setTopModule("FemtoRV32")
 
 ## place the pins
 xpos = 0
-xinc = 14000
+xinc = 16000
 yinc = 10000*2
 x = xofs+10000
 

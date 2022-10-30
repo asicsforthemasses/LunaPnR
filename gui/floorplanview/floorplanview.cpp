@@ -415,37 +415,46 @@ void FloorplanView::drawNet(QPainter &p, const std::shared_ptr<ChipDB::Net> net)
         return;
     }
 
+    if (!net->m_isClockNet) return;
+    
     auto topModule = m_db->design().getTopModule();
 
     p.setPen(QColor("#FFFFFF20"));  // transparent white
 
+    // find the driver on the net.
+    ChipDB::Coord64 driverPos;
+    ChipDB::InstanceObjectKey driverKey{ChipDB::ObjectNotFound};
+
+    for(auto const &connection : *net)
+    {
+        auto insPtr = topModule->m_netlist->lookupInstance(connection.m_instanceKey);
+        auto pin    = insPtr->getPin(connection.m_pinKey);
+        if (pin.m_pinInfo->isOutput())
+        {
+            driverPos = insPtr->getCenter();
+            driverKey = connection.m_instanceKey;
+            break;
+        }
+    }
+
+    if (driverKey == ChipDB::ObjectNotFound) return;
+
     // draw net from center to center of each instance
-    QPointF p1,p2;
-    bool first = true;
+    const QPointF src = m_viewPort.toScreen(driverPos);
+
     for(auto const &connection : *net)
     {
         auto insKey = connection.m_instanceKey;
+        if (insKey == driverKey) continue;
+
         auto insPtr = topModule->m_netlist->lookupInstance(insKey);
         if ((insPtr->m_placementInfo == ChipDB::PlacementInfo::PLACED) || 
             (insPtr->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED))
         {
             auto s = insPtr->instanceSize();
-
-            if (first)
-            {
-                p1 = m_viewPort.toScreen(insPtr->m_pos + ChipDB::Coord64{s.m_x/2, s.m_y/2});
-            }
-            else
-            {
-                p2 = m_viewPort.toScreen(insPtr->m_pos + ChipDB::Coord64{s.m_x/2, s.m_y/2});
-            }
+            QPointF dst = m_viewPort.toScreen(insPtr->getCenter());
+            p.drawLine(src,dst);
         }
-
-        if (!first)
-        {    
-            p.drawLine(p1,p2);
-        }
-        first = false;
     }
 }
 

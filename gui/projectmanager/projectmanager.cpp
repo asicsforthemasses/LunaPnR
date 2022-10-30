@@ -94,7 +94,7 @@ void ProjectManager::create()
     m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
-    actionTile = new GUI::FlatActionTile("Create tree", "://images/floorplan.png", "://images/go.png", "CREATECTSTREE");
+    actionTile = new GUI::FlatActionTile("Create tree", "://images/floorplan.png", "://images/go.png", "CTS");
     connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
     m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);

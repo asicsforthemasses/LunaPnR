@@ -41,7 +41,16 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
         ChipDB::copyFile(spefTempFile->m_name, "debug.spef");
     }
 
-    auto tclContents = createTCL(database, topModule->name(), spefTempFile->m_name);
+    auto verilogTempFile = ChipDB::createTempFile("v");
+    if (!LunaCore::Verilog::Writer::write(verilogTempFile->m_stream, topModule))
+    {
+        error("Verilog file creation failed!");
+        return;
+    }
+    verilogTempFile->close();
+    ChipDB::copyFile(verilogTempFile->m_name, "debug.v");
+
+    auto tclContents = createTCL(database, topModule->name(), spefTempFile->m_name, verilogTempFile->m_name);
 
     // create a temporary file to give to OpenSTA
     auto tclFileDescriptor = ChipDB::createTempFile("tcl");
@@ -172,7 +181,8 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
 
 std::string Tasks::CheckTiming::createTCL(const GUI::Database &database, 
     const std::string &topModuleName,
-    const std::string &spefFilename) const
+    const std::string &spefFilename,
+    const std::string &verilogFilename) const
 {
     std::stringstream tcl;
 
@@ -181,13 +191,9 @@ std::string Tasks::CheckTiming::createTCL(const GUI::Database &database,
         tcl << "read_liberty " << lib << "\n";
     }
 
-    for(auto const& verilog : database.m_projectSetup.m_verilogFiles)
-    {
-        tcl << "read_verilog " << verilog << "\n";
-    }
+    tcl << "read_verilog " << verilogFilename << "\n";
 
     tcl << "link_design " << topModuleName << "\n";
-
 
     if (m_mode == Mode::WITHSPEF)
     {
@@ -210,6 +216,13 @@ std::string Tasks::CheckTiming::createTCL(const GUI::Database &database,
     }
     tcl << R"(puts "#REPORTCHECKS")" "\n";
     tcl << "report_checks\n";
+
+    if (m_mode == Mode::CTS)
+    {
+        tcl << R"(puts "#CHECKCLOCKSKEW")" "\n";
+        tcl << "report_clock_skew -setup\n";
+        tcl << "report_clock_skew -hold\n";
+    }
 
     return tcl.str();
 }

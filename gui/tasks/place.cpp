@@ -92,6 +92,7 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
         warning("  failed to open netpos.txt for writing\n");
     }
 
+#if 0
     info("Placing fillers..\n");
     LunaCore::FillerHandler fillerHandler(*cellLib.get());
 
@@ -104,6 +105,7 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
     {
         info("  succeeded!\n");
     }
+#endif
 
     // temporarily save the placement as a DEF file
     std::ofstream deffile("placement.def");
@@ -114,6 +116,7 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
     {
         info("  DEF file written.\n");
     }
-
+    
+    info("Placement done.\n");
     done();
 }

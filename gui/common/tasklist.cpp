@@ -8,6 +8,7 @@
 #include "customevents.h"
 
 #include "tasks/checktiming.h"
+#include "tasks/ctstask.h"
 #include "tasks/readallfiles.h"
 #include "tasks/preflightchecks.h"
 #include "tasks/createfloorplan.h"
@@ -22,12 +23,14 @@ using namespace GUI;
 
 TaskList::TaskList(QObject *projectManager) : m_projectManager(projectManager)
 {
+    //Note: the order must reflect the order in the ProjectManager.
     createTask("ReadAllFiles", new Tasks::ReadAllFiles);
     createTask("PreflightChecks", new Tasks::PreflightChecks);
     createTask("CreateFloorplan", new Tasks::CreateFloorplan);    
     createTask("PLACE", new Tasks::Place);
-    createTask("TIMINGREPORT1", new Tasks::CheckTiming(Tasks::CheckTiming::Mode::BARE));
-    createTask("GLOBALROUTE", new Tasks::GlobalRoute);
+    createTask("CTS", new Tasks::CTS);
+    createTask("TIMINGREPORT1", new Tasks::CheckTiming(Tasks::CheckTiming::Mode::CTS));
+    createTask("GLOBALROUTE", new Tasks::GlobalRoute);    
     createTask("TIMINGREPORT2", new Tasks::CheckTiming(Tasks::CheckTiming::Mode::WITHSPEF));
 }
 

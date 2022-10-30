@@ -16,6 +16,7 @@ public:
     enum class Mode
     {
         BARE,
+        CTS,
         WITHSPEF
     };
 
@@ -26,7 +27,8 @@ public:
 protected:
     std::string createTCL(const GUI::Database &database, 
         const std::string &topModuleName,
-        const std::string &spefFilename) const;
+        const std::string &spefFilename,
+        const std::string &verilogFilename) const;
         
     void execute(GUI::Database &database, ProgressCallback callback) override;
 

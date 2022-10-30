@@ -354,6 +354,7 @@ MeanAndMedianCTS::BufferResult MeanAndMedianCTS::insertBuffers(SegmentList &segm
         
         // place the buffer at the segment end position.
         bufferIns->m_pos = seg.m_end;
+        bufferIns->m_placementInfo = ChipDB::PlacementInfo::PLACED;
 
         // connect all sinks to this buffer via a new net
         ss.str("");
@@ -369,10 +370,16 @@ MeanAndMedianCTS::BufferResult MeanAndMedianCTS::insertBuffers(SegmentList &segm
             throw std::runtime_error(sserr.str());
         }
 
+        bufNet->setClockNet(true);
+
+        auto origClkNet = netlist.lookupNet(ctsInfo.m_clkNetKey);
         for(auto const& sink : bresult.m_list)
         {
             // connect net to instance
             bufNet->addConnection(sink.m_instanceKey, sink.m_pinKey);
+
+            // remove instance from original clock net
+            origClkNet->removeConnection(sink.m_instanceKey, sink.m_pinKey);
 
             // connect instance to net
             auto connInsKeyPtr = netlist.lookupInstance(sink.m_instanceKey);

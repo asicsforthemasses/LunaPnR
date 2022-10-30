@@ -85,7 +85,7 @@ protected:
     bool  m_dirty{true};
 
     bool  m_crosshairEnabled{true};
-    bool  m_showNets{false};
+    bool  m_showNets{true};
 };
 
 };  // namespace
