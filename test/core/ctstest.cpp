@@ -25,18 +25,19 @@ using SegmentList = LunaCore::CTS::MeanAndMedianCTS::SegmentList;
 using SegmentIndex = LunaCore::CTS::MeanAndMedianCTS::SegmentIndex;
 using CTSInfo = LunaCore::CTS::MeanAndMedianCTS::CTSInfo;
 
+#if 0
 bool instantiateClockNetwork(const ChipDB::CellLib &cellLib, 
     ChipDB::Netlist &netlist, 
     SegmentList &segments, 
     SegmentIndex index,
     std::list<ChipDB::Net::NetConnect> &connections)
 {
-    std::cout << "  icn: index=" << index << "\n";
+    //std::cout << "  icn: index=" << index << "\n";
 
     auto const& seg = segments.at(index);
     if (seg.hasBuffer())
     {
-        std::cout << "    icn:  buffer\n";
+        //std::cout << "    icn:  buffer\n";
 
         // create a buffer
         auto buffer = std::get<LunaCore::CTS::CTSBuffer>(seg.m_cell);
@@ -67,6 +68,9 @@ bool instantiateClockNetwork(const ChipDB::CellLib &cellLib,
         auto bufInsKeyPtr = bufInsKeyPtrOpt.value();
         if (!bufInsKeyPtr.isValid()) 
             return false;
+
+        // place the buffer at the end of the segment location.
+        bufIns->m_pos = seg.m_end;
 
         auto inputPinKey = ChipDB::ObjectNotFound;
         auto outputPinKey = ChipDB::ObjectNotFound;
@@ -101,28 +105,42 @@ bool instantiateClockNetwork(const ChipDB::CellLib &cellLib,
         ss << "ctsnet_" << netlist.createUniqueID();
 
         auto netKeyPtr = netlist.createNet(ss.str());
-        for(auto bufconn : connectionsToBuffer)
+        for(auto bufOutputConn : connectionsToBuffer)
         {
-            auto connInsKeyPtr = netlist.lookupInstance(bufconn.m_instanceKey);
+            auto connInsKeyPtr = netlist.lookupInstance(bufOutputConn.m_instanceKey);
             if (!connInsKeyPtr) 
                 return false;
 
-            // connect the clocked instance to the buffer.
-            connInsKeyPtr->setPinNet(bufconn.m_pinKey, netKeyPtr.key());
+            // connect the clocked instance to the buffer net.
+            connInsKeyPtr->setPinNet(bufOutputConn.m_pinKey, netKeyPtr.key());
 
             // connect the net to the clocked instance.
-            netKeyPtr->addConnection(bufconn.m_instanceKey, bufconn.m_pinKey);
+            netKeyPtr->addConnection(bufOutputConn.m_instanceKey, bufOutputConn.m_pinKey);
         }
 
         // add the buffer output to the net too.
         netKeyPtr->addConnection(bufInsKeyPtr.key(), outputPinKey);
 
+        // connect the buffer output pin to the net.
+        bufInsKeyPtr->setPinNet(outputPinKey, netKeyPtr.key());
+
+        // create a new net and 
+        // connect all the connected cells to the output
+        // of this buffer
+        //ss.str("");
+        //ss << "ctsnet_" << netlist.createUniqueID();
+
+        //auto bufferInputNet = netlist.createNet(ss.str());
+        //bufferInputNet->addConnection(inputPinKey, bufInsKeyPtr.key());
+
+        // popagate the buffer to level above.
         connections.push_back({bufInsKeyPtr.key(), inputPinKey});
+
         return true;
     }
     else if (seg.hasClockedCell())
     {
-        std::cout << "    icn:  cell\n";
+        //std::cout << "    icn:  cell\n";
         // connect instance to 
         auto ctscell = std::get<LunaCore::CTS::CTSNode>(seg.m_cell);
         if (!ctscell.isValid()) 
@@ -146,6 +164,7 @@ bool instantiateClockNetwork(const ChipDB::CellLib &cellLib,
         return true;
     }
 }
+#endif
 
 BOOST_AUTO_TEST_CASE(check_cts)
 {
@@ -379,17 +398,37 @@ BOOST_AUTO_TEST_CASE(check_cts)
     auto bufferInput = bufferCell->lookupPin("A");
     BOOST_REQUIRE(bufferInput.isValid());
 
+    auto bufferOutput = bufferCell->lookupPin("Y");
+    BOOST_REQUIRE(bufferOutput.isValid());
+
     LunaCore::CTS::MeanAndMedianCTS::CTSInfo ctsinfo;
 
     ctsinfo.m_pinCapacitance = bufferInput->m_cap;
-    ctsinfo.m_inputPinName = "A";
-    ctsinfo.m_outputPinName = "Y";
-    ctsinfo.m_maxCap = 0.2e-12;     // 200 fF, no idea if this is realistic
-    ctsinfo.m_cellName = "CLKBUF2";
+    ctsinfo.m_inputPinKey    = bufferInput.key();
+    ctsinfo.m_outputPinKey   = bufferOutput.key();
+    ctsinfo.m_bufferCell     = bufferCell.ptr();
+    ctsinfo.m_maxCap         = 0.2e-12;     // 200 fF, no idea if this is realistic
+    ctsinfo.m_clkNetKey      = clkNet.key();
+    
+    BOOST_CHECK(ctsinfo.m_inputPinKey != ChipDB::ObjectNotFound);
+    BOOST_CHECK(ctsinfo.m_outputPinKey != ChipDB::ObjectNotFound);
 
-    float driveCap = cts.insertBuffers(tree.value(), 0, ctsinfo);
+    std::list<ChipDB::Net::NetConnect> sinks;
+    float driveCap = cts.insertBuffers(sinks, tree.value(), 0, *netlist, ctsinfo);
     std::cout << "  Buffered net has " << driveCap << " F at the input\n";
 
+    // connect clk net to buffer
+    for(auto const& sink : sinks)
+    {
+        // connect net to instance
+        clkNet->addConnection(sink.m_instanceKey, sink.m_pinKey);
+
+        // connect instance to net
+        auto connInsKeyPtr = netlist->lookupInstance(sink.m_instanceKey);
+        connInsKeyPtr->setPinNet(sink.m_pinKey, clkNet.key());
+    }
+
+#if 0
     // count the number of buffers
     std::size_t numberOfBuffers = 0;
     for(auto const& seg : tree.value())
@@ -446,8 +485,19 @@ BOOST_AUTO_TEST_CASE(check_cts)
     ok = instantiateClockNetwork(*design.m_cellLib, *netlist, tree.value(), 0, top_connections);
     BOOST_CHECK(ok);
 
-    //TODO: connect top_connections to clk pin
-    
+    //add top_connections to clk net
+    for(auto top_conn : top_connections)
+    {
+        clkNet->addConnection(top_conn.m_instanceKey, top_conn.m_pinKey);
+        auto insPtr = netlist->lookupInstance(top_conn.m_instanceKey);
+        insPtr->setPinNet(top_conn.m_pinKey, clkNet.key());
+    }
+#endif
+
+    // write the verilog netlist
+    std::ofstream ofile("test/files/results/cts.v");
+    BOOST_REQUIRE(ofile.good());
+    BOOST_CHECK(LunaCore::Verilog::Writer::write(ofile, mod.ptr()));
 }
 
 BOOST_AUTO_TEST_SUITE_END()

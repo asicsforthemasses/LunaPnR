@@ -6,7 +6,7 @@
 using namespace LunaCore::CTS;
 
 void MeanAndMedianCTS::recursiveSubdivision(const ChipDB::Netlist &netlist, CTSNodeList &nodes,
-    SegmentList &segments, SegmentIndex topSegIndex)
+    SegmentList &segments, SegmentIndex topSegIndex, int level)
 {
     if (nodes.size() == 1) 
     {        
@@ -33,10 +33,10 @@ void MeanAndMedianCTS::recursiveSubdivision(const ChipDB::Netlist &netlist, CTSN
     nodes.clear();
 
     // route from center to leftCoord
-    auto leftSegIndex = segments.createSegment(center, leftCoord, topSegIndex);
+    auto leftSegIndex = segments.createSegment(center, leftCoord, topSegIndex, level + 1);
 
     // route from center to rightCoord
-    auto rightSegIndex = segments.createSegment(center, rightCoord, topSegIndex);
+    auto rightSegIndex = segments.createSegment(center, rightCoord, topSegIndex, level + 1);
 
     segments.at(topSegIndex).addChild(leftSegIndex);
     segments.at(topSegIndex).addChild(rightSegIndex);
@@ -58,9 +58,9 @@ void MeanAndMedianCTS::recursiveSubdivision(const ChipDB::Netlist &netlist, CTSN
     if (!bl.empty()) 
     {
         if (bl.size() == 1)
-            bl_top = segments.createSegment(leftCoord, blCoord, leftSegIndex, bl.front());
+            bl_top = segments.createSegment(leftCoord, blCoord, leftSegIndex, bl.front(), level + 2);
         else
-            bl_top = segments.createSegment(leftCoord, blCoord, leftSegIndex);
+            bl_top = segments.createSegment(leftCoord, blCoord, leftSegIndex, level + 2);
 
         segments.at(leftSegIndex).addChild(bl_top);
     }
@@ -69,9 +69,9 @@ void MeanAndMedianCTS::recursiveSubdivision(const ChipDB::Netlist &netlist, CTSN
     if (!tl.empty()) 
     {
         if (tl.size() == 1)
-            tl_top = segments.createSegment(leftCoord, tlCoord, leftSegIndex, tl.front());
+            tl_top = segments.createSegment(leftCoord, tlCoord, leftSegIndex, tl.front(), level + 2);
         else
-            tl_top = segments.createSegment(leftCoord, tlCoord, leftSegIndex);
+            tl_top = segments.createSegment(leftCoord, tlCoord, leftSegIndex, level + 2);
 
         segments.at(leftSegIndex).addChild(tl_top);
     }
@@ -81,9 +81,9 @@ void MeanAndMedianCTS::recursiveSubdivision(const ChipDB::Netlist &netlist, CTSN
     if (!br.empty()) 
     {
         if (br.size() == 1)
-            br_top = segments.createSegment(rightCoord, brCoord, rightSegIndex, br.front());
+            br_top = segments.createSegment(rightCoord, brCoord, rightSegIndex, br.front(), level + 2);
         else
-            br_top = segments.createSegment(rightCoord, brCoord, rightSegIndex);
+            br_top = segments.createSegment(rightCoord, brCoord, rightSegIndex, level + 2);
 
         segments.at(rightSegIndex).addChild(br_top);
     }
@@ -92,9 +92,9 @@ void MeanAndMedianCTS::recursiveSubdivision(const ChipDB::Netlist &netlist, CTSN
     if (!tr.empty()) 
     {
         if (tr.size() == 1)
-            tr_top = segments.createSegment(rightCoord, trCoord, rightSegIndex, tr.front());
+            tr_top = segments.createSegment(rightCoord, trCoord, rightSegIndex, tr.front(), level + 2);
         else
-            tr_top = segments.createSegment(rightCoord, trCoord, rightSegIndex);
+            tr_top = segments.createSegment(rightCoord, trCoord, rightSegIndex, level + 2);
 
         segments.at(rightSegIndex).addChild(tr_top);
     }
@@ -103,10 +103,10 @@ void MeanAndMedianCTS::recursiveSubdivision(const ChipDB::Netlist &netlist, CTSN
     left.clear();
     right.clear();
 
-    recursiveSubdivision(netlist, bl, segments, bl_top);
-    recursiveSubdivision(netlist, tl, segments, tl_top);
-    recursiveSubdivision(netlist, br, segments, br_top);
-    recursiveSubdivision(netlist, tr, segments, tr_top);
+    recursiveSubdivision(netlist, bl, segments, bl_top, level+2);
+    recursiveSubdivision(netlist, tl, segments, tl_top, level+2);
+    recursiveSubdivision(netlist, br, segments, br_top, level+2);
+    recursiveSubdivision(netlist, tr, segments, tr_top, level+2);
 }
 
 std::optional<MeanAndMedianCTS::SegmentList> MeanAndMedianCTS::generateTree
@@ -188,7 +188,7 @@ std::optional<MeanAndMedianCTS::SegmentList> MeanAndMedianCTS::generateTree
     }
 
     SegmentList segments;
-    segments.createSegment(driverPos, {0,0}, -1);   // add the driver node
+    segments.createSegment(driverPos, {0,0}, -1, 0);   // add the driver node
     recursiveSubdivision(netlist, clkNodes, segments);
 
     if (segments.size() > 1)
@@ -292,18 +292,7 @@ float MeanAndMedianCTS::calcSegmentLoadCapacitance(SegmentIndex index, const Seg
     // if the segment has a cell, return the pin capacitance
     if (seg.hasCell())
     {
-        if (std::holds_alternative<CTSNode>(seg.m_cell))
-        {
-            return std::get<CTSNode>(seg.m_cell).m_capacitance;
-        }
-
-        if (std::holds_alternative<CTSBuffer>(seg.m_cell))
-        {
-            return std::get<CTSBuffer>(seg.m_cell).m_capacitance;
-        }        
-        
-        assert(false);
-        return 0.0f;    // error
+        return seg.m_cell.m_capacitance; 
     }
 
     float totalCap = 0.0;
@@ -314,43 +303,95 @@ float MeanAndMedianCTS::calcSegmentLoadCapacitance(SegmentIndex index, const Seg
     return totalCap;
 }
 
-/** TODO: Save the pin capacitance in the SegmentList and use that as 
- *  the basis for calcSegmentLoadCapacitance. Only end points have an instance assigned.
- *  This helps placing clock buffers. We might need to add additional information to 
- *  the segment, i.e. archetype only based info for buffers and insert actual
- *  instances into the netlist only when we're satisfied the clock tree is okay.
- * 
- *  we might even be able to run OpenSTA using this segment tree, without having 
- *  to run the complete netlist. This allows us to test various configurations.
-*/
-
-float MeanAndMedianCTS::insertBuffers(SegmentList &segments, SegmentIndex segIndex, const CTSInfo &ctsInfo) 
+float MeanAndMedianCTS::insertBuffers(SinkList &sinks, 
+        SegmentList &segments, 
+        SegmentIndex segIndex, 
+        ChipDB::Netlist &netlist,
+        const CTSInfo &ctsInfo)
 {
     // depth first, bottom up buffer insertion
     auto const& seg = segments.at(segIndex);
 
-    if (std::holds_alternative<CTSBuffer>(seg.m_cell))
-    {
-        return std::get<CTSBuffer>(seg.m_cell).m_capacitance;
-    }
-
-    if (std::holds_alternative<CTSNode>(seg.m_cell))
-    {
-        return std::get<CTSNode>(seg.m_cell).m_capacitance;
-    }
-
     float totalCap = 0.0f;
     for(auto const& child : seg.m_children)
     {
-        totalCap += insertBuffers(segments, child, ctsInfo);
+        totalCap += insertBuffers(sinks, segments, child, netlist, ctsInfo);
     }
 
+    // if this segments has a cell, it is a leaf / terminal
+    // add it to the sink list.
+    if (seg.hasCell())
+    {
+        sinks.push_back({seg.m_cell.m_insKey, seg.m_cell.m_pinKey});
+        return seg.m_cell.m_capacitance;
+    }
+
+    // if we exceed the max capacitance,
+    // we should insert a buffer here.
     if (totalCap >= ctsInfo.m_maxCap)
     {
-        // put a buffer in the segment
-        auto &bufferSeg = segments.at(segIndex);
-        bufferSeg.m_cell = CTSBuffer(ctsInfo.m_cellName, ctsInfo.m_pinCapacitance);
-        return ctsInfo.m_pinCapacitance;
+        std::stringstream ss;
+        ss << "ctsbuffer_" << netlist.createUniqueID();
+        auto bufferIns = std::make_shared<ChipDB::Instance>(ss.str(), 
+            ChipDB::InstanceType::CELL, ctsInfo.m_bufferCell);
+        auto bufInsKeyPtrOpt = netlist.m_instances.add(bufferIns);
+        if (!bufInsKeyPtrOpt)
+        {
+            throw std::runtime_error("cts cannot create buffer");
+        }
+        auto bufInsKeyPtr = bufInsKeyPtrOpt.value();
+
+        if (!bufInsKeyPtr.isValid())
+        {
+            throw std::runtime_error("cts cannot create buffer");
+        }
+        
+        // place the buffer at the segment end position.
+        bufferIns->m_pos = seg.m_end;
+
+        // connect all sinks to this buffer via a new net
+        ss.str("");
+        ss << "ctsnet_" << netlist.createUniqueID();        
+        auto bufNet = netlist.createNet(ss.str());
+
+        Logging::doLog(Logging::LogType::VERBOSE, "  created net %s key=%ld\n", bufNet->name().c_str(), bufNet.key());
+
+        if (!bufNet.isValid())
+        {
+            std::stringstream sserr;
+            sserr << "error creating buffer net " << ss.str() << "\n";
+            throw std::runtime_error(sserr.str());
+        }
+
+        for(auto const& sink : sinks)
+        {
+            // connect net to instance
+            bufNet->addConnection(sink.m_instanceKey, sink.m_pinKey);
+
+            // connect instance to net
+            auto connInsKeyPtr = netlist.lookupInstance(sink.m_instanceKey);
+            connInsKeyPtr->setPinNet(sink.m_pinKey, bufNet.key());
+        }
+
+        // connect net to buffer
+        bufNet->addConnection(bufInsKeyPtr.key(), ctsInfo.m_outputPinKey);
+
+        // connect buffer to net
+        if (!bufferIns->setPinNet(ctsInfo.m_outputPinKey, bufNet.key()))
+        {
+            std::stringstream sserr;
+            sserr << "error setting output pin of buffer instance to net key " << bufNet.key() << "\n";
+            throw std::runtime_error(sserr.str());
+        }
+
+        // clear the sink list and put the input to the buffer in the list
+        sinks.clear();
+
+        sinks.push_back({bufInsKeyPtr.key(), ctsInfo.m_inputPinKey});
+
+        // the capacitance from this point onwards
+        // is the input capacitance of the buffer cell
+        totalCap = ctsInfo.m_pinCapacitance;
     }
 
     return totalCap;

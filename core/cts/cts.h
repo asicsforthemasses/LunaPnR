@@ -28,21 +28,6 @@ struct CTSNode
     }
 };
 
-struct CTSBuffer
-{
-    CTSBuffer(const std::string &cellName, float pinCapacitance) 
-        : m_cellName(cellName), m_capacitance(pinCapacitance)
-    {    
-    }
-
-    std::string m_cellName;
-    float       m_capacitance{0.0f};
-
-    [[nodiscard]] bool isValid() const noexcept
-    {
-        return ((!m_cellName.empty()) && (m_capacitance > 0.0f));
-    }
-};
 
 /** list of terminal nodes on the clock network */
 class CTSNodeList
@@ -124,7 +109,8 @@ public:
         ChipDB::Coord64 m_start;
         ChipDB::Coord64 m_end;
         SegmentIndex    m_parent{-1};
-        std::variant<CTSNull, CTSNode, CTSBuffer> m_cell{CTSNull{}}; ///< clock end point or buffer cell
+        CTSNode         m_cell;         ///< clock end point or buffer cell
+        int             m_level{0};     ///< depth level
         std::vector<SegmentIndex> m_children;
 
         void addChild(ChipDB::InstanceObjectKey key)
@@ -141,35 +127,7 @@ public:
         /** true if the clock network has a cell (buffer or clocked cell) at this segment end */
         [[nodiscard]] constexpr bool hasCell() const noexcept
         {
-            if (std::holds_alternative<CTSBuffer>(m_cell))
-            {
-                return std::get<CTSBuffer>(m_cell).isValid();
-            }
-            else if (std::holds_alternative<CTSNode>(m_cell))
-            {
-                return std::get<CTSNode>(m_cell).isValid();
-            }            
-            return false;
-        }
-
-        /** true if the clock network has a buffer at this segment end */
-        [[nodiscard]] constexpr bool hasBuffer() const noexcept
-        {
-            if (std::holds_alternative<CTSBuffer>(m_cell))
-            {
-                return std::get<CTSBuffer>(m_cell).isValid();
-            }
-            return false;
-        }
-
-        /** true if the clock network has a non-buffer at this segment end */
-        [[nodiscard]] constexpr bool hasClockedCell() const noexcept
-        {
-            if (std::holds_alternative<CTSNode>(m_cell))
-            {
-                return std::get<CTSNode>(m_cell).isValid();
-            }
-            return false;
+            return m_cell.isValid();
         }
 
         /** check if the segment is valid. 
@@ -196,25 +154,26 @@ public:
 
         /** create a segment without a cell attached */
         SegmentIndex createSegment(const ChipDB::Coord64 &s, const ChipDB::Coord64 &e,
-            SegmentIndex parentIndex)
+            SegmentIndex parentIndex, int level)
         {
             auto &seg = m_segments.emplace_back();
             seg.m_start = s;
             seg.m_end   = e;
-            seg.m_cell  = CTSNull{};
             seg.m_parent = parentIndex;
+            seg.m_level = level;
             return m_segments.size() - 1;
         }
 
         /** create a segment with a cell attached */
         SegmentIndex createSegment(const ChipDB::Coord64 &s, const ChipDB::Coord64 &e,
-            SegmentIndex parentIndex, const CTSNode &ctsnode)
+            SegmentIndex parentIndex, const CTSNode &ctsnode, int level)
         {
             auto &seg = m_segments.emplace_back();
             seg.m_start = s;
             seg.m_end   = e;
             seg.m_cell  = ctsnode;
             seg.m_parent = parentIndex;
+            seg.m_level = level;
             return m_segments.size() - 1;
         }
 
@@ -247,19 +206,26 @@ public:
 
     struct CTSInfo
     {
-        std::string m_cellName;
-        std::string m_inputPinName;
-        std::string m_outputPinName;
+        ChipDB::NetObjectKey m_clkNetKey{ChipDB::ObjectNotFound};
+        std::shared_ptr<ChipDB::Cell> m_bufferCell;
+        ChipDB::PinObjectKey m_inputPinKey{ChipDB::ObjectNotFound};
+        ChipDB::PinObjectKey m_outputPinKey{ChipDB::ObjectNotFound};
         float       m_pinCapacitance{0.0f};
         float       m_maxCap{0.0f};
     };
 
-    float insertBuffers(SegmentList &segments, SegmentIndex segIndex, const CTSInfo &ctsInfo);
+    using SinkList = std::list<ChipDB::Net::NetConnect>;
+
+    float insertBuffers(SinkList &sinks, 
+        SegmentList &segments, 
+        SegmentIndex segIndex, 
+        ChipDB::Netlist &netlist,
+        const CTSInfo &ctsInfo);
 
 protected:
     
     void recursiveSubdivision(const ChipDB::Netlist &netlist, CTSNodeList &nodes, 
-        SegmentList &segments, SegmentIndex topSegIndex = 0);
+        SegmentList &segments, SegmentIndex topSegIndex = 0, int level = 0);
 };
 
 };
