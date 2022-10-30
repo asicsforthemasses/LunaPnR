@@ -19,7 +19,8 @@ namespace ChipDB
 class Netlist
 {
 public:
-    
+    Netlist() = default;
+
     void clear();
 
     IMPLEMENT_ACCEPT;
@@ -34,9 +35,14 @@ public:
     KeyObjPair<Net> lookupNet(const std::string &name);
 
     KeyObjPair<Net> createNet(const std::string &netName);
-
+    
     bool connect(const std::string &insName, const std::string &pinName, const std::string &netName);
     bool connect(InstanceObjectKey insKey, PinObjectKey pinKey, NetObjectKey netKey);
+
+    std::size_t createUniqueID();
+    
+protected:
+    std::size_t m_uniqueCounter{0};
 };
 
 };  // namespace

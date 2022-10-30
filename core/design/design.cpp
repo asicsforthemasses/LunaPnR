@@ -6,7 +6,7 @@
 
 using namespace ChipDB;
 
-Design::Design() : m_topModule(nullptr), m_uniqueIDCounter(0)
+Design::Design()
 {
     m_techLib = std::make_shared<TechLib>();
     m_cellLib = std::make_shared<CellLib>();

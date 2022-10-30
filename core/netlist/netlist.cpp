@@ -16,6 +16,12 @@ void Netlist::clear()
     m_nets.clear();
 }
 
+std::size_t Netlist::createUniqueID()
+{
+    m_uniqueCounter++;
+    return m_uniqueCounter;
+}
+
 KeyObjPair<Net> Netlist::createNet(const std::string &netName)
 {
     // check if the net exists

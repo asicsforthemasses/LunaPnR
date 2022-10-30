@@ -21,7 +21,6 @@ public:
     /** clear netlist, celllib, modules and technology information */
     void clear();
 
-    //std::shared_ptr<Netlist>    m_netlist;
     std::shared_ptr<CellLib>    m_cellLib;
     std::shared_ptr<ModuleLib>  m_moduleLib;
     std::shared_ptr<TechLib>    m_techLib;
@@ -41,7 +40,7 @@ public:
 
 protected:
     std::shared_ptr<ChipDB::Module> m_topModule;
-    uint32_t m_uniqueIDCounter;
+    uint32_t m_uniqueIDCounter{0};
 };
 
 };

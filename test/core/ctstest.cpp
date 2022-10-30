@@ -10,6 +10,8 @@
 #include <fstream>
 #include <stdexcept>
 #include <algorithm>
+#include <variant>
+#include <list>
 #include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(CTSTest)
@@ -19,6 +21,131 @@ TinySVGPP::Point toSVGPoint(const ChipDB::Coord64 &p)
     return {static_cast<float>(p.m_x), static_cast<float>(p.m_y)};
 }
 
+using SegmentList = LunaCore::CTS::MeanAndMedianCTS::SegmentList;
+using SegmentIndex = LunaCore::CTS::MeanAndMedianCTS::SegmentIndex;
+using CTSInfo = LunaCore::CTS::MeanAndMedianCTS::CTSInfo;
+
+bool instantiateClockNetwork(const ChipDB::CellLib &cellLib, 
+    ChipDB::Netlist &netlist, 
+    SegmentList &segments, 
+    SegmentIndex index,
+    std::list<ChipDB::Net::NetConnect> &connections)
+{
+    std::cout << "  icn: index=" << index << "\n";
+
+    auto const& seg = segments.at(index);
+    if (seg.hasBuffer())
+    {
+        std::cout << "    icn:  buffer\n";
+
+        // create a buffer
+        auto buffer = std::get<LunaCore::CTS::CTSBuffer>(seg.m_cell);
+        if (!buffer.isValid()) 
+            return false;
+
+        std::list<ChipDB::Net::NetConnect> connectionsToBuffer;
+        for(auto child : seg.m_children)
+        {
+            if (!instantiateClockNetwork(cellLib, netlist, segments, child, connectionsToBuffer))
+            {
+                return false;
+            }
+        }
+
+        auto cell = cellLib.lookupCell(buffer.m_cellName);
+        if (!cell.isValid()) return false;
+
+        std::stringstream ss;
+        ss << "ctsbuffer_" << netlist.createUniqueID();
+
+        auto bufIns = std::make_shared<ChipDB::Instance>(ss.str(), ChipDB::InstanceType::CELL, cell.ptr());
+        auto bufInsKeyPtrOpt = netlist.m_instances.add(bufIns);
+
+        if (!bufInsKeyPtrOpt) 
+            return false;
+
+        auto bufInsKeyPtr = bufInsKeyPtrOpt.value();
+        if (!bufInsKeyPtr.isValid()) 
+            return false;
+
+        auto inputPinKey = ChipDB::ObjectNotFound;
+        auto outputPinKey = ChipDB::ObjectNotFound;
+
+        // find the input and output pins of
+        // the buffer.
+        ChipDB::PinObjectKey pinKey{0};
+        for(auto pin : bufInsKeyPtr->pins())
+        {
+            if (pin->isInput())
+            {
+                inputPinKey = pinKey;
+            }
+            else if (pin->isOutput())
+            {
+                outputPinKey = pinKey;
+            }
+            pinKey++;
+        }
+
+        // check that we found both pins
+        if ((inputPinKey == ChipDB::ObjectNotFound) || (outputPinKey == ChipDB::ObjectNotFound))
+        {
+            std::cerr << "  buffer io not found\n";
+            return false;            
+        }
+
+        // create a new net and 
+        // connect all the connected cells to the output
+        // of this buffer
+        ss.str("");
+        ss << "ctsnet_" << netlist.createUniqueID();
+
+        auto netKeyPtr = netlist.createNet(ss.str());
+        for(auto bufconn : connectionsToBuffer)
+        {
+            auto connInsKeyPtr = netlist.lookupInstance(bufconn.m_instanceKey);
+            if (!connInsKeyPtr) 
+                return false;
+
+            // connect the clocked instance to the buffer.
+            connInsKeyPtr->setPinNet(bufconn.m_pinKey, netKeyPtr.key());
+
+            // connect the net to the clocked instance.
+            netKeyPtr->addConnection(bufconn.m_instanceKey, bufconn.m_pinKey);
+        }
+
+        // add the buffer output to the net too.
+        netKeyPtr->addConnection(bufInsKeyPtr.key(), outputPinKey);
+
+        connections.push_back({bufInsKeyPtr.key(), inputPinKey});
+        return true;
+    }
+    else if (seg.hasClockedCell())
+    {
+        std::cout << "    icn:  cell\n";
+        // connect instance to 
+        auto ctscell = std::get<LunaCore::CTS::CTSNode>(seg.m_cell);
+        if (!ctscell.isValid()) 
+        {
+            std::cout << "  ctscell: " << ctscell.m_insKey << " " << ctscell.m_pinKey << "\n";
+            return false;
+        }
+
+        connections.push_back({ctscell.m_insKey, ctscell.m_pinKey});
+        return true;
+    }
+    else
+    {
+        for(auto child : seg.m_children)
+        {
+            if (!instantiateClockNetwork(cellLib, netlist, segments, child, connections))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+}
 
 BOOST_AUTO_TEST_CASE(check_cts)
 {
@@ -286,7 +413,7 @@ BOOST_AUTO_TEST_CASE(check_cts)
             // only remove the sinks
             if (ins->getPin(conn.m_pinKey).m_pinInfo->isInput())
             {
-                std::cout << "    Removing " << ins->name() << "\n";
+                //std::cout << "    Removing " << ins->name() << "\n";
                 ok = ok && ins->disconnectPin(conn.m_pinKey);
                 ok = ok && clkNet->removeConnection(conn.m_instanceKey, conn.m_pinKey);
             }
@@ -299,9 +426,27 @@ BOOST_AUTO_TEST_CASE(check_cts)
 
     BOOST_CHECK(ok);
 
-    // there should be only 1 connection left
+    // there should be only 1 connection left, the net driver.
     std::cout << "  Connections after removing sinks: " << clkNet->numberOfConnections() << "\n";
     BOOST_CHECK(clkNet->numberOfConnections() == 1);
+
+    // display the net drivers
+    for(auto conn : *clkNet)
+    {
+        auto ins = netlist->lookupInstance(conn.m_instanceKey);
+        BOOST_REQUIRE(ins);
+
+        if (ins)
+        {
+            std::cout << "  net driver: '" << ins->name() << "' archetype: '" << ins->getArchetypeName() << "'\n";
+        }
+    }
+
+    std::list<ChipDB::Net::NetConnect> top_connections;
+    ok = instantiateClockNetwork(*design.m_cellLib, *netlist, tree.value(), 0, top_connections);
+    BOOST_CHECK(ok);
+
+    //TODO: connect top_connections to clk pin
 }
 
 BOOST_AUTO_TEST_SUITE_END()

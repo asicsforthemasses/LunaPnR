@@ -8,6 +8,7 @@
 #include <vector>
 #include <memory>
 #include <array>
+#include <stdexcept>
 #include "common/visitor.h"
 #include "celllib/cell.h"
 #include "celllib/module.h"
@@ -101,6 +102,17 @@ public:
     [[nodiscard]] const std::shared_ptr<Cell> cell() const noexcept
     {
         return m_cell;
+    }
+
+    /** get access to the cell/module, if there is one */
+    [[nodiscard]] const ChipDB::PinInfoList& pins() const
+    {
+        if (!m_cell)
+        {
+            throw std::runtime_error("Instance::pins() cannot return information because m_cell is nullptr.");
+        }
+
+        return m_cell->m_pins;
     }
 
     /** return the center position of the instance */
@@ -235,115 +247,5 @@ protected:
     std::string     m_name;                             ///< name of the instance
     InstanceType    m_insType{InstanceType::UNKNOWN};
 };
-
-#if 0
-class Instance : public InstanceBase
-{
-public:
-    Instance(const std::string &name, const std::shared_ptr<Cell> cell) : InstanceBase(name), m_cell(cell)
-    {
-        if (cell->isModule())
-            m_insType = InstanceType::MODULE;
-        else
-            m_insType = InstanceType::CELL;
-
-        m_pinToNet.resize(cell->m_pins.size(), ChipDB::ObjectNotFound);
-    }
-
-    virtual ~Instance() = default;
-
-    IMPLEMENT_ACCEPT_OVERRIDE;
-
-    /** get access to the cell/module, if there is one */
-    const std::shared_ptr<Cell> cell() const
-    {
-        return m_cell;
-    }
-
-    /** return the cell size of the instance */
-    const Coord64 instanceSize() const override
-    {
-        if (m_cell == nullptr)
-            return Coord64{0,0};
-            
-        return m_cell->m_size;
-    }
-
-    /** return the center position of the instance */
-    Coord64 getCenter() const override
-    {
-        if (m_cell != nullptr)
-            return Coord64{m_pos.m_x + m_cell->m_size.m_x/2, m_pos.m_y + m_cell->m_size.m_y/2};
-        else
-            return m_pos;
-    }
-
-    /** get area in um² */
-    double getArea() const noexcept override;
-
-    /** return the underlying cell/module name */
-    std::string getArchetypeName() const override;
-
-    Pin createPin(const std::string &pinName) const;
-
-    Pin getPin(PinObjectKey key) const override;
-    Pin getPin(const std::string &pinName) const override;
-    bool setPinNet(PinObjectKey pinKey, NetObjectKey netKey) override;
-    size_t getNumberOfPins() const override;
-
-protected:
-    const std::shared_ptr<Cell> m_cell;
-};
-
-class PinInstance : public InstanceBase
-{
-public:
-    
-    PinInstance(const std::string &name) : InstanceBase(name)
-    {
-        m_insType = InstanceType::PIN;
-        m_pinInfo.m_name = name;
-    }
-
-    virtual ~PinInstance() {};
-
-    IMPLEMENT_ACCEPT_OVERRIDE;
-
-    /** return {0,0} for pins */
-    const Coord64 instanceSize() const override
-    {
-        return Coord64{0,0};
-    }
-
-    /** return the position of the pin */
-    Coord64 getCenter() const override
-    {
-        return m_pos;
-    }
-
-    /** get area in um² */
-    double getArea() const noexcept override
-    {
-        return 0.0;
-    }
-
-    /** return the underlying cell/module name */
-    virtual std::string getArchetypeName() const override;
-    
-    void setPinIOType(IOType iotype)
-    {
-        m_pinInfo.m_iotype = iotype;
-    }
-
-    Pin getPin(PinObjectKey key) const override;
-    Pin getPin(const std::string &pinName) const override;
-    bool setPinNet(PinObjectKey pinKey, NetObjectKey netKey) override;
-    size_t getNumberOfPins() const override;
-
-protected:
-    PinInfo         m_pinInfo;    
-    NetObjectKey    m_connectedNet = ObjectNotFound;  ///< connection from pin to net
-};
-#endif
 
 };
