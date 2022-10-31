@@ -6,7 +6,7 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-OPTION(ENABLE_PACKAGING "ENABLE_PACKAGING Option" OFF)
+OPTION(ENABLE_PACKAGING "ENABLE_PACKAGING Option" ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -18,7 +18,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 ## Setup LunaPnR version string
 ############################################################
 
-project(luna_pnr VERSION 0.1.5 HOMEPAGE_URL https://www.asicsforthemasses.com)
+project(luna_pnr VERSION 0.1.6 HOMEPAGE_URL https://www.asicsforthemasses.com)
 
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
     message("!!!! Building debug binaries !!!!")
