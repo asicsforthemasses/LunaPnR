@@ -29,6 +29,7 @@ signals:
 protected slots:
     void onFloorplanSetup(QString actionName);
     void onWriteToDef(QString actionName);
+    void onCTSSetup(QString actionName);
 
 protected:
     bool event(QEvent * event) override;

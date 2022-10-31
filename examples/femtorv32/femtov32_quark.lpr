@@ -1,4 +1,6 @@
 {
+    "CTSBuffer": "CLKBUF2",
+    "CTSMaxCap": 2.9999998795923744e-13,
     "FloorplanScriptLocation": "/storage/programming/asic/luna_pnr/examples/femtorv32/femtov32_quark_floorplan.py",
     "LEF": [
         "/storage/programming/asic/luna_pnr/test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef",

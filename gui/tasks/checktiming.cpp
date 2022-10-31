@@ -220,8 +220,7 @@ std::string Tasks::CheckTiming::createTCL(const GUI::Database &database,
     if (m_mode == Mode::CTS)
     {
         tcl << R"(puts "#CHECKCLOCKSKEW")" "\n";
-        tcl << "report_clock_skew -setup\n";
-        tcl << "report_clock_skew -hold\n";
+        tcl << "report_clock_skew\n";
     }
 
     return tcl.str();

@@ -55,11 +55,37 @@ void Tasks::CTS::execute(GUI::Database &database, ProgressCallback callback)
     auto &design = database.design();
 
     // insert buffers
-    auto bufferCell = design.m_cellLib->lookupCell("CLKBUF2");
-    auto bufferInput = bufferCell->lookupPin("A");
-    auto bufferOutput = bufferCell->lookupPin("Y");
+    auto bufferCell = design.m_cellLib->lookupCell(database.m_projectSetup.m_ctsBuffer);
+    if (!bufferCell.isValid())
+    {
+        error("CTS Buffer cell not found in cell library");
+        return;
+    }
 
+    ChipDB::PinObjectKey outputPinKey{ChipDB::ObjectNotFound};
+    ChipDB::PinObjectKey inputPinKey{ChipDB::ObjectNotFound};
+    // search for input and output pin index 
+
+    ChipDB::PinObjectKey pinKey{0};
+    float inputPinCap{0};
+    for(auto pin : bufferCell->m_pins)
+    {
+        if (pin->isInput()) 
+        {
+            inputPinKey = pinKey;
+            inputPinCap = pin->m_cap;
+        }
+        else if (pin->isOutput()) outputPinKey = pinKey;
+        pinKey++;
+    }
+
+    //FIXME: get clock nets from parsing SDC
+    //       or from a user-specified list
     auto clkNet = topModule->m_netlist->lookupNet("clk");
+    if (!clkNet.isValid())
+    {
+        clkNet = topModule->m_netlist->lookupNet("clock");
+    }
 
     LunaCore::CTS::MeanAndMedianCTS cts;
 
@@ -72,9 +98,9 @@ void Tasks::CTS::execute(GUI::Database &database, ProgressCallback callback)
 
     LunaCore::CTS::MeanAndMedianCTS::CTSInfo ctsinfo;
 
-    ctsinfo.m_pinCapacitance = bufferInput->m_cap;
-    ctsinfo.m_inputPinKey    = bufferInput.key();
-    ctsinfo.m_outputPinKey   = bufferOutput.key();
+    ctsinfo.m_pinCapacitance = inputPinCap;
+    ctsinfo.m_inputPinKey    = inputPinKey;
+    ctsinfo.m_outputPinKey   = outputPinKey;
     ctsinfo.m_bufferCell     = bufferCell.ptr();
     ctsinfo.m_maxCap         = 0.2e-12;     // 200 fF, no idea if this is realistic
     ctsinfo.m_clkNetKey      = clkNet.key();

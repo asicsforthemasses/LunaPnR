@@ -18,6 +18,7 @@
 #include "../widgets/blockframe.h"
 #include "../projectmanager/filesetupmanager.h"
 #include "../floorplandialog/floorplandialog.h"
+#include "../ctsdialog/ctsdialog.h"
 
 using namespace GUI;
 
@@ -90,7 +91,7 @@ void ProjectManager::create()
     blockFrame = new GUI::BlockFrame();
     
     actionTile = new GUI::FlatActionTile("CTS setup", "://images/floorplan.png", "://images/properties.png", "CTSSETUP");
-    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
+    connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onCTSSetup);
     m_tiles.push_back(actionTile);
     blockFrame->addWidget(actionTile);
 
@@ -273,11 +274,25 @@ void ProjectManager::onFloorplanSetup(QString actionName)
     int result = dialog.exec();
     if (result == QDialog::Accepted)
     {
-        std::cout << "FloorplanDialog was excepted\n";
+        std::cout << "FloorplanDialog was accepted\n";
     }
     else
     {
         std::cout << "FloorplanDialog was rejected\n";
+    }
+}
+
+void ProjectManager::onCTSSetup(QString actionName)
+{
+    CTSDialog dialog(m_db);
+    int result = dialog.exec();
+    if (result == QDialog::Accepted)
+    {
+        std::cout << "CTSDialog was accepted\n";
+    }
+    else
+    {
+        std::cout << "CTSDialog was rejected\n";
     }
 }
 

@@ -29,6 +29,9 @@ struct ProjectSetup
     std::vector<std::string> m_timingConstraintFiles;
     std::vector<std::string> m_layerFiles;
 
+    std::string m_ctsBuffer;            ///< architype name of clock buffer.
+    float       m_ctsMaxCap{0.2e-12};   ///< maximum capacity of CTS subtree.
+
     std::vector<RegionSetup> m_regions;
 
     std::string m_openSTALocation{"/usr/local/bin/sta"};    ///< this comes from the Luna config file, not the project file.

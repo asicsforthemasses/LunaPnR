@@ -68,6 +68,7 @@ set (LUNA_SRC_FILES
     projectmanager/filesetupmanager.cpp
     projectmanager/projectmanager.cpp
     floorplandialog/floorplandialog.cpp
+    ctsdialog/ctsdialog.cpp
     console/mmconsole.cpp
     console/mtstringbuffer.cpp
     console/singlelineedit.cpp

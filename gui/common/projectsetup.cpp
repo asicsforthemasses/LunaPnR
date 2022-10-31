@@ -60,9 +60,19 @@ QJsonValue toJson(const std::string &str)
     return QJsonValue(QString::fromStdString(str));
 }
 
+QJsonValue toJson(const float &value)
+{
+    return QJsonValue(value);
+}
+
 std::string fromJsonToString(const QJsonValue &val)
 {
     return val.toString().toStdString();
+}
+
+float fromJsonToFloat(const QJsonValue &val)
+{
+    return val.toDouble();
 }
 
 std::vector<std::string> fromJson(const QJsonArray &arr)
@@ -129,6 +139,8 @@ bool ProjectSetup::writeToJSON(std::ostream &os) const
     json["Layers"] = toJson(m_layerFiles);
     json["Regions"] = toJson(m_regions);
     json["FloorplanScriptLocation"] = toJson(m_floorplanScriptLocation);
+    json["CTSBuffer"] = toJson(m_ctsBuffer);
+    json["CTSMaxCap"] = toJson(m_ctsMaxCap);
 
     QJsonDocument doc(json);
 
@@ -178,6 +190,8 @@ bool ProjectSetup::readFromJSON(std::istream &is)
     if (json.contains("Layers")) m_layerFiles = fromJson(json["Layers"].toArray());
     if (json.contains("Regions")) m_regions = fromJsonToRegionArray(json["Regions"].toArray());
     if (json.contains("FloorplanScriptLocation")) m_floorplanScriptLocation = fromJsonToString(json["FloorplanScriptLocation"]);
-
+    if (json.contains("CTSBuffer")) m_ctsBuffer = fromJsonToString(json["CTSBuffer"]);
+    if (json.contains("CTSMaxCap")) m_ctsMaxCap = fromJsonToFloat(json["CTSMaxCap"]);
+    
     return true;
 }
