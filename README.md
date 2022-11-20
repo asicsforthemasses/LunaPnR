@@ -16,7 +16,7 @@ For more information, please visit the [homepage](https://www.asicsforthemasses.
 <figure><img src="doc/screenshots/mac32_floorplan_2022.png"></figure>
 
 ## Current development status
-* TLDR; Don't expect anything.
+* TLDR; LunaPnR is not production ready.
 * Cell browser works.
 * Tech browser works.
 * Has layer rendering customization.
