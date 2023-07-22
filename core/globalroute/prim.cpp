@@ -6,7 +6,7 @@
 #include <sstream>
 #include "prim.h"
 #include "prim_private.h"
-#include "tinysvgpp/src/tinysvgpp.h"
+#include "tinysvgpp.h"
 
 using namespace LunaCore::Prim;
 using namespace LunaCore::Prim::Private;

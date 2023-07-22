@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include "lunacore.h"
-#include "tinysvgpp/src/tinysvgpp.h"
+#include "tinysvgpp.h"
 
 #include <string>
 #include <sstream>
