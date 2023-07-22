@@ -51,6 +51,6 @@ set_target_properties(core_test PROPERTIES CXX_CLANG_TIDY "")
 
 add_test(
     NAME core_test
-    COMMAND ${CMAKE_SOURCE_DIR}/build/test/core_test
+    COMMAND $<TARGET_FILE:core_test>
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     )
