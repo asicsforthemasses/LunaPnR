@@ -1,14 +1,14 @@
 ##  LunaPnR Source Code
 ##
 ##  SPDX-License-Identifier: GPL-3.0-only
-##  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
+##  SPDX-FileCopyrightText: 2022,2023 Niels Moseley <asicsforthemasses@gmail.com>
 ##  
 
 cmake_minimum_required(VERSION 3.20)
 
 OPTION(ENABLE_PACKAGING "ENABLE_PACKAGING Option" ON)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ## Make Debian/Ubuntu happy: this way the executable is not detected as a shared lib :-/
