@@ -14,7 +14,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(UseCPPCHECK "UseCPPCHECK")
 option(UseCLANGTIDY "UseCLANGTIDY")
 
+########################################################################
 # CPPCHECK static analysis support
+########################################################################
+
 if (UseCPPCHECK)
 set(CMAKE_CXX_CPPCHECK "cppcheck")
     find_program(CMAKE_CXX_CPPCHECK NAMES cppcheck)
@@ -29,7 +32,9 @@ set(CMAKE_CXX_CPPCHECK "cppcheck")
     )
 endif()
 
+########################################################################
 # CLANG TIDY
+########################################################################
 if (UseCLANGTIDY)
     find_program(CMAKE_CXX_CLANG_TIDY NAMES clang-tidy)
     message("Using CLANG TIDY")
@@ -38,6 +43,40 @@ if (UseCLANGTIDY)
             "-checks=clang-diagnostic-*,clang-analyzer-*,modernize-*,-modernize-use-trailing-return-type"
     )
 endif()
+
+########################################################################
+# Check for CPM
+########################################################################
+
+set(CPM_DOWNLOAD_VERSION 0.38.2)
+
+if(CPM_SOURCE_CACHE)
+    set(CPM_DOWNLOAD_LOCATION "${CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+elseif(DEFINED ENV{CPM_SOURCE_CACHE})
+    set(CPM_DOWNLOAD_LOCATION "$ENV{CPM_SOURCE_CACHE}/cpm/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+else()
+    set(CPM_DOWNLOAD_LOCATION "${CMAKE_BINARY_DIR}/cmake/CPM_${CPM_DOWNLOAD_VERSION}.cmake")
+endif()
+
+if(NOT (EXISTS ${CPM_DOWNLOAD_LOCATION}))
+    message(STATUS "Downloading CPM.cmake to ${CPM_DOWNLOAD_LOCATION}")
+    file(DOWNLOAD "https://github.com/cpm-cmake/CPM.cmake/releases/download/v${CPM_DOWNLOAD_VERSION}/CPM.cmake" ${CPM_DOWNLOAD_LOCATION}
+    )
+endif()
+
+message("${CPMstatus}")
+
+include(${CPM_DOWNLOAD_LOCATION})
+
+########################################################################
+# Add TinySVGPP
+########################################################################
+
+CPMAddPackage("bb:trcwm/tinysvgpp#main")
+
+########################################################################
+# Add Eigen3 and Python
+########################################################################
 
 find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 find_package (PythonLibs 3.8 REQUIRED COMPONENTS Interpreter Development)
@@ -133,4 +172,4 @@ add_library(lunacore
 target_include_directories(lunacore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(lunacore PRIVATE ${PYTHON_INCLUDE_DIRS})
 target_include_directories(lunacore PUBLIC ../contrib)
-target_link_libraries(lunacore Eigen3::Eigen ${PYTHON_LIBRARIES})
+target_link_libraries(lunacore Eigen3::Eigen ${PYTHON_LIBRARIES} tinysvgpp)
