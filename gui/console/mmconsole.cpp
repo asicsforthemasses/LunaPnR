@@ -23,7 +23,7 @@ MMConsole::MMConsole(QWidget *parent) : QFrame(parent)
     auto vlayout = new QVBoxLayout();
 
     vlayout->setContentsMargins(0,0,0,0);
-    vlayout->setMargin(0);
+    //vlayout->setMargin(0);
     vlayout->setSpacing(0);
 
     m_textDisplay = new QTextEdit();

@@ -4,9 +4,9 @@
 ##  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>
 ##  
 
-project(lunacore)
+project(lunacore LANGUAGES CXX)
 
-set(CMAKE_C_STANDARD C99)
+set(CMAKE_C_STANDARD 99)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

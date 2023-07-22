@@ -522,7 +522,8 @@ static PyMethodDef LunaMethods[] =  // NOLINT(modernize-avoid-c-arrays)
 };
 
 static PyModuleDef LunaModule = {
-    PyModuleDef_HEAD_INIT,
+    //PyModuleDef_HEAD_INIT,
+    .m_base = PyModuleDef_HEAD_INIT,
     .m_name = "Luna",               // NOLINT(clang-diagnostic-c99-designator)
     .m_doc = "Interfaces with LunaPNR core datastructures",
     .m_size = -1,

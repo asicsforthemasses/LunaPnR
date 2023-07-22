@@ -7,7 +7,6 @@
 #include <QBoxLayout>
 #include <QApplication>
 #include <QScreen>
-#include <QDesktopWidget>
 #include <QDialog>
 #include <QScrollBar>
 #include <QTextBlock>
@@ -323,10 +322,8 @@ int PopupCompleter::exec(SingleLineEdit *parent)
     QSize popupSizeHint = this->sizeHint();
     auto cursorRect = parent->getCursorRect();
     QPoint globalPt = parent->mapToGlobal(cursorRect.bottomRight());
-    QDesktopWidget *dsk = QApplication::desktop();
 
-    auto screenList = QGuiApplication::screens();
-    auto currentScreen = screenList.at(dsk->screenNumber(this));
+    auto currentScreen = QGuiApplication::primaryScreen();
     QRect screenGeom = currentScreen->availableGeometry();
     
     if (globalPt.y() + popupSizeHint.height() > screenGeom.height()) {

@@ -66,7 +66,7 @@ BlockContainer::BlockContainer(QWidget *parent) : QWidget(parent)
     m_vlayout = new QVBoxLayout();
     m_vlayout->setContentsMargins(0,0,0,0);
     m_vlayout->setSpacing(0);
-    m_vlayout->setMargin(0);
+    //m_vlayout->setMargin(0);
 
     m_header  = new BlockContainerHeader("UNNAMED", this);
     m_contentFrame = new QFrame();    
@@ -74,7 +74,7 @@ BlockContainer::BlockContainer(QWidget *parent) : QWidget(parent)
     
     m_contentLayout = new QVBoxLayout();
     m_contentLayout->setSpacing(0);
-    m_contentLayout->setMargin(0);
+    //m_contentLayout->setMargin(0);
     
     m_contentFrame->setLayout(m_contentLayout);
     m_contentFrame->setContentsMargins(0,0,0,0);

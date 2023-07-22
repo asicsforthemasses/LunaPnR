@@ -36,7 +36,7 @@ void FlatImageButton::paintEvent(QPaintEvent *event)
 {
     // make sure we have at least a little stylesheet support..
     QStyleOption opt;
-    opt.init(this);
+    opt.initFrom(this);
 
     QPainter painter(this);
     style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
