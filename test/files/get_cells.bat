@@ -1,4 +1,4 @@
-REM SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+REM SPDX-FileCopyrightText: 2021-2022,2023 Niels Moseley <asicsforthemasses@gmail.com>
 REM
 REM SPDX-License-Identifier: GPL-3.0-only
 

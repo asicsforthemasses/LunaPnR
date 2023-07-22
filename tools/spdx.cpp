@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2022,2023 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -220,7 +220,7 @@ const char spdxHeader[] = "/*\n" \
 "  LunaPnR Source Code\n" \
 "  \n" \
 "  SPDX-License-Identifier: GPL-3.0-only\n" \
-"  SPDX-FileCopyrightText: 2022 Niels Moseley <asicsforthemasses@gmail.com>\n" \
+"  SPDX-FileCopyrightText: 2022,2023 Niels Moseley <asicsforthemasses@gmail.com>\n" \
 "*/\n\n";
 
 int main(int argc, char *argv[])
