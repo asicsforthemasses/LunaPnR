@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022,2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -204,6 +204,11 @@ public:
     /** callback for manufacturing grid */
     virtual void onManufacturingGrid(int64_t value) {}
 
+    constexpr void setVerbose(bool enabled = true) noexcept
+    {
+        m_verbose = enabled;
+    }
+
 protected:
     static bool isWhitespace(char c);
     static bool isAlpha(char c);
@@ -275,6 +280,8 @@ protected:
 
     token_t     m_curtok;
     std::string m_tokstr;
+
+    bool m_verbose{false};
 
     void error(const char *errstr) const;
     void error(const std::string &errstr) const;

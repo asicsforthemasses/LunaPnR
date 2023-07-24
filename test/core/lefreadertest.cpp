@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022,2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -166,6 +166,52 @@ BOOST_AUTO_TEST_CASE(can_read_lef3)
 
     std::cout << "  Found " << design.m_cellLib->size() << " cells\n";
     BOOST_CHECK(design.m_cellLib->size() == 441);
+}
+
+BOOST_AUTO_TEST_CASE(can_read_lef4)
+{
+    std::cout << "--== LEF READER IHP130 TECH+CELL ==--\n";
+    
+    std::ifstream leffile("test/files/ihp130/sg13g2_tech.lef");
+    BOOST_REQUIRE(leffile.good());
+
+    std::ifstream leffile2("test/files/ihp130/sg13g2_stdcell.lef");
+    BOOST_REQUIRE(leffile2.good());
+
+    ChipDB::Design design;
+    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
+    BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile2));
+
+    std::cout << "  Found " << design.m_techLib->getNumberOfLayers() << " layers:\n";
+    BOOST_CHECK(design.m_techLib->getNumberOfLayers() == 19);
+
+    for(auto const layerKeyObjPair : design.m_techLib->layers())
+    {
+        std::cout << "    " << layerKeyObjPair->name() << "\n";
+    }
+
+    std::cout << "  Found " << design.m_techLib->getNumberOfSites() << " sites:\n";
+    BOOST_CHECK(design.m_techLib->getNumberOfSites() == 1);
+    for(auto const site : design.m_techLib->sites())
+    {
+        std::cout << "    " << site->name() << "\n";
+    }
+
+    // check site parameters
+    BOOST_CHECK(design.m_techLib->sites().at(0)->name() == "CoreSite");
+    BOOST_CHECK(design.m_techLib->sites().at(0)->m_symmetry.m_flags == ChipDB::SymmetryFlags::SYM_Y);
+    BOOST_CHECK(design.m_techLib->sites().at(0)->m_class == ChipDB::SiteClass::CORE);
+    BOOST_CHECK((design.m_techLib->sites().at(0)->m_size == ChipDB::Coord64{480, 3780}));
+
+    std::cout << "  Found " << design.m_cellLib->size() << " cells\n";
+    BOOST_CHECK(design.m_cellLib->size() == 82);
+
+    for(auto cellKeyObjPair : *design.m_cellLib)
+    {
+        std::cout << "  " << cellKeyObjPair->name() << "\n";
+    }
+
+    std::cout << "== END IHP130 ==\n\n";
 }
 
 BOOST_AUTO_TEST_SUITE_END()

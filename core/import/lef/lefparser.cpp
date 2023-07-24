@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2022,2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -383,6 +383,13 @@ bool Parser::parse(const std::string &lefstring)
         case TOK_HASH:  // line comment
             break;
         case TOK_IDENT:
+            
+            // make sure the token string is upper case
+            // FIXME: do this for all the other keywords
+            std::transform(m_tokstr.begin(), m_tokstr.end(), m_tokstr.begin(), 
+                   [](unsigned char c){ return std::toupper(c); }
+            );
+
             if (m_tokstr == "MACRO")
             {
                 parseMacro();
@@ -1353,6 +1360,11 @@ bool Parser::parseLayer()
     m_curtok = tokenize(m_tokstr);
     std::string layerName = m_tokstr;
 
+    if (m_verbose)
+    {
+        std::cout << "  parseLayer " << layerName << "\n";
+    }
+
     if (m_curtok != TOK_IDENT)
     {
         error("Expected a layer name\n");
@@ -1403,6 +1415,11 @@ bool Parser::parseLayer()
 
     onEndLayer(layerName);
 
+    if (m_verbose)
+    {
+        std::cout << "  end parseLayer " << layerName << "\n";
+    }
+
     return true;
 }
 
@@ -1420,8 +1437,36 @@ bool Parser::parseObstructionLayer()
         return false;
     }
 
-    // expect ;
+    // optionally: SPACING minSpacing | DESIGNRULEWIDTH value;
     m_curtok = tokenize(m_tokstr);
+    if (m_tokstr == "SPACING")
+    {
+        //FIXME: ignore for now
+        m_curtok = tokenize(m_tokstr);
+        if (m_curtok != TOK_NUMBER)
+        {
+            error("Expected a number after SPACING\n");
+            return false;
+        }
+        
+        auto minSpacing = std::stof(m_tokstr);
+        m_curtok = tokenize(m_tokstr);
+    }
+    else if (m_tokstr == "DESIGNRULEWIDTH")
+    {
+        //FIXME: ignore for now
+        m_curtok = tokenize(m_tokstr);
+        if (m_curtok != TOK_NUMBER)
+        {
+            error("Expected a number after DESIGNRULEWIDTH\n");
+            return false;
+        }
+        
+        auto value = std::stof(m_tokstr);
+        m_curtok = tokenize(m_tokstr);
+    }
+
+    // expect ;
     if (m_curtok != TOK_SEMICOL)
     {
         error("Expected semicolon after OBS LAYER\n");
@@ -1585,6 +1630,7 @@ bool Parser::parseLayerSpacing()
 {
     // SPACING <number> ;
     // or 
+    // SPACING <number> ADJECENTCUTS <number> WITHIN <number> ;
     // SPACING <number> RANGE <number> <number> ;
     // SPACING <number> RANGE <number> <number> INFLUENCE <number> ;
     // SPACING <number> ENDOFLINE <number> WITHIN <number> ;
@@ -1654,7 +1700,39 @@ bool Parser::parseLayerSpacing()
 
         m_curtok = tokenize(m_tokstr);
     }
+    else if (m_tokstr == "ADJACENTCUTS")
+    {
+        //FIXME: ignore this for now
+        m_curtok = tokenize(m_tokstr);
+        if (m_curtok != TOK_NUMBER)
+        {
+            error("Expected 2, 3 or 4 after ADJACENTCUTS");
+            return false;
+        }
 
+        auto numCuts = std::stod(m_tokstr);
+        if ((numCuts < 2) || (numCuts > 4))
+        {
+            error("Expected 2, 3 or 4 after ADJACENTCUTS");
+            return false;            
+        }
+
+        m_curtok = tokenize(m_tokstr);
+        if (m_tokstr != "WITHIN")
+        {
+            error("Expected 'WITHIN'");
+            return false;
+        }
+
+        m_curtok = tokenize(m_tokstr);
+        if (m_curtok != TOK_NUMBER)
+        {
+            error("Expcted a number after WITHIN");
+            return false;
+        }
+
+        m_curtok = tokenize(m_tokstr);
+    }
     return true;    
 }
 
@@ -2093,6 +2171,11 @@ bool Parser::parseVia()
     // keep on reading tokens until we
     // find END <vianame>
 
+    if (m_verbose)
+    {
+        std::cout << "  parseVia ";
+    }
+
     m_curtok = tokenize(m_tokstr);
     std::string viaName;
 
@@ -2103,6 +2186,10 @@ bool Parser::parseVia()
     }
 
     viaName = m_tokstr;
+    if (m_verbose) 
+    {
+        std::cout << viaName << "\n";
+    }
 
     // read until we get END <vianame>
     do
@@ -2130,6 +2217,11 @@ bool Parser::parseVia()
     }
 
     onVia(viaName);
+
+    if (m_verbose)
+    {
+        std::cout << "  end parseVia " << viaName << "\n";
+    }
 
     return true;
 }
