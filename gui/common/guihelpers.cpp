@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
+#include <iostream>
 #include "guihelpers.h"
 
 void GUI::drawCenteredText(QPainter &painter, const QPointF &pos, const std::string &txt,
@@ -57,7 +58,19 @@ std::optional<QPixmap> GUI::createPixmapFromString(const std::string &pixels, in
     int y=0;
     while(numPixels > 0)
     {
-        char c = pixels.at(ofs);
+        char c;
+        try{
+            c = pixels.at(ofs);
+        }
+        catch(std::out_of_range &e)
+        {
+            std::cerr << "Pixmap does not have enough data.\n";
+            std::cerr << "  width: " << width << "  height: " << height << "\n";
+            std::cerr << "  ofs: " << ofs << "  len: " << pixels.size() << "\n";
+            //doLog(LogType::ERROR, "Pixmap does not have enough data.\n");
+            return std::nullopt;
+        }
+
         if (c == '\n')
         {
             ofs++;
