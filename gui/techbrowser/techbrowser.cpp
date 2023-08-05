@@ -33,9 +33,7 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent), m_db(nullptr)
     // create contents of layer groupbox
     // ************************************************************************
 
-    m_layerTableView = new QTableView(this);
-    m_layerTableView->setSelectionBehavior(QTableView::SelectRows);
-    m_layerTableView->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_layerTableView = new LayerWidget();
 
     m_layerTableModel.reset(new LayerTableModel(nullptr));
     m_layerTableView->setModel(m_layerTableModel.get());

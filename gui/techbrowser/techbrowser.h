@@ -18,6 +18,7 @@
 #include "../models/techlibsitemodel.h"
 #include "../widgets/colorbutton.h"
 #include "../widgets/hatchbutton.h"
+#include "../widgets/layerwidget.h"
 
 namespace GUI
 {
@@ -60,7 +61,7 @@ protected:
     QTableView      *m_siteTableView;
     QTreeView       *m_siteTreeView;
 
-    QTableView          *m_layerTableView;
+    LayerWidget         *m_layerTableView;
     QTreeView           *m_layerTreeView;
     SelectColorButton   *m_colorButton;
     SelectHatchButton   *m_hatchButton;

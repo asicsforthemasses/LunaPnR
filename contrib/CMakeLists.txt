@@ -29,3 +29,6 @@ if (MSVC)
 
     add_subdirectory(eigen3)
 endif(MSVC)
+
+add_subdirectory(tomlplusplus)
+add_subdirectory(cxxopts)
