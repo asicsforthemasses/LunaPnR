@@ -333,7 +333,7 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
         }
     }
 
-    bool m_showRouting = true;
+    bool m_showRouting = false;
     if (m_showRouting)
     {
         drawRouting(painter, "metal2");

@@ -57,6 +57,7 @@ set (LUNA_SRC_FILES
     widgets/flatactiontile.cpp
     widgets/blockcontainer.cpp
     widgets/rectdelegate.cpp
+    widgets/layerlistwidget.cpp
     floorplanview/floorplanview.cpp
     techbrowser/techbrowser.cpp
     designbrowser/designbrowser.cpp
