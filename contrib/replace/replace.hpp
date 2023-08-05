@@ -8,7 +8,7 @@
 #include <string_view>
 #include <algorithm>
 
-std::string replace(const std::string &text, const std::string &findText, const std::string &replaceText)
+std::string replace(const std::string &text, const std::string &findText, std::string_view replaceText)
 {
     if (findText.size() > text.size()) return text;
     if (findText.empty()) return text;
