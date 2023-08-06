@@ -6,7 +6,9 @@
 #include <sstream>
 
 #include <tomlpp.hpp>
-#include <replace.hpp>
+#include <strutils.hpp>
+
+using namespace StrUtils;
 
 const std::string enumTemplate =
 {R"(

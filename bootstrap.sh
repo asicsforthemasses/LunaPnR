@@ -4,6 +4,6 @@
 ## SPDX-License-Identifier: GPL-3.0-only
 
 rm -rf build
-mkdir -p build
+mkdir build
 cd build
 cmake -GNinja -DCMAKE_BUILD_TYPE=Debug -DUseCPPCHECK=ON -DUseCLANGTIDY=OFF ..

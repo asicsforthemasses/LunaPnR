@@ -75,6 +75,12 @@ include(${CPM_DOWNLOAD_LOCATION})
 CPMAddPackage("bb:trcwm/tinysvgpp#main")
 
 ########################################################################
+# Add StrUtilsPP
+########################################################################
+
+CPMAddPackage("bb:trcwm/strutilspp#main")
+
+########################################################################
 # Add Eigen3 and Python
 ########################################################################
 
@@ -181,4 +187,4 @@ add_library(lunacore
 target_include_directories(lunacore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(lunacore PRIVATE ${PYTHON_INCLUDE_DIRS})
 target_include_directories(lunacore PUBLIC ../contrib)
-target_link_libraries(lunacore Eigen3::Eigen ${PYTHON_LIBRARIES} tinysvgpp)
+target_link_libraries(lunacore Eigen3::Eigen ${PYTHON_LIBRARIES} tinysvgpp strutilspp)
