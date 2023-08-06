@@ -10,12 +10,16 @@
 
 const std::string enumTemplate =
 {R"(
+###NAMESPACE_START###
 class ###NAME### : public EnumTag
 {
 public:
     constexpr static int UNDEFINED = -1;
 ###VALUES###
 ###ARRAY###
+
+    ###NAME###() = default;
+    explicit ###NAME###(int value) : m_value(value) {};
 
     std::string toString() const noexcept               
     {                                                   
@@ -42,12 +46,17 @@ public:
         }
     }
 
+    constexpr void operator=(const ###NAME### &e) noexcept
+    {                                                   
+        m_value = e.m_value;
+    }
+
     constexpr void operator=(int value) noexcept
     {
         m_value = value;
     }
 
-    constexpr void operator=(const std::string &value) noexcept
+    void operator=(const std::string &value) noexcept
     {
         fromString(value);
     }
@@ -64,7 +73,7 @@ public:
 
     bool operator==(const std::string &value) const noexcept
     {                                                           
-        return m_value.toString() == m_value;
+        return toString() == value;
     }     
 
     constexpr int value() const noexcept
@@ -82,11 +91,28 @@ public:
         return m_names.end();
     }
 
+    constexpr bool isValid() const noexcept
+    {
+        return (m_value >= 0) && (m_value < ###COUNT###);
+    }
+
+    operator bool() const noexcept
+    { 
+        return isValid();
+    }
+
 protected:
     int m_value{UNDEFINED};
 };
 
-std::ostream& operator<<(std::ostream& os, const ###NAME### &e)
+inline std::string toString(const ###NAME### &e)
+{
+    return e.toString();
+}
+
+###NAMESPACE_END###
+
+inline std::ostream& operator<<(std::ostream& os, const ###NAMESPACE######NAME### &e)
 {
     os << e.toString();
     return os;
@@ -97,7 +123,7 @@ std::ostream& operator<<(std::ostream& os, const ###NAME### &e)
 
 int main(int argc, const char *argv[])
 {
-    if (argc < 3)
+    if (argc < 2)
     {
         std::cerr << "Usage: " << argv[0] << " <infile.toml> <outfile.hpp>\n";
         return EXIT_FAILURE;
@@ -134,6 +160,28 @@ int main(int argc, const char *argv[])
     result.append("\t#define DEF_ENUMTAG\n");
     result.append("\tstruct EnumTag{};\n");
     result.append("#endif\n\n");
+
+    std::string namespaceStart;
+    std::string namespaceEnd;
+    std::string namespacePrefix;
+
+    // check for namespace
+    auto namespaceStr = tbl["namespace"].as_string();
+    if (namespaceStr)
+    {
+        std::stringstream ss;
+        ss << "namespace " << namespaceStr->get() << "\n{\n";
+        namespaceStart = ss.str();
+
+        ss.str("");
+        ss << "\n};    // end namespace " << namespaceStr->get() << "\n";
+        namespaceEnd = ss.str();
+
+        namespacePrefix = namespaceStr->get();
+        namespacePrefix.append("::");
+
+        std::cout << "  Namespace: " << namespaceStr->get() << "\n";
+    }
 
     auto enums = tbl["enums"].as_table();
     for (auto [key, value] : *enums) 
@@ -172,10 +220,15 @@ int main(int argc, const char *argv[])
         }
 
         std::string tmp = enumTemplate;
+
+        tmp = replace(tmp, "###NAMESPACE###", namespacePrefix);
         tmp = replace(tmp, "###NAME###", key.str());
         tmp = replace(tmp, "###ARRAY###", arrayStr);
         tmp = replace(tmp, "###VALUES###", valueStr);
         tmp = replace(tmp, "###COUNT###", std::to_string(counter));
+        tmp = replace(tmp, "###NAMESPACE_START###", namespaceStart);
+        tmp = replace(tmp, "###NAMESPACE_END###", namespaceEnd);
+        
         result.append(tmp);
     }
 

@@ -45,18 +45,6 @@ std::ostream& operator<<(std::ostream& os, const ChipDB::Margins64& m)
     return os;    
 }
 
-std::ostream& operator<<(std::ostream& os, const ChipDB::CellClass& cc)
-{
-    os << ChipDB::toString(cc);
-    return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const ChipDB::CellSubclass& sc)
-{
-    os << ChipDB::toString(sc);
-    return os;
-}
-
 std::ostream& operator<<(std::ostream& os, const ChipDB::PlacementInfo& pi)
 {
     os << ChipDB::toString(pi);
@@ -107,46 +95,6 @@ ChipDB::Rect64 ChipDB::unionRect(const ChipDB::Rect64 &r1, const ChipDB::Rect64 
     return std::move(result);
 }
 #endif
-
-std::string ChipDB::toString(const CellSubclass &v)
-{
-    constexpr const std::array<const char*, 21> names = 
-    {{
-        "NONE", "BUMP", "BLACKBOX", "SOFT", "INPUT", "OUTPUT",
-        "INOUT", "POWER", "SPACER", "AREAIO", "FEEDTHRU",
-        "TIEHIGH", "TIELOW", "ANTENNACELL", "WELLTAP",
-        "PRE", "POST","TOPLEFT", "TOPRIGHT", "BOTTOMLEFT",
-        "BOTTOMRIGHT"
-    }};
-
-    auto index = static_cast<size_t>(v);
-    if (index < names.size())
-    {
-        return names[index];
-    }
-    else
-    {
-        return "?";
-    }
-}
-
-std::string ChipDB::toString(const CellClass &v)
-{
-    constexpr const std::array<const char*, 6> names = 
-    {{
-        "CORE", "COVER", "RING", "PAD", "ENDCAP", "BLOCK"
-    }};
-
-    auto index = static_cast<size_t>(v);
-    if (index < names.size())
-    {
-        return names[index];
-    }
-    else
-    {
-        return "?";
-    }
-}
 
 std::string ChipDB::toString(const Orientation &v)
 {

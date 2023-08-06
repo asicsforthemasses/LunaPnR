@@ -211,7 +211,7 @@ void ReaderImpl::onClass(const std::string &className,
             "FEEDTHRU","TIEHIGH","TIELOW","SPACER","ANTENNACELL","WELLTAP"
         }};
         
-        constexpr const std::array<CellSubclass, 6> optval
+        constexpr const std::array<int, 6> optval
         {{
             CellSubclass::FEEDTHRU,
             CellSubclass::TIEHIGH,
@@ -254,7 +254,7 @@ void ReaderImpl::onClass(const std::string &className,
             "INPUT","OUTPUT","INOUT","POWER","SPACER","AREAIO"
         }};
         
-        constexpr const std::array<CellSubclass, 6> optval
+        constexpr const std::array<int, 6> optval
         {
             CellSubclass::INPUT,
             CellSubclass::OUTPUT,
@@ -283,7 +283,7 @@ void ReaderImpl::onClass(const std::string &className,
             "PRE","POST","TOPLEFT","TOPRIGHT","BOTTOMLEFT","BOTTOMRIGHT"
         }};
         
-        constexpr const std::array<CellSubclass, 6> optval
+        constexpr const std::array<int, 6> optval
         {
             CellSubclass::PRE,
             CellSubclass::POST,

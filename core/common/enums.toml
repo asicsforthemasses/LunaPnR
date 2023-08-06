@@ -1,0 +1,12 @@
+namespace = "ChipDB"
+
+[enums]
+CellClass = ["NONE", "CORE", "COVER", "RING", "PAD", "ENDCAP", "BLOCK"]
+
+CellSubclass = ["NONE", "BUMP", "BLACKBOX", "SOFT", "INPUT", "OUTPUT", "INOUT", "POWER", 
+    "SPACER", "DECAP", "AREAIO", "FEEDTHRU", "TIEHIGH", "TIELOW", "ANTENNACELL", "WELLTAP", 
+    "PRE", "POST", "TOPLEFT", "TOPRIGHT", "BOTTOMLEFT", "BOTTOMRIGHT"]
+
+Orientation = ["R0","R90","R180","R270","MX","MX90","MY","MY90"]
+
+PlacementInfo = ["IGNORE", "UNPLACED", "PLACED", "PLACEDANDFIXED"]

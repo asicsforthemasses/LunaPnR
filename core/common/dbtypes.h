@@ -2,12 +2,13 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
-
 #pragma once
 
 #include <string>
 #include <string_view>
 #include <vector>
+
+#include "enums.h"
 
 #ifdef NO_SSIZE_T
 #include <type_traits>
@@ -476,6 +477,7 @@ namespace ChipDB
         static constexpr uint8_t SYM_R90 = 4;
     };
 
+#if 0
     enum class CellClass : uint8_t
     {
         CORE = 0,
@@ -511,9 +513,8 @@ namespace ChipDB
         BOTTOMLEFT,    ///< ENDCAP subtype
         BOTTOMRIGHT,   ///< ENDCAP subtype
     };
+#endif
 
-    std::string toString(const CellSubclass &v);
-    std::string toString(const CellClass &v);
     std::string toString(const SymmetryFlags &v);
 
     /** create a new string with upper case characters */
@@ -548,7 +549,5 @@ ChipDB::SymmetryFlags& operator+=(ChipDB::SymmetryFlags &lhs, const uint8_t &rhs
 std::ostream& operator<<(std::ostream& os, const ChipDB::Coord64& r);
 std::ostream& operator<<(std::ostream& os, const ChipDB::Rect64& r);
 std::ostream& operator<<(std::ostream& os, const ChipDB::Margins64& m);
-std::ostream& operator<<(std::ostream& os, const ChipDB::CellClass& cc);
-std::ostream& operator<<(std::ostream& os, const ChipDB::CellSubclass& sc);
 std::ostream& operator<<(std::ostream& os, const ChipDB::PlacementInfo& pi);
 std::ostream& operator<<(std::ostream& os, const ChipDB::Orientation& orientation);

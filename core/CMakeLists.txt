@@ -93,8 +93,17 @@ if (UNIX)
     )
 endif (UNIX)
 
-add_library(lunacore 
+# Generate enums from the .toml specification
+add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/common/enums.h
+    COMMAND $<TARGET_FILE:enumgen> ${CMAKE_CURRENT_SOURCE_DIR}/common/enums.toml ${CMAKE_CURRENT_SOURCE_DIR}/common/enums.h
+    COMMENT "Generating enums ..."
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/common/enums.toml enumgen
+)
+
+# main core
+add_library(lunacore
     common/logging.cpp
+    common/enums.h
     common/dbtypes.cpp
     common/fileutils.cpp
     common/matrix.cpp

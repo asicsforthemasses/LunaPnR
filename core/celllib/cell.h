@@ -18,12 +18,12 @@ namespace ChipDB
 class Cell
 {
 public:
-    Cell() : m_area(0), m_leakagePower(0), m_class(CellClass::CORE), m_subclass(CellSubclass::NONE)
+    Cell() : m_area(0), m_leakagePower(0), m_class{CellClass::CORE}, m_subclass{CellSubclass::NONE}
     {
     }
 
     Cell(const std::string &name) : m_name(name), m_area(0), 
-        m_leakagePower(0), m_class(CellClass::CORE), m_subclass(CellSubclass::NONE) 
+        m_leakagePower(0), m_class{CellClass::CORE}, m_subclass{CellSubclass::NONE} 
     {
     }
 
