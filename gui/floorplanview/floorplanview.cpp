@@ -344,7 +344,7 @@ void FloorplanView::drawCell(QPainter &p, const std::shared_ptr<ChipDB::Instance
     p.setPen(Qt::green);
     p.drawRect(cellRect);
 
-    switch(ins->m_orientation)
+    switch(ins->m_orientation.value())
     {
     case ChipDB::Orientation::R0: // aka North
         {

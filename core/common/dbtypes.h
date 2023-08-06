@@ -436,34 +436,10 @@ namespace ChipDB
     };
 #endif
 
-    /** cell/macro orientation following the LEF/DEF spec */
-    enum class Orientation : uint8_t
-    {
-        UNDEFINED = 0,
-        R0,
-        R90,
-        R180,
-        R270,
-        MX,
-        MX90,
-        MY,
-        MY90
-    };
-
-    enum class PlacementInfo : uint8_t
-    {
-        UNDEFINED = 0,
-        IGNORE,           ///< ignore instance during placement
-        UNPLACED,         ///< instance unplaced
-        PLACED,           ///< instance placed but still movable
-        PLACEDANDFIXED,   ///< instance placed and not movable
-    };
 
     bool fromString(const char *v, ChipDB::PlacementInfo &result);
     bool fromString(std::string_view v, ChipDB::PlacementInfo &result);
 
-    std::string toString(const PlacementInfo &v);
-    std::string toString(const Orientation &v);
     struct SymmetryFlags
     {
         SymmetryFlags() : m_flags(0) {}

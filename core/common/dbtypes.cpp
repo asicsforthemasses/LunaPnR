@@ -45,19 +45,6 @@ std::ostream& operator<<(std::ostream& os, const ChipDB::Margins64& m)
     return os;    
 }
 
-std::ostream& operator<<(std::ostream& os, const ChipDB::PlacementInfo& pi)
-{
-    os << ChipDB::toString(pi);
-    return os;
-}
-
-std::ostream& operator<<(std::ostream& os, const ChipDB::Orientation& orientation)
-{
-    os << ChipDB::toString(orientation);
-    return os;
-}
-
-
 #if 0
 
 bool ChipDB::isInsideRect(const ChipDB::Coord64 &p, const ChipDB::Rect64 &r) noexcept
@@ -96,42 +83,6 @@ ChipDB::Rect64 ChipDB::unionRect(const ChipDB::Rect64 &r1, const ChipDB::Rect64 
 }
 #endif
 
-std::string ChipDB::toString(const Orientation &v)
-{
-    constexpr const std::array<const char*, 9> names = 
-    {{
-        "UNDEFINED", "R0", "R90", "R180", "R270", "MX", "MX90", "MY", "MY90"
-    }};
-
-    auto index = static_cast<size_t>(v);
-    if (index < names.size())
-    {
-        return names[index];
-    }
-    else
-    {
-        return "?";
-    }
-}
-
-std::string ChipDB::toString(const PlacementInfo &v)
-{
-    constexpr const std::array<const char*, 5> names = 
-    {{
-        "UNDEFINED", "IGNORE", "UNPLACED", "PLACED", "PLACEDANDFIXED"
-    }};
-
-    auto index = static_cast<size_t>(v);
-    if (index < names.size())
-    {
-        return names[index];
-    }
-    else
-    {
-        return "UNDEFINED";
-    }
-}
-
 std::string ChipDB::toString(const SymmetryFlags &v)
 {
     std::string symstr;
@@ -140,27 +91,4 @@ std::string ChipDB::toString(const SymmetryFlags &v)
     if ((v.m_flags & SymmetryFlags::SYM_Y) != 0) symstr += "Y ";
     if ((v.m_flags & SymmetryFlags::SYM_R90) != 0) symstr += "R90 ";
     return symstr;
-}
-
-bool ChipDB::fromString(const char *v, ChipDB::PlacementInfo &result)
-{
-    return fromString(std::string_view(v), result);
-}
-
-bool ChipDB::fromString(std::string_view v, ChipDB::PlacementInfo &result)
-{
-    constexpr const std::array<const char*, 5> names = 
-    {{
-        "UNDEFINED", "IGNORE", "UNPLACED", "PLACED", "PLACEDANDFIXED"
-    }};    
-
-    for(int index = 0; index < names.size(); index++)
-    {
-        if (v == std::string_view(names.at(index)))
-        {
-            result = static_cast<ChipDB::PlacementInfo>(index);
-            return true;
-        }
-    }
-    return false;
 }

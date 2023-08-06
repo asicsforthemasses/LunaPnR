@@ -710,38 +710,38 @@ bool Parser::parsePlaced()
         return false;
     }
 
-    auto const pl = ChipDB::PlacementInfo::PLACED;
+    auto const pl = ChipDB::PlacementInfo{ChipDB::PlacementInfo::PLACED};
     if (orient == "N")
     {
-        onComponentPlacement(point.value(), pl, ChipDB::Orientation::R0);
+        onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::R0});
     }
     else if (orient == "S")
     {
-        onComponentPlacement(point.value(), pl, ChipDB::Orientation::R180);
+        onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::R180});
     }
     else if (orient == "W")
     {
-        onComponentPlacement(point.value(), pl, ChipDB::Orientation::R90);
+        onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::R90});
     }    
     else if (orient == "E")
     {
-        onComponentPlacement(point.value(), pl, ChipDB::Orientation::R270);
+        onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::R270});
     }   
     else if (orient == "FN")
     {
-        onComponentPlacement(point.value(), pl, ChipDB::Orientation::MY);
+        onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::MY});
     }
     else if (orient == "FS")
     {
-        onComponentPlacement(point.value(), pl, ChipDB::Orientation::MX);
+        onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::MX});
     }
     else if (orient == "FW")
     {
-        onComponentPlacement(point.value(), pl, ChipDB::Orientation::MX90);
+        onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::MX90});
     }    
     else if (orient == "FE")
     {
-        onComponentPlacement(point.value(), pl, ChipDB::Orientation::MY90);
+        onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::MY90});
     }
     else
     {
@@ -756,8 +756,8 @@ bool Parser::parsePlaced()
 
 bool Parser::parseUnplaced()
 {
-    onComponentPlacement({0,0}, ChipDB::PlacementInfo::UNPLACED, 
-        ChipDB::Orientation::UNDEFINED);
+    onComponentPlacement({0,0}, ChipDB::PlacementInfo{ChipDB::PlacementInfo::UNPLACED}, 
+        ChipDB::Orientation{ChipDB::Orientation::UNDEFINED});
 
     return true;
 }
@@ -775,38 +775,38 @@ bool Parser::parseFixed()
         return false;
     }
 
-    auto const pl = ChipDB::PlacementInfo::PLACEDANDFIXED;
+    auto const pl = ChipDB::PlacementInfo{ChipDB::PlacementInfo::PLACEDANDFIXED};
     if (orient == "N")
     {
-        onComponentPlacement(point.value(), pl, ChipDB::Orientation::R0);
+        onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::R0});
     }
     else if (orient == "S")
     {
-        onComponentPlacement(point.value(), pl, ChipDB::Orientation::R180);
+        onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::R180});
     }
     else if (orient == "W")
     {
-        onComponentPlacement(point.value(), pl, ChipDB::Orientation::R90);
+        onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::R90});
     }    
     else if (orient == "E")
     {
-        onComponentPlacement(point.value(), pl, ChipDB::Orientation::R270);
+        onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::R270});
     }   
     else if (orient == "FN")
     {
-        onComponentPlacement(point.value(), pl, ChipDB::Orientation::MY);
+        onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::MY});
     }
     else if (orient == "FS")
     {
-        onComponentPlacement(point.value(), pl, ChipDB::Orientation::MX);
+        onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::MX});
     }
     else if (orient == "FW")
     {
-        onComponentPlacement(point.value(), pl, ChipDB::Orientation::MX90);
+        onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::MX90});
     }    
     else if (orient == "FE")
     {
-        onComponentPlacement(point.value(), pl, ChipDB::Orientation::MY90);
+        onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::MY90});
     }
     else
     {

@@ -160,10 +160,11 @@ bool CellLibTableModel::setData(const QModelIndex &index, const QVariant &value,
         return false;
     }
 
-    if (role == Qt::UserRole)
+    if ((role == Qt::UserRole) && (index.column() == 2))
     {
         //FIXME: use keys
-        m_cellLib->lookupCell(index.row())->m_subclass = static_cast<ChipDB::CellSubclass>(value.toInt());
+        auto subclassString = value.toString();
+        m_cellLib->lookupCell(index.row())->m_subclass = subclassString.toStdString();
     }
 
     return true;
@@ -214,12 +215,11 @@ QVariant CellLibTableModel::data(const QModelIndex &index, int role) const
                 case 0: // cell name
                     return 0;
                 case 1: // cell class
-                    return static_cast<int>(cell->m_class);
+                    return QString::fromStdString(ChipDB::toString(cell->m_class));
                 default:
-                    return static_cast<int>(cell->m_subclass);
+                    return QString::fromStdString(ChipDB::toString(cell->m_subclass));
                 }
-            }
-                
+            }                
             else
                 return QString("(null)");
         }

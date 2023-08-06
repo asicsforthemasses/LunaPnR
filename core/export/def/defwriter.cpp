@@ -103,7 +103,7 @@ bool LunaCore::DEF::Private::WriterImpl::write(const std::shared_ptr<ChipDB::Ins
         m_ss << "  - " << instance->name() << " " << instance->getArchetypeName() << "\n";
 
         ChipDB::Coord64 defPos;
-        switch(instance->m_orientation)
+        switch(instance->m_orientation.value())
         {
         case ChipDB::Orientation::R0:
             defPos = toDEFCoordinates(instance->m_pos);
@@ -143,7 +143,7 @@ bool LunaCore::DEF::Private::WriterImpl::write(const std::shared_ptr<ChipDB::Ins
             m_ss << " FN" << " ;\n";
             break;
         default:
-            Logging::doLog(Logging::LogType::WARNING, "  defwriter: orientation %d not supported\n", static_cast<uint32_t>(instance->m_orientation));
+            Logging::doLog(Logging::LogType::WARNING, "  defwriter: orientation %s not supported\n", instance->m_orientation.toString().c_str());
             break;
         }
 
