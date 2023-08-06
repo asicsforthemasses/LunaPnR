@@ -20,10 +20,10 @@ find_package(PythonLibs 3.8 REQUIRED COMPONENTS Interpreter Development)
 # doctool from the tools directory
 
 add_custom_target(commandcompletion
-    ${CMAKE_BINARY_DIR}/tools/doctool ${CMAKE_CURRENT_SOURCE_DIR}/python/pyluna_extra.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../core/python/pylunapnr.cpp ${CMAKE_CURRENT_SOURCE_DIR}/console/commandcompletion.inc
+    $<TARGET_FILE:doctool> ${CMAKE_CURRENT_SOURCE_DIR}/python/pyluna_extra.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../core/python/pylunapnr.cpp ${CMAKE_CURRENT_SOURCE_DIR}/console/commandcompletion.inc
     BYPRODUCTS ${CMAKE_CURRENT_SOURCE_DIR}/console/commandcompletion.inc
     VERBATIM
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/python/pyluna_extra.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../core/python/pylunapnr.cpp
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/python/pyluna_extra.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../core/python/pylunapnr.cpp doctool
     USES_TERMINAL
     )
 
