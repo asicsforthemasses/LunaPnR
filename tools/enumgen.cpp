@@ -6,7 +6,7 @@
 #include <sstream>
 
 #include <tomlpp.hpp>
-#include <strutils.hpp>
+#include <strutilspp.hpp>
 
 using namespace StrUtils;
 
