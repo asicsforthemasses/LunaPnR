@@ -436,10 +436,6 @@ namespace ChipDB
     };
 #endif
 
-
-    bool fromString(const char *v, ChipDB::PlacementInfo &result);
-    bool fromString(std::string_view v, ChipDB::PlacementInfo &result);
-
     struct SymmetryFlags
     {
         SymmetryFlags() : m_flags(0) {}
