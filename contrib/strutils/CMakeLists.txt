@@ -4,8 +4,8 @@
 ##  SPDX-FileCopyrightText: 2022,2023 Niels Moseley <asicsforthemasses@gmail.com>
 ##  
 
-add_library(replace INTERFACE)
-target_include_directories(replace INTERFACE
+add_library(strutils INTERFACE)
+target_include_directories(strutils INTERFACE
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:include>
 )
