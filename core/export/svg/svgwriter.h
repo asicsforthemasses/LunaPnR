@@ -41,8 +41,8 @@ protected:
         SVGCoord(float x, float y) : m_x(x), m_y(y) {}
         SVGCoord(const ChipDB::Coord64 &p) : m_x(static_cast<float>(p.m_x)), m_y(static_cast<float>(p.m_y)) {}
 
-        float m_x;
-        float m_y;
+        float m_x{0.0f};
+        float m_y{0.0f};
 
         SVGCoord operator+(const SVGCoord &rhs) const
         {
