@@ -1,0 +1,34 @@
+# OSU180 PDK for LunaPnR
+title = "OSU 180nm"     # title/name the user sees
+name = "OSU180_v2.4"    # name used to reference the PDK internally
+version = "v2.4"        # version the user sees
+date = "05-09-2023"     
+copyright = "OSU"
+description = "Generic 180nm CMOS cell library"
+icon = "https://www.github.com/asicsforthemasses/pdks/osu180.png"
+
+# source locations for the LEF/DEF/Layer etc files.
+url = [
+    ["https://vlsiarch.ecen.okstate.edu/flows/MOSIS_SCMOS/osu_stdcells_v2.4/osu_stdcells_lib.v2.4.tar.gz", "osu180_v2_4"],
+    ["https://www.github.com/asicsforthemasses/pdks/osu180.layers", "osu180_v2_4"]
+]
+
+# archive extraction instructions, if any.
+# the second argument is the archive type
+# "tgz" or "zip".
+extract = [
+    ["osu180_v2_4/osu_stdcells_lib.v2.4.tar.gz", "tgz"]
+]
+
+# lef files, technology LEF *must* go first
+lef = [
+    "osu180_v2_4/"
+]
+
+# liberty files
+lib = [
+    "osu180_v2_4/"
+]
+
+# layer file for the colours and hatch patterns
+layerfile = "osu180_v2_4/osu180.layers"
