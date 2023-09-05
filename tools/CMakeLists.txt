@@ -35,6 +35,12 @@ include(${CPM_DOWNLOAD_LOCATION})
 CPMAddPackage("bb:trcwm/strutilspp#main")
 
 ########################################################################
+# Add TomlPlusPlus
+########################################################################
+
+CPMAddPackage("gh:marzer/tomlplusplus#v3.3.0")
+
+########################################################################
 # Tools
 ########################################################################
 
@@ -42,4 +48,4 @@ add_executable(doctool ${PROJECT_SOURCE_DIR}/doctool.cpp)
 add_executable(fixme ${PROJECT_SOURCE_DIR}/fixme.cpp)
 add_executable(spdx ${PROJECT_SOURCE_DIR}/spdx.cpp)
 add_executable(enumgen ${PROJECT_SOURCE_DIR}/enumgen.cpp)
-target_link_libraries(enumgen tomlpp cxxopts strutilspp)
+target_link_libraries(enumgen cxxopts strutilspp tomlplusplus::tomlplusplus)

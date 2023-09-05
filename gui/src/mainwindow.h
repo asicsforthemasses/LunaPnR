@@ -22,6 +22,7 @@
 #include "../designbrowser/designbrowser.h"
 #include "../floorplanview/floorplanview.h"
 #include "../projectmanager/projectmanager.h"
+#include "../pdkinstaller/pdkinstaller.h"
 
 #include "lunacore.h"
 #include "../common/database.h"
@@ -67,6 +68,8 @@ public slots:
 
     void onLunaConfig();
 
+    void onInstallPDK();
+
     void onExportLayers();
     void onRunScript();
     void onClearDatabase();
@@ -98,6 +101,8 @@ protected:
     QAction *m_loadProject;
     QAction *m_saveProject;
     QAction *m_saveProjectAs;
+
+    QAction *m_installPDK;
 
     QAction *m_exportLayers;
     QAction *m_runScriptAct;

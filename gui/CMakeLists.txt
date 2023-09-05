@@ -6,8 +6,14 @@ cmake_minimum_required(VERSION 3.20)
 
 set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 
-find_package(Qt6 REQUIRED QUIET COMPONENTS Core Widgets Gui)
+find_package(Qt6 REQUIRED QUIET COMPONENTS Core Widgets Gui Network)
 find_package(PythonLibs 3.8 REQUIRED COMPONENTS Interpreter Development)
+
+########################################################################
+# Add TomlPlusPlus
+########################################################################
+
+CPMAddPackage("gh:marzer/tomlplusplus#v3.3.0")
 
 # The qm files are generated in the build tree, but the qrc file is inside the
 # source directory and the path to resources are relative to the location of
@@ -85,6 +91,8 @@ set (LUNA_SRC_FILES
     python/types/pyprojectlib.cpp
     python/types/pyprojectverilog.cpp
     python/pyluna_extra.cpp
+    pdkinstaller/pdkinstaller.cpp
+    pdkinstaller/downloader.cpp
     src/configurationdialog.cpp
     src/mainwindow.cpp
     src/main.cpp
@@ -111,7 +119,7 @@ add_executable(lunapnr
 
 add_dependencies(lunapnr commandcompletion)
 
-target_link_libraries(lunapnr lunacore Qt6::Widgets Qt6::Gui Qt6::Core)
+target_link_libraries(lunapnr lunacore Qt6::Widgets Qt6::Gui Qt6::Core Qt6::Network tomlplusplus::tomlplusplus)
 target_include_directories(lunapnr PUBLIC ../core/include ${PYTHON_INCLUDE_DIRS} .)
 
 ## Make Debian/Ubuntu happy: this way the executable is not detected as a shared lib :-/

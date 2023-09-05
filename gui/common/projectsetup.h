@@ -39,6 +39,9 @@ struct ProjectSetup
 
     bool readFromJSON(std::istream &is);
     bool writeToJSON(std::ostream &os) const;
+
+    bool readFromTOML(std::istream &is);
+    bool writeToTOML(std::ostream &os) const;
 };
 
 };

@@ -28,6 +28,7 @@
 
 #include "configurationdialog.h"
 #include "aboutdialog/aboutdialog.h"
+#include "pdkinstaller/pdkinstaller.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
@@ -183,6 +184,8 @@ void MainWindow::createMenus()
     fileMenu->addSeparator();
     fileMenu->addAction(m_configAct);
     fileMenu->addSeparator();
+    fileMenu->addAction(m_installPDK);
+    fileMenu->addSeparator();
     fileMenu->addAction(m_quitAct);
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
@@ -222,6 +225,9 @@ void MainWindow::createActions()
     m_saveProjectAs = new QAction(tr("&Save Project As ..."), this);
     m_saveProjectAs->setShortcut(QKeySequence::SaveAs);
     connect(m_saveProjectAs, &QAction::triggered, this, &MainWindow::onSaveProjectAs);
+
+    m_installPDK = new QAction(tr("Install PDK"), this);
+    connect(m_installPDK, &QAction::triggered, this, &MainWindow::onInstallPDK);
 
     m_exportLayers = new QAction(tr("Export layers"), this);
     connect(m_exportLayers, &QAction::triggered, this, &MainWindow::onExportLayers);
@@ -481,6 +487,12 @@ void MainWindow::onProjectManagerAction(QString actionName)
 void MainWindow::onLunaConfig()
 {
     GUI::ConfigurationDialog dialog(*m_db.get());
+    dialog.exec();
+}
+
+void MainWindow::onInstallPDK()
+{
+    GUI::PDKInstallDialog dialog;
     dialog.exec();
 }
 
