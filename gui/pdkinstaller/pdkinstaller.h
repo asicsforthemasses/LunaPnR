@@ -32,8 +32,8 @@ namespace PDKInstall
         std::string m_date;
         std::string m_copyright;
         std::string m_description;
-        std::string m_path;
         std::string m_layerfile;
+        std::string m_installdir;
         std::vector<UrlWithDir> m_url;
         std::vector<ExtractInfo> m_extract;
         std::vector<std::string> m_lefs;
@@ -58,7 +58,7 @@ class PDKInstallDialog : public QDialog
 {
     Q_OBJECT
 public:
-    PDKInstallDialog(QWidget *parent = nullptr);
+    PDKInstallDialog(const std::filesystem::path &PDKRoot, QWidget *parent = nullptr);
 
 private slots:
     void onOpen();
@@ -70,11 +70,14 @@ protected:
     void updatePDKDisplay();
 
     QProgressBar    *m_progress{nullptr};
+    QLineEdit       *m_installDirDisplay{nullptr};
     QLineEdit       *m_pdkTitle{nullptr};
+    QLineEdit       *m_pdkVersion{nullptr};
     QPlainTextEdit  *m_pdkDescription{nullptr};
 
     std::optional<PDKInstall::Info> m_installInfo;
-    std::filesystem::path m_basepath;
+    std::filesystem::path m_installpath;
+    std::filesystem::path m_pdkroot;
     Downloader  m_downloader;
 };
 

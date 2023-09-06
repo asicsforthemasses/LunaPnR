@@ -1,5 +1,7 @@
-#include "pdkinstaller.h"
-#include "downloader.h"
+#include <filesystem>
+#include <toml++/toml.h>
+#include <strutilspp.hpp>
+
 #include <QDialogButtonBox>
 #include <QFileDialog>
 #include <QGridLayout>
@@ -7,8 +9,9 @@
 #include <QDir>
 #include <QPushButton>
 
-#include <filesystem>
-#include <toml++/toml.h>
+#include "pdkinstaller.h"
+#include "downloader.h"
+#include "common/pdkinfo.h"
 
 namespace PDKInstall
 {
@@ -33,13 +36,36 @@ ReadResult readInstallFile(std::istream &toml)
     try
     {
         auto tbl = toml::parse(toml);
-        info.m_title    = tbl["title"].value_or("");
-        info.m_name     = tbl["name"].value_or("");
-        info.m_version  = tbl["version"].value_or("");
-        info.m_description = tbl["description"].value_or("");
-        info.m_date     = tbl["date"].value_or("");
-        info.m_copyright = tbl["copyright"].value_or("");
-        info.m_layerfile = tbl["layerfile"].value_or("");
+        info.m_installdir   = tbl["installdir"].value_or("");
+        info.m_title        = tbl["title"].value_or("");
+        info.m_name         = tbl["name"].value_or("");
+        info.m_version      = tbl["version"].value_or("");
+        info.m_description  = tbl["description"].value_or("");
+        info.m_date         = tbl["date"].value_or("");
+        info.m_copyright    = tbl["copyright"].value_or("");
+        info.m_layerfile    = tbl["layerfile"].value_or("");
+
+        // sanity checks
+        if (info.m_installdir.empty())
+        {
+            return ReadResult{.m_errortxt = "Missing installdir"};
+        }
+
+        std::filesystem::path installDir = info.m_installdir;
+        if (!installDir.is_relative())
+        {
+            return ReadResult{.m_errortxt = "Specified installdir is not a relative path"};
+        }
+
+        if (info.m_title.empty())
+        {
+            return ReadResult{.m_errortxt = "Missing title"};
+        }
+
+        if (info.m_name.empty())
+        {
+            return ReadResult{.m_errortxt = "Missing name"};
+        }
 
         for(int idx = 0; idx < !!tbl["extract"]; idx++)
         {
@@ -69,6 +95,16 @@ ReadResult readInstallFile(std::istream &toml)
             info.m_libs.emplace_back(lib);
         }
 
+        if (info.m_lefs.empty())
+        {
+            return ReadResult{.m_errortxt = "Missing lef files"};
+        }
+
+        if (info.m_libs.empty())
+        {
+            return ReadResult{.m_errortxt = "Missing lib files"};
+        }
+
     }
     catch (const toml::parse_error& err)
     {
@@ -87,20 +123,10 @@ ReadResult readInstallFile(std::istream &toml)
 namespace GUI
 {
 
-PDKInstallDialog::PDKInstallDialog(QWidget *parent) : QDialog(parent)
+PDKInstallDialog::PDKInstallDialog(const std::filesystem::path &PDKRoot, 
+    QWidget *parent) : QDialog(parent)
 {
-    const char* envHome = std::getenv("HOME");
-
-    if(envHome != nullptr)
-    {
-        m_basepath = envHome;
-        m_basepath /= "lunapnr";
-    }
-    else
-    {
-        //FIXME: make user configurable
-        m_basepath = "/opt/lunapnr/pdks";
-    }
+    m_pdkroot = PDKRoot;
 
     setWindowTitle("Install PDKs");
 
@@ -111,13 +137,21 @@ PDKInstallDialog::PDKInstallDialog(QWidget *parent) : QDialog(parent)
 
     m_pdkTitle = new QLineEdit("");
     m_pdkTitle->setReadOnly(true);
+    m_pdkVersion = new QLineEdit("");
+    m_pdkVersion->setReadOnly(true);    
     m_pdkDescription = new QPlainTextEdit();
     m_pdkDescription->setReadOnly(true);
-    
+    m_installDirDisplay = new QLineEdit("");
+    m_installDirDisplay->setReadOnly(true);
+
     layout->addWidget(new QLabel("Title:"), 2, 0);
     layout->addWidget(m_pdkTitle, 2, 1);
-    layout->addWidget(new QLabel("Description:"), 3, 0);
-    layout->addWidget(m_pdkDescription, 3, 1);
+    layout->addWidget(new QLabel("Version:"), 3, 0);
+    layout->addWidget(m_pdkVersion, 3, 1);
+    layout->addWidget(new QLabel("Description:"), 4, 0);
+    layout->addWidget(m_pdkDescription, 4, 1);
+    layout->addWidget(new QLabel("Install path:"), 5, 0);
+    layout->addWidget(m_installDirDisplay, 5, 1);
 
     connect(openButton, &QPushButton::clicked, this, &PDKInstallDialog::onOpen);
 
@@ -127,7 +161,7 @@ PDKInstallDialog::PDKInstallDialog(QWidget *parent) : QDialog(parent)
     m_progress->setMinimum(0);
     m_progress->setMaximum(100);
 
-    layout->addWidget(m_progress, 4, 0, 1, 2);
+    layout->addWidget(m_progress, 6, 0, 1, 2);
 
     connect(&m_downloader, &Downloader::downloadProgress, this, &PDKInstallDialog::onProgress);
     connect(&m_downloader, &Downloader::downloaded, this, &PDKInstallDialog::onDownloaded);
@@ -154,6 +188,10 @@ void PDKInstallDialog::updatePDKDisplay()
         m_pdkTitle->setEnabled(false);
         m_pdkDescription->setPlainText("");
         m_pdkDescription->setEnabled(false);
+        m_installDirDisplay->setText("");
+        m_installDirDisplay->setEnabled(false);
+        m_pdkVersion->setText("");
+        m_pdkVersion->setEnabled(false);
     }
     else
     {
@@ -161,6 +199,10 @@ void PDKInstallDialog::updatePDKDisplay()
         m_pdkTitle->setEnabled(true);
         m_pdkDescription->setPlainText(QString::fromStdString(m_installInfo->m_description));
         m_pdkDescription->setEnabled(true);
+        m_installDirDisplay->setText(QString::fromStdString(m_installpath));
+        m_installDirDisplay->setEnabled(true);
+        m_pdkVersion->setText(QString::fromStdString(m_installInfo->m_version));
+        m_pdkVersion->setEnabled(true);
     }
 }
 
@@ -176,6 +218,8 @@ void PDKInstallDialog::onOpen()
         {
             // ok
             m_installInfo = result.m_info;
+            m_installpath = m_pdkroot / m_installInfo->m_installdir;
+
             updatePDKDisplay();
             std::cout << result.m_info->m_title << "\n";
             onInstall();
@@ -198,15 +242,16 @@ void PDKInstallDialog::onInstall()
 
     for(auto const& urlAndDir : m_installInfo->m_url)
     {
-        auto filepath = std::filesystem::absolute(m_basepath / urlAndDir.m_installdir);
+        auto filepath = std::filesystem::absolute(m_installpath / urlAndDir.m_installdir);
         auto filedir  = filepath;
         filedir.remove_filename();
 
+#if 0
         std::cout << "url     : " << urlAndDir.m_url << "\n";
         std::cout << "dir     : " << urlAndDir.m_installdir << "\n";
         std::cout << "filepath: " << filepath << "\n";
         std::cout << "filedir : " << filedir << "\n";
-
+#endif
         if (!std::filesystem::exists(filedir))
         {
             // make the directory if it doesn't exist
@@ -220,6 +265,30 @@ void PDKInstallDialog::onInstall()
 
         m_downloader.download(QUrl(QString::fromStdString(urlAndDir.m_url)), filepath.c_str());
     }
+
+    // write _pdkinfo.toml in the install dir
+    PDKInfo pdkinfo;
+    pdkinfo.m_title = m_installInfo->m_title;
+    pdkinfo.m_name = m_installInfo->m_name;
+    pdkinfo.m_copyright = m_installInfo->m_copyright; 
+    pdkinfo.m_date = m_installInfo->m_date;
+    pdkinfo.m_description = m_installInfo->m_description;
+    pdkinfo.m_lefs = m_installInfo->m_lefs;
+    pdkinfo.m_libs = m_installInfo->m_libs;
+    pdkinfo.m_layerfile = m_installInfo->m_layerfile;
+    pdkinfo.m_version = m_installInfo->m_version;
+
+    // write .toml file
+    auto filepath = std::filesystem::absolute(m_installpath / "_pdkinfo.toml");
+    std::ofstream ofile(filepath);
+    if (!ofile)
+    {
+        return;
+    }
+
+    ofile << "# LunaPnR PDK info file\n";
+    ofile << "# Installed on " << StrUtils::date() << "\n\n";
+    ofile << toToml(pdkinfo);
 }
 
 void PDKInstallDialog::onProgress(int percent)
@@ -239,7 +308,7 @@ void PDKInstallDialog::onDownloaded(QString filename)
 
         for(auto const& extractInfo : m_installInfo->m_extract)
         {
-            auto filepath = std::filesystem::absolute(m_basepath / extractInfo.m_filename);
+            auto filepath = std::filesystem::absolute(m_installpath / extractInfo.m_filename);
             auto filedir  = filepath;
             filedir.remove_filename();
 
@@ -263,14 +332,14 @@ void PDKInstallDialog::onDownloaded(QString filename)
             else if (extractInfo.m_compressor == "bz2")
             {
                 std::stringstream ss;
-                ss << "tar -xjvf " << filepath;
+                ss << "tar -xjf " << filepath;
                 std::system(ss.str().c_str());
             }            
             else
             {
                 // unsupported compression
             }
-            std::filesystem::current_path(oldPath);            
+            std::filesystem::current_path(oldPath);
         }
         m_progress->setFormat("Done.");
         m_progress->setEnabled(false);

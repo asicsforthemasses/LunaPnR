@@ -3,35 +3,36 @@
 #
 # OSU180 PDK for LunaPnR
 
-title = "OSU 180nm"     # title/name the user sees
-name = "OSU180_v2.4"    # name used to reference the PDK internally
-version = "v2.4"        # version the user sees
-date = "05-09-2023"     
+title = "OSU 180nm"         # title/name the user sees.
+name = "OSU180_v2.4"        # name used to reference the PDK internally.
+version = "v2.4"            # version the user sees.
+installdir = "osu180_v2_4"  # installation dir, must be a relative path.
+date = "05-09-2023"
 copyright = "OSU"
 description = "Generic 180nm CMOS cell library"
 icon = "https://www.github.com/asicsforthemasses/pdks/osu180.png"
 
 # source locations for the LEF/DEF/Layer etc files.
 url = [
-    ["https://vlsiarch.ecen.okstate.edu/flows/MOSIS_SCMOS/osu_stdcells_v2.4/osu_stdcells_lib.v2.4.tar.gz", "osu180_v2_4/osu_stdcells_lib.v2.4.tar.gz"],
+    ["https://vlsiarch.ecen.okstate.edu/flows/MOSIS_SCMOS/osu_stdcells_v2.4/osu_stdcells_lib.v2.4.tar.gz", "osu_stdcells_lib.v2.4.tar.gz"],
 ]
 
 # archive extraction instructions, if any.
 # the second argument is the archive type
 # "tgz", "zip", "bz2"
 extract = [
-    ["osu180_v2_4/osu_stdcells_lib.v2.4.tar.gz", "tgz"]
+    ["osu_stdcells_lib.v2.4.tar.gz", "tgz"]
 ]
 
 # lef files, technology LEF *must* go first
 lef = [
-    "osu180_v2_4/osu_stdcells/lib/tsmc018/lib/osu018_stdcells.lib"
+    "osu_stdcells/lib/tsmc018/lib/osu018_stdcells.lib"
 ]
 
 # liberty files
 lib = [
-    "osu180_v2_4/osu_stdcells/lib/tsmc018/signalstorm/osu018_stdcells.lib"
+    "osu_stdcells/lib/tsmc018/signalstorm/osu018_stdcells.lib"
 ]
 
 # layer file for the colours and hatch patterns
-layerfile = "osu180_v2_4/osu180.layers"
+layerfile = "osu180.layers"

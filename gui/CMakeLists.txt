@@ -49,6 +49,7 @@ set (LUNA_SRC_FILES
     common/database.cpp
     common/projectsetup.cpp
     common/tasklist.cpp
+    common/pdkinfo.cpp
     widgets/colorbutton.cpp
     widgets/hatchbutton.cpp
     widgets/hatchdialog.cpp

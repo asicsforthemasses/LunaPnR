@@ -140,6 +140,22 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(m_projectManager, &GUI::ProjectManager::onAction, this, &MainWindow::onProjectManagerAction);
 
     m_taskList = std::make_unique<GUI::TaskList>(m_projectManager);
+
+    //FIXME: read from persistent settings
+    if (m_PDKRoot.empty())
+    {
+        const char* envHome = std::getenv("HOME");
+
+        if(envHome != nullptr)
+        {
+            m_PDKRoot = envHome;
+            m_PDKRoot /= "lunapnr";
+        }
+        else
+        {
+            m_PDKRoot = "/opt/lunapnr";
+        }        
+    }
 }
 
 MainWindow::~MainWindow()
@@ -492,7 +508,7 @@ void MainWindow::onLunaConfig()
 
 void MainWindow::onInstallPDK()
 {
-    GUI::PDKInstallDialog dialog;
+    GUI::PDKInstallDialog dialog(m_PDKRoot);
     dialog.exec();
 }
 

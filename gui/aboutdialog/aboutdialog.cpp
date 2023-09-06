@@ -11,6 +11,7 @@
 #include <patchlevel.h>     // from Python
 #include "widgets/flatimage.h"
 #include <Eigen/Core>
+#include <toml++/toml.h>
 
 using namespace GUI;
 
@@ -30,6 +31,11 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
         EIGEN_MAJOR_VERSION,
         EIGEN_MINOR_VERSION);
 
+    const auto tomlVersion = QString::asprintf("%d.%d.%d", 
+        TOML_LIB_MAJOR,
+        TOML_LIB_MINOR,
+        TOML_LIB_PATCH);
+
     // build information string    
     info += "<h2>" + QString(LUNAVERSIONSTRING) + "</h2>";
     info += "<h3>License: GPL v3</h3>";
@@ -39,6 +45,7 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
     info += "<li>Qt version     " + QString(QT_VERSION_STR) + "</li>";
     info += "<li>Python version " + QString(PY_VERSION) + "</li>";
     info += "<li>Eigen3 version " + eigenVersion + "</li>";
+    info += "<li>Toml++ version " + tomlVersion + "</li>";
     info += "</ul>";
 
     textDisplay->setHtml(info);

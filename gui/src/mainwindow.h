@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <string>
+#include <filesystem>
 
 #include <QObject>
 #include <QMainWindow>
@@ -121,6 +122,8 @@ protected:
     
     std::unique_ptr<GUI::TaskList> m_taskList;
     
+    std::filesystem::path m_PDKRoot;
+
     QString m_projectFileName;
     std::shared_ptr<GUI::Database> m_db;
 
