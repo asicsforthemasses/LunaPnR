@@ -16,11 +16,11 @@ toml::table toToml(const PDKInfo &pdkinfo)
 
     toml::array lefArr;
     lefArr.insert(lefArr.begin(), pdkinfo.m_lefs.begin(), pdkinfo.m_lefs.end());
-    tbl.insert("lefs", lefArr);
+    tbl.insert("lef", lefArr);
 
     toml::array libArr;
     libArr.insert(libArr.begin(), pdkinfo.m_libs.begin(), pdkinfo.m_libs.end());
-    tbl.insert("libs", libArr);
+    tbl.insert("lib", libArr);
 
     return std::move(tbl);
 }
@@ -39,16 +39,26 @@ bool fromToml(std::istream &toml, PDKInfo &pdkinfo)
         pdkinfo.m_copyright    = tbl["copyright"].value_or("");
         pdkinfo.m_layerfile    = tbl["layerfile"].value_or("");
 
-        for(int idx = 0; idx < !!tbl["lef"]; idx++)
+        auto lefArr = tbl["lef"].as_array();
+        if (lefArr != nullptr)
         {
-            auto lef = tbl["lef"][idx].value<std::string>().value();
-            pdkinfo.m_lefs.emplace_back(lef);
+            lefArr->for_each(
+                [&](toml::value<std::string> &lef)
+                {
+                    pdkinfo.m_lefs.emplace_back(lef);
+                }
+            );
         }
 
-        for(int idx = 0; idx < !!tbl["lib"]; idx++)
+        auto libArr = tbl["lef"].as_array();
+        if (libArr != nullptr)
         {
-            auto lib = tbl["lib"][idx].value<std::string>().value();
-            pdkinfo.m_libs.emplace_back(lib);
+            libArr->for_each(
+                [&](toml::value<std::string> &lib)
+                {
+                    pdkinfo.m_libs.emplace_back(lib);
+                }
+            );
         }
 
         if (pdkinfo.m_title.empty())

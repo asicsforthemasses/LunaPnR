@@ -67,32 +67,71 @@ ReadResult readInstallFile(std::istream &toml)
             return ReadResult{.m_errortxt = "Missing name"};
         }
 
-        for(int idx = 0; idx < !!tbl["extract"]; idx++)
+        auto extractArr = tbl["extract"].as_array();
+        if (extractArr != nullptr)
         {
-            ExtractInfo extractInfo;
-            extractInfo.m_filename = tbl["extract"][idx][0].value<std::string>().value();
-            extractInfo.m_compressor = tbl["extract"][idx][1].value<std::string>().value();
-            info.m_extract.emplace_back(extractInfo);
+            for(int idx = 0; idx < extractArr->size(); idx++)
+            {
+                ExtractInfo extractInfo;
+                extractInfo.m_filename = extractArr[idx][0].value<std::string>().value();
+                extractInfo.m_compressor = extractArr[idx][1].value<std::string>().value();
+                info.m_extract.emplace_back(extractInfo);
+            }
         }
 
-        for(int idx = 0; idx < !!tbl["url"]; idx++)
+        auto urlArr = tbl["url"].as_array();
+        if (urlArr != nullptr)
         {
-            UrlWithDir urlWithDir;
-            urlWithDir.m_url = tbl["url"][idx][0].value<std::string>().value();
-            urlWithDir.m_installdir = tbl["url"][idx][1].value<std::string>().value();
-            info.m_url.emplace_back(urlWithDir);
+            urlArr->for_each(
+                [&](toml::array& url)
+                {
+                    UrlWithDir urlWithDir;
+                    urlWithDir.m_url = url[0].value<std::string>().value();
+                    urlWithDir.m_installdir = url[1].value<std::string>().value();
+                    info.m_url.emplace_back(urlWithDir);                    
+                }
+            );
         }
 
-        for(int idx = 0; idx < !!tbl["lef"]; idx++)
+#if 0
+        if (urlArr != nullptr)
         {
-            auto lef = tbl["lef"][idx].value<std::string>().value();
-            info.m_lefs.emplace_back(lef);
+            for(int idx = 0; idx < urlArr->size(); idx++)
+            {                
+                UrlWithDir urlWithDir;
+
+                auto url = urlArr[idx].as_array();
+                if (url != nullptr)
+                {
+                    if (url->size() == 2)
+                    {
+
+                    }
+                }
+            }
+        }
+#endif
+
+        auto lefArr = tbl["lef"].as_array();
+        if (lefArr != nullptr)
+        {
+            lefArr->for_each(
+                [&](toml::value<std::string>& lef)
+                {
+                    info.m_lefs.emplace_back(lef);
+                }
+            );
         }
 
-        for(int idx = 0; idx < !!tbl["lib"]; idx++)
+        auto libArr = tbl["lib"].as_array();
+        if (libArr != nullptr)
         {
-            auto lib = tbl["lib"][idx].value<std::string>().value();
-            info.m_libs.emplace_back(lib);
+            libArr->for_each(
+                [&](toml::value<std::string>& lib)
+                {
+                    info.m_libs.emplace_back(lib);
+                }
+            );
         }
 
         if (info.m_lefs.empty())

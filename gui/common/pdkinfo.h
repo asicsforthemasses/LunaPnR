@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <filesystem>
 #include <toml++/toml.h>
 
 namespace GUI
@@ -17,10 +18,11 @@ struct PDKInfo
     std::string m_description;
     std::string m_layerfile;
     std::vector<std::string> m_lefs;
-    std::vector<std::string> m_libs;    
+    std::vector<std::string> m_libs;
+    std::filesystem::path m_path;       ///< should not be serialised!
 };
 
 toml::table toToml(const PDKInfo &pdkinfo);
-PDKInfo fromToml(std::istream &is);
+bool fromToml(std::istream &is, PDKInfo &pdkinfo);
 
 };

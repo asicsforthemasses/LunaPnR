@@ -24,11 +24,14 @@
 #include "../floorplanview/floorplanview.h"
 #include "../projectmanager/projectmanager.h"
 #include "../pdkinstaller/pdkinstaller.h"
+#include "../pdkdialog/pdkdialog.h"
 
 #include "lunacore.h"
 #include "../common/database.h"
 #include "../common/projectsetup.h"
 #include "../common/tasklist.h"
+#include "../common/pdkinfo.h"
+
 #include "../python/pyluna_extra.h"
 
 class ConsoleLogOutputHandler : public Logging::LogOutputHandler
@@ -70,6 +73,7 @@ public slots:
     void onLunaConfig();
 
     void onInstallPDK();
+    void onSelectPDK();
 
     void onExportLayers();
     void onRunScript();
@@ -91,6 +95,7 @@ protected:
     void createActions();
     void saveSettings();
     void loadSettings();
+    void scanPDKs();
 
     QAction *m_clearAct;
     QAction *m_quitAct;    
@@ -104,6 +109,7 @@ protected:
     QAction *m_saveProjectAs;
 
     QAction *m_installPDK;
+    QAction *m_selectPDK;
 
     QAction *m_exportLayers;
     QAction *m_runScriptAct;
@@ -123,6 +129,7 @@ protected:
     std::unique_ptr<GUI::TaskList> m_taskList;
     
     std::filesystem::path m_PDKRoot;
+    std::vector<GUI::PDKInfo> m_pdks;
 
     QString m_projectFileName;
     std::shared_ptr<GUI::Database> m_db;

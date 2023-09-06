@@ -156,6 +156,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
             m_PDKRoot = "/opt/lunapnr";
         }        
     }
+
+    scanPDKs();
 }
 
 MainWindow::~MainWindow()
@@ -200,9 +202,11 @@ void MainWindow::createMenus()
     fileMenu->addSeparator();
     fileMenu->addAction(m_configAct);
     fileMenu->addSeparator();
-    fileMenu->addAction(m_installPDK);
-    fileMenu->addSeparator();
     fileMenu->addAction(m_quitAct);
+
+    QMenu *pdkMenu = menuBar()->addMenu(tr("&PDK"));
+    pdkMenu->addAction(m_selectPDK);
+    pdkMenu->addAction(m_installPDK);    
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(m_aboutAct);
@@ -242,14 +246,17 @@ void MainWindow::createActions()
     m_saveProjectAs->setShortcut(QKeySequence::SaveAs);
     connect(m_saveProjectAs, &QAction::triggered, this, &MainWindow::onSaveProjectAs);
 
-    m_installPDK = new QAction(tr("Install PDK"), this);
-    connect(m_installPDK, &QAction::triggered, this, &MainWindow::onInstallPDK);
-
     m_exportLayers = new QAction(tr("Export layers"), this);
     connect(m_exportLayers, &QAction::triggered, this, &MainWindow::onExportLayers);
 
     m_configAct = new QAction(tr("Luna Configuration"), this);
     connect(m_configAct, &QAction::triggered, this, &MainWindow::onLunaConfig);
+
+    m_installPDK = new QAction(tr("Install PDK"), this);
+    connect(m_installPDK, &QAction::triggered, this, &MainWindow::onInstallPDK);    
+
+    m_selectPDK = new QAction(tr("Select PDK"), this);
+    connect(m_selectPDK, &QAction::triggered, this, &MainWindow::onSelectPDK);
 }
 
 void MainWindow::saveSettings()
@@ -509,6 +516,56 @@ void MainWindow::onLunaConfig()
 void MainWindow::onInstallPDK()
 {
     GUI::PDKInstallDialog dialog(m_PDKRoot);
+    dialog.exec();
+    scanPDKs();
+}
+
+void MainWindow::scanPDKs()
+{
+    m_pdks.clear();
+
+    for (const auto &pdkDirEntry : std::filesystem::directory_iterator(m_PDKRoot))
+    {
+        if (pdkDirEntry.is_directory())
+        {
+            for (const auto &entry : std::filesystem::directory_iterator(pdkDirEntry))
+            {
+                if (entry.is_regular_file())
+                {
+                    auto filename = entry.path().filename();
+                    if (filename == "_pdkinfo.toml")
+                    {
+                        std::ifstream pdkFile(entry.path());
+                        if (pdkFile)
+                        {
+                            GUI::PDKInfo pdkInfo;
+                            if (GUI::fromToml(pdkFile, pdkInfo))
+                            {
+                                pdkInfo.m_path = entry.path();
+                                pdkInfo.m_path.remove_filename();
+                                m_pdks.emplace_back(pdkInfo);
+
+                                std::stringstream ss;
+                                ss << "Loaded PDK: " << pdkInfo.m_title << "\n";
+                                Logging::doLog(Logging::LogType::VERBOSE, ss.str());
+                            }
+                            else
+                            {
+                                std::stringstream ss;
+                                ss << "Failed to load PDK: " << entry.path() << "\n";
+                                Logging::doLog(Logging::LogType::WARNING, ss.str());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void MainWindow::onSelectPDK()
+{
+    GUI::PDKDialog dialog(m_pdks);
     dialog.exec();
 }
 
