@@ -29,15 +29,15 @@ PDKTile::PDKTile(const PDKInfo &info, QWidget *parent) : QFrame(parent)
     // try and load the "_icon.png"
     QString iconFile = QString::fromStdString((info.m_path / "_icon.png").string());
     auto icon = new FlatImage(iconFile);
-    layout->addWidget(icon,1,1,3,1, Qt::AlignCenter);
-    layout->setColumnMinimumWidth(1, 100);  // icons are 64x64 so we make the column 100 pixels
+    layout->addWidget(icon,0,0,3,1, Qt::AlignCenter);
+    layout->setColumnMinimumWidth(0, 100);  // icons are 64x64 so we make the column 100 pixels
 
-    layout->addWidget(new QLabel("Title"),1,2);
-    layout->addWidget(m_title,1,3);
-    layout->addWidget(new QLabel("Version"),2,2);
-    layout->addWidget(m_version,2,3);
-    layout->addWidget(new QLabel("Date"),3,2);
-    layout->addWidget(m_date,3, 3);
+    layout->addWidget(new QLabel("Title"),0,1);
+    layout->addWidget(m_title,0,2);
+    layout->addWidget(new QLabel("Version"),1,1);
+    layout->addWidget(m_version,1,2);
+    layout->addWidget(new QLabel("Date"),2,1);
+    layout->addWidget(m_date,2, 2);
 
     setLayout(layout);
 };
