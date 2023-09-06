@@ -46,7 +46,6 @@ public:
             updateColorPixmap();
         }
 
-
         /** get the color of the layer hatch pattern */
         QColor getColor() const
         {

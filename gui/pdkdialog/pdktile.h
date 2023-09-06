@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMouseEvent>
+#include <QVBoxLayout>
 #include "common/pdkinfo.h"
 
 namespace GUI
@@ -36,6 +37,41 @@ protected:
     QLabel *m_title{nullptr};
     QLabel *m_date{nullptr};
     QLabel *m_version{nullptr};
+};
+
+class PDKTileList : public QWidget
+{
+    Q_OBJECT
+public:
+    PDKTileList(QWidget *parent = nullptr);
+
+    PDKTile* createTile(const PDKInfo &info);
+
+    PDKTile* at(int index)
+    {
+        return m_pdkTiles.at(index);
+    }
+
+    std::size_t size() const noexcept
+    {
+        return m_pdkTiles.size();
+    }
+
+    constexpr int selected() const noexcept
+    {
+        return m_selected;
+    }
+
+signals:
+    void selectionChanged(int id);
+
+private slots:
+    void onTileClicked(int id);
+
+protected:
+    int m_selected{-1};
+    QVBoxLayout *m_layout{nullptr};
+    std::vector<PDKTile*>   m_pdkTiles;
 };
 
 };

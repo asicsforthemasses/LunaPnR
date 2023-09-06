@@ -21,18 +21,21 @@ public:
 
     constexpr int selected() const noexcept
     {
-        return m_selected;
+        return m_tileList->selected();
     }
 
 private slots:
-    void onTileClicked(int id);
+    void onSelectionChanged(int id);
 
 protected:
     int m_selected{-1};
     std::vector<PDKInfo>    &m_pdks;
-    std::vector<PDKTile*>   m_pdkTiles;
-    QDialogButtonBox        *m_buttonBox{nullptr};
-    QScrollArea *m_tileList{nullptr};
+    
+    PDKTileList *m_tileList{nullptr};
+    QScrollArea *m_tileListScroll{nullptr};
+
+    QDialogButtonBox *m_buttonBox{nullptr};
+    
 };
 
 };
