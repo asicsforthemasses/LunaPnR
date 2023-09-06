@@ -1,0 +1,40 @@
+# SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+#
+# IHP130 PDK for LunaPnR
+
+title = "Skywater 130nm"    # title/name the user sees.
+name = "sky130"             # name used to reference the PDK internally.
+version = "v0.1"            # version the user sees.
+installdir = "sky130"       # installation dir, must be a relative path.
+date = "06-09-2023"
+copyright = "Skywater/Google"
+description = "Skywater 130nm cell library"
+icon = "https://lh3.googleusercontent.com/COxitqgJr1sJnIDe8-jiKhxDx1FrYbtRHKJ9z_hELisAlapwE9LUPh6fcXIfb5vwpbMl4xl9H9TRFPc5NOO8Sb3VSgIBrfRYvW6cUA"
+
+# source locations for the LEF/DEF/Layer etc files.
+url = [
+    ["https://github.com/asicsforthemasses/sky130_testing/raw/main/sky130_fd_sc_hd_liberty.tar.xz", "sky130_fd_sc_hd.tar.xz"],
+    ["https://github.com/asicsforthemasses/sky130_testing/raw/main/sky130_fd_sc_hd.tlef", "sky130_fd_sc_hd.tlef"],
+    ["https://github.com/asicsforthemasses/sky130_testing/raw/main/sky130_fd_sc_hd.lef", "sky130_fd_sc_hd.lef"],
+]
+
+# archive extraction instructions, if any.
+# the second argument is the archive type
+# "tgz", "zip", "bz2", "xz"
+extract = [ 
+    ["sky130_fd_sc_hd.tar.xz", "xz"]
+]
+
+# lef files, technology LEF *must* go first
+lef = [
+    "sky130_fd_sc_hd.tlef", "sky130_fd_sc_hd.lef"
+]
+
+# liberty files
+lib = [
+    "sky130_fd_sc_hd__tt_025C_1v80"
+]
+
+# layer file for the colours and hatch patterns
+layerfile = "freepdk45.layers"
