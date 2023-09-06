@@ -1,5 +1,7 @@
 #include "pdktile.h"
 #include <QGridLayout>
+#include <QPixmap>
+#include "widgets/flatimage.h"
 
 namespace GUI
 {
@@ -7,6 +9,7 @@ namespace GUI
 PDKTile::PDKTile(const PDKInfo &info, QWidget *parent) : QFrame(parent)
 {
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    setFrameStyle(QFrame::Box);
 
     auto layout = new QGridLayout();
     layout->setSizeConstraint(QLayout::SetFixedSize);
@@ -23,12 +26,18 @@ PDKTile::PDKTile(const PDKInfo &info, QWidget *parent) : QFrame(parent)
     m_date->setReadOnly(true);
     m_date->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-    layout->addWidget(new QLabel("Title"),1,1);
-    layout->addWidget(m_title,1,2);
-    layout->addWidget(new QLabel("Version"),2,1);
-    layout->addWidget(m_version,2,2);
-    layout->addWidget(new QLabel("Date"),3,1);
-    layout->addWidget(m_date,3,2);
+    // try and load the "_icon.png"
+    QString iconFile = QString::fromStdString((info.m_path / "_icon.png").string());
+    auto icon = new FlatImage(iconFile);
+    layout->addWidget(icon,1,1,3,1, Qt::AlignCenter);
+    layout->setColumnMinimumWidth(1, 100);  // icons are 64x64 so we make the column 100 pixels
+
+    layout->addWidget(new QLabel("Title"),1,2);
+    layout->addWidget(m_title,1,3);
+    layout->addWidget(new QLabel("Version"),2,2);
+    layout->addWidget(m_version,2,3);
+    layout->addWidget(new QLabel("Date"),3,2);
+    layout->addWidget(m_date,3, 3);
 
     setLayout(layout);
 };

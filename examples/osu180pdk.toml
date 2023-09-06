@@ -10,7 +10,7 @@ installdir = "osu180_v2_4"  # installation dir, must be a relative path.
 date = "05-09-2023"
 copyright = "OSU"
 description = "Generic 180nm CMOS cell library"
-icon = "https://www.github.com/asicsforthemasses/pdks/osu180.png"
+icon = "https://brand.okstate.edu/site-files/images/brand-guide/primary-brand.png"
 
 # source locations for the LEF/DEF/Layer etc files.
 url = [

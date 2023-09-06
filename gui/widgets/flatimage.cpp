@@ -8,7 +8,7 @@
 
 using namespace GUI;
 
-FlatImage::FlatImage(const QString &pixmapUrl, QWidget *parent)
+FlatImage::FlatImage(const QString &pixmapUrl, QWidget *parent) : QWidget(parent)
 {
     setPixmap(pixmapUrl);
 }

@@ -50,6 +50,7 @@ set (LUNA_SRC_FILES
     common/projectsetup.cpp
     common/tasklist.cpp
     common/pdkinfo.cpp
+    common/imagemanip.cpp
     widgets/colorbutton.cpp
     widgets/hatchbutton.cpp
     widgets/hatchdialog.cpp

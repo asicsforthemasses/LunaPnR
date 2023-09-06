@@ -12,6 +12,8 @@
 #include "pdkinstaller.h"
 #include "downloader.h"
 #include "common/pdkinfo.h"
+#include "common/logging.h"
+#include "common/imagemanip.h"
 
 namespace PDKInstall
 {
@@ -44,6 +46,7 @@ ReadResult readInstallFile(std::istream &toml)
         info.m_date         = tbl["date"].value_or("");
         info.m_copyright    = tbl["copyright"].value_or("");
         info.m_layerfile    = tbl["layerfile"].value_or("");
+        info.m_icon         = tbl["icon"].value_or("");
 
         // sanity checks
         if (info.m_installdir.empty())
@@ -70,13 +73,15 @@ ReadResult readInstallFile(std::istream &toml)
         auto extractArr = tbl["extract"].as_array();
         if (extractArr != nullptr)
         {
-            for(int idx = 0; idx < extractArr->size(); idx++)
-            {
-                ExtractInfo extractInfo;
-                extractInfo.m_filename = extractArr[idx][0].value<std::string>().value();
-                extractInfo.m_compressor = extractArr[idx][1].value<std::string>().value();
-                info.m_extract.emplace_back(extractInfo);
-            }
+            extractArr->for_each(
+                [&](toml::array& cmd)
+                {
+                    ExtractInfo extractInfo;
+                    extractInfo.m_filename = cmd[0].value<std::string>().value();
+                    extractInfo.m_compressor = cmd[1].value<std::string>().value();
+                    info.m_extract.emplace_back(extractInfo);
+                }
+            );            
         }
 
         auto urlArr = tbl["url"].as_array();
@@ -92,25 +97,6 @@ ReadResult readInstallFile(std::istream &toml)
                 }
             );
         }
-
-#if 0
-        if (urlArr != nullptr)
-        {
-            for(int idx = 0; idx < urlArr->size(); idx++)
-            {                
-                UrlWithDir urlWithDir;
-
-                auto url = urlArr[idx].as_array();
-                if (url != nullptr)
-                {
-                    if (url->size() == 2)
-                    {
-
-                    }
-                }
-            }
-        }
-#endif
 
         auto lefArr = tbl["lef"].as_array();
         if (lefArr != nullptr)
@@ -305,6 +291,13 @@ void PDKInstallDialog::onInstall()
         m_downloader.download(QUrl(QString::fromStdString(urlAndDir.m_url)), filepath.c_str());
     }
 
+    // if there is a logo, download it
+    if (!m_installInfo->m_icon.empty())
+    {
+        auto iconPath = std::filesystem::absolute(m_installpath / "_icon.png");
+        m_downloader.download(QUrl(QString::fromStdString(m_installInfo->m_icon)), iconPath.c_str());
+    }
+
     // write _pdkinfo.toml in the install dir
     PDKInfo pdkinfo;
     pdkinfo.m_title = m_installInfo->m_title;
@@ -318,8 +311,8 @@ void PDKInstallDialog::onInstall()
     pdkinfo.m_version = m_installInfo->m_version;
 
     // write .toml file
-    auto filepath = std::filesystem::absolute(m_installpath / "_pdkinfo.toml");
-    std::ofstream ofile(filepath);
+    auto tomlPath = std::filesystem::absolute(m_installpath / "_pdkinfo.toml");
+    std::ofstream ofile(tomlPath);
     if (!ofile)
     {
         return;
@@ -332,12 +325,17 @@ void PDKInstallDialog::onInstall()
 
 void PDKInstallDialog::onProgress(int percent)
 {
-    m_progress->setValue(percent);
+    if (percent >= 0)
+    {
+        m_progress->setValue(percent);
+    }
 }
 
 void PDKInstallDialog::onDownloaded(QString filename)
 {
-    std::cout << "Downloaded " << filename.toStdString() << "\n";
+    std::stringstream ss;
+    ss << "Downloaded " << filename.toStdString() << "\n";
+    Logging::doLog(Logging::LogType::INFO, ss.str());
 
     if (m_downloader.empty())
     {
@@ -380,6 +378,19 @@ void PDKInstallDialog::onDownloaded(QString filename)
             }
             std::filesystem::current_path(oldPath);
         }
+
+        // check if there is an _icon.png
+        // if there is, resize it to 64x64
+        auto iconPath = std::filesystem::absolute(m_installpath / "_icon.png");
+        if (std::filesystem::exists(iconPath))
+        {
+            auto iconImage = makePDKIcon(iconPath.string());
+            if (iconImage)
+            {
+                iconImage->save(QString::fromStdString(iconPath.string()));
+            }
+        }
+
         m_progress->setFormat("Done.");
         m_progress->setEnabled(false);
         m_progress->update();

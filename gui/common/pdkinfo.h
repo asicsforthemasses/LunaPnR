@@ -4,6 +4,7 @@
 #include <vector>
 #include <filesystem>
 #include <toml++/toml.h>
+#include <QImage>
 
 namespace GUI
 {
@@ -19,7 +20,7 @@ struct PDKInfo
     std::string m_layerfile;
     std::vector<std::string> m_lefs;
     std::vector<std::string> m_libs;
-    std::filesystem::path m_path;       ///< should not be serialised!
+    std::filesystem::path m_path;       // should not be serialised!
 };
 
 toml::table toToml(const PDKInfo &pdkinfo);

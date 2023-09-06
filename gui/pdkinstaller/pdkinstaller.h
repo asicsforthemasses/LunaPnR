@@ -34,6 +34,7 @@ namespace PDKInstall
         std::string m_description;
         std::string m_layerfile;
         std::string m_installdir;
+        std::string m_icon;                 ///< icon/logo url
         std::vector<UrlWithDir> m_url;
         std::vector<ExtractInfo> m_extract;
         std::vector<std::string> m_lefs;

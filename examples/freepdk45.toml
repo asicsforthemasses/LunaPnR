@@ -1,0 +1,39 @@
+# SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+# SPDX-License-Identifier: GPL-3.0-only
+#
+# IHP130 PDK for LunaPnR
+
+title = "NCSU FreePDK 45nm"     # title/name the user sees.
+name = "freepdk45"         # name used to reference the PDK internally.
+version = "v0.1"            # version the user sees.
+installdir = "freepdk45"   # installation dir, must be a relative path.
+date = "06-09-2023"
+copyright = "NCSU"
+description = "NCSU 45nm cell library"
+icon = "https://eda.ncsu.edu/wp-content/uploads/2017/03/chip-ncsu-eda.png"
+
+# source locations for the LEF/DEF/Layer etc files.
+url = [
+    ["https://raw.githubusercontent.com/JulianKemmerer/Drexel-ECEC575/master/Encounter/NangateOpenCellLibrary/Low_Power/Front_End/Liberty/LowPowerOpenCellLibrary_functional.lib", "lpocl_functional.lib"],
+    ["https://raw.githubusercontent.com/JulianKemmerer/Drexel-ECEC575/master/Encounter/NangateOpenCellLibrary/Front_End/Liberty/NangateOpenCellLibrary_functional.lib", "ocl_functional.lib"],
+    ["https://raw.githubusercontent.com/JulianKemmerer/Drexel-ECEC575/master/Encounter/NangateOpenCellLibrary/Back_End/lef/NangateOpenCellLibrary.lef", "ocl.lef"],
+    ["https://raw.githubusercontent.com/JulianKemmerer/Drexel-ECEC575/master/Encounter/NangateOpenCellLibrary/Back_End/lef/NangateOpenCellLibrary.tech.lef", "ocl.tech.lef"]
+]
+
+# archive extraction instructions, if any.
+# the second argument is the archive type
+# "tgz", "zip", "bz2"
+extract = []
+
+# lef files, technology LEF *must* go first
+lef = [
+    "ocl.tech.lef", "ocl.lef"
+]
+
+# liberty files
+lib = [
+    "ocl_functional.lib", 'lpocl_functional.lib'
+]
+
+# layer file for the colours and hatch patterns
+layerfile = "freepdk45.layers"

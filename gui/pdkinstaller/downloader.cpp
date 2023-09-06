@@ -53,7 +53,10 @@ void Downloader::startDownload(const DownloadItem &item)
 
 void Downloader::onDownloadProgress(int64_t bytes, int64_t total)
 {
-    emit downloadProgress(static_cast<int>(bytes * 100 / total));
+    if ((bytes >= 0) && (total > 0))
+    {
+        emit downloadProgress(static_cast<int>(bytes * 100 / total));
+    }
 }
 
 void Downloader::onReadReady()
