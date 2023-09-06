@@ -1,5 +1,6 @@
 #include "pdkdialog.h"
 #include <QBoxLayout>
+#include <QPushButton>
 #include "pdktile.h"
 
 namespace GUI
@@ -32,6 +33,17 @@ PDKDialog::PDKDialog(std::vector<PDKInfo> &pdks) : m_pdks(pdks)
 
     m_tileList->setLayout(tileLayout);
     mainLayout->addWidget(m_tileList);
+
+    m_buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
+                                     | QDialogButtonBox::Cancel);
+
+    m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+
+    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+    mainLayout->addWidget(m_buttonBox);
+    
     setLayout(mainLayout);
 }
 
@@ -45,6 +57,7 @@ void PDKDialog::onTileClicked(int id)
 
     if (id >= 0)
     {
+        m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(true);
         m_pdkTiles.at(id)->setSelected(true);
     }
 

@@ -1,16 +1,15 @@
 #include "pdktile.h"
 #include <QGridLayout>
 #include <QPixmap>
+#include <QPainter>
 #include "widgets/flatimage.h"
 
 namespace GUI
 {
 
-PDKTile::PDKTile(const PDKInfo &info, QWidget *parent) : QFrame(parent)
+PDKTile::PDKTile(const PDKInfo &info, QWidget *parent) : QWidget(parent)
 {
-    m_defaultLineWidth = lineWidth();   // save if for later
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-    setFrameStyle(QFrame::Box);
 
     auto layout = new QGridLayout();
     m_title = new QLabel(QString::fromStdString(info.m_title));
@@ -30,26 +29,39 @@ PDKTile::PDKTile(const PDKInfo &info, QWidget *parent) : QFrame(parent)
     layout->addWidget(new QLabel("Date"),2,1);
     layout->addWidget(m_date,2, 2, Qt::AlignLeft);
     layout->setColumnStretch(2,1);  // make sure the last column can stretch
-
     setLayout(layout);
 };
 
 void PDKTile::mousePressEvent(QMouseEvent *e)
 {
-    std::cout << "clicked\n";
     emit clicked(m_id);
 }
 
 void PDKTile::setSelected(bool selected)
 {
-    if (selected)
+    if (m_selected != selected)
     {
-        setLineWidth(3);
+        m_selected = selected;
+        update();
+    }
+}
+
+void PDKTile::paintEvent(QPaintEvent *e)
+{
+    QWidget::paintEvent(e);
+
+    QPainter painter(this);
+    if (m_selected)
+    {
+        painter.setPen(QPen{Qt::black, 3.0});
     }
     else
     {
-        setLineWidth(m_defaultLineWidth);
+        painter.setPen(QPen{Qt::gray, 1.0});
     }
+    
+    painter.setBrush(Qt::NoBrush);
+    painter.drawRect(rect().adjusted(1,1,-2,-2));
 }
 
 };
