@@ -371,7 +371,13 @@ void PDKInstallDialog::onDownloaded(QString filename)
                 std::stringstream ss;
                 ss << "tar -xjf " << filepath;
                 std::system(ss.str().c_str());
-            }            
+            }   
+            else if (extractInfo.m_compressor == "xz")
+            {
+                std::stringstream ss;
+                ss << "tar -xJf " << filepath;
+                std::system(ss.str().c_str());
+            }                        
             else
             {
                 // unsupported compression

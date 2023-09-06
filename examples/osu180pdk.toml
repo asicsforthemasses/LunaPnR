@@ -19,7 +19,7 @@ url = [
 
 # archive extraction instructions, if any.
 # the second argument is the archive type
-# "tgz", "zip", "bz2"
+# "tgz", "zip", "bz2", "xz"
 extract = [
     ["osu_stdcells_lib.v2.4.tar.gz", "tgz"]
 ]

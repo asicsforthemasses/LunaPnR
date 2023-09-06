@@ -26,7 +26,7 @@ url = [
 
 # archive extraction instructions, if any.
 # the second argument is the archive type
-# "tgz", "zip", "bz2"
+# "tgz", "zip", "bz2", "xz"
 extract = []
 
 # lef files, technology LEF *must* go first
