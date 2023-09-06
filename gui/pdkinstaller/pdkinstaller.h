@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
 #pragma once
 #include <QWizard>
 #include <QString>
@@ -21,7 +25,7 @@ namespace PDKInstall
     struct ExtractInfo
     {
         std::string m_filename;
-        std::string m_compressor;   ///< "zip" or "tgz"
+        std::string m_compressor;   ///< "zip", "tgz", "bz2" or "xz"
     };
 
     struct Info
