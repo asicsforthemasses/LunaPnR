@@ -40,7 +40,7 @@ set(CPACK_COMPONENTS_GROUPING ALL_COMPONENTS_IN_ONE)#ONE_PER_GROUP)
 # without this you won't be able to pack only specified component
 set(CPACK_DEB_COMPONENT_INSTALL YES)
 
-set(CPACK_STRIP_FILES "bin/MyExecutable")
+#set(CPACK_STRIP_FILES "bin/MyExecutable")
 set(CPACK_STRIP_FILES TRUE)
 
 # set installation dir permissions
