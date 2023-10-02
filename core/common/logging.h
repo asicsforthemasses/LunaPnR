@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #pragma once
+#include <cstdint>
 #include <string>
 #include <sstream>
 #include <string_view>

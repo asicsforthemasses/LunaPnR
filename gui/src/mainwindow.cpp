@@ -40,8 +40,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_techLibDirty   = true;
     m_cellLibDirty   = true;
 
-    //Logging::setLogLevel(Logging::LogType::VERBOSE);
-
     createActions();
     createMenus();
 
