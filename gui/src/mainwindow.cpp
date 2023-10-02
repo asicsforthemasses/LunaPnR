@@ -566,7 +566,14 @@ void MainWindow::scanPDKs()
 void MainWindow::onSelectPDK()
 {
     GUI::PDKDialog dialog(m_pdks);
-    dialog.exec();
+    if (dialog.exec() == QDialog::Accepted)
+    {
+        int index = dialog.selected();
+        m_selectedPDKName = m_pdks.at(index).m_name;
+        std::stringstream ss;
+        ss << "Selected PDK " << m_selectedPDKName << "\n";
+        Logging::doLog(Logging::LogType::INFO, ss.str());
+    }
 }
 
 ConsoleLogOutputHandler::ConsoleLogOutputHandler(GUI::MMConsole *console) : m_console(console)

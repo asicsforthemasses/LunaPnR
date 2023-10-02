@@ -9,6 +9,7 @@ compiler: gcc
 branches:
   only:
   - stable
+  - travis
 
 addons:
   apt:
@@ -17,8 +18,8 @@ addons:
       - cmake
       - build-essential
       - ninja-build
-      - qtbase5-dev
-      - qttools5-dev-tools
+      - qt6-base-dev
+      - qt6-tools-dev
       - libboost-test-dev
       - libboost-filesystem-dev
       - libeigen3-dev

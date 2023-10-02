@@ -128,8 +128,9 @@ protected:
     
     std::unique_ptr<GUI::TaskList> m_taskList;
     
-    std::filesystem::path m_PDKRoot;
-    std::vector<GUI::PDKInfo> m_pdks;
+    std::filesystem::path       m_PDKRoot;
+    std::vector<GUI::PDKInfo>   m_pdks;
+    std::string                 m_selectedPDKName;
 
     QString m_projectFileName;
     std::shared_ptr<GUI::Database> m_db;

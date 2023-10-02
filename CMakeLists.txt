@@ -4,6 +4,8 @@
 ##  SPDX-FileCopyrightText: 2022,2023 Niels Moseley <asicsforthemasses@gmail.com>
 ##  
 
+## TODO: integrate https://github.com/fsfe/reuse-tool
+
 cmake_minimum_required(VERSION 3.20)
 
 OPTION(ENABLE_PACKAGING "ENABLE_PACKAGING Option" ON)
