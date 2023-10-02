@@ -100,7 +100,6 @@ enable_testing()
 
 include_directories(${PROJECT_SOURCE_DIR}/version)
 
-add_subdirectory(contrib)
 add_subdirectory(tools)
 add_subdirectory(core)
 add_subdirectory(gui)
