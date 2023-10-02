@@ -22,6 +22,8 @@
     <file>./images/status_empty.png</file>
     <file>./images/status_running.png</file>
     <file>./images/lunapnrlogo.png</file>
+    <file>./icons/lunapnr128x128.png</file>
+    <file>./icons/lunapnr256x256.png</file>
 </qresource>
 
 <!--

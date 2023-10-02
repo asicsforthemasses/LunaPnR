@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
 
     parser.process(app);
 
+#if 0
     //if (parser.isSet(showResourcesOption))
     {
         std::cout << "Resources:\n";
@@ -46,6 +47,7 @@ int main(int argc, char *argv[]) {
             std::cout << s.toStdString() << "\n";
         }    
     }
+#endif
 
     auto locale = QLocale();
     auto localeNameStr = locale.name().toStdString();

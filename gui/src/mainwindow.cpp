@@ -32,6 +32,8 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+    setWindowIcon(QIcon("://icons/lunapnr128x128.png"));
+
     m_db = std::make_shared<GUI::Database>();
 
     m_floorplanDirty = true;
