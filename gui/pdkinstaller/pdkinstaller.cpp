@@ -162,12 +162,19 @@ PDKInstallDialog::PDKInstallDialog(const std::filesystem::path &PDKRoot,
         std::filesystem::create_directory(m_pdkroot);
     }
 
-    setWindowTitle("Install PDKs");
+    setWindowTitle("Install PDK");
 
     auto layout = new QGridLayout();
 
     auto openButton = new QPushButton("Open");
-    layout->addWidget(openButton);
+    layout->addWidget(openButton, 0, 0, 1, 2);
+
+    QFrame* line1 = new QFrame();
+    line1->setFrameShape(QFrame::HLine);
+    line1->setFrameShadow(QFrame::Sunken);
+    line1->setMinimumHeight(10);
+
+    layout->addWidget(line1, 1, 0, 1, 2);
 
     m_pdkTitle = new QLineEdit("");
     m_pdkTitle->setReadOnly(true);
@@ -187,6 +194,12 @@ PDKInstallDialog::PDKInstallDialog(const std::filesystem::path &PDKRoot,
     layout->addWidget(new QLabel("Install path:"), 5, 0);
     layout->addWidget(m_installDirDisplay, 5, 1);
 
+    QFrame* line2 = new QFrame();
+    line2->setFrameShape(QFrame::HLine);
+    line2->setFrameShadow(QFrame::Sunken);
+    line2->setMinimumHeight(10);
+    layout->addWidget(line2, 6, 0, 1, 2);
+
     connect(openButton, &QPushButton::clicked, this, &PDKInstallDialog::onOpen);
 
     m_progress = new QProgressBar();
@@ -195,7 +208,7 @@ PDKInstallDialog::PDKInstallDialog(const std::filesystem::path &PDKRoot,
     m_progress->setMinimum(0);
     m_progress->setMaximum(100);
 
-    layout->addWidget(m_progress, 6, 0, 1, 2);
+    layout->addWidget(m_progress, 7, 0, 1, 2);
 
     connect(&m_downloader, &Downloader::downloadProgress, this, &PDKInstallDialog::onProgress);
     connect(&m_downloader, &Downloader::downloaded, this, &PDKInstallDialog::onDownloaded);
@@ -204,7 +217,7 @@ PDKInstallDialog::PDKInstallDialog(const std::filesystem::path &PDKRoot,
     auto buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok
                                      | QDialogButtonBox::Cancel);
 
-    layout->addWidget(buttonBox);
+    layout->addWidget(buttonBox, 8,0, 1,2);
 
     connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);

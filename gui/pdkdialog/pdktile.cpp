@@ -97,14 +97,15 @@ PDKTile* PDKTileList::createTile(const PDKInfo &info)
 
 void PDKTileList::onTileClicked(int id)
 {
-    // de-select previous
-    if (m_selected >= 0)
-    {
-        m_pdkTiles.at(m_selected)->setSelected(false);
-    }
-
+    
     if (m_selected != id)
     {
+        // de-select previous
+        if (m_selected >= 0)
+        {
+            m_pdkTiles.at(m_selected)->setSelected(false);
+        }
+
         m_pdkTiles.at(id)->setSelected(true);
         m_selected = id;
         emit selectionChanged(id);

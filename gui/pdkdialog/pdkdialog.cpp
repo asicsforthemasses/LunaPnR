@@ -42,7 +42,7 @@ PDKDialog::PDKDialog(std::vector<PDKInfo> &pdks) : m_pdks(pdks)
     connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    mainLayout->addWidget(m_buttonBox);
+    mainLayout->addWidget(m_buttonBox, 0, Qt::AlignRight);
     
     setLayout(mainLayout);
 }
