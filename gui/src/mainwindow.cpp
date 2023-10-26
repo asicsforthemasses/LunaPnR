@@ -524,7 +524,13 @@ void MainWindow::scanPDKs()
 {
     m_pdks.clear();
 
-    if std::filesystem)
+    if (std::filesystem::exists(m_PDKRoot))
+    {
+        std::stringstream ss;
+        ss << "PDK directory " << m_PDKRoot << " does not exist";
+        Logging::doLog(Logging::LogType::WARNING, ss.str());
+        return;
+    }
 
     for (const auto &pdkDirEntry : std::filesystem::directory_iterator(m_PDKRoot))
     {

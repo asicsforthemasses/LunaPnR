@@ -4,12 +4,7 @@
 
 #pragma once
 
-#include "../common/logging.h"
-#include "../common/namedstorage.h"
-#include "../common/dbtypes.h"
-#include "../common/visitor.h"
-#include "../common/geometry.h"
-#include "../common/fileutils.h"
+#include "../common/common.h"
 #include "../celllib/celllib.h"
 #include "../celllib/pin.h"
 #include "../techlib/techlib.h"
