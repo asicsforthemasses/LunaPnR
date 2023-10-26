@@ -157,6 +157,11 @@ PDKInstallDialog::PDKInstallDialog(const std::filesystem::path &PDKRoot,
 {
     m_pdkroot = PDKRoot;
 
+    if (!std::filesystem::exists(m_pdkroot))
+    {
+        std::filesystem::create_directory(m_pdkroot);
+    }
+
     setWindowTitle("Install PDKs");
 
     auto layout = new QGridLayout();
