@@ -524,6 +524,8 @@ void MainWindow::scanPDKs()
 {
     m_pdks.clear();
 
+    if std::filesystem)
+
     for (const auto &pdkDirEntry : std::filesystem::directory_iterator(m_PDKRoot))
     {
         if (pdkDirEntry.is_directory())

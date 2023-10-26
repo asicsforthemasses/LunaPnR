@@ -4,11 +4,6 @@ SPDX-License-Identifier: GPL-3.0-only
 -->
 # Luna Place and Route
 
-| Platform | Status |
-| -------- | ------ |
-| Ubuntu 22.04 LTS | [![Linux Build Status](https://www.travis-ci.com/asicsforthemasses/LunaPnR.svg?branch=stable)](https://www.travis-ci.com/asicsforthemasses/LunaPnR) |
-| Windows | [![Windows Build status](https://ci.appveyor.com/api/projects/status/4nyinpf1ydmoeggp/branch/stable?svg=true)](https://ci.appveyor.com/project/asicsforthemasses/lunapnr/branch/stable) |
-
 For more information, please visit the [homepage](https://www.asicsforthemasses.com "Luna PnR homepage").
 
 <figure><img src="doc/screenshots/cellbrowser_2022.png"></figure>
@@ -55,6 +50,9 @@ Supported distributions are:
 * run bootstrap_release.bat in the top level project dir.
 * enter the build directory and type 'ninja'.
 * LunaPnR application will be available in ./gui/lunapnr
+
+## Building using Docker
+See: https://github.com/asicsforthemasses/lunapnr_build
 
 <br/><br/>
 ## Sponsors
