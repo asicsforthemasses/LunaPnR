@@ -5,6 +5,8 @@
 #pragma once
 
 #include "../common/common.h"
+#include "../import/import.h"
+
 #include "../celllib/celllib.h"
 #include "../celllib/pin.h"
 #include "../techlib/techlib.h"
@@ -24,19 +26,7 @@
 #include "../cellplacer2/cellplacer2.h"
 #include "../cellplacer2/fillerhandler.h"
 #include "../partitioner/fmpart.h"
-#include "../import/liberty/libparser.h"
-#include "../import/liberty/libreaderimpl.h"
-#include "../import/liberty/libreader.h"
-#include "../import/lef/lefparser.h"
-#include "../import/lef/lefreaderimpl.h"
-#include "../import/lef/lefreader.h"
-#include "../import/def/defparser.h"
-#include "../import/def/defreaderimpl.h"
-#include "../import/def/defreader.h"
-#include "../import/verilog/verilogparser.h"
-#include "../import/verilog/veriloglexer.h"
-#include "../import/verilog/verilogreader.h"
-#include "../import/ppm/ppmreader.h"
+
 #include "../export/svg/svgwriter.h"
 #include "../export/dot/dotwriter.h"
 #include "../export/verilog/verilogwriter.h"
