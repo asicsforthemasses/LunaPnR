@@ -99,7 +99,15 @@ if (UNIX)
     )
 endif (UNIX)
 
+########################################################################
+# Add TomlPlusPlus
+########################################################################
+
+CPMAddPackage("gh:marzer/tomlplusplus#v3.3.0")
+
+########################################################################
 # Generate enums from the .toml specification
+########################################################################
 add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/common/enums.h
     COMMAND $<TARGET_FILE:enumgen> ${CMAKE_CURRENT_SOURCE_DIR}/common/enums.toml ${CMAKE_CURRENT_SOURCE_DIR}/common/enums.h
     COMMENT "Generating enums ..."
@@ -188,7 +196,7 @@ target_include_directories(lunacore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(lunacore PRIVATE ${PYTHON_INCLUDE_DIRS})
 target_include_directories(lunacore PUBLIC ../contrib)
 target_include_directories(lunacore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(lunacore Eigen3::Eigen ${PYTHON_LIBRARIES} tinysvgpp strutilspp)
+target_link_libraries(lunacore Eigen3::Eigen ${PYTHON_LIBRARIES} tinysvgpp strutilspp tomlplusplus::tomlplusplus)
 
 ## utilties based on LunaPnR Core
 add_subdirectory(utilities)

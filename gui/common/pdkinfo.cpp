@@ -1,4 +1,5 @@
 #include "pdkinfo.h"
+#include <lunacore.h>
 
 namespace GUI
 {
@@ -6,22 +7,16 @@ namespace GUI
 toml::table toToml(const PDKInfo &pdkinfo)
 {
     toml::table tbl;
-    tbl.insert("title", pdkinfo.m_title);
-    tbl.insert("name", pdkinfo.m_name);
-    tbl.insert("version", pdkinfo.m_version);
-    tbl.insert("date", pdkinfo.m_date);
-    tbl.insert("copyright", pdkinfo.m_copyright);
-    tbl.insert("description", pdkinfo.m_description);
-    tbl.insert("layerfile", pdkinfo.m_layerfile);
+    ChipDB::TOML::insert(tbl, "title", pdkinfo.m_title);
+    ChipDB::TOML::insert(tbl, "name", pdkinfo.m_name);
+    ChipDB::TOML::insert(tbl, "version", pdkinfo.m_version);
+    ChipDB::TOML::insert(tbl, "date", pdkinfo.m_date);
+    ChipDB::TOML::insert(tbl, "copyright", pdkinfo.m_copyright);
+    ChipDB::TOML::insert(tbl, "description", pdkinfo.m_description);
+    ChipDB::TOML::insert(tbl, "layerfile", pdkinfo.m_layerfile);
 
-    toml::array lefArr;
-    lefArr.insert(lefArr.begin(), pdkinfo.m_lefs.begin(), pdkinfo.m_lefs.end());
-    tbl.insert("lef", lefArr);
-
-    toml::array libArr;
-    libArr.insert(libArr.begin(), pdkinfo.m_libs.begin(), pdkinfo.m_libs.end());
-    tbl.insert("lib", libArr);
-
+    ChipDB::TOML::insert(tbl, "lef", pdkinfo.m_lefs);
+    ChipDB::TOML::insert(tbl, "lib", pdkinfo.m_libs);
     return std::move(tbl);
 }
 
@@ -31,35 +26,16 @@ bool fromToml(std::istream &toml, PDKInfo &pdkinfo)
     {    
         auto tbl = toml::parse(toml);
 
-        pdkinfo.m_title        = tbl["title"].value_or("");
-        pdkinfo.m_name         = tbl["name"].value_or("");
-        pdkinfo.m_version      = tbl["version"].value_or("");
-        pdkinfo.m_description  = tbl["description"].value_or("");
-        pdkinfo.m_date         = tbl["date"].value_or("");
-        pdkinfo.m_copyright    = tbl["copyright"].value_or("");
-        pdkinfo.m_layerfile    = tbl["layerfile"].value_or("");
+        ChipDB::TOML::retrieve(tbl, "title", pdkinfo.m_title);
+        ChipDB::TOML::retrieve(tbl, "name", pdkinfo.m_name);
+        ChipDB::TOML::retrieve(tbl, "version", pdkinfo.m_version);
+        ChipDB::TOML::retrieve(tbl, "copyright", pdkinfo.m_copyright);
+        ChipDB::TOML::retrieve(tbl, "date", pdkinfo.m_date);
+        ChipDB::TOML::retrieve(tbl, "description", pdkinfo.m_description);
+        ChipDB::TOML::retrieve(tbl, "layerfile", pdkinfo.m_layerfile);
 
-        auto lefArr = tbl["lef"].as_array();
-        if (lefArr != nullptr)
-        {
-            lefArr->for_each(
-                [&](toml::value<std::string> &lef)
-                {
-                    pdkinfo.m_lefs.emplace_back(lef);
-                }
-            );
-        }
-
-        auto libArr = tbl["lef"].as_array();
-        if (libArr != nullptr)
-        {
-            libArr->for_each(
-                [&](toml::value<std::string> &lib)
-                {
-                    pdkinfo.m_libs.emplace_back(lib);
-                }
-            );
-        }
+        ChipDB::TOML::retrieve(tbl, "lef", pdkinfo.m_lefs);
+        ChipDB::TOML::retrieve(tbl, "lib", pdkinfo.m_libs);
 
         if (pdkinfo.m_title.empty())
         {
