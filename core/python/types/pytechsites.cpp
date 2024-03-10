@@ -12,7 +12,7 @@
 #include "../converters.h"
 #include "typetemplate.h"
 #include "pysiteinfo.h"
-#include "techlib/techlib.h"
+#include "database/database.h"
 
 struct PyTechLibSiteIterator
 {
@@ -27,7 +27,7 @@ struct PyTechLibSiteIterator
     auto begin()
     {
         return m_techLib->sites().begin();
-    }    
+    }
 };
 
 /** container for LunaCore::LayerInfo */
@@ -46,7 +46,7 @@ struct PyTechLibSites : public Python::TypeTemplate<PyTechLibSiteIterator>
 
             self->m_holder->reset(new PyTechLibSiteIterator());
 
-            // get a pointer to 
+            // get a pointer to
             auto techLibPtr = reinterpret_cast<ChipDB::TechLib*>(PyCapsule_Import("Luna.TechLibraryPtr", 0));
             if (techLibPtr == nullptr)
             {
@@ -54,7 +54,7 @@ struct PyTechLibSites : public Python::TypeTemplate<PyTechLibSiteIterator>
             }
 
             self->obj()->m_techLib = techLibPtr;
-            self->obj()->m_iter = self->obj()->end();            
+            self->obj()->m_iter = self->obj()->end();
         }
         else
         {
@@ -76,8 +76,8 @@ struct PyTechLibSites : public Python::TypeTemplate<PyTechLibSiteIterator>
             return Py_BuildValue("l", self->obj()->m_techLib->getNumberOfSites());
         }
 
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");        
-        return nullptr;              
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
+        return nullptr;
     }
 
     static PyObject* getSite(PyTechLibSites *self, PyObject *args)
@@ -97,8 +97,8 @@ struct PyTechLibSites : public Python::TypeTemplate<PyTechLibSiteIterator>
                 if (!siteinfo)
                 {
                     PyErr_Format(PyExc_ValueError, "Site with key %ld not found", key);
-                    return nullptr;                    
-                }                
+                    return nullptr;
+                }
                 return Python::toPython(siteinfo);
             }
 
@@ -121,9 +121,9 @@ struct PyTechLibSites : public Python::TypeTemplate<PyTechLibSiteIterator>
             PyErr_Format(PyExc_ValueError, "getLayer requires a key or name as argument");
             return nullptr;
         }
-        
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");        
-        return nullptr;                 
+
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
+        return nullptr;
     }
 
     static PyObject* pyIter(PyTechLibSites *self)

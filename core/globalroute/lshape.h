@@ -4,7 +4,7 @@
 
 #pragma once
 #include <optional>
-#include "common/dbtypes.h"
+#include "database/database.h"
 
 namespace LunaCore
 {
@@ -56,7 +56,7 @@ constexpr std::optional<ChipDB::Coord64> LSteinerPoint(const ChipDB::Coord64 &p1
     case LShape::UNKNOWN:
         break;
     }
-    
+
     return std::nullopt;
 };
 

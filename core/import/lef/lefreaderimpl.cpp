@@ -7,13 +7,13 @@
 #include <string>
 #include <memory>
 #include "lefreaderimpl.h"
-#include "design/design.h"
+#include "database/database.h"
 #include "common/logging.h"
 
 using namespace ChipDB::LEF;
 
-ReaderImpl::ReaderImpl(Design &design) 
-    : m_design(design) 
+ReaderImpl::ReaderImpl(Design &design)
+    : m_design(design)
 {
     m_context = CONTEXT_PIN;
 
@@ -27,7 +27,7 @@ ReaderImpl::ReaderImpl(Design &design)
 
 void ReaderImpl::onMacro(const std::string &macroName)
 {
-    // create a new cell/macro if necessary    
+    // create a new cell/macro if necessary
     auto newCellKeyObj = m_design.m_cellLib->createCell(macroName);
     if (!newCellKeyObj.isValid())
     {
@@ -44,7 +44,7 @@ void ReaderImpl::onMacro(const std::string &macroName)
 }
 
 void ReaderImpl::onEndMacro(const std::string &macroName)
-{   
+{
     m_curPinInfo.reset();
     m_curCell.reset();
 }
@@ -60,7 +60,7 @@ void ReaderImpl::onViaRule(const std::string &viaRuleName)
 }
 
 void ReaderImpl::onSize(int64_t sx, int64_t sy)
-{   
+{
     const double nm2microns = 0.001;
 
     if (!m_curCell)
@@ -101,7 +101,7 @@ void ReaderImpl::onPin(const std::string &pinName)
     {
         //FIXME: there really should be a warning here.
     }
-    
+
     m_context = CONTEXT_PIN;
 }
 
@@ -132,7 +132,7 @@ void ReaderImpl::onEndPin(const std::string &pinName)
     }
     else if (m_pinDirection == "INPUT")
     {
-        // Note: INPUT pins may later be promoted to 
+        // Note: INPUT pins may later be promoted to
         //       CLOCK type when the Liberty file has been
         //       read
         m_curPinInfo->m_iotype = IOType::INPUT;
@@ -144,7 +144,7 @@ void ReaderImpl::onEndPin(const std::string &pinName)
     else if (m_pinDirection == "OUTPUT TRISTATE")
     {
         m_curPinInfo->m_iotype = IOType::OUTPUT_TRI;
-    }    
+    }
     else
     {
         m_curPinInfo->m_iotype = IOType::UNKNOWN;
@@ -161,7 +161,7 @@ void ReaderImpl::onClass(const std::string &className)
     {
         return;
     }
-    
+
     std::string classNameUpper = toUpper(className);
 
     if (classNameUpper == "CORE")
@@ -210,7 +210,7 @@ void ReaderImpl::onClass(const std::string &className,
         {{
             "FEEDTHRU","TIEHIGH","TIELOW","SPACER","ANTENNACELL","WELLTAP"
         }};
-        
+
         constexpr const std::array<int, 6> optval
         {{
             CellSubclass::FEEDTHRU,
@@ -228,8 +228,8 @@ void ReaderImpl::onClass(const std::string &className,
                 m_curCell->m_subclass = optval[i];
                 break;
             }
-        }        
-        
+        }
+
         m_curCell->m_class = CellClass::CORE;
     }
     else if (classNameUpper == "COVER")
@@ -253,7 +253,7 @@ void ReaderImpl::onClass(const std::string &className,
         {{
             "INPUT","OUTPUT","INOUT","POWER","SPACER","AREAIO"
         }};
-        
+
         constexpr const std::array<int, 6> optval
         {
             CellSubclass::INPUT,
@@ -282,7 +282,7 @@ void ReaderImpl::onClass(const std::string &className,
         {{
             "PRE","POST","TOPLEFT","TOPRIGHT","BOTTOMLEFT","BOTTOMRIGHT"
         }};
-        
+
         constexpr const std::array<int, 6> optval
         {
             CellSubclass::PRE,
@@ -300,7 +300,7 @@ void ReaderImpl::onClass(const std::string &className,
                 m_curCell->m_subclass = optval[i];
                 break;
             }
-        }          
+        }
         m_curCell->m_class = CellClass::ENDCAP;
     }
     else if (classNameUpper == "RING")
@@ -324,7 +324,7 @@ void ReaderImpl::onClass(const std::string &className,
             error(ss.str());
         }
         m_curCell->m_class = CellClass::BLOCK;
-    }    
+    }
     else
     {
         std::stringstream ss;
@@ -345,14 +345,14 @@ void ReaderImpl::onSymmetry(const SymmetryFlags &symmetry)
 }
 
 void ReaderImpl::onRect(int64_t x1, int64_t y1, int64_t x2, int64_t y2)
-{        
-    Rectangle rect({Coord64{std::min(x1,x2), std::min(y1,y2)}, 
+{
+    Rectangle rect({Coord64{std::min(x1,x2), std::min(y1,y2)},
         Coord64{std::max(x1,x2), std::max(y1,y2)}});
 
     switch(m_context)
     {
     case CONTEXT_PIN:
-        {             
+        {
             if (!m_curPinInfo)
             {
                 Logging::doLog(Logging::LogType::ERROR,"LEF::ReaderImpl::onRect m_curPinInfo is null\n");
@@ -367,9 +367,9 @@ void ReaderImpl::onRect(int64_t x1, int64_t y1, int64_t x2, int64_t y2)
             if (!m_curCell)
             {
                 return;
-            }            
+            }
             m_curCell->m_obstructions[m_activeObsLayerName].push_back(rect);
-        }        
+        }
         break;
     }
 }
@@ -388,14 +388,14 @@ void ReaderImpl::onPolygon(const std::vector<Coord64> &points)
         if (!m_curPinInfo)
         {
             return;
-        }    
+        }
         m_curPinInfo->m_pinLayout[m_activePinLayerName].push_back(poly);
         break;
     case CONTEXT_OBS:
         if (!m_curCell)
         {
             return;
-        }      
+        }
         m_curCell->m_obstructions[m_activeObsLayerName].push_back(poly);
         break;
     }
@@ -430,7 +430,7 @@ void ReaderImpl::onEndLayer(const std::string &layerName)
 {
     // Note: if a layer offset is not specified by the LEF
     //       the default is half the pitch!
-    // 
+    //
     // LEF/DEF 5.7 Language Reference page 103.
     // https://www.ispd.cc/contests/18/lefdefref.pdf
 
@@ -456,13 +456,13 @@ void ReaderImpl::onLayerType(const std::string &layerType)
 
     using OptionPair = std::pair<const char *, LayerType>;
 
-    constexpr const std::array<OptionPair, 4> validOptions = {{ 
+    constexpr const std::array<OptionPair, 4> validOptions = {{
         {"ROUTING", LayerType::ROUTING},
         {"CUT", LayerType::CUT},
         {"MASTERSLICE", LayerType::MASTERSLICE},
         {"OVERLAP", LayerType::OVERLAP}
     }};
-    
+
     std::string layerTypeUpper = toUpper(layerType);
 
     for(auto option : validOptions)
@@ -555,7 +555,7 @@ void ReaderImpl::onLayerDirection(const std::string &direction)
         Logging::doLog(Logging::LogType::WARNING,"Layer direction undefined - got %s\n", direction.c_str());
         m_curLayerInfo->m_dir = LayerDirection::UNDEFINED;
     }
-    
+
     // Other routing directions are not supported.
 }
 

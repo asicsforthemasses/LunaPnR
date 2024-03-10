@@ -12,7 +12,7 @@
 #include "../converters.h"
 #include "typetemplate.h"
 #include "pycell.h"
-#include "celllib/celllib.h"
+#include "database/database.h"
 
 struct PyCellLibIterator
 {
@@ -27,7 +27,7 @@ struct PyCellLibIterator
     auto begin()
     {
         return m_cellLib->begin();
-    }    
+    }
 };
 
 /** container for LunaCore::Cell */
@@ -47,7 +47,7 @@ struct PyCellLib : public Python::TypeTemplate<PyCellLibIterator>
             self->m_holder->reset(new PyCellLibIterator());
             self->obj()->m_iter = self->obj()->end();
 
-            // get a pointer to 
+            // get a pointer to
             auto cellLibPtr = reinterpret_cast<ChipDB::CellLib*>(PyCapsule_Import("Luna.CellLibraryPtr", 0));
             if (cellLibPtr == nullptr)
             {
@@ -81,8 +81,8 @@ struct PyCellLib : public Python::TypeTemplate<PyCellLibIterator>
                 if (!ins)
                 {
                     PyErr_Format(PyExc_ValueError, "Cell with key %ld not found", key);
-                    return nullptr;                    
-                }                
+                    return nullptr;
+                }
                 return Python::toPython(ins);
             }
 
@@ -105,9 +105,9 @@ struct PyCellLib : public Python::TypeTemplate<PyCellLibIterator>
             PyErr_Format(PyExc_ValueError, "getCell requires a key or name as argument");
             return nullptr;
         }
-        
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");        
-        return nullptr;                 
+
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
+        return nullptr;
     }
 
     static PyObject* pyIter(PyCellLib *self)

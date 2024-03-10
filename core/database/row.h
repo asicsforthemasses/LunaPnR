@@ -6,7 +6,7 @@
 
 #include <vector>
 #include <memory>
-#include "common/dbtypes.h"
+#include "dbtypes.h"
 
 namespace ChipDB
 {

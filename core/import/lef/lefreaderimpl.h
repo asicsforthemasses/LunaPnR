@@ -5,8 +5,7 @@
 #pragma once
 
 #include "lefparser.h"
-#include "common/dbtypes.h"
-#include "design/design.h"
+#include "database/database.h"
 
 namespace ChipDB::LEF
 {
@@ -93,7 +92,7 @@ public:
     /** callback for layer spacing range specification */
     virtual void onLayerSpacingRange(int64_t value1, int64_t value2) override;
 
-    /** callback for layer offset */    
+    /** callback for layer offset */
     virtual void onLayerOffset(int64_t offsetx, int64_t offsety) override;
 
     /** callback for layer routing direction */
@@ -102,7 +101,7 @@ public:
     /** callback for layer trace width */
     virtual void onLayerWidth(int64_t width) override;
 
-    /** callback for layer trace max width */    
+    /** callback for layer trace max width */
     virtual void onLayerMaxWidth(int64_t maxWidth) override;
 
     /** callback for layer resistance per square (in ohms) */
@@ -114,7 +113,7 @@ public:
     /** callback for layer edge capacitance per micron (in farad) */
     virtual void onLayerEdgeCapacitance(double farads) override;
 
-    /** callback for layer thickness */    
+    /** callback for layer thickness */
     virtual void onLayerThickness(double thickness) override;
 
     /** callback for layer minimum area in microns^2 */
@@ -139,7 +138,7 @@ public:
     virtual void onDatabaseUnitsMicrons(int64_t unitsPerMicron) override {}
 
     /** callback for manufacturing grid */
-    virtual void onManufacturingGrid(int64_t value) override;   
+    virtual void onManufacturingGrid(int64_t value) override;
 
     /** callback for SITE defintion */
     virtual void onSite(const std::string &site) override;

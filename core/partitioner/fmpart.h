@@ -12,8 +12,7 @@
 #include <cassert>
 #include <iostream>
 
-#include "common/dbtypes.h"
-#include "netlist/netlist.h"
+#include "database/database.h"
 #include "fmtypes.h"
 namespace LunaCore::Partitioner
 {
@@ -59,7 +58,7 @@ struct Partition
         return (m_buckets.find(gain) != m_buckets.end());
     }
 
-    /** remove a bucket for a specific gain 
+    /** remove a bucket for a specific gain
      *  note: does not unlink the nodes contained within!
     */
     void removeBucket(const GainType gain)
@@ -160,7 +159,7 @@ public:
     std::vector<Net>        m_nets;         ///< all nets required for the region
 
     void addNodeToPartitionBucket(NodeId nodeId)
-    {        
+    {
         auto& node = m_nodes.at(nodeId);
         auto& partition = m_partitions.at(node.m_partitionId);
 
@@ -179,7 +178,7 @@ public:
     }
 
     void removeNodeFromPartitionBucket(NodeId nodeId)
-    {        
+    {
         auto& node = m_nodes.at(nodeId);
         auto& partition = m_partitions.at(node.m_partitionId);
 
@@ -195,7 +194,7 @@ public:
             // unlink the previous node
             auto &prevNode = m_nodes.at(node.m_prev);
             prevNode.m_next = node.m_next;
-        }      
+        }
 
         // check if the node was the head node
         // and unlink from the bucket side
@@ -210,9 +209,9 @@ public:
             {
                 partition.removeBucket(node.m_gain);
             }
-        }    
+        }
 
-        node.resetLinks();  
+        node.resetLinks();
         partition.addToTotalWeight(-node.m_weight);
     }
 
@@ -245,10 +244,10 @@ public:
 
     /** perform partitioning of a netlist.
      *  This assumes the partition regions have been set.
-     * 
+     *
      *  Instances that have placement status of PLACEMENT_PLACED_AND_FIXED
      *  will be assigned to the closest partition.
-     * 
+     *
      *  Other instances will be able to move between partitions.
     */
     //
@@ -262,14 +261,14 @@ protected:
     /** returns the total number of cuts in each net */
     static int64_t calculateNetCutCost(const FMContainer &container);
 
-    /** fill the two partitions at random with nodes from 
+    /** fill the two partitions at random with nodes from
      *  the netlist */
     static bool init(FMContainer &container);
 
     /** perform one FM partitioning cycle
      *  assumes node, nets and partitions have been generated
      *  by init(..)
-     * 
+     *
      *  returns the cost of the partitioning
      */
     static int64_t cycle(FMContainer &container);
@@ -278,7 +277,7 @@ protected:
      *  and the position specified
     */
     static int64_t distanceToPartition(const Partition &part, const ChipDB::Coord64 &pos);
-    
+
     static void moveNodeAndUpdateNeighbours(NodeId nodeId, FMContainer &container);
 };
 

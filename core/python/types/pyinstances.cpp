@@ -11,8 +11,7 @@
 
 #include "../converters.h"
 #include "typetemplate.h"
-#include "netlist/netlist.h"
-#include "design/design.h"
+#include "database/database.h"
 #include "pyinstance.h"
 
 struct PyInstancesIterator
@@ -37,7 +36,7 @@ struct PyInstancesIterator
         if (!m_netlist)
         {
             return iterator{};
-        }        
+        }
         return m_netlist->m_instances.begin();
     }
 };
@@ -59,7 +58,7 @@ struct PyInstances : public Python::TypeTemplate<PyInstancesIterator>
             self->m_holder->reset(new PyInstancesIterator());
             self->obj()->m_iter = PyInstancesIterator::iterator();
 
-            // get a pointer to 
+            // get a pointer to
             auto designPtr = reinterpret_cast<ChipDB::Design*>(PyCapsule_Import("Luna.DesignPtr", 0));
             if (designPtr == nullptr)
             {
@@ -102,8 +101,8 @@ struct PyInstances : public Python::TypeTemplate<PyInstancesIterator>
                 if (!ins)
                 {
                     PyErr_Format(PyExc_ValueError, "Instance with key %ld not found", key);
-                    return nullptr;                    
-                }                
+                    return nullptr;
+                }
                 return Python::toPython(ins);
             }
 
@@ -126,9 +125,9 @@ struct PyInstances : public Python::TypeTemplate<PyInstancesIterator>
             PyErr_Format(PyExc_ValueError, "getInstance requires a key or name as argument");
             return nullptr;
         }
-        
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");        
-        return nullptr;         
+
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
+        return nullptr;
     }
 
     static PyObject* pyIter(PyInstances *self)

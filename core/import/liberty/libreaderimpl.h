@@ -5,9 +5,7 @@
 #pragma once
 
 #include <stack>
-#include "common/dbtypes.h"
-#include "celllib/pin.h"
-#include "design/design.h"
+#include "database/database.h"
 #include "libparser.h"
 
 namespace ChipDB
@@ -40,7 +38,7 @@ public:
 
     /** Called for complex attributes, such as timing tables */
     virtual void onComplexAttribute(const std::string &attrname, const std::vector<std::string> &list) override;
-    
+
     /** Called at the end of every group */
     virtual void onEndGroup() override;
 
@@ -49,7 +47,7 @@ public:
 
 protected:
     Design  &m_design;
-    
+
     std::shared_ptr<Cell>       m_curCell;
     std::shared_ptr<PinInfo>    m_curPin;
 

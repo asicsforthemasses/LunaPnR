@@ -11,8 +11,7 @@
 
 #include "../converters.h"
 #include "typetemplate.h"
-#include "celllib/cell.h"
-#include "celllib/pin.h"
+#include "database/database.h"
 #include "pypininfo.h"
 #include "pycell.h"
 #include "pypininfolist.h"
@@ -43,14 +42,14 @@ struct PyPinInfoListIterator
         else
         {
             return ChipDB::PinInfoList::iterator();
-        }        
-    }    
+        }
+    }
 };
 
 /** container for LunaCore::Cell */
 struct PyPinInfoList : public Python::TypeTemplate<PyPinInfoListIterator>
 {
-    /** set internal values of PyCell 
+    /** set internal values of PyCell
     */
     static int pyInit(PyPinInfoList *self, PyObject *args, PyObject *kwds)
     {
@@ -183,5 +182,5 @@ PyObject* Python::toPython(ChipDB::PinInfoList *pinInfoListPtr)
         pinInfoListObject->obj()->m_pinInfoList = pinInfoListPtr;
         return (PyObject*)pinInfoListObject;
     }
-    return nullptr;    
+    return nullptr;
 }

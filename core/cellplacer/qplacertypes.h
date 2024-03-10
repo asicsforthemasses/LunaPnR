@@ -6,7 +6,7 @@
 
 #include <vector>
 #include <cstdlib>
-#include "common/dbtypes.h"
+#include "database/database.h"
 
 /** analytical placer namespace */
 namespace LunaCore::QPlacer
@@ -55,7 +55,7 @@ public:
         os << "  LLPos: " << m_pos << "\n";
     }
 
-    std::vector<PlacerNetId> m_connections;    
+    std::vector<PlacerNetId> m_connections;
 
     /** get cell center position */
     constexpr ChipDB::Coord64 getCenterPos() const noexcept
@@ -220,4 +220,4 @@ struct PlacerNetlist
     void dump(std::ostream &os) const;
 };
 
-}; // namespace 
+}; // namespace

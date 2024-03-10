@@ -7,7 +7,7 @@
 
 #include "version.h"
 #include "common/logging.h"
-#include "design/design.h"
+#include "database/database.h"
 #include "spefwriter.h"
 
 static std::string quoted(const std::string &str)
@@ -75,7 +75,7 @@ bool LunaCore::SPEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Modul
     const float FaradToPicofarad = 1.0e12f;
 
     // FIXME: do a much better job
-    // assume all pins on instances are in the center.. 
+    // assume all pins on instances are in the center..
 
     auto const &nets = module->m_netlist->m_nets;
     auto const &instances = module->m_netlist->m_instances;
@@ -91,7 +91,7 @@ bool LunaCore::SPEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Modul
             break;
         case ChipDB::IOType::OUTPUT:
             os << "O\n";
-            break;          
+            break;
         case ChipDB::IOType::OUTPUT_TRI:
         case ChipDB::IOType::IO:
         case ChipDB::IOType::ANALOG:
@@ -102,10 +102,10 @@ bool LunaCore::SPEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Modul
         case ChipDB::IOType::GROUND:
             break;
         case ChipDB::IOType::UNKNOWN:
-            break;            
+            break;
         }
     }
-    
+
     os << "\n";
 
     std::size_t resCounter = 0;
@@ -119,13 +119,13 @@ bool LunaCore::SPEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Modul
         // and while we are iteration over the nets
         // collect the resistive parasitics too..
         osDNETBody << "*CONN\n";
-        
+
         bool portNet = netKeyPair->m_isPortNet;
         for(auto const& conn : *netKeyPair)
         {
             auto const ins = instances.at(conn.m_instanceKey);
             auto const pin = ins->getPin(conn.m_pinKey);
-            
+
             if ((portNet) && (ins->getArchetypeName() == std::string("__PIN")))
             {
                 osDNETBody << "*P " << ins->name()<< " ";
@@ -174,13 +174,13 @@ bool LunaCore::SPEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Modul
 
             if (!srcPin.isValid())
             {
-                Logging::doLog(Logging::LogType::ERROR, "Invalid pin %ld key on instance %s of type %s\n", 
+                Logging::doLog(Logging::LogType::ERROR, "Invalid pin %ld key on instance %s of type %s\n",
                     connIter->m_pinKey, srcIns->name().c_str(), srcIns->getArchetypeName().c_str());
             }
 
             if (!srcIns)
             {
-                Logging::doLog(Logging::LogType::ERROR, "Invalid instance key: %ld\n", connIter->m_instanceKey);                
+                Logging::doLog(Logging::LogType::ERROR, "Invalid instance key: %ld\n", connIter->m_instanceKey);
             }
 
             std::string srcName;
@@ -201,13 +201,13 @@ bool LunaCore::SPEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Modul
 
                 if (!dstPin.isValid())
                 {
-                    Logging::doLog(Logging::LogType::ERROR, "Invalid pin %ld key on instance %s of type %s\n", 
+                    Logging::doLog(Logging::LogType::ERROR, "Invalid pin %ld key on instance %s of type %s\n",
                         connIter->m_pinKey, dstIns->name().c_str(), dstIns->getArchetypeName().c_str());
                 }
 
                 if (!dstIns)
                 {
-                    Logging::doLog(Logging::LogType::ERROR, "Invalid instance key: %ld\n", connIter->m_instanceKey);                
+                    Logging::doLog(Logging::LogType::ERROR, "Invalid instance key: %ld\n", connIter->m_instanceKey);
                 }
 
                 std::string dstName;

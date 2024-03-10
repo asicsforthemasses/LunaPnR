@@ -7,7 +7,7 @@
 #include <vector>
 #include <cassert>
 
-#include "design/design.h"
+#include "database/database.h"
 
 namespace LunaCore
 {
@@ -74,14 +74,14 @@ public:
     };
 
     [[nodiscard]] bool legalizeRegion(
-        const ChipDB::Region &region, 
+        const ChipDB::Region &region,
         ChipDB::Netlist &netlist);
 
 protected:
 
     /** layout all the cells in a row and update the cell vector accordingly */
     void placeRow(std::vector<Cell> &cells, const Row &row, const ChipDB::CoordType cellMinWidth);
-    
+
     double calcRowCost(const std::vector<Cell> &cells, const Row &row);
 };
 

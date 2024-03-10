@@ -7,9 +7,7 @@
 #include <iostream>
 #include "veriloglexer.h"
 #include "verilogparser.h"
-#include "celllib/celllib.h"
-#include "celllib/pin.h"
-#include "design/design.h"
+#include "database/database.h"
 
 /** Namespace for the Verilog importers and exporters */
 namespace ChipDB::Verilog

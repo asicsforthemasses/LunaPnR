@@ -7,13 +7,12 @@
 #include <string>
 #include <memory>
 #include "defreaderimpl.h"
-#include "design/design.h"
 #include "common/logging.h"
 
 using namespace ChipDB::DEF;
 
-ReaderImpl::ReaderImpl(Design &design) 
-    : m_design(design) 
+ReaderImpl::ReaderImpl(Design &design)
+    : m_design(design)
 {
 }
 
@@ -23,7 +22,7 @@ void ReaderImpl::onDesign(const std::string &designName)
 
     auto modKeyPtr = m_design.m_moduleLib->lookupModule(designName);
     if (!modKeyPtr.isValid())
-    {        
+    {
         m_module.reset();
         std::stringstream ss;
         ss << "Cannot find the specified DEF design " << designName;
@@ -43,9 +42,9 @@ void ReaderImpl::onEndDesign(const std::string &designName)
 void ReaderImpl::onComponent(const std::string &insName, const std::string &archetype)
 {
     Logging::doLog(Logging::LogType::VERBOSE, "DEFReader: ins %s archetype %s\n", insName.c_str(), archetype.c_str());
-    
-    if (!m_module) return;    
-    
+
+    if (!m_module) return;
+
     auto netlist = m_module->m_netlist;
     if (!netlist) return;
 
@@ -60,7 +59,7 @@ void ReaderImpl::onComponent(const std::string &insName, const std::string &arch
     }
 };
 
-void ReaderImpl::onComponentPlacement(const ChipDB::Coord64 &pos, 
+void ReaderImpl::onComponentPlacement(const ChipDB::Coord64 &pos,
     const ChipDB::PlacementInfo placement,
     const ChipDB::Orientation orient)
 {

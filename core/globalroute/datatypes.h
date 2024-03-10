@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <list>
 #include <iostream>
-#include "common/dbtypes.h"
+#include "database/database.h"
 
 namespace LunaCore::GlobalRouter
 {
@@ -19,7 +19,7 @@ namespace LunaCore::GlobalRouter
     {
         int horizontal;
         int vertical;
-    };    
+    };
 
     enum class Predecessor : uint16_t
     {
@@ -96,13 +96,13 @@ namespace LunaCore::GlobalRouter
     };
 
     /** Segment list that owns the Segments
-     *  
+     *
     */
     class SegmentList
     {
     public:
         SegmentList() = default;                // creatable
-        SegmentList(SegmentList&&) = default;   // moveable 
+        SegmentList(SegmentList&&) = default;   // moveable
 
         SegmentList(const SegmentList&) = delete;       // non-copyable
         SegmentList& operator=(const SegmentList&) = delete;
@@ -128,7 +128,7 @@ namespace LunaCore::GlobalRouter
 
         /** append a list of new segments at the end of this SegmentList and clear the given list*/
         void absorb(SegmentList &newSegments)
-        {   
+        {
             m_segments.insert(m_segments.end(), newSegments.m_segments.begin(), newSegments.m_segments.end());
             newSegments.m_segments.clear();
         }
@@ -162,16 +162,16 @@ inline std::ostream& operator<< (std::ostream &os, const LunaCore::GlobalRouter:
         break;
     case LunaCore::GlobalRouter::Direction::West:
         os << "West";
-        break;     
+        break;
     case LunaCore::GlobalRouter::Direction::North:
         os << "North";
         break;
     case LunaCore::GlobalRouter::Direction::South:
         os << "South";
-        break;                  
+        break;
     case LunaCore::GlobalRouter::Direction::Undefined:
         os << "Undefined";
-        break;        
+        break;
     }
     return os;
 }

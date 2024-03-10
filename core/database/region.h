@@ -7,7 +7,7 @@
 #include <vector>
 #include <optional>
 #include <memory>
-#include "common/dbtypes.h"
+#include "dbtypes.h"
 #include "row.h"
 
 namespace ChipDB
@@ -18,7 +18,7 @@ class Region
 {
 public:
 
-    Region(const std::string &regionName, const std::string &siteName) 
+    Region(const std::string &regionName, const std::string &siteName)
         : m_name(regionName), m_site(siteName) {}
 
     std::string name() const noexcept
@@ -37,7 +37,7 @@ public:
 
     [[nodiscard]] Rect64 getPlacementRect() const noexcept; ///< returns the inside rectangle of region where cells/rows can be placed
     [[nodiscard]] Size64 getPlacementSize() const noexcept; ///< returns the size (excluding halo) of the region in nm.
-    
+
     [[nodiscard]] Size64 getSize() const noexcept; ///< returns the size (including halo) of the region in nm.
 
     [[nodiscard]] Size64 getMinCellSize() const noexcept;       ///< return the minimum cell size in nm.
@@ -60,8 +60,8 @@ protected:
 #if 0
 std::shared_ptr<Region> createRegion(
     float   aspectRatio,
-    int64_t minCellWidth, 
-    int64_t CellHeight, 
+    int64_t minCellWidth,
+    int64_t CellHeight,
     int64_t rowDistance,
     int64_t totalCellWidth,
     std::optional<Margins64> halo = std::nullopt);

@@ -6,7 +6,7 @@
 #pragma once
 
 #include <istream>
-#include "design/design.h"
+#include "database/database.h"
 
 /** Namespace for the Liberty timing file importers */
 namespace ChipDB::Liberty

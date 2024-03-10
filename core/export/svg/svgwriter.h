@@ -5,7 +5,7 @@
 #pragma once
 #include <iostream>
 
-#include "common/dbtypes.h"
+#include "database/database.h"
 
 namespace LunaCore::SVG
 {
@@ -24,7 +24,7 @@ public:
 
     void setFontFamily(const std::string &family);
     void setFontSize(float pt);
-    
+
     void drawLine(const ChipDB::Coord64 &begin, const ChipDB::Coord64 &end);
     void drawCircle(const ChipDB::Coord64 &center, const ChipDB::CoordType radius);
     void drawRectangle(const ChipDB::Coord64 &p1, const ChipDB::Coord64 &p2);
@@ -59,10 +59,10 @@ protected:
     SVGCoord toSVG(const ChipDB::Coord64 &p) const;
     SVGCoord toSVG(const ChipDB::CoordType &length) const;
 
-    bool        m_closed; 
+    bool        m_closed;
     int64_t     m_width;    // svg width
     int64_t     m_height;   // svg height
-    
+
     ChipDB::Rect64 m_viewport;
 
     std::string m_strokeColour;

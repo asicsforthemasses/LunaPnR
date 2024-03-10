@@ -11,7 +11,7 @@
 #include <optional>
 #include <regex>
 
-#include "common/dbtypes.h"
+#include "database/database.h"
 
 namespace ChipDB::DEF
 {
@@ -34,7 +34,7 @@ public:
         m_resUnit(1.0),     // 1 ohm default
         m_capUnit(1.0e-12)  // 1 pF default
         {}
-    
+
     virtual ~Parser() {}
 
     enum token_t
@@ -69,7 +69,7 @@ public:
             const std::string &archetype) {};
 
     /** callback for each component position */
-    virtual void onComponentPlacement(const ChipDB::Coord64 &pos, 
+    virtual void onComponentPlacement(const ChipDB::Coord64 &pos,
         const ChipDB::PlacementInfo placement,
         const ChipDB::Orientation orient) {};
 
@@ -113,14 +113,14 @@ protected:
     bool parsePin();
     bool parseDirection();
     bool parseUse();
-    bool parseManufacturingGrid();    
+    bool parseManufacturingGrid();
 
     bool parsePort();
     bool parsePortLayer();
     bool parsePortLayerItem();
     bool parseRect();
     bool parsePolygon();
-    
+
     bool parseLayer();
     bool parseLayerItem();
     bool parseLayerType();
@@ -139,7 +139,7 @@ protected:
 
     bool parseLayerMinArea();
     bool parseLayerThickness();
-    
+
     bool parseLayerSpacingTable();
 
     bool parseSiteItem();
@@ -175,10 +175,10 @@ protected:
     void advance();
     char peek() const;
     bool atEnd() const;
-    
+
     int64_t flt2int(const std::string &value, bool &ok);  ///< convert LEF/DEF values to nanometers
 
-    const std::string *m_src;    
+    const std::string *m_src;
     uint32_t    m_idx;
     uint32_t    m_lineNum;
     uint32_t    m_col;

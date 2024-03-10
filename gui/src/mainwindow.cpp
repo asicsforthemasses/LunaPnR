@@ -105,9 +105,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     loadSettings();
 
+#ifdef USE_PYTHON
     m_python = std::make_unique<GUI::Python>(m_db.get(),
         m_console);
-    
+
     m_python->init();
 
     // install python console redirection
@@ -117,7 +118,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
             if ((txt == nullptr)  || (strLen <= 0))
             {
                 return;
-            }            
+            }
 
             std::string_view svTxt(txt, strLen);
 
@@ -128,14 +129,15 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
             if ((txt == nullptr)  || (strLen <= 0))
             {
                 return;
-            }            
+            }
 
             m_console->print(txt);
-        }        
+        }
     );
 
     m_python->executeScript(R"(import sys; print("Python version"); print (sys.version); )");
     m_python->executeScript(R"(from Luna import *; from LunaExtra import *;)");
+#endif
 
     connect(m_projectManager, &GUI::ProjectManager::onAction, this, &MainWindow::onProjectManagerAction);
 
@@ -154,7 +156,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         else
         {
             m_PDKRoot = "/opt/lunapnr";
-        }        
+        }
     }
 
     scanPDKs();
@@ -170,7 +172,7 @@ void MainWindow::notify(ChipDB::ObjectKey index, NotificationType t)
     m_techLibDirty = true;
     m_cellLibDirty = true;
 
-#if 0    
+#if 0
     switch(userID)
     {
     case FloorplanNotificationID:
@@ -206,7 +208,7 @@ void MainWindow::createMenus()
 
     QMenu *pdkMenu = menuBar()->addMenu(tr("&PDK"));
     pdkMenu->addAction(m_selectPDK);
-    pdkMenu->addAction(m_installPDK);    
+    pdkMenu->addAction(m_installPDK);
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(m_aboutAct);
@@ -228,7 +230,7 @@ void MainWindow::createActions()
     m_quitAct->setShortcut(QKeySequence::Quit);
     connect(m_quitAct, &QAction::triggered, this, &MainWindow::onQuit);
 
-    m_aboutAct = new QAction(tr("&About"), this);    
+    m_aboutAct = new QAction(tr("&About"), this);
     connect(m_aboutAct, &QAction::triggered, this, &MainWindow::onAbout);
 
     m_aboutQtAct = new QAction(tr("About Qt"), this);
@@ -253,7 +255,7 @@ void MainWindow::createActions()
     connect(m_configAct, &QAction::triggered, this, &MainWindow::onLunaConfig);
 
     m_installPDK = new QAction(tr("Install PDK"), this);
-    connect(m_installPDK, &QAction::triggered, this, &MainWindow::onInstallPDK);    
+    connect(m_installPDK, &QAction::triggered, this, &MainWindow::onInstallPDK);
 
     m_selectPDK = new QAction(tr("Select PDK"), this);
     connect(m_selectPDK, &QAction::triggered, this, &MainWindow::onSelectPDK);
@@ -289,7 +291,7 @@ void MainWindow::loadSettings()
         QColor(settings.value("console/bkcolour", "#1d1f21").toString()),
         QColor(settings.value("console/promptcolour", "#c5c8c6").toString()),
         QColor(settings.value("console/errorcolour", "#a54242").toString()),
-        QColor(settings.value("console/warningcolour", "#a68542").toString())        
+        QColor(settings.value("console/warningcolour", "#a68542").toString())
     );
 
     QFont font;
@@ -322,10 +324,10 @@ void MainWindow::onAboutQt()
 void MainWindow::onLoadProject()
 {
     QString directory("");
-    
+
     QString fileName = QFileDialog::getOpenFileName(this, tr("Load project file"), directory,
             tr("Luna project file (*.lpr)"));
-    
+
     if (!fileName.isEmpty())
     {
         std::ifstream pfile(fileName.toStdString());
@@ -378,7 +380,7 @@ void MainWindow::onSaveProjectAs()
             Logging::doLog(Logging::LogType::ERROR,"Project file '%s' cannot be saved\n", m_projectFileName.toStdString().c_str());
             QMessageBox::critical(this, tr("Error"), tr("The project file could not be saved"), QMessageBox::Close);
             return;
-        }        
+        }
         m_projectFileName = fileName;
     }
 }
@@ -422,6 +424,7 @@ void MainWindow::onConsoleCommand(const QString &cmd)
 
 void MainWindow::onRunScript()
 {
+#ifdef USE_PYTHON
     QString directory("");
 
     // Fixme: remember the last directory
@@ -450,6 +453,7 @@ void MainWindow::onRunScript()
 
         m_console->enablePrompt();
     }
+#endif
 }
 
 void MainWindow::onGUIUpdateTimer()
@@ -468,7 +472,7 @@ void MainWindow::onGUIUpdateTimer()
     {
         m_cellBrowser->update();
         m_cellLibDirty = false;
-    }        
+    }
 }
 
 void MainWindow::onClearDatabase()
@@ -491,9 +495,9 @@ void MainWindow::onProjectManagerAction(QString actionName)
 
     if (actionName != "NONE")
     {
-#if 0        
+#if 0
         auto taskCallback = [this, &actionName](GUI::TaskList::CallbackInfo info)
-        {   
+        {
             auto taskPtr = m_taskList.at(info.m_taskIdx);
             m_console->mtPrint(Logging::fmt("Task %u:%s callback\n", info.m_taskIdx, taskPtr->name().c_str()));
             auto event = new GUI::ProjectManagerEvent(QString::fromStdString(taskPtr->name()));

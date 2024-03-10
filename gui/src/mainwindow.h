@@ -32,7 +32,17 @@
 #include "../common/tasklist.h"
 #include "../common/pdkinfo.h"
 
+#ifdef USE_PYTHON
 #include "../python/pyluna_extra.h"
+#else
+    namespace GUI
+    {
+        struct Python
+        {
+            void executeScript(const char* src) {};
+        };
+    }
+#endif
 
 class ConsoleLogOutputHandler : public Logging::LogOutputHandler
 {
@@ -98,7 +108,7 @@ protected:
     void scanPDKs();
 
     QAction *m_clearAct;
-    QAction *m_quitAct;    
+    QAction *m_quitAct;
     QAction *m_aboutAct;
     QAction *m_aboutQtAct;
 
@@ -118,16 +128,16 @@ protected:
     QSplitter   *m_projectSplitter;
     QSplitter   *m_consoleSplitter;
     QTabWidget  *m_mainTabWidget;
-    
+
     GUI::MMConsole      *m_console;
     GUI::CellBrowser    *m_cellBrowser;
     GUI::TechBrowser    *m_techBrowser;
     GUI::DesignBrowser  *m_designBrowser;
     GUI::FloorplanView  *m_floorplanView;
     GUI::ProjectManager *m_projectManager;
-    
+
     std::unique_ptr<GUI::TaskList> m_taskList;
-    
+
     std::filesystem::path m_PDKRoot;
     std::vector<GUI::PDKInfo> m_pdks;
 

@@ -7,9 +7,7 @@
 
 #include <iostream>
 #include <vector>
-#include "celllib/pin.h"
-#include "netlist/instance.h"
-#include "netlist/netlist.h"
+#include "database/database.h"
 
 namespace LunaCore::Dot
 {

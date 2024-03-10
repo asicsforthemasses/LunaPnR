@@ -7,8 +7,8 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include "common/dbtypes.h"
-#include "common/namedstorage.h"
+#include "dbtypes.h"
+#include "namedstorage.h"
 #include "cell.h"
 #include "module.h"
 
@@ -18,7 +18,7 @@ namespace ChipDB
 class CellLib
 {
 public:
-    CellLib() 
+    CellLib()
     {
         clear();
     }
@@ -40,13 +40,13 @@ public:
 
     /** create a cell of the given name or return an existing one */
     KeyObjPair<Cell> createCell(const std::string &name);
-    
+
     KeyObjPair<Cell> lookupCell(const std::string &name) const;
     KeyObjPair<Cell> lookupCell(const std::string &name);
 
     const std::shared_ptr<Cell> lookupCell(ObjectKey key) const;
     std::shared_ptr<Cell> lookupCell(ObjectKey key);
-    
+
     bool removeCell(ObjectKey key);
     bool removeCell(const std::string &name);
 
@@ -113,7 +113,7 @@ public:
 
     KeyObjPair<Module> lookupModule(const std::string &name);
     KeyObjPair<Module> lookupModule(const std::string &name) const;
-    
+
     std::shared_ptr<Module> lookupModule(ObjectKey key);
     const std::shared_ptr<Module> lookupModule(ObjectKey key) const;
 

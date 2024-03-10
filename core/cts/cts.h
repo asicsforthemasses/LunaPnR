@@ -4,9 +4,7 @@
 #include <list>
 #include <memory>
 
-#include "common/dbtypes.h"
-#include "netlist/net.h"
-#include "design/design.h"
+#include "database/database.h"
 
 namespace LunaCore::CTS
 {
@@ -75,7 +73,7 @@ public:
         return m_nodes.front();
     }
 
-    void push_back(const ChipDB::InstanceObjectKey insKey, 
+    void push_back(const ChipDB::InstanceObjectKey insKey,
         const ChipDB::InstanceObjectKey pinKey,
         float pinCapacitance)
     {
@@ -99,7 +97,7 @@ class MeanAndMedianCTS
 public:
     using SegmentIndex = int;
 
-    /** routing segment on the clock network 
+    /** routing segment on the clock network
      *  if m_insKey != ChipDB::ObjectNotFound, it means
      *  that there is a buffer or terminal cell at
      *  the end.
@@ -130,7 +128,7 @@ public:
             return m_cell.isValid();
         }
 
-        /** check if the segment is valid. 
+        /** check if the segment is valid.
          *  segments without a cell are always valid
          *  terminal segments _must_ have a valid cell
         */
@@ -198,7 +196,7 @@ public:
     };
 
     /* Returns a list of routing segments describing the clock tree.
-       All instances must be valid. All pins must be valid. 
+       All instances must be valid. All pins must be valid.
     */
     std::optional<SegmentList> generateTree(const std::string &clockNetName, ChipDB::Netlist &netlist);
 
@@ -223,14 +221,14 @@ public:
     };
 
     BufferResult insertBuffers(
-        SegmentList &segments, 
-        SegmentIndex segIndex, 
+        SegmentList &segments,
+        SegmentIndex segIndex,
         ChipDB::Netlist &netlist,
         const CTSInfo &ctsInfo);
 
 protected:
-    
-    void recursiveSubdivision(const ChipDB::Netlist &netlist, CTSNodeList &nodes, 
+
+    void recursiveSubdivision(const ChipDB::Netlist &netlist, CTSNodeList &nodes,
         SegmentList &segments, SegmentIndex topSegIndex = 0, int level = 0);
 };
 

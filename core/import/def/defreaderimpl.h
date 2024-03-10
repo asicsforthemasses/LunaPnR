@@ -6,8 +6,6 @@
 
 #include <memory>
 #include "defparser.h"
-#include "common/dbtypes.h"
-#include "design/design.h"
 
 namespace ChipDB::DEF
 {
@@ -20,7 +18,7 @@ public:
     void onDesign(const std::string &designName) override;
     void onEndDesign(const std::string &designName) override;
     void onComponent(const std::string &insName, const std::string &archetype) override;
-    void onComponentPlacement(const ChipDB::Coord64 &pos, 
+    void onComponentPlacement(const ChipDB::Coord64 &pos,
         const ChipDB::PlacementInfo placement,
         const ChipDB::Orientation orient) override;
 

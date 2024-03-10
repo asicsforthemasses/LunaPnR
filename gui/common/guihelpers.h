@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "common/dbtypes.h"
+#include<lunacore.h>
 #include<string>
 #include<optional>
 #include<QPainter>
@@ -84,7 +84,7 @@ public:
 
     QRectF  toScreen(const ChipDB::Rect64 &rect) const noexcept;
     QPointF toScreen(const ChipDB::Coord64 &point) const noexcept;
-    
+
     ChipDB::Rect64  toViewport(const QRectF &rect) const noexcept;
     ChipDB::Rect64  toViewport(const QRect &rect) const noexcept;
     ChipDB::Coord64 toViewport(const QPointF &point) const noexcept;

@@ -9,7 +9,7 @@
 
 #include <string>
 #include <string_view>
-#include "common/dbtypes.h"
+#include "database/database.h"
 
 namespace Python
 {
@@ -17,7 +17,7 @@ namespace Python
 // ********************************************************************************
 //
 //   toPython
-//   
+//
 //   The toPython template function converts a C++ type and exposes it to Python.
 //
 // ********************************************************************************

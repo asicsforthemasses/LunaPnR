@@ -7,6 +7,7 @@
 
 void Tasks::CreateFloorplan::execute(GUI::Database &database, ProgressCallback callback)
 {
+#ifdef USE_PYTHON
     auto python = std::make_unique<GUI::Python>(&database, nullptr);
     python->init();
 
@@ -17,7 +18,7 @@ void Tasks::CreateFloorplan::execute(GUI::Database &database, ProgressCallback c
             if ((txt == nullptr)  || (strLen <= 0))
             {
                 return;
-            }            
+            }
 
             std::string strtxt(txt, strLen);
             info(strtxt);
@@ -27,11 +28,11 @@ void Tasks::CreateFloorplan::execute(GUI::Database &database, ProgressCallback c
             if ((txt == nullptr)  || (strLen <= 0))
             {
                 return;
-            }            
+            }
 
             std::string strtxt(txt, strLen);
             error(strtxt);
-        }        
+        }
     );
 
     auto script = database.m_projectSetup.m_floorplanScriptLocation;
@@ -42,7 +43,8 @@ void Tasks::CreateFloorplan::execute(GUI::Database &database, ProgressCallback c
         python->executeScript(R"(from Luna import *; from LunaExtra import *;)");
         python->executeScriptFile(database.m_projectSetup.m_floorplanScriptLocation);
     }
-    
+#endif
+
 #if 0
     auto script = R"(
 ## create floorplan
@@ -53,13 +55,13 @@ createRows("core", 0, 10000, 8)
 xpos = 0
 xinc = 10000
 x = 10000
-for idx in range(0,4): 
+for idx in range(0,4):
     pinName = "a_in[" + str(idx) + "]"
     placeInstance(pinName, "multiplier", x, 90000)
     x = x + xinc
     pinName = "b_in[" + str(idx) + "]"
     placeInstance(pinName, "multiplier", x, 90000)
-    x = x + xinc    
+    x = x + xinc
 
 xinc = 10000
 x = 10000
@@ -67,7 +69,7 @@ for idx in range(0,8):
     pinName = "data_out[" + str(idx) + "]"
     placeInstance(pinName, "multiplier", x, 10000)
     x = x + xinc
-)";    
+)";
 
     python->executeScript(script);
 #endif

@@ -5,10 +5,10 @@
 #pragma once
 
 #include <vector>
-#include "floorplan/floorplan.h"
-#include "netlist/netlist.h"
-#include "techlib/techlib.h"
-#include "celllib/celllib.h"
+#include "floorplan.h"
+#include "netlist.h"
+#include "techlib.h"
+#include "celllib.h"
 
 namespace ChipDB
 {
@@ -32,7 +32,7 @@ public:
     }
 
     bool setTopModule(const std::string &moduleName);
-    
+
     std::shared_ptr<ChipDB::Module> getTopModule()
     {
         return m_topModule;

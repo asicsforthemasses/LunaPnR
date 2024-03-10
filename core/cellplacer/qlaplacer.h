@@ -17,10 +17,8 @@
 
 #include <functional>
 
-#include "common/dbtypes.h"
+#include "database/database.h"
 #include "common/matrix.h"
-#include "floorplan/region.h"
-#include "netlist/netlist.h"
 #include "qplacertypes.h"
 
 namespace LunaCore::QLAPlacer::Private

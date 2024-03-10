@@ -7,7 +7,10 @@ cmake_minimum_required(VERSION 3.20)
 set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 
 find_package(Qt6 REQUIRED QUIET COMPONENTS Core Widgets Gui Network)
-find_package(PythonLibs 3.8 REQUIRED COMPONENTS Interpreter Development)
+
+if (USE_PYTHON)
+    find_package(PythonLibs 3.8 REQUIRED COMPONENTS Interpreter Development)
+endif(USE_PYTHON)
 
 ########################################################################
 # Add TomlPlusPlus
@@ -32,6 +35,15 @@ add_custom_target(commandcompletion
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/python/pyluna_extra.cpp ${CMAKE_CURRENT_SOURCE_DIR}/../core/python/pylunapnr.cpp doctool
     USES_TERMINAL
     )
+
+if (USE_PYTHON)
+    set (GUI_PYTHON_SRC
+        python/types/pyprojectlef.cpp
+        python/types/pyprojectlib.cpp
+        python/types/pyprojectverilog.cpp
+        python/pyluna_extra.cpp
+    )
+endif(USE_PYTHON)
 
 set (LUNA_SRC_FILES
     models/modelnodebase.cpp
@@ -91,10 +103,7 @@ set (LUNA_SRC_FILES
     tasks/place.cpp
     tasks/ctstask.cpp
     tasks/globalroute.cpp
-    python/types/pyprojectlef.cpp
-    python/types/pyprojectlib.cpp
-    python/types/pyprojectverilog.cpp
-    python/pyluna_extra.cpp
+    ${GUI_PYTHON_SRC}
     pdkinstaller/pdkinstaller.cpp
     pdkinstaller/downloader.cpp
     src/configurationdialog.cpp

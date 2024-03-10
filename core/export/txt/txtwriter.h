@@ -7,12 +7,11 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
-#include "netlist/instance.h"
-#include "netlist/netlist.h"
+#include "database/database.h"
 
-/** Export net terminal positions in a simple text file format 
+/** Export net terminal positions in a simple text file format
  *  meant for testing the global router.
- * 
+ *
 */
 namespace LunaCore::TXT
 {

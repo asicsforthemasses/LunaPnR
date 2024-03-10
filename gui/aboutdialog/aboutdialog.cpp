@@ -8,7 +8,11 @@
 #include <QPushButton>
 #include <QMessageBox>
 #include <QTextEdit>
+
+#ifdef USE_PYTHON
 #include <patchlevel.h>     // from Python
+#endif
+
 #include "widgets/flatimage.h"
 #include <Eigen/Core>
 #include <toml++/toml.h>
@@ -26,24 +30,28 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
 
     QString info;
 
-    const auto eigenVersion = QString::asprintf("%d.%d.%d", 
+    const auto eigenVersion = QString::asprintf("%d.%d.%d",
         EIGEN_WORLD_VERSION,
         EIGEN_MAJOR_VERSION,
         EIGEN_MINOR_VERSION);
 
-    const auto tomlVersion = QString::asprintf("%d.%d.%d", 
+    const auto tomlVersion = QString::asprintf("%d.%d.%d",
         TOML_LIB_MAJOR,
         TOML_LIB_MINOR,
         TOML_LIB_PATCH);
 
-    // build information string    
+    // build information string
     info += "<h2>" + QString(LUNAVERSIONSTRING) + "</h2>";
     info += "<h3>License: GPL v3</h3>";
     info += "Compiled on " __DATE__ " using " + QString(COMPILERVERSIONSTRING) + "<br>";
     info += "Additional libraries:";
     info += "<ul>";
     info += "<li>Qt version     " + QString(QT_VERSION_STR) + "</li>";
+
+#ifdef USE_PYTHON
     info += "<li>Python version " + QString(PY_VERSION) + "</li>";
+#endif
+
     info += "<li>Eigen3 version " + eigenVersion + "</li>";
     info += "<li>Toml++ version " + tomlVersion + "</li>";
     info += "</ul>";
@@ -61,6 +69,6 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
     mainLayout->addWidget(textDisplay);
     mainLayout->addWidget(m_buttonBox);
     setLayout(mainLayout);
-    
+
     setWindowTitle(tr("About Dialog"));
 }

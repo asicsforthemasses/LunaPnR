@@ -4,8 +4,7 @@
 
 #pragma once
 
-#include "common/dbtypes.h"
-#include "netlist/netlist.h"
+#include "database/database.h"
 
 namespace LunaCore
 {

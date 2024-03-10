@@ -2,14 +2,15 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
-#pragma once 
+#pragma once
+#include <cstdio>
 #include <Python.h>
 #include <memory>
 
 namespace Python
 {
 
-/** Container for use with Python::TypeTemplate to hold C++ data. 
+/** Container for use with Python::TypeTemplate to hold C++ data.
  *  ValueContainer hold a direct copy of the C++ data.
  *  Use this when the data should not be modified from within Python.
  *  I.e. any change Python makes to this data is not reflected back
@@ -25,7 +26,7 @@ public:
 
     virtual ~ValueContainer() = default;
 
-    constexpr MyType* get() 
+    constexpr MyType* get()
     {
         return &m_value;
     }
@@ -39,8 +40,8 @@ protected:
     MyType m_value;
 };
 
-/** Container for use with Python::TypeTemplate to hold C++ data. 
- *  The C++ data represented by a pointer. 
+/** Container for use with Python::TypeTemplate to hold C++ data.
+ *  The C++ data represented by a pointer.
  *  The Python subsystem does not manage/own the C++ data and will
  *  not free it when the object gets destroyed.
 */
@@ -51,7 +52,7 @@ public:
     RawPointer() = default;
     RawPointer(MyType *ptr) : m_ptr(ptr) {}
 
-    constexpr MyType* get() 
+    constexpr MyType* get()
     {
         return m_ptr;
     }
@@ -65,7 +66,7 @@ protected:
     MyType *m_ptr = nullptr;
 };
 
-/** Python::TypeTemplate is a wrapper that holds C++ data. 
+/** Python::TypeTemplate is a wrapper that holds C++ data.
  *  The default ownership of the C++ data is a std::shared_ptr.
  *  Specify a different TypeHolder to change this behaviour.
  *  See: Python::RawPointer and Python::ValueContainer
@@ -73,10 +74,10 @@ protected:
 
 template<typename MyType, typename TypeHolder = typename std::shared_ptr<MyType> >
 struct TypeTemplate
-{    
+{
     PyObject_HEAD
-    
-    TypeTemplate() 
+
+    TypeTemplate()
     {
         //std::cout << "TypeTemplate constructor called\n";
     }
@@ -92,7 +93,7 @@ struct TypeTemplate
     {
         return (m_holder != nullptr) && (*m_holder);
     }
- 
+
     /** allocate memory for the PyCell */
     static PyObject* pyNewCall(PyTypeObject *type, PyObject *args, PyObject *kwds)
     {
@@ -122,7 +123,7 @@ struct TypeTemplate
         if (tp != nullptr)
         {
             tp->tp_free((PyObject*)self);
-        }        
+        }
     }
 };
 

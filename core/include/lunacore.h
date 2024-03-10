@@ -6,17 +6,8 @@
 
 #include "../common/common.h"
 #include "../import/import.h"
+#include "../database/database.h"
 
-#include "../celllib/celllib.h"
-#include "../celllib/pin.h"
-#include "../techlib/techlib.h"
-#include "../netlist/instance.h"
-#include "../netlist/net.h"
-#include "../netlist/netlist.h"
-#include "../netlist/netlisttools.h"
-#include "../floorplan/row.h"
-#include "../floorplan/region.h"
-#include "../floorplan/floorplan.h"
 #include "../cellplacer/cellplacer.h"
 //#include "../cellplacer/qplacer.h"
 #include "../cellplacer/qlaplacer.h"
@@ -38,5 +29,7 @@
 #include "../globalroute/globalrouter.h"
 #include "../globalroute/prim.h"
 #include "../globalroute/lshape.h"
-#include "../python/pylunapnr.h"
 
+#ifdef USE_PYTHON
+#include "../python/pylunapnr.h"
+#endif

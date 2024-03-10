@@ -9,9 +9,9 @@
 #include <memory>
 #include <array>
 #include <stdexcept>
-#include "common/visitor.h"
-#include "celllib/cell.h"
-#include "celllib/module.h"
+#include "visitor.h"
+#include "cell.h"
+#include "module.h"
 #include "net.h"
 
 namespace ChipDB
@@ -33,16 +33,16 @@ class Instance
 {
 public:
     Instance() : m_cell(nullptr) {}
-    
-    Instance(const std::string &name, InstanceType instype, const std::shared_ptr<Cell> cell) 
-        : m_name(name), m_insType(instype), m_cell(cell) 
+
+    Instance(const std::string &name, InstanceType instype, const std::shared_ptr<Cell> cell)
+        : m_name(name), m_insType(instype), m_cell(cell)
     {
         m_pinToNet.resize(cell->getNumberOfPins(), ChipDB::ObjectNotFound);
     }
 
     virtual ~Instance() = default;
 
-    IMPLEMENT_ACCEPT    
+    IMPLEMENT_ACCEPT
 
     [[nodiscard]] constexpr auto insType() const noexcept
     {
@@ -73,7 +73,7 @@ public:
     /** returns true if the instance is placed or placed and fixed */
     [[nodiscard]] constexpr bool isPlaced() const
     {
-        return ((m_placementInfo == PlacementInfo::PLACED) || 
+        return ((m_placementInfo == PlacementInfo::PLACED) ||
             (m_placementInfo == PlacementInfo::PLACEDANDFIXED));
     }
 
@@ -88,13 +88,13 @@ public:
 
     /** return the underlying cell/module name */
     [[nodiscard]] std::string getArchetypeName() const noexcept;
-    
+
     /** return the cell size of the instance */
     [[nodiscard]] const Coord64 instanceSize() const noexcept
     {
         if (m_cell == nullptr)
             return Coord64{0,0};
-            
+
         return m_cell->m_size;
     }
 
@@ -168,7 +168,7 @@ public:
             }
             return "INVALID PININFO";
         }
-        
+
         NetObjectKey    m_netKey = ObjectNotFound;  ///< key of connected net
         PinObjectKey    m_pinKey = ObjectNotFound;  ///< key of this pin
         std::shared_ptr<PinInfo> m_pinInfo;         ///< information about the pin
@@ -188,7 +188,7 @@ public:
     virtual Pin getPin(const std::string &pinName) const;
     virtual bool setPinNet(PinObjectKey pinKey, NetObjectKey netKey);
     virtual bool disconnectPin(PinObjectKey pinKey);
-    
+
     virtual size_t getNumberOfPins() const;
 
     class ConnectionIterators
@@ -240,7 +240,7 @@ public:
     Orientation     m_orientation{Orientation::R0};                 ///< orientation of the cell instance
     PlacementInfo   m_placementInfo{PlacementInfo::UNPLACED};       ///< placement status
     uint32_t        m_flags{0};                                     ///< non-persistent generic flags that can be used by algorithms
-    
+
 protected:
     const std::shared_ptr<Cell> m_cell;                 ///< access to pins of cell
     std::vector<NetObjectKey>   m_pinToNet;             ///< connections from pin to net

@@ -10,7 +10,6 @@
 #include <algorithm>
 
 #include "common/logging.h"
-#include "netlist/instance.h"
 #include "fmpart.h"
 
 using namespace LunaCore::Partitioner;
@@ -30,7 +29,7 @@ void FMContainer::calcAndSetNodeGain(Node &node)
     uint32_t toPartitionIndex   = 0;
     if (node.m_partitionId == 0)
     {
-        toPartitionIndex   = 1;            
+        toPartitionIndex   = 1;
     }
     else if (node.m_partitionId == 1)
     {
@@ -51,7 +50,7 @@ void FMContainer::calcAndSetNodeGain(Node &node)
 
         if (net.m_nodesInPartition.at(fromPartitionIndex) == 1)
         {
-            // moving the last node in a partition to 
+            // moving the last node in a partition to
             // the other side will uncut the net.
             node.m_gain += net.m_weight;
         }
@@ -61,9 +60,9 @@ void FMContainer::calcAndSetNodeGain(Node &node)
             // moving a node from an uncut net to
             // another partition will cut the net.
             node.m_gain -= net.m_weight;
-        }            
+        }
     }
-    
+
 }
 
 void FMContainer::calcAndSetNodeGains()
@@ -77,7 +76,7 @@ void FMContainer::calcAndSetNodeGains()
 void FMContainer::assignNodesToBuckets()
 {
     for(auto& node : m_nodes)
-    {     
+    {
         if (!node.isFixed())
         {
             addNodeToPartitionBucket(node.m_self);
@@ -102,7 +101,7 @@ bool FMPart::init(FMContainer &container)
 {
     assert(!container.m_nets.empty());
     assert(!container.m_nodes.empty());
-    
+
     // create two partitions each half the size of the region
     // cut in the longest axis
     container.m_partitions[0].m_region = container.m_region;
@@ -190,7 +189,7 @@ bool FMPart::init(FMContainer &container)
     // and add to a partition bucket if movable
     container.calcAndSetNodeGains();
     container.assignNodesToBuckets();
-    
+
     return true;
 }
 
@@ -262,7 +261,7 @@ int64_t FMPart::cycle(FMContainer &container)
     // that come after the maximum gain node in the free list
     for(ssize_t idx=maxTotalGainIdx+1; idx < freeNodeIdx; idx++)
     {
-        auto& item = freeNodes.at(idx);            
+        auto& item = freeNodes.at(idx);
         auto& node = container.m_nodes.at(item.m_nodeId);
 
         size_t fromPartition = 0;
@@ -284,14 +283,14 @@ int64_t FMPart::cycle(FMContainer &container)
             net.m_nodesInPartition.at(toPartition)++;
         }
     }
-    
+
     // add all the nodes in the free list back into their
     // partition buckets
     for(ssize_t idx=0; idx < freeNodeIdx; idx++)
     {
         auto& item = freeNodes.at(idx);
         auto& node = container.m_nodes.at(item.m_nodeId);
-        
+
         //assert(container.m_partitions[node.m_partitionId].hasNodeInBucket(node.m_self) == false);
 
         container.calcAndSetNodeGain(node);
@@ -306,11 +305,11 @@ int64_t FMPart::cycle(FMContainer &container)
         {
             node.unlock();
         }
-    }   
+    }
 
     // ****************************************************
     // ** calculate the cost of the partitioning         **
-    // ****************************************************    
+    // ****************************************************
 
     auto cost = calculateNetCutCost(container);
 
@@ -344,7 +343,7 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId, FMContainer &container)
 
     node.lock();
     node.m_partitionId = toPartitionIndex;    // move node
-    
+
     // ************************************
     // ** Update the neighbour gains
     // ************************************
@@ -361,7 +360,7 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId, FMContainer &container)
             {
                 auto& netNode = container.m_nodes.at(netNodeId);
                 if (!netNode.isLocked())
-                {                                        
+                {
                     container.removeNodeFromPartitionBucket(netNodeId);
                     netNode.m_gain += net.m_weight;
                     container.addNodeToPartitionBucket(netNodeId);
@@ -387,7 +386,7 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId, FMContainer &container)
             }
 
             // check: count should be 1 or 0
-            if (count > 1)     
+            if (count > 1)
             {
                 Logging::doLog(Logging::LogType::ERROR,"FMPart::moveNodeAndUpdateNeightbours internal error: count != 1\n");
             }
@@ -408,10 +407,10 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId, FMContainer &container)
             {
                 auto& netNode = container.m_nodes.at(netNodeId);
                 if (!netNode.isLocked())
-                {                    
+                {
                     container.removeNodeFromPartitionBucket(netNodeId);
                     netNode.m_gain -= net.m_weight;
-                    container.addNodeToPartitionBucket(netNodeId);               
+                    container.addNodeToPartitionBucket(netNodeId);
                 }
             }
         }
@@ -421,22 +420,22 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId, FMContainer &container)
             // if it's free
             size_t count = 0;
             for(auto netNodeId : net.m_nodes)
-            {                
+            {
                 auto& netNode = container.m_nodes.at(netNodeId);
                 if ((netNode.m_partitionId == fromPartitionIndex) &&
                     !netNode.isLocked())
-                {                    
+                {
                     container.removeNodeFromPartitionBucket(netNodeId);
                     netNode.m_gain += net.m_weight;
-                    container.addNodeToPartitionBucket(netNodeId);               
+                    container.addNodeToPartitionBucket(netNodeId);
                 }
-            }    
+            }
 
             // check: count should be 1 or 0
             if (count > 1)
             {
                 Logging::doLog(Logging::LogType::ERROR,"FMPart::moveNodeAndUpdateNeightbours internal error: count != 1\n");
-            }                                      
+            }
         }
     }
 }
@@ -455,7 +454,7 @@ int64_t FMPart::calculateNetCutCost(const FMContainer &container)
 void FMPart::exportToDot(std::ostream &dotFile, FMContainer &container)
 {
     dotFile << "graph G {\n";
-    dotFile << "  rankdir=LR;\n"; 
+    dotFile << "  rankdir=LR;\n";
     //os << "  splines=ortho;\n";
     //os << "  node [shape=record style=filled];\n";
     dotFile << "  labelloc=\"t\";\n";
@@ -673,7 +672,7 @@ bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
     size_t  cyclesSinceMinCostSeen = 0;
     int32_t cycleCount = 0;
     while(cyclesSinceMinCostSeen < 3)
-    {        
+    {
         auto cost = cycle(container);
         cycleCount++;
 

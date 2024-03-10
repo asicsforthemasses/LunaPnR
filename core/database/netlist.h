@@ -8,8 +8,8 @@
 #include <string>
 #include <iostream>
 
-#include "common/visitor.h"
-#include "common/namedstorage.h"
+#include "visitor.h"
+#include "namedstorage.h"
 #include "net.h"
 #include "instance.h"
 
@@ -35,12 +35,12 @@ public:
     KeyObjPair<Net> lookupNet(const std::string &name);
 
     KeyObjPair<Net> createNet(const std::string &netName);
-    
+
     bool connect(const std::string &insName, const std::string &pinName, const std::string &netName);
     bool connect(InstanceObjectKey insKey, PinObjectKey pinKey, NetObjectKey netKey);
 
     std::size_t createUniqueID();
-    
+
 protected:
     std::size_t m_uniqueCounter{0};
 };

@@ -6,7 +6,7 @@
 
 #include <memory>
 #include "cell.h"
-#include "netlist/netlist.h"
+#include "netlist.h"
 
 namespace ChipDB
 {
@@ -15,7 +15,7 @@ class Module : public Cell
 {
 public:
     Module(const std::string &name);
-    
+
     virtual bool isModule() const override
     {
         return true;
@@ -25,7 +25,7 @@ public:
     KeyObjPair<Net> createNet(const std::string &netName);
 
     bool connect(const std::string &insName, const std::string &pinName, const std::string &netName);
-    bool connect(InstanceObjectKey insKey, PinObjectKey pinKey, NetObjectKey netKey);    
+    bool connect(InstanceObjectKey insKey, PinObjectKey pinKey, NetObjectKey netKey);
 
     /** pointer to netlist, or null if the module is a black box */
     std::shared_ptr<Netlist> m_netlist;

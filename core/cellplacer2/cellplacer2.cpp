@@ -7,9 +7,9 @@
 #include <thread>
 #include <fstream>
 #include "common/logging.h"
+#include "database/database.h"
 #include "cellplacer2.h"
 #include "../cellplacer/rowlegalizer.h"
-#include "netlist/netlisttools.h"
 
 using namespace LunaCore::CellPlacer2;
 
@@ -31,7 +31,7 @@ void Placer::mapGatesToMatrixRows(const ChipDB::Netlist &netlist,
     }
 }
 
-LunaCore::Matrix::RowIndex Placer::findRowOfGate(const GateToRowContainer &gate2Row, 
+LunaCore::Matrix::RowIndex Placer::findRowOfGate(const GateToRowContainer &gate2Row,
     const GateId gateId) const noexcept
 {
     auto iter = gate2Row.find(gateId);
@@ -54,7 +54,7 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
     auto Nrows = gates2Row.size();
 
     Matrix Amat(Nrows);
-    
+
     Eigen::VectorXd Bvec_x(Nrows);
     Eigen::VectorXd Bvec_y(Nrows);
 
@@ -64,14 +64,14 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
     std::size_t fixups = 0;
     for(auto row : gates2Row)
     {
-        auto srcGateId = row.first;        
+        auto srcGateId = row.first;
         auto rowIndex  = row.second;
 
         auto &srcGate = gates.atRef(srcGateId);
 
         std::size_t pinIndex = 0;
         for(auto netId : srcGate.connections())
-        {   
+        {
             // skip power and ground pins
             auto const pin = srcGate.getPin(pinIndex);
             if ((pin.m_pinInfo) && (pin.m_pinInfo->isPGPin()))
@@ -91,11 +91,11 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
             if (net.numberOfConnections() <= 1)
             {
                 doLog(Logging::LogType::WARNING, Logging::fmt("Net %s has 1 or fewer connections!\n", net.name().c_str()));
-                continue;                
+                continue;
             }
 
             float weight = 1.0f/(net.numberOfConnections() - 1.0);
-            if (net.m_isPortNet) 
+            if (net.m_isPortNet)
             {
                 //weight *= 4.0f;
             }
@@ -112,7 +112,7 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
                 if (dstGate.isFixed())
                 {
                     // destination gate isn't movable -> change bvector only
-                    // if the gate isn't inside the region, propagate it to 
+                    // if the gate isn't inside the region, propagate it to
                     // the nearest region edge.
                     auto newLocation = propagate(region, dstGatePos);
                     Bvec_x[rowIndex] += weight*newLocation.m_x;
@@ -135,18 +135,18 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
                         {
                             auto newLocation = propagate(region, dstGatePos);
                             Bvec_x[rowIndex] += weight*newLocation.m_x;
-                            Bvec_y[rowIndex] += weight*newLocation.m_y;                            
+                            Bvec_y[rowIndex] += weight*newLocation.m_y;
                         }
                         else
                         {
-                            // destination gate is movable -> change row 
+                            // destination gate is movable -> change row
                             Amat(rowIndex, colIndex) -= weight;
                         }
                     }
                     else
                     {
                         auto newLocation = propagate(region, dstGatePos);
-                        
+
                         // destination gate isn't movable -> change bvector only
                         Bvec_x[rowIndex] += weight*newLocation.m_x;
                         Bvec_y[rowIndex] += weight*newLocation.m_y;
@@ -205,7 +205,7 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
         auto gateId = row.first;
         auto rowId  = row.second;
         auto const& Gate = netlist.m_instances.atRef(gateId);
-        
+
         auto const oldGateLocation = m_gatePositions.at(gateId);
 
         auto const newGateLocation = PointF{static_cast<float>(xvec[rowId]), static_cast<float>(yvec[rowId])};
@@ -217,11 +217,11 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
             std::cout << "B vec x     : " << Bvec_x[rowId] << "\n";
             std::cout << "B vec y     : " << Bvec_y[rowId] << "\n";
             std::cout << "rowId       : " << rowId << "\n";
-#if 0            
+#if 0
             std::cout << "Amat        : " << Amat << "\n";
             std::cout << "B vec x :     " << Bvec_x << "\n";
             std::cout << "B vec y :     " << Bvec_y << "\n";
-#endif            
+#endif
         }
         assert(!Gate.isFixed());
     }
@@ -235,7 +235,7 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
 
         auto newGateLocation = PointF{static_cast<float>(xvec[rowId]), static_cast<float>(yvec[rowId])};
         //assert(region.contains(newGateLocation, absTol));
-        
+
         if (!region.contains(newGateLocation))
         {
             fixups++;
@@ -267,7 +267,7 @@ void Placer::populateGatePositions(const ChipDB::Netlist &netlist, const ChipDB:
     m_gatePositions.reserve(netlist.m_instances.size());
 
     for(auto const& insKeyPair : netlist.m_instances)
-    {        
+    {
         // We have to make sure the unplaced gates/instances are
         // within the region so the placer doesn't flag them
         // as pseud0 terminals.
@@ -307,7 +307,7 @@ bool Placer::place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
     const double nm2um = 1.0e-3;
     double totalCellArea = LunaCore::NetlistTools::calcTotalCellArea(netlist);
     auto regionSize      = region.m_rect.getSize();
-    double regionArea    = static_cast<double>(regionSize.m_x)*nm2um * 
+    double regionArea    = static_cast<double>(regionSize.m_x)*nm2um *
         static_cast<double>(regionSize.m_y)*nm2um;
 
     auto utilization = static_cast<float>(totalCellArea / regionArea);
@@ -361,7 +361,7 @@ bool Placer::place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
 
     auto hpwl = LunaCore::NetlistTools::calcHPWL(netlist);
     Logging::doLog(Logging::LogType::INFO, "HPWL = %f *1e6 nm\n", hpwl / 1.0e6);
-    
+
     Logging::doLog(Logging::LogType::INFO, "Placement done\n");
     //TODO: end-case placement
 
@@ -432,7 +432,7 @@ void Placer::cycle(ChipDB::Netlist &netlist, std::deque<std::unique_ptr<Placemen
             }
 
             // FIXME: distribute according to r1 and r2 capacities
-                        
+
             for(auto gateId : region.m_gatesInRegion)
             {
                 assert(!netlist.m_instances.at(gateId)->isFixed()); // cppcheck-suppress[assertWithSideEffect]
@@ -462,7 +462,7 @@ void Placer::sortGates(PlacementRegion &region, Direction dir)
     // sort gates according to y
     if (dir == Direction::VERTICAL)
     {
-        std::sort(region.m_gatesInRegion.begin(), region.m_gatesInRegion.end(), 
+        std::sort(region.m_gatesInRegion.begin(), region.m_gatesInRegion.end(),
             [this](GateId gateId1, GateId gateId2)
             {
                 return m_gatePositions.at(gateId1).m_y < m_gatePositions.at(gateId2).m_y;
@@ -472,7 +472,7 @@ void Placer::sortGates(PlacementRegion &region, Direction dir)
     else
     {
         // sort gates according to x
-        std::sort(region.m_gatesInRegion.begin(), region.m_gatesInRegion.end(), 
+        std::sort(region.m_gatesInRegion.begin(), region.m_gatesInRegion.end(),
             [this](GateId gateId1, GateId gateId2)
             {
                 return m_gatePositions.at(gateId1).m_x < m_gatePositions.at(gateId2).m_x;
@@ -502,7 +502,7 @@ void Placer::cutRegion(const PlacementRegion &region, Direction dir,
     std::cout << "  P1: (" << region1.m_rect.m_ll.m_x << "," << region1.m_rect.m_ll.m_y << ") ";
     std::cout << " W " << region1.width() << "  H " << region1.height() << "\n";
     std::cout << "  P2: (" << region2.m_rect.m_ll.m_x << "," << region2.m_rect.m_ll.m_y << ") ";
-    std::cout << " W " << region2.width() << "  H " << region2.height() << "\n";    
+    std::cout << " W " << region2.width() << "  H " << region2.height() << "\n";
 }
 
 PointF Placer::propagate(const PlacementRegion &r, const PointF &p) const
@@ -512,7 +512,7 @@ PointF Placer::propagate(const PlacementRegion &r, const PointF &p) const
     if (result.m_x > r.m_rect.m_ur.m_x) result.m_x = r.m_rect.m_ur.m_x;
     if (result.m_y < r.m_rect.m_ll.m_y) result.m_y = r.m_rect.m_ll.m_y;
     if (result.m_y > r.m_rect.m_ur.m_y) result.m_y = r.m_rect.m_ur.m_y;
-    return result;    
+    return result;
 }
 
 std::ostream& operator<<(std::ostream &os, const LunaCore::CellPlacer2::PointF &p)

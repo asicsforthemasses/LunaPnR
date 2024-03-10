@@ -5,7 +5,7 @@
 #pragma once
 
 #include <istream>
-#include "design/design.h"
+#include "database/database.h"
 
 /** Namespace for the DEF importers and exporters */
 namespace ChipDB::DEF

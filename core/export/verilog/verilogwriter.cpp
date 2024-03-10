@@ -6,13 +6,7 @@
 #include "version.h"
 #include "common/logging.h"
 
-#include "celllib/celllib.h"
-#include "netlist/net.h"
-#include "netlist/netlist.h"
-#include "netlist/instance.h"
-
-#include "common/visitor.h"
-
+#include "database/database.h"
 #include "verilogwriter.h"
 
 using namespace LunaCore::Verilog;
@@ -58,7 +52,7 @@ bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod)
             else
             {
                 auto const& pinInfo = mod->lookupPin(netPtr->name());
-                
+
                 if (!pinInfo.isValid())
                 {
                     Logging::doLog(Logging::LogType::ERROR,"Port net cannot be resolved to module pin!\n");
@@ -72,14 +66,14 @@ bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod)
                     break;
                 case ChipDB::IOType::OUTPUT:
                     os << "output ";
-                    break; 
+                    break;
                 case ChipDB::IOType::IO:
                     os << "inout ";
                     break;
                 default:
                     Logging::doLog(Logging::LogType::ERROR, "Verilog writer: unsupported pin type %s\n", toString(pinInfo->m_iotype).c_str());
-                    return false;            
-                }            
+                    return false;
+                }
                 os << escapeVerilogName(netPtr->name()) << ";\n";
             }
         }
@@ -180,14 +174,14 @@ namespace LunaCore::Verilog
                         m_os << "\n";
                     }
 
-                    m_os << ");\n";                    
+                    m_os << ");\n";
                 }
                 break;
             case ChipDB::InstanceType::PIN:
                 break;
             case ChipDB::InstanceType::MODULE:
                 Logging::doLog(Logging::LogType::ERROR, "Verilog writer: does not support embedded modules\n");
-                return;            
+                return;
             case ChipDB::InstanceType::NETCON:
                 {
                     auto inPin  = instance->getPin("A");
@@ -219,9 +213,9 @@ namespace LunaCore::Verilog
                 {
                     cellName = cellPtr->name();
                 }
-                
-                Logging::doLog(Logging::LogType::ERROR, "Verilog writer: expected a Cell instance but got instance: %s cell: %s\n", 
-                    instance->name().c_str(), cellName.c_str());                
+
+                Logging::doLog(Logging::LogType::ERROR, "Verilog writer: expected a Cell instance but got instance: %s cell: %s\n",
+                    instance->name().c_str(), cellName.c_str());
                 return;
             }
 
@@ -248,7 +242,7 @@ namespace LunaCore::Verilog
                     Logging::doLog(Logging::LogType::ERROR, "Verilog writer: can't write instance %s without a cell name!\n", instance->name().c_str());
                     return;
                 }
-                
+
             }
             else
             {
@@ -278,9 +272,9 @@ namespace LunaCore::Verilog
 
                 m_os << ");\n";
             }
-#endif            
+#endif
         }
-        
+
         void visit(const ChipDB::Cell *cell) override
         {
             Logging::doLog(Logging::LogType::ERROR,"Verilog writer: cannot write Cell to netlist\n");

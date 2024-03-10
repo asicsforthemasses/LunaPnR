@@ -4,6 +4,8 @@
 
 #pragma once
 
+#ifdef USE_PYTHON
+
 #include "lunacore.h"
 #include "common/database.h"
 #include "console/mmconsole.h"
@@ -26,3 +28,5 @@ protected:
 };
 
 };
+
+#endif

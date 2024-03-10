@@ -12,7 +12,7 @@
 #include <Eigen/Sparse>
 #include <Eigen/IterativeLinearSolvers>
 
-#include "design/design.h"
+#include "database/database.h"
 #include "common/matrix.h"
 
 namespace LunaCore::CellPlacer2
@@ -28,11 +28,11 @@ struct PointF
     constexpr PointF() = default;
     constexpr PointF(const Type &x, const Type &y) : m_x(x), m_y(y) {}
 
-    constexpr PointF(const ChipDB::Coord64 &pos) 
-        : m_x{static_cast<Type>(pos.m_x)}, 
+    constexpr PointF(const ChipDB::Coord64 &pos)
+        : m_x{static_cast<Type>(pos.m_x)},
           m_y{static_cast<Type>(pos.m_y)}
         {}
-    
+
     Type m_x{0};
     Type m_y{0};
 
@@ -78,7 +78,7 @@ struct PlacementRegion
         if ((static_cast<Type>(m_rect.m_ll.m_y)-absTol) > p.m_y) return false;
         if ((static_cast<Type>(m_rect.m_ur.m_y)+absTol) <= p.m_y) return false;
         return true;
-    }    
+    }
 
     constexpr auto center() const noexcept
     {
@@ -93,13 +93,13 @@ struct PlacementRegion
 class Placer
 {
 public:
-    
+
     /** place the movable cells/gates/instances of the netlist inside the
      *  ChipDB::Region using quadratic placement.
-     * 
+     *
      *  The chip is recursively divided into subregions. maxLevels sets the
      *  maximum number of divisions to use.
-     * 
+     *
      *  Recursive subregion division also stops when a subregion contains
      *  fewer than 'minInstances' cells/gates/instances.
     */

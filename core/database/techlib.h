@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include "common/dbtypes.h"
-#include "common/visitor.h"
-#include "common/namedstorage.h"
+#include "dbtypes.h"
+#include "visitor.h"
+#include "namedstorage.h"
 
 namespace ChipDB
 {
@@ -37,7 +37,7 @@ class LayerInfo
 {
 public:
 
-    LayerInfo() 
+    LayerInfo()
     :   m_pitch{0,0},
         m_spacing(0),
         m_width(0),
@@ -52,7 +52,7 @@ public:
         m_dir(LayerDirection::UNDEFINED)
     {}
 
-    LayerInfo(const std::string &name) 
+    LayerInfo(const std::string &name)
     : m_name(name),
         m_pitch{0,0},
         m_spacing(0),
@@ -102,7 +102,7 @@ struct SiteClass : public StrEnum<SiteClass>
 {
     SiteClass() : StrEnum() {}
     SiteClass(const std::string &s) { *this = s; }
-    
+
     static constexpr std::array<std::pair<int32_t, const char *>, 3> m_options =
     {{
         {0,"UNDEFINED"},
@@ -136,8 +136,8 @@ public:
     SiteInfo()
     : m_size{0,0},
       m_class(SiteClass::UNDEFINED) {}
-    
-    SiteInfo(const std::string &name) 
+
+    SiteInfo(const std::string &name)
     : m_name(name),
       m_size{0,0},
       m_class(SiteClass::UNDEFINED) {}
@@ -182,8 +182,8 @@ public:
     std::shared_ptr<LayerInfo> lookupLayer(const ChipDB::ObjectKey key) const;
 
     KeyObjPair<SiteInfo> createSiteInfo(const std::string &name);
-    KeyObjPair<SiteInfo> lookupSiteInfo(const std::string &name) const; 
-    std::shared_ptr<SiteInfo> lookupSiteInfo(const ChipDB::ObjectKey key) const; 
+    KeyObjPair<SiteInfo> lookupSiteInfo(const std::string &name) const;
+    std::shared_ptr<SiteInfo> lookupSiteInfo(const ChipDB::ObjectKey key) const;
 
     auto const& layers() const noexcept
     {

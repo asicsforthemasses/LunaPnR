@@ -12,7 +12,7 @@
 #include "../converters.h"
 #include "typetemplate.h"
 #include "pylayerinfo.h"
-#include "techlib/techlib.h"
+#include "database/database.h"
 
 struct PyTechLibLayerIterator
 {
@@ -27,7 +27,7 @@ struct PyTechLibLayerIterator
     auto begin()
     {
         return m_techLib->layers().begin();
-    }    
+    }
 };
 
 /** container for LunaCore::LayerInfo */
@@ -46,7 +46,7 @@ struct PyTechLibLayers : public Python::TypeTemplate<PyTechLibLayerIterator>
 
             self->m_holder->reset(new PyTechLibLayerIterator());
 
-            // get a pointer to 
+            // get a pointer to
             auto techLibPtr = reinterpret_cast<ChipDB::TechLib*>(PyCapsule_Import("Luna.TechLibraryPtr", 0));
             if (techLibPtr == nullptr)
             {
@@ -54,7 +54,7 @@ struct PyTechLibLayers : public Python::TypeTemplate<PyTechLibLayerIterator>
             }
 
             self->obj()->m_techLib = techLibPtr;
-            self->obj()->m_iter = self->obj()->end();            
+            self->obj()->m_iter = self->obj()->end();
         }
         else
         {
@@ -76,8 +76,8 @@ struct PyTechLibLayers : public Python::TypeTemplate<PyTechLibLayerIterator>
             return Py_BuildValue("l", self->obj()->m_techLib->getNumberOfLayers());
         }
 
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");        
-        return nullptr;              
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
+        return nullptr;
     }
 
     static PyObject* getLayer(PyTechLibLayers *self, PyObject *args)
@@ -97,8 +97,8 @@ struct PyTechLibLayers : public Python::TypeTemplate<PyTechLibLayerIterator>
                 if (!layer)
                 {
                     PyErr_Format(PyExc_ValueError, "Layer with key %ld not found", key);
-                    return nullptr;                    
-                }                
+                    return nullptr;
+                }
                 return Python::toPython(layer);
             }
 
@@ -121,9 +121,9 @@ struct PyTechLibLayers : public Python::TypeTemplate<PyTechLibLayerIterator>
             PyErr_Format(PyExc_ValueError, "getLayer requires a key or name as argument");
             return nullptr;
         }
-        
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");        
-        return nullptr;                 
+
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
+        return nullptr;
     }
 
     static PyObject* pyIter(PyTechLibLayers *self)

@@ -7,7 +7,7 @@
 #include <algorithm>
 #include <cassert>
 #include "common/logging.h"
-#include "netlist/instance.h"
+#include "database/database.h"
 #include "verilogreader.h"
 
 using namespace ChipDB::Verilog;
@@ -78,19 +78,19 @@ void ReaderImpl::throwOnCurInstanceIsNullptr()
     if (!m_currentInsKeyObjPair.isValid())
     {
         throw std::runtime_error("Reader: no instance selected.");
-    }    
+    }
 }
 
 
 void ReaderImpl::onModule(const std::string &modName,
         const std::vector<std::string> &ports)
-{    
+{
     m_currentModule = m_design.m_moduleLib->createModule(modName).ptr();
     throwOnModuleIsNullptr();
 
     // we need to create our ports here.
     // this will ensure the correct ordering
-    // rather than relying on the 
+    // rather than relying on the
     // correct input/output order in the verilog file.
     //
 
@@ -107,12 +107,12 @@ void ReaderImpl::onInstance(const std::string &modName, const std::string &insNa
     // check for cell or module instance
     auto const cellKeyObjPtr = m_design.m_cellLib->lookupCell(modName);
     if (cellKeyObjPtr.isValid())
-    {           
+    {
         auto insPtr = std::make_shared<Instance>(insName, ChipDB::InstanceType::CELL, cellKeyObjPtr.ptr());
         auto insKeyObjPair = m_currentModule->addInstance(insPtr);
 
         if (!insKeyObjPair.isValid())
-        {            
+        {
             std::stringstream ss;
             ss << "Failed to create instance " << insName << "\n";
             Logging::doLog(Logging::LogType::ERROR, ss.str());
@@ -122,7 +122,7 @@ void ReaderImpl::onInstance(const std::string &modName, const std::string &insNa
         m_currentInsKeyObjPair = insKeyObjPair;
         return;
     }
-    
+
     auto moduleKeyObjPair = m_design.m_moduleLib->lookupModule(modName);
     if (moduleKeyObjPair.isValid())
     {
@@ -132,7 +132,7 @@ void ReaderImpl::onInstance(const std::string &modName, const std::string &insNa
         {
             std::stringstream ss;
             ss << "Failed to create module instance " << insName << "\n";
-            Logging::doLog(Logging::LogType::ERROR, ss.str());            
+            Logging::doLog(Logging::LogType::ERROR, ss.str());
         }
 
         m_currentInsKeyObjPair = insKeyObjPair;
@@ -158,7 +158,7 @@ void ReaderImpl::onWire(const std::string &netname, uint32_t start, uint32_t sto
     {
         std::stringstream ss;
         ss << netname << "[" << i << "]";
-        m_currentModule->createNet(netname);        
+        m_currentModule->createNet(netname);
     }
 }
 
@@ -173,7 +173,7 @@ void ReaderImpl::onWire(const std::string &netname)
 void ReaderImpl::onInput(const std::string &netname)
 {
     throwOnModuleIsNullptr();
-    
+
     // This callback is only single wires.
     auto netPtr = m_currentModule->createNet(netname);
     netPtr->setPortNet(true);
@@ -182,7 +182,7 @@ void ReaderImpl::onInput(const std::string &netname)
     auto pin = m_currentModule->createPin(netname);
     pin->m_iotype = ChipDB::IOType::INPUT;
 
-    auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN, 
+    auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN,
         m_design.m_cellLib->lookupCell("__INPIN").ptr());
 
     auto pinInsKeyObjPair = m_currentModule->addInstance(pinInstance);
@@ -206,7 +206,7 @@ void ReaderImpl::onInput(const std::string &netname, uint32_t start, uint32_t st
     {
         std::stringstream ss;
         ss << netname << "[" << i << "]";
-        
+
         // This callback is only single wires.
         auto netPtr = m_currentModule->createNet(ss.str());
         netPtr->setPortNet(true);
@@ -216,7 +216,7 @@ void ReaderImpl::onInput(const std::string &netname, uint32_t start, uint32_t st
         pin->m_iotype = ChipDB::IOType::INPUT;
 
         // add a PinInstance for each pin to the netlist
-        auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN, 
+        auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN,
         m_design.m_cellLib->lookupCell("__INPIN").ptr());
 
         auto pinInsKeyObjPair = m_currentModule->addInstance(pinInstance);
@@ -242,14 +242,14 @@ void ReaderImpl::onOutput(const std::string &netname)
     pin->m_iotype = ChipDB::IOType::OUTPUT;
 
     // add a PinInstance for each pin to the netlist
-    auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN, 
+    auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN,
         m_design.m_cellLib->lookupCell("__OUTPIN").ptr());
 
     auto pinInsKeyObjPair = m_currentModule->addInstance(pinInstance);
 
     if (!m_currentModule->connect(netname, "A", netname))    // input on the inner level
     {
-        Logging::doLog(Logging::LogType::ERROR,"VerilogReader::ReaderImpl::onOutput: cannot connect to pin Instance!\n");        
+        Logging::doLog(Logging::LogType::ERROR,"VerilogReader::ReaderImpl::onOutput: cannot connect to pin Instance!\n");
     }
 }
 
@@ -267,7 +267,7 @@ void ReaderImpl::onOutput(const std::string &netname, uint32_t start, uint32_t s
     {
         std::stringstream ss;
         ss << netname << "[" << i << "]";
-        
+
         auto netKeyObjPair = m_currentModule->createNet(ss.str());
         netKeyObjPair->setPortNet(true);
 
@@ -276,14 +276,14 @@ void ReaderImpl::onOutput(const std::string &netname, uint32_t start, uint32_t s
         pin->m_iotype = ChipDB::IOType::OUTPUT;
 
         // add a PinInstance for each pin to the netlist
-        auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN, 
+        auto pinInstance = std::make_shared<ChipDB::Instance>(netname, ChipDB::InstanceType::PIN,
             m_design.m_cellLib->lookupCell("__OUTPIN").ptr());
 
         auto pinInsKeyObjPair = m_currentModule->addInstance(pinInstance);
 
         if (!m_currentModule->connect(netname, "A", netname))    // input on the inner level
         {
-            Logging::doLog(Logging::LogType::ERROR,"VerilogReader::ReaderImpl::onOutput: cannot connect to pin Instance!\n");        
+            Logging::doLog(Logging::LogType::ERROR,"VerilogReader::ReaderImpl::onOutput: cannot connect to pin Instance!\n");
         }
     }
 
@@ -292,7 +292,7 @@ void ReaderImpl::onOutput(const std::string &netname, uint32_t start, uint32_t s
 
 /** callback for each instance port in the netlist */
 void ReaderImpl::onInstancePort(uint32_t pinIndex, const std::string &netName)
-{    
+{
     throwOnModuleIsNullptr();
 
     auto netKeyObjPair = m_currentModule->m_netlist->m_nets.at(netName);
@@ -316,10 +316,10 @@ void ReaderImpl::onInstanceNamedPort(const std::string &pinName, const std::stri
     throwOnModuleIsNullptr();
     throwOnCurInstanceIsNullptr();
 
-    auto netKeyObjPair  = m_currentModule->m_netlist->m_nets.at(netName);    
+    auto netKeyObjPair  = m_currentModule->m_netlist->m_nets.at(netName);
     if (!netKeyObjPair.isValid())
     {
-        Logging::doLog(Logging::LogType::WARNING,"Cannot connect %s:%s to net %s -- net not found\n", m_currentInsKeyObjPair->name().c_str(), 
+        Logging::doLog(Logging::LogType::WARNING,"Cannot connect %s:%s to net %s -- net not found\n", m_currentInsKeyObjPair->name().c_str(),
             pinName.c_str(), netName.c_str());
         return;
     }
@@ -327,14 +327,14 @@ void ReaderImpl::onInstanceNamedPort(const std::string &pinName, const std::stri
     auto pin = m_currentInsKeyObjPair->getPin(pinName);
     if (!pin.isValid())
     {
-        Logging::doLog(Logging::LogType::WARNING,"Cannot connect %s:%s to net %s -- pin not found\n", m_currentInsKeyObjPair->name().c_str(), 
+        Logging::doLog(Logging::LogType::WARNING,"Cannot connect %s:%s to net %s -- pin not found\n", m_currentInsKeyObjPair->name().c_str(),
             pinName.c_str(), netName.c_str());
         return;
     }
 
     if (!m_currentModule->connect(m_currentInsKeyObjPair.key(), pin.m_pinKey, netKeyObjPair.key()))
     {
-        Logging::doLog(Logging::LogType::WARNING,"Cannot connect %s:%s to net %s -- Module->connect returned false\n", m_currentInsKeyObjPair->name().c_str(), 
+        Logging::doLog(Logging::LogType::WARNING,"Cannot connect %s:%s to net %s -- Module->connect returned false\n", m_currentInsKeyObjPair->name().c_str(),
             pinName.c_str(), netName.c_str());
     }
 }
@@ -345,7 +345,7 @@ void ReaderImpl::onAssign(const std::string &left, const std::string &right)
 
     auto outNetPtr = m_currentModule->m_netlist->m_nets[left];     // output net
     auto inNetPtr  = m_currentModule->m_netlist->m_nets[right];    // input net
-    
+
     std::stringstream ss;
 
     ss << "__NETCON" << m_design.createUniqueID();
@@ -361,7 +361,7 @@ void ReaderImpl::onAssign(const std::string &left, const std::string &right)
     auto insKeyObjPair = m_currentModule->addInstance(insPtr);
 
     if (!insKeyObjPair.isValid())
-    {            
+    {
         std::stringstream ss2;
         ss2 << "Verilog reader: failed to create instance " << ss.str() << "\n";
         Logging::doLog(Logging::LogType::ERROR, ss2);

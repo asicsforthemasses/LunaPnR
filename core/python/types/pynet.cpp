@@ -12,7 +12,7 @@
 #include "../converters.h"
 #include "typetemplate.h"
 #include "pynet.h"
-#include "design/design.h"
+#include "database/database.h"
 
 struct PyNetConstIterator
 {
@@ -51,10 +51,10 @@ struct PyNet : public Python::TypeTemplate<PyNetConstIterator>
         {
             if (self->obj()->m_net)
             {
-                return Python::toPython(self->obj()->m_net->name());            
+                return Python::toPython(self->obj()->m_net->name());
             }
         }
-        
+
         PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
         return nullptr;
     };

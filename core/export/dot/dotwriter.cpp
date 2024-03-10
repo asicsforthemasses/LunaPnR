@@ -7,12 +7,12 @@
 #include <memory>
 #include <algorithm>
 #include "common/logging.h"
-#include "celllib/celllib.h"
+#include "database/database.h"
 #include "dotwriter.h"
 
 using namespace LunaCore::Dot;
 
-Writer::Writer(const std::shared_ptr<ChipDB::Module> module) 
+Writer::Writer(const std::shared_ptr<ChipDB::Module> module)
     : m_module(module)
 {
 }
@@ -22,7 +22,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
 {
     // write DOT header
     os << "digraph G {\n";
-    os << "  rankdir=LR;\n"; 
+    os << "  rankdir=LR;\n";
     //os << "  splines=ortho;\n";
     os << "  node [shape=record style=filled];\n";
     os << "  labelloc=\"t\";\n";
@@ -54,25 +54,25 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
                 decorator->decorate(insKeyObjPair.ptr(), os);
             }
 
-            os << "];\n";            
+            os << "];\n";
         }
     }
 
     // stream out all the connections
     for(auto const net : m_module->m_netlist->m_nets)
-    {   
+    {
         if (!net.isValid())
             continue;
-    
+
         // find the driver on the net
         std::string driverName;
         std::string driverPinName;
         ChipDB::InstanceType driverInsType = ChipDB::InstanceType::ABSTRACT;
 
         ssize_t driverIdx = -1;
-        ssize_t idx = 0;        
+        ssize_t idx = 0;
         for(auto const& conn : *net)
-        {    
+        {
             auto ins = m_module->m_netlist->m_instances.at(conn.m_instanceKey);
             auto pin = ins->getPin(conn.m_pinKey);
             if (pin.isValid())
@@ -107,7 +107,7 @@ bool Writer::execute(std::ostream &os, AbstractNodeDecorator *decorator)
         for(auto const& conn : *net)
         {
             if (driverIdx != idx)
-            {            
+            {
                 auto ins = m_module->m_netlist->m_instances.at(conn.m_instanceKey);
                 auto dstPin = ins->getPin(conn.m_pinKey);
                 if (dstPin.isValid())
@@ -153,15 +153,15 @@ bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Instance> mod
     if (modInstance == nullptr)
     {
         Logging::doLog(Logging::LogType::ERROR,"Dot::Writer module instance is nullptr\n");
-        return false;        
+        return false;
     }
 
     if (!modInstance->isModule())
     {
         Logging::doLog(Logging::LogType::ERROR,"Dot::Writer instance is not a module\n");
-        return false;                
+        return false;
     }
-    
+
     auto cell   = modInstance->cell();
     auto module = std::dynamic_pointer_cast<ChipDB::Module>(cell);
 
@@ -225,11 +225,11 @@ void Writer::writeOutputs(std::ostream &os, const std::shared_ptr<ChipDB::Instan
     for(ChipDB::PinObjectKey pinKey=0; pinKey < ins->getNumberOfPins(); ++pinKey)
     {
         auto const& pin = ins->getPin(pinKey);
-        
+
         if (!pin.isValid())
             continue;
 
-        // skip power/ground pins        
+        // skip power/ground pins
         if (pin.m_pinInfo->isPGPin())
             continue;
 
@@ -260,7 +260,7 @@ std::string Writer::escapeString(const std::string &txt)
         else
         {
             result += c;
-        }    
+        }
     }
     return result;
 }

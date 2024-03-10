@@ -9,10 +9,10 @@
 #include <memory>
 #include <vector>
 #include <unordered_map>
-#include "common/dbtypes.h"
-#include "common/namedstorage.h"
-#include "common/geometry.h"
-#include "common/visitor.h"
+#include "dbtypes.h"
+#include "namedstorage.h"
+#include "geometry.h"
+#include "visitor.h"
 
 namespace ChipDB
 {
@@ -67,7 +67,7 @@ PinInfo(const std::string &name) :
     std::string m_name;     ///< pin name
 
     IOType      m_iotype;   ///< in/out type of pin
-    
+
     bool        m_clock;    ///< true if this is a clock pin
     Coord64     m_offset;   ///< pin offset w.r.t. lower left cell corner
 
@@ -102,7 +102,7 @@ PinInfo(const std::string &name) :
     bool isClock() const
     {
         return m_clock;
-    }    
+    }
 
     /** geometry description of pin */
     std::unordered_map<std::string /* layer name */, GeometryObjects> m_pinLayout;
@@ -131,7 +131,7 @@ public:
 
     void clear()
     {
-        m_pins.clear();   
+        m_pins.clear();
     }
 
     size_t size() const
@@ -174,7 +174,7 @@ public:
     {
         if ((pinKey < m_pins.size()) && (pinKey >= 0))
             return m_pins[pinKey];
-        
+
         return nullptr;
     }
 
@@ -183,7 +183,7 @@ public:
     {
         if ((pinKey < m_pins.size()) && (pinKey >= 0))
             return m_pins[pinKey];
-        
+
         return nullptr;
     }
 
@@ -193,7 +193,7 @@ public:
     /** access pin by name. returns KeyObjPair of pin */
     KeyObjPair<PinInfo> operator[](const std::string &name) const;
 
-protected:   
+protected:
 
     KeyObjPair<PinInfo> find(const std::string &name) const;
     ContainerType m_pins;

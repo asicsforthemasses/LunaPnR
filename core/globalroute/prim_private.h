@@ -4,7 +4,7 @@
 
 #pragma once
 #include <queue>
-#include "common/dbtypes.h"
+#include "database/database.h"
 #include "prim.h"
 
 namespace LunaCore::Prim::Private

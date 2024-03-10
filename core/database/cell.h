@@ -7,9 +7,9 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
-#include "common/dbtypes.h"
-#include "common/geometry.h"
-#include "common/namedstorage.h"
+#include "dbtypes.h"
+#include "geometry.h"
+#include "namedstorage.h"
 #include "pin.h"
 
 namespace ChipDB
@@ -22,8 +22,8 @@ public:
     {
     }
 
-    Cell(const std::string &name) : m_name(name), m_area(0), 
-        m_leakagePower(0), m_class{CellClass::CORE}, m_subclass{CellSubclass::NONE} 
+    Cell(const std::string &name) : m_name(name), m_area(0),
+        m_leakagePower(0), m_class{CellClass::CORE}, m_subclass{CellSubclass::NONE}
     {
     }
 

@@ -8,7 +8,6 @@
 #include <utility>
 #include <memory>
 #include <optional>
-#include "design/design.h"
 #include "datatypes.h"
 #include "wavefront.h"
 #include "grid.h"
@@ -20,8 +19,8 @@ class Router
 {
 public:
     Router() = default;
-    
-    std::optional<ChipDB::Size64> determineGridCellSize(const ChipDB::Design &design, 
+
+    std::optional<ChipDB::Size64> determineGridCellSize(const ChipDB::Design &design,
         const std::string &siteName,
         int hRoutes, int vRoutes) const;
 

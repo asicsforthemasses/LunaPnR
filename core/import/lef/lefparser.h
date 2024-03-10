@@ -10,7 +10,7 @@
 #include <iostream>
 #include <regex>
 
-#include "common/dbtypes.h"
+#include "database/database.h"
 
 namespace ChipDB::LEF
 {
@@ -33,7 +33,7 @@ public:
         m_resUnit(1.0),     // 1 ohm default
         m_capUnit(1.0e-12)  // 1 pF default
         {}
-    
+
     virtual ~Parser() {}
 
     enum token_t
@@ -136,7 +136,7 @@ public:
     /** callback for layer spaceing range influence (onLayerSpacingRange is called first) */
     virtual void onLayerSpacingRangeInfluence(int64_t influence) {}
 
-    /** callback for layer offset (x and y offsets) */    
+    /** callback for layer offset (x and y offsets) */
     virtual void onLayerOffset(int64_t x_offset, int64_t y_offset) {}
 
     /** callback for layer routing direction */
@@ -145,10 +145,10 @@ public:
     /** callback for layer trace width */
     virtual void onLayerWidth(int64_t width) {}
 
-    /** callback for layer trace max width */    
+    /** callback for layer trace max width */
     virtual void onLayerMaxWidth(int64_t maxWidth) {}
 
-    /** callback for layer trace min width */    
+    /** callback for layer trace min width */
     virtual void onLayerMinWidth(int64_t minWidth) {}
 
     /** callback for layer resistance (per cut, in ohms) */
@@ -181,7 +181,7 @@ public:
     /** callback for port/layer rectangle */
     virtual void onRect(int64_t x1, int64_t y1, int64_t x2, int64_t y2) {}
 
-    /** Callback for a polygon (al least three points) 
+    /** Callback for a polygon (al least three points)
      *  all angles must be 180,90 or 45 degrees.
      *  The last point is equal to the first point but
      *  the last point is not stored in the points array.
@@ -228,14 +228,14 @@ protected:
     bool parsePin();
     bool parseDirection();
     bool parseUse();
-    bool parseManufacturingGrid();    
+    bool parseManufacturingGrid();
 
     bool parsePort();
     bool parsePortLayer();
     bool parsePortLayerItem();
     bool parseRect();
     bool parsePolygon();
-    
+
     bool parseLayer();
     bool parseLayerItem();
     bool parseLayerType();
@@ -254,7 +254,7 @@ protected:
 
     bool parseLayerMinArea();
     bool parseLayerThickness();
-    
+
     bool parseLayerSpacingTable();
 
     bool parseSiteItem();
@@ -290,10 +290,10 @@ protected:
     void advance();
     char peek() const;
     bool atEnd() const;
-    
+
     int64_t flt2int(const std::string &value, bool &ok);  ///< convert LEF/DEF values to nanometers
 
-    const std::string *m_src;    
+    const std::string *m_src;
     uint32_t    m_idx;
     uint32_t    m_lineNum;
     uint32_t    m_col;

@@ -3,8 +3,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #pragma once
+#include <cstdio>
 #include <Python.h>
-#include "celllib/pin.h"
+#include "database/database.h"
 
 extern PyTypeObject PyInstancesType;
 

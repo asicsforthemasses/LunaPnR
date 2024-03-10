@@ -6,8 +6,8 @@
 #pragma once
 
 #include <optional>
-#include "common/dbtypes.h"
-#include "common/namedstorage.h"
+#include "dbtypes.h"
+#include "namedstorage.h"
 #include "region.h"
 
 namespace ChipDB
@@ -17,14 +17,14 @@ class Floorplan
 {
 public:
 
-    /** add an already created region to the floorplan. returns an invalid KeyObjPair if a region 
+    /** add an already created region to the floorplan. returns an invalid KeyObjPair if a region
      *  of the same name already exists */
     KeyObjPair<Region> addRegion(std::shared_ptr<Region> regionPtr);
 
-    /** create a region with the specified name and add it to the floorplan. returns an invalid KeyObjPair if a region 
+    /** create a region with the specified name and add it to the floorplan. returns an invalid KeyObjPair if a region
      *  of the same name already exists */
     KeyObjPair<Region> createRegion(const std::string &name, const std::string &site);
-    
+
     std::shared_ptr<Region> lookupRegion(ChipDB::ObjectKey key) const;
     KeyObjPair<Region> lookupRegion(const std::string &name) const;
     [[nodiscard]] bool removeRegion(const std::string &name);

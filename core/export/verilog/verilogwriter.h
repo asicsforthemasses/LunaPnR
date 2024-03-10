@@ -10,7 +10,7 @@
 
 #pragma once
 #include <iostream>
-#include "netlist/netlist.h"
+#include "database/database.h"
 
 namespace LunaCore::Verilog
 {
@@ -21,7 +21,7 @@ public:
 
     static bool write(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod);
 
-protected:    
+protected:
     static bool writeModuleDefinition(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod);
     static bool writeModuleInstances(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod);
 };

@@ -2,9 +2,7 @@
 
 #include <string>
 #include <vector>
-#include "common/dbtypes.h"
-#include "celllib/celllib.h"
-#include "design/design.h"
+#include "database/database.h"
 
 namespace LunaCore
 {
@@ -31,9 +29,9 @@ protected:
 
     [[nodiscard]] bool isFillerAlreadyInList(const std::string &name) const;
 
-    [[nodiscard]] bool fillSpaceWithFillers(const ChipDB::Design &design, 
-        ChipDB::Netlist &netlist, 
-        const ChipDB::Coord64 &lowerLeftPos, 
+    [[nodiscard]] bool fillSpaceWithFillers(const ChipDB::Design &design,
+        ChipDB::Netlist &netlist,
+        const ChipDB::Coord64 &lowerLeftPos,
         const ChipDB::CoordType width);
 
     struct FillerInfo

@@ -4,8 +4,7 @@
 
 #include <algorithm>
 #include "cellplacer.h"
-#include "netlist/instance.h"
-#include "common/dbtypes.h"
+#include "database/database.h"
 #include "common/logging.h"
 
 using namespace LunaCore;
@@ -19,7 +18,7 @@ void SimpleCellPlacer::place(ChipDB::Netlist *nl, const ChipDB::Rect64 &regionRe
         // do not place pins
         if (ins->isPin())
             continue;
-            
+
         auto cellSize = ins->instanceSize();
 
         // is there space for the next cell in the current row?
