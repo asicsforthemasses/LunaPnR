@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -9,7 +9,7 @@
 void Tasks::ReadAllFiles::execute(GUI::Database &database, ProgressCallback callback)
 {
     m_status.store(Status::RUNNING);
-        
+
     database.clear();
 
     for(auto const& lef : database.m_projectSetup.m_lefFiles)
@@ -65,12 +65,12 @@ void Tasks::ReadAllFiles::execute(GUI::Database &database, ProgressCallback call
 
         std::stringstream ss;
         ss << layerFile.rdbuf();
-                
+
         if (!database.m_layerRenderInfoDB.readJson(ss.str()))
         {
             error("Could not parse Layer file");
             return;
-        }        
+        }
     }
 
     for(auto const& verilog : database.m_projectSetup.m_verilogFiles)
@@ -90,7 +90,7 @@ void Tasks::ReadAllFiles::execute(GUI::Database &database, ProgressCallback call
         {
             error("Could not parse Verilog file");
             return;
-        }        
+        }
     }
 
     done();

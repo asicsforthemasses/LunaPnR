@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -56,7 +56,7 @@ namespace ChipDB
 
     using CoordType = int64_t;
 
-    /** 64-bit coordinate expressed in nanometers 
+    /** 64-bit coordinate expressed in nanometers
      *  use this for absolute position information
     */
     struct Coord64
@@ -69,28 +69,28 @@ namespace ChipDB
         CoordType m_y;   ///< y coordinate in nanometers
 
         constexpr Coord64& operator+=(const Coord64& rhs) noexcept
-        { 
+        {
             m_x += rhs.m_x;
             m_y += rhs.m_y;
             return *this;
         }
 
         constexpr Coord64& operator-=(const Coord64& rhs) noexcept
-        { 
+        {
             m_x -= rhs.m_x;
             m_y -= rhs.m_y;
             return *this;
         }
 
         [[nodiscard]] constexpr Coord64 operator+(const Coord64& rhs) const noexcept
-        { 
+        {
             return Coord64{m_x + rhs.m_x, m_y + rhs.m_y};
         }
 
         [[nodiscard]] constexpr Coord64 operator-(const Coord64& rhs) const noexcept
         {
             return Coord64{m_x - rhs.m_x, m_y - rhs.m_y};
-        } 
+        }
 
         /** Manhattan/rectilinear length of (0,0) to this point. */
         [[nodiscard]] int64_t manhattanLength() const noexcept
@@ -108,12 +108,12 @@ namespace ChipDB
         constexpr Coord64 operator-() const noexcept
         {
             return Coord64{-m_x, -m_y};
-        } 
+        }
 
         [[nodiscard]]  constexpr bool operator==(const Coord64& other) const noexcept
         {
             return (m_x == other.m_x) && (m_y == other.m_y);
-        }   
+        }
 
         [[nodiscard]] constexpr bool operator!=(const Coord64& other) const noexcept
         {
@@ -143,7 +143,7 @@ namespace ChipDB
             return (m_top == 0) && (m_bottom == 0) && (m_left == 0) && (m_right == 0);
         }
 
-        [[nodiscard]] constexpr auto& top() noexcept { return m_top; } 
+        [[nodiscard]] constexpr auto& top() noexcept { return m_top; }
         [[nodiscard]] constexpr auto& bottom() noexcept { return m_bottom; }
         [[nodiscard]] constexpr auto& left() noexcept { return m_left; }
         [[nodiscard]] constexpr auto& right() noexcept { return m_right; }
@@ -182,14 +182,14 @@ namespace ChipDB
         constexpr void setUR(const Coord64 &p)
         {
             m_ur = p;
-        }    
+        }
 
         constexpr void setLR(const Coord64 &p)
         {
             m_ll.m_y = p.m_y;
             m_ur.m_x = p.m_x;
-        }  
-        
+        }
+
         constexpr void setLeft(const int64_t c)
         {
             m_ll.m_x = c;
@@ -246,7 +246,7 @@ namespace ChipDB
             return Coord64{m_ur.m_x - m_ll.m_x, m_ur.m_y - m_ll.m_y};
         }
 
-        /** return a rectangle that is positioned at the given coordinate 
+        /** return a rectangle that is positioned at the given coordinate
          *  with it´s lower left vertex
         */
         [[nodiscard]] constexpr Rect64 movedTo(const Coord64 &p) const
@@ -255,7 +255,7 @@ namespace ChipDB
             return {p, m_ur + delta};
         }
 
-        /** move the rectangle to the given coordinate 
+        /** move the rectangle to the given coordinate
          *  with it´s lower left vertex.
         */
         constexpr void moveTo(const Coord64 &p) noexcept
@@ -275,7 +275,7 @@ namespace ChipDB
 
         /** move the rectangle by the given offset.
         */
-        [[nodiscard]] Rect64 movedBy(const Coord64 &offset) const 
+        [[nodiscard]] Rect64 movedBy(const Coord64 &offset) const
         {
             return {m_ll + offset, m_ur + offset};
         }
@@ -298,7 +298,7 @@ namespace ChipDB
         constexpr int64_t right() const noexcept
         {
             return m_ur.m_x;
-        }        
+        }
 
         constexpr int64_t top() const noexcept
         {
@@ -308,13 +308,13 @@ namespace ChipDB
         constexpr int64_t bottom() const noexcept
         {
             return m_ll.m_y;
-        } 
+        }
 
         /** return the (lower left vertex) position of the rectangle */
         constexpr Coord64 pos() const noexcept
         {
             return m_ll;
-        }   
+        }
 
         /** return the center coordinate of the rectangle */
         constexpr Coord64 center() const noexcept
@@ -323,28 +323,28 @@ namespace ChipDB
         }
 
         constexpr Rect64& operator+=(const Coord64& rhs) noexcept
-        { 
+        {
             m_ll += rhs;
             m_ur += rhs;
             return *this;
         }
 
         constexpr Rect64& operator-=(const Coord64& rhs) noexcept
-        { 
+        {
             m_ll -= rhs;
             m_ur -= rhs;
             return *this;
         }
 
         constexpr Rect64 operator+(const Coord64& rhs) const noexcept
-        { 
+        {
             return Rect64{m_ll + rhs, m_ur + rhs};
         }
 
         constexpr Rect64 operator-(const Coord64& rhs) const noexcept
-        { 
+        {
             return Rect64{m_ll - rhs, m_ur - rhs};
-        }        
+        }
 
         /** return a rectangle that has been decreased in size by the margins */
         [[nodiscard]] constexpr Rect64 contracted(const Margins64 &margins) const noexcept
@@ -398,7 +398,7 @@ namespace ChipDB
 
             return true;
         }
-        
+
     };
 
 #if 0
@@ -422,7 +422,7 @@ namespace ChipDB
     {
         SymmetryType() : StrEnum() {}
         SymmetryType(const std::string &s) { *this = s; }
-        
+
         // FIXME: these should be flags as some are not mutually exclusive.
         static constexpr std::array<std::pair<int32_t, const char *>, 5> m_options =
         {{

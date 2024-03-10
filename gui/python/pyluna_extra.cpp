@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -53,10 +53,10 @@ static PyObject* pyLoadLayers(PyObject *self, PyObject *args)
         {
             return PyErr_Format(PyExc_RuntimeError, "Error parsing Layers file '%s'", layerFileName);
         }
-        
+
         Py_RETURN_NONE;
     }
-    
+
     return PyErr_Format(PyExc_RuntimeError, "loadLayers requires a filename argument");
 }
 
@@ -68,7 +68,7 @@ static PyObject* pySetLogLevel(PyObject *self, PyObject *args)
     {
         static const std::array<const char*, 2> c_logLevelStr = {"NORMAL","VERBOSE"};
         static const std::array<Logging::LogType, 2> c_logLevelVal = {Logging::LogType::INFO, Logging::LogType::VERBOSE};
-        
+
         std::string upper(level);
         std::transform(upper.begin(), upper.end(), upper.begin(), ::toupper);
 
@@ -85,7 +85,7 @@ static PyObject* pySetLogLevel(PyObject *self, PyObject *args)
 
         return PyErr_Format(PyExc_RuntimeError, "Unknown log level option '%s'", level);
     }
-    
+
     return PyErr_Format(PyExc_RuntimeError, "loadLayers requires a filename argument");
 }
 
@@ -106,7 +106,7 @@ static PyObject* pyAddHatch(PyObject *self, PyObject *args)
         if (hatchPixmap.has_value())
         {
             databasePtr->m_hatchLib.m_hatches.push_back(*hatchPixmap);
-        }        
+        }
         Py_RETURN_NONE;
     }
 
@@ -145,12 +145,12 @@ static PyObject* pyLs(PyObject *self, PyObject *args)
     consolePtr->mtPrint(ss.str());
 
     for (const auto &entry : fs::directory_iterator(fs::current_path()))
-    {        
+    {
         ss.str("");
 
         auto name = entry.path().filename();
         if (entry.is_directory())
-        {            
+        {
             ss << "[" << name << "]" << "\n";
         }
         else
@@ -178,7 +178,7 @@ static bool incRefAndAddObject(PyObject *module, PyTypeObject *typeObj)
     if (PyModule_AddObject(module, typeObj->tp_name, (PyObject *)typeObj) < 0)
     {
         Py_DECREF(typeObj);
-        return false;        
+        return false;
     }
 
     return true;
@@ -194,8 +194,8 @@ static PyMethodDef LunaExtraMethods[] =  // NOLINT(modernize-avoid-c-arrays)
     {nullptr}
 };
 
-static PyModuleDef LunaExtraModule = {  
-    //PyModuleDef_HEAD_INIT,              
+static PyModuleDef LunaExtraModule = {
+    //PyModuleDef_HEAD_INIT,
     .m_base = PyModuleDef_HEAD_INIT,
     .m_name = "LunaExtra",                  // NOLINT(clang-diagnostic-c99-designator)
     .m_doc = "Interfaces with LunaPNR GUI",
@@ -229,7 +229,7 @@ static PyObject* PyInit_LunaExtra()
     return m;
 }
 
-GUI::Python::Python(GUI::Database *db, GUI::MMConsole *console) 
+GUI::Python::Python(GUI::Database *db, GUI::MMConsole *console)
     : Scripting::Python(&db->design()), m_db(db), m_console(console)
 {
 }
@@ -254,7 +254,7 @@ bool GUI::Python::postInitHook()
     }
 
     auto capsule = PyCapsule_New(m_db, "LunaExtra.DatabasePtr", nullptr);
-    
+
     if (PyModule_AddObject(lunaExtraModule, "DatabasePtr", capsule) < 0)
     {
         std::cout << "PyModule_AddObject failed!\n";
@@ -264,13 +264,13 @@ bool GUI::Python::postInitHook()
     if (m_console != nullptr)
     {
         capsule = PyCapsule_New(m_console, "LunaExtra.ConsolePtr", nullptr);
-        
+
         if (PyModule_AddObject(lunaExtraModule, "ConsolePtr", capsule) < 0)
         {
             std::cout << "PyModule_AddObject failed!\n";
             Py_XDECREF(capsule);
         }
     }
-        
+
     return true;
 }

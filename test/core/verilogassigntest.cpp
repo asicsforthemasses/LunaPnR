@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_SUITE(VerilogAssignTest)
 BOOST_AUTO_TEST_CASE(can_read_assign_statements)
 {
     std::cout << "--== VERILOG ASSIGN TEST ==--\n";
-    
+
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_CHECK(leffile.good());
 
@@ -65,10 +65,10 @@ BOOST_AUTO_TEST_CASE(can_read_assign_statements)
             }
             break;
         default:
-            break;            
+            break;
         }
     }
-    
+
     std::cout << "  module has " << mod->m_netlist->m_nets.size() << " nets\n";
     BOOST_CHECK(mod->m_netlist->m_nets.size() == 8);
     for(auto net : mod->m_netlist->m_nets)

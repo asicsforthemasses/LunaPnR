@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -12,7 +12,7 @@ PlacerNodeId NetlistSplitter::copyNodeToNewNetlistAndClearConnections(const Plac
 {
     auto newNodeId = m_newNetlist.createNode();
     m_newNetlist.m_nodes.at(newNodeId) = node;
-    m_newNetlist.m_nodes.at(newNodeId).m_connections.clear();    
+    m_newNetlist.m_nodes.at(newNodeId).m_connections.clear();
 
     return newNodeId;
 }
@@ -23,7 +23,7 @@ PlacerNetId NetlistSplitter::copyNetToNewNetlistAndClearNodes(const PlacerNet &n
     m_newNetlist.m_nets.at(newNetId) = net;
     m_newNetlist.m_nets.at(newNetId).m_nodes.clear();
     return newNetId;
-}    
+}
 
 void NetlistSplitter::addNodeToNet(PlacerNodeId nodeId, PlacerNetId netId)
 {
@@ -49,7 +49,7 @@ PlacerNetlist NetlistSplitter::createNetlistFromSelection(
     Selector &selector,
     ExternalNodeOnNetHandler &externalNodeHandler
     )
-{    
+{
     m_newNetlist.m_nodes.clear();
     m_newNetlist.m_nets.clear();
 
@@ -89,7 +89,7 @@ PlacerNetlist NetlistSplitter::createNetlistFromSelection(
                 // create this net for the new netlist
                 // if it doesn't exist.
                 if (newNetId == -1)
-                {                    
+                {
                     newNetId = copyNetToNewNetlistAndClearNodes(oldNet);
                 }
 
@@ -103,11 +103,11 @@ PlacerNetlist NetlistSplitter::createNetlistFromSelection(
             {
                 // node on net is not part of the selection
                 // we have the opportunity to add special anchor nodes
-                // here to keep a cluster of cells roughy in 
-                // the desired half 
-                
-                externalNodeHandler(nodeInNetId, 
-                    netlist.m_nodes.at(nodeInNetId), 
+                // here to keep a cluster of cells roughy in
+                // the desired half
+
+                externalNodeHandler(nodeInNetId,
+                    netlist.m_nodes.at(nodeInNetId),
                     oldNet,
                     newNetId,
                     m_newNetlist);
@@ -128,7 +128,7 @@ PlacerNetlist NetlistSplitter::createNetlistFromSelection(
 
 void NetlistSplitter::removePreviouslyAddedNode(PlacerNetId netId)
 {
-    // tell the connected node, if there is any, to disconnect 
+    // tell the connected node, if there is any, to disconnect
     auto newNodeId = m_newNetlist.m_nets.back().m_nodes.front();
     auto &newNode = m_newNetlist.m_nodes.at(newNodeId);
 
@@ -141,7 +141,7 @@ void NetlistSplitter::removePreviouslyAddedNode(PlacerNetId netId)
 void NetlistSplitter::removeIfDegenerateNet(PlacerNetId netId)
 {
     auto netSize = m_newNetlist.m_nets.at(netId).m_nodes.size();
-        
+
     if (netSize == 1)
     {
         std::stringstream ss;

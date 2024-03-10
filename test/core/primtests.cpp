@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -13,7 +13,7 @@
 
 BOOST_AUTO_TEST_SUITE(PrimTests)
 
-static const std::string primCheckTree = 
+static const std::string primCheckTree =
 R"(
 65
 0 0 80000 10000 1 43  71600 50000

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -11,7 +11,7 @@ BlockContainerHeader::BlockContainerHeader(BlockContainer *owner, QWidget *paren
     BlockContainerHeader("", owner, parent);
 }
 
-BlockContainerHeader::BlockContainerHeader(const QString &name, BlockContainer *owner, QWidget *parent) 
+BlockContainerHeader::BlockContainerHeader(const QString &name, BlockContainer *owner, QWidget *parent)
     : QFrame(parent), m_owner(owner)
 {
     setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
@@ -26,7 +26,7 @@ BlockContainerHeader::BlockContainerHeader(const QString &name, BlockContainer *
     // create name label
     m_name = new ClickableLabel(name);
     m_hlayout->addWidget(m_name, 1);
-    
+
     setLayout(m_hlayout);
 
     connect(m_foldButton, &FlatToggleButton::toggled, this, &BlockContainerHeader::onFoldButtonToggled);
@@ -69,13 +69,13 @@ BlockContainer::BlockContainer(QWidget *parent) : QWidget(parent)
     //m_vlayout->setMargin(0);
 
     m_header  = new BlockContainerHeader("UNNAMED", this);
-    m_contentFrame = new QFrame();    
+    m_contentFrame = new QFrame();
     m_contentFrame->setFrameStyle(QFrame::Box);
-    
+
     m_contentLayout = new QVBoxLayout();
     m_contentLayout->setSpacing(0);
     //m_contentLayout->setMargin(0);
-    
+
     m_contentFrame->setLayout(m_contentLayout);
     m_contentFrame->setContentsMargins(0,0,0,0);
 

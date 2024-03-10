@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -16,7 +16,7 @@ SelectColorButton::SelectColorButton(QWidget *parent) : m_color(Qt::white)
 
 void SelectColorButton::changeColor()
 {
-    QColor newColor = QColorDialog::getColor(m_color, parentWidget(), 
+    QColor newColor = QColorDialog::getColor(m_color, parentWidget(),
         tr("Select color"), QColorDialog::ShowAlphaChannel | QColorDialog::DontUseNativeDialog);
     if (newColor.isValid() && (newColor != m_color))
     {
@@ -39,7 +39,7 @@ QColor SelectColorButton::getColor() const
 void SelectColorButton::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    
+
     auto r = rect().adjusted(2,2,-2,-2);
 
     painter.setPen(Qt::black);

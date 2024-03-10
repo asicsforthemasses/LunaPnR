@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -28,7 +28,7 @@ void LayerRenderInfo::LayerType::updateColorPixmap()
     {
         QPixmap canvas(m_patternPixmap.size());
         canvas.fill(Qt::transparent);
-        
+
         QPainter painter(&canvas);
         QImage image(m_patternPixmap.toImage().convertToFormat(QImage::Format_Mono));
         image.setColor(0, QColor("#00000000").rgba());
@@ -76,7 +76,7 @@ void LayerRenderInfo::LayerType::read(const QJsonObject &json)
     {
         h = json["height"].toInt();
     }
-    
+
     if (json.contains("pixmap") && json["pixmap"].isString())
     {
         auto str = json["pixmap"].toString();
@@ -131,8 +131,8 @@ void LayerRenderInfo::read(const QJsonObject &json)
 void LayerRenderInfo::write(QJsonObject &json) const
 {
     QJsonArray arr;
-    json["layer"] = QString::fromStdString(m_layerName);    
-    
+    json["layer"] = QString::fromStdString(m_layerName);
+
     for(auto const& t : m_types)
     {
         QJsonObject typeObject;
@@ -167,7 +167,7 @@ bool LayerRenderInfoDB::readJson(const std::string &txt)
             if (!layerOpt.has_value())
             {
                 Logging::doLog(Logging::LogType::ERROR, "Cannot add layer %s to database - already exists!\n", layerObj->name().c_str());
-            }            
+            }
         }
     }
     else
@@ -177,15 +177,15 @@ bool LayerRenderInfoDB::readJson(const std::string &txt)
     }
 
     notifyAll();
-    Logging::doLog(Logging::LogType::VERBOSE,"Loaded %d layers from JSON file\n", m_objects.size());    
+    Logging::doLog(Logging::LogType::VERBOSE,"Loaded %d layers from JSON file\n", m_objects.size());
     return true;
 }
 
 std::string LayerRenderInfoDB::writeJson() const
-{    
+{
     QJsonArray  arr;
     for(auto layer : m_objects)
-    {        
+    {
         QJsonObject obj;
         if (layer.second)
         {
@@ -193,7 +193,7 @@ std::string LayerRenderInfoDB::writeJson() const
             arr.append(obj);
         }
     }
-    
+
     QJsonObject obj;
     obj["layers"] = arr;
 

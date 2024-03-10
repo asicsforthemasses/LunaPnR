@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_SUITE(NETLISTTOOLSTEST)
 BOOST_AUTO_TEST_CASE(check_histogram)
 {
     std::cout << "--== CHECK NETLISTTOOLS HISTOGRAM ==--\n";
-    
+
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_CHECK(leffile.good());
 
@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(check_histogram)
 
     BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
-    // check the design    
+    // check the design
     auto mod = design.m_moduleLib->lookupModule("adder2");
     BOOST_CHECK(mod.isValid());
     BOOST_CHECK(mod->m_netlist);
@@ -53,7 +53,7 @@ BOOST_AUTO_TEST_CASE(check_histogram)
 BOOST_AUTO_TEST_CASE(check_histogram_2)
 {
     std::cout << "--== CHECK NETLISTTOOLS HISTOGRAM 2 ==--\n";
-    
+
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     std::ifstream leffile2("test/files/iit_stdcells_extra/fake_ties018.lef");
     BOOST_CHECK(leffile.good());
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(check_histogram_2)
 
     BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
-    // check the design    
+    // check the design
     auto mod = design.m_moduleLib->lookupModule("FemtoRV32");
     BOOST_CHECK(mod.isValid());
     BOOST_CHECK(mod->m_netlist);
@@ -117,10 +117,10 @@ BOOST_AUTO_TEST_CASE(remove_netcons)
     ChipDB::Design design;
     BOOST_CHECK(ChipDB::Verilog::Reader::load(design, verilogfile));
 
-    // check the design    
+    // check the design
     auto mod = design.m_moduleLib->lookupModule("netcon");
     BOOST_CHECK(mod.isValid());
-    BOOST_CHECK(mod->m_netlist);    
+    BOOST_CHECK(mod->m_netlist);
 
     auto ll = Logging::getLogLevel();
 

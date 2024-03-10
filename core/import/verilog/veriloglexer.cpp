@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -25,7 +25,7 @@ char Lexer::peek() const
     if (atEnd())
         return 0;
 
-    return m_src->at(m_idx);   
+    return m_src->at(m_idx);
 }
 
 
@@ -92,7 +92,7 @@ bool Lexer::execute(const std::string &src, std::vector<token> &tokens)
         {
             token.m_value.clear();
             char c = peek();
-            
+
             // skip white space
             if ((c == ' ') || (c == '\t'))
             {
@@ -107,12 +107,12 @@ bool Lexer::execute(const std::string &src, std::vector<token> &tokens)
             if (isDigit(c))
             {
                 token.m_tok = TOK_INTEGER;
-                token.m_value += c;              
+                token.m_value += c;
                 advance();
                 m_state = S_INTEGER;
                 continue;
             }
-            
+
             // read identifiers
             if (isAlpha(c))
             {
@@ -125,17 +125,17 @@ bool Lexer::execute(const std::string &src, std::vector<token> &tokens)
 
             switch(c)
             {
-            case 10:        
+            case 10:
                 advance();
                 match(13);  // skip additional CR
                 m_col = 1;
-                m_line++;                 
+                m_line++;
                 break;
             case 13:
                 advance();
                 match(10);  // skip additional LF
                 m_col = 1;
-                m_line++;                
+                m_line++;
                 break;
             case '(':
                 advance();
@@ -143,7 +143,7 @@ bool Lexer::execute(const std::string &src, std::vector<token> &tokens)
                 {
                     // start of attribute
                     token.m_tok = TOK_ATTRIBUTE;
-                    m_state = S_ATTRIBUTE;                      
+                    m_state = S_ATTRIBUTE;
                 }
                 else
                 {
@@ -175,38 +175,38 @@ bool Lexer::execute(const std::string &src, std::vector<token> &tokens)
                 token.m_tok = TOK_RCURLY;
                 tokens.push_back(token);
                 advance();
-                break;                 
+                break;
             case '=':
                 token.m_tok = TOK_EQUAL;
                 tokens.push_back(token);
                 advance();
-                break;            
+                break;
             case ',':
                 token.m_tok = TOK_COMMA;
                 tokens.push_back(token);
                 advance();
-                break; 
+                break;
             case '.':
                 token.m_tok = TOK_PERIOD;
                 tokens.push_back(token);
                 advance();
-                break;                 
+                break;
             case ';':
                 token.m_tok = TOK_SEMICOL;
                 tokens.push_back(token);
                 advance();
-                break;        
+                break;
             case ':':
                 token.m_tok = TOK_COLON;
                 tokens.push_back(token);
                 advance();
-                break;  
+                break;
             case '\\':  // start of escaped identifier
                 token.m_tok = TOK_IDENT;
                 token.m_value.clear();
                 advance();
                 m_state = S_ESCAPEDIDENT;
-                break;                                         
+                break;
             case '/':
                 advance();
                 if (match('*'))
@@ -224,10 +224,10 @@ bool Lexer::execute(const std::string &src, std::vector<token> &tokens)
                 }
                 break;
             default:
-                Logging::doLog(Logging::LogType::ERROR,"Skipping %c (%d) on line %d\n", c, 
+                Logging::doLog(Logging::LogType::ERROR,"Skipping %c (%d) on line %d\n", c,
                     static_cast<uint32_t>(c), m_line);
                 advance();
-                break;  
+                break;
             }
         }
         else if (m_state == S_ATTRIBUTE)
@@ -238,7 +238,7 @@ bool Lexer::execute(const std::string &src, std::vector<token> &tokens)
                 {
                     tokens.push_back(token);
                     m_state = S_IDLE;
-                }    
+                }
             }
             else
             {
@@ -271,7 +271,7 @@ bool Lexer::execute(const std::string &src, std::vector<token> &tokens)
             else if (tmpstr == "ENDMODULE")
             {
                 token.m_tok = TOK_ENDMODULE;
-            }            
+            }
             else if (tmpstr == "ASSIGN")
             {
                 token.m_tok = TOK_ASSIGN;
@@ -296,10 +296,10 @@ bool Lexer::execute(const std::string &src, std::vector<token> &tokens)
                 token.m_value += c;
                 advance();
                 c = peek();
-            }            
+            }
             tokens.push_back(token);
-            m_state = S_IDLE;            
-        }     
+            m_state = S_IDLE;
+        }
         else if (m_state == S_INTEGER)
         {
             char c = peek();
@@ -349,7 +349,7 @@ bool Lexer::execute(const std::string &src, std::vector<token> &tokens)
             {
                 // regular integer, so emit!
                 tokens.push_back(token);
-                m_state = S_IDLE;                
+                m_state = S_IDLE;
             }
         }
         else if (m_state == S_HEXINTEGER)

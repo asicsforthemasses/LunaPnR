@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -63,10 +63,10 @@ std::optional<GlobalRouter::TrackInfo> GlobalRouter::Router::calcNumberOfTracks(
     return TrackInfo{hTracks, vTracks};
 }
 
-std::optional<ChipDB::Size64> GlobalRouter::Router::determineGridCellSize(const ChipDB::Design &design, 
+std::optional<ChipDB::Size64> GlobalRouter::Router::determineGridCellSize(const ChipDB::Design &design,
     const std::string &siteName,
     int hRoutes, int vRoutes) const
-{       
+{
     if (design.m_techLib->getNumberOfSites() == 0)
     {
         Logging::doLog(Logging::LogType::ERROR, "determineGridCellSize: no sites defined in tech lib\n");
@@ -84,9 +84,9 @@ std::optional<ChipDB::Size64> GlobalRouter::Router::determineGridCellSize(const 
 
     if ((minStdCellSize.m_x == 0) || (minStdCellSize.m_y == 0))
     {
-        Logging::doLog(Logging::LogType::ERROR,"determineGridCellSize: minimum standard cell size is ill-defined: %ld, %ld\n", 
+        Logging::doLog(Logging::LogType::ERROR,"determineGridCellSize: minimum standard cell size is ill-defined: %ld, %ld\n",
             minStdCellSize.m_x, minStdCellSize.m_y);
-        return std::nullopt;        
+        return std::nullopt;
     }
 
     auto const& layers = design.m_techLib->layers();
@@ -117,7 +117,7 @@ std::optional<ChipDB::Size64> GlobalRouter::Router::determineGridCellSize(const 
     if ((hRoutesInMinCell <= 0.0) || (vRoutesInMinCell <= 0.0))
     {
         Logging::doLog(Logging::LogType::ERROR, "determineGridCellSize: routes per minimum standard cell: h=%f v=%f are ill-defined.\n",
-            hRoutesInMinCell, vRoutesInMinCell);        
+            hRoutesInMinCell, vRoutesInMinCell);
         return std::nullopt;
     }
     else
@@ -158,9 +158,9 @@ std::optional<LunaCore::GlobalRouter::SegmentList> GlobalRouter::Router::routeTw
         Logging::doLog(Logging::LogType::VERBOSE, "GlobalRouter::Router::routeSegment loc1 (%lu,%lu) is invalid\n",
             sourceLoc.m_x, sourceLoc.m_y);
         return std::nullopt;
-    } 
+    }
 
-    if (!m_grid->isValidGridCoord(targetLoc)) 
+    if (!m_grid->isValidGridCoord(targetLoc))
     {
         Logging::doLog(Logging::LogType::VERBOSE, "GlobalRouter::Router::routeSegment loc2 (%lu,%lu) is invalid\n",
             targetLoc.m_x, targetLoc.m_y);
@@ -218,7 +218,7 @@ std::optional<LunaCore::GlobalRouter::SegmentList> GlobalRouter::Router::routeTw
         if (cellCost <= minCostItem.m_pathCost)
         {
             //std::cout << "skipped\n";
-            continue;            
+            continue;
         }
 
         m_grid->at(minCostPos).setPredecessor(minCostItem.m_pred);
@@ -268,7 +268,7 @@ std::optional<LunaCore::GlobalRouter::SegmentList> GlobalRouter::Router::routeTw
                 // if so, create a new segment
                 if (gridCell.getPredecessor() != directionToPredecessor(curSegment->m_dir))
                 {
-                    curSegment = segments.createNewSegment(backtrackPos, 
+                    curSegment = segments.createNewSegment(backtrackPos,
                         predecessorToDirection(gridCell.getPredecessor()), curSegment);
                 }
 
@@ -288,13 +288,13 @@ std::optional<LunaCore::GlobalRouter::SegmentList> GlobalRouter::Router::routeTw
                     break;
                 case GlobalRouter::Predecessor::North:
                     backtrackPos = north(backtrackPos);
-                    break;                    
+                    break;
                 case GlobalRouter::Predecessor::South:
                     backtrackPos = south(backtrackPos);
-                    break; 
+                    break;
                 default:
                     doBacktrack = false;
-                    break;                                       
+                    break;
                 };
             }
         }
@@ -302,7 +302,7 @@ std::optional<LunaCore::GlobalRouter::SegmentList> GlobalRouter::Router::routeTw
         {
             // ******************************************************************************************
             // ** NORTH/SOUTH **
-            // ******************************************************************************************        
+            // ******************************************************************************************
 
             auto northPos = north(minCostPos);
             if (m_grid->isValidGridCoord(northPos))
@@ -322,7 +322,7 @@ std::optional<LunaCore::GlobalRouter::SegmentList> GlobalRouter::Router::routeTw
 
             // ******************************************************************************************
             // ** EAST/WEST **
-            // ******************************************************************************************        
+            // ******************************************************************************************
 
             auto eastPos = east(minCostPos);
             if (m_grid->isValidGridCoord(eastPos))
@@ -341,12 +341,12 @@ std::optional<LunaCore::GlobalRouter::SegmentList> GlobalRouter::Router::routeTw
             }
         }
     }
-    
+
     return std::nullopt; // error
 }
 
 bool GlobalRouter::Router::addWavefrontCell(
-    Wavefront &wavefront, 
+    Wavefront &wavefront,
     const GCellCoord &pos,
     PathCostType newCost,
     Predecessor pred)
@@ -449,10 +449,10 @@ std::optional<LunaCore::GlobalRouter::SegmentList> GlobalRouter::Router::routeNe
         {
             auto p2 = edge.m_pos;
             auto segments = routeTwoPointRoute(p1,p2);
-            
-            if (!segments) 
+
+            if (!segments)
             {
-                Logging::doLog(Logging::LogType::ERROR,"GlobalRouter::Router::routeNet could not complete route %s (%lu nodes)\n", 
+                Logging::doLog(Logging::LogType::ERROR,"GlobalRouter::Router::routeNet could not complete route %s (%lu nodes)\n",
                     netName.c_str(), netNodes.size());
                 return std::nullopt;
             }
@@ -487,7 +487,7 @@ void GlobalRouter::Router::setBlockage(const ChipDB::Coord64 &p)
 
 void GlobalRouter::Router::updateCapacity(const SegmentList &segments) const
 {
-    if (!m_grid) 
+    if (!m_grid)
     {
         Logging::doLog(Logging::LogType::ERROR, "GlobalRouter::Router::updateCapacity grid is nullptr - createGrid wasn't called.\n");
     }
@@ -517,7 +517,7 @@ void GlobalRouter::Router::updateCapacity(const SegmentList &segments) const
             {
                 m_grid->at(gridCoord).setExtracted();
                 m_grid->at(gridCoord).m_capacity++;
-            } 
+            }
 
             cellCount--;
 
@@ -531,7 +531,7 @@ void GlobalRouter::Router::updateCapacity(const SegmentList &segments) const
                 break;
             case Direction::North:
                 gridCoord = north(gridCoord);
-                break;            
+                break;
             case Direction::South:
                 gridCoord = south(gridCoord);
                 break;

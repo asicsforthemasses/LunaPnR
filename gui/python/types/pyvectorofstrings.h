@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -34,7 +34,7 @@ struct PyVectorOfStringsIterator
         if (!m_vector)
         {
             return iterator();
-        }        
+        }
         return m_vector->begin();
     }
 };
@@ -54,7 +54,7 @@ struct PyVectorOfStrings : public Python::TypeTemplate<PyVectorOfStringsIterator
 
             int index = 0;
             if (PyArg_ParseTuple(args,"i", &index))
-            {   
+            {
                 auto vecPtr = self->obj()->m_vector;
                 if ((vecPtr == nullptr) || (vecPtr->size() <= index))
                 {
@@ -67,9 +67,9 @@ struct PyVectorOfStrings : public Python::TypeTemplate<PyVectorOfStringsIterator
             PyErr_Format(PyExc_ValueError, "at requires an index as argument");
             return nullptr;
         }
-        
+
         PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
-        return nullptr;         
+        return nullptr;
     }
 
     static PyObject* pyIter(PyVectorOfStrings *self)

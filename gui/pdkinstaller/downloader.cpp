@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -12,7 +12,7 @@ Downloader::Downloader(QObject *parent) : QObject(parent)
 {
     m_webCtrl.setTransferTimeout(30000);
 
-    connect(&m_webCtrl, &QNetworkAccessManager::finished, 
+    connect(&m_webCtrl, &QNetworkAccessManager::finished,
         this, &Downloader::onFileDownloaded);
 }
 
@@ -34,7 +34,7 @@ void Downloader::startDownload(const DownloadItem &item)
     auto &dlItem = m_queue.front();
 
     m_currentFile.setFileName(dlItem.m_filename);
-    
+
     if (!m_currentFile.open(QIODevice::WriteOnly))
     {
         QString err = "Cannot open ";
@@ -49,7 +49,7 @@ void Downloader::startDownload(const DownloadItem &item)
     QNetworkRequest request(item.m_url);
     m_reply = m_webCtrl.get(request);
 
-    connect(m_reply, &QNetworkReply::downloadProgress, this, 
+    connect(m_reply, &QNetworkReply::downloadProgress, this,
         &Downloader::onDownloadProgress);
 
     connect(m_reply, &QNetworkReply::readyRead, this, &Downloader::onReadReady);
@@ -72,7 +72,7 @@ void Downloader::onFileDownloaded(QNetworkReply *reply)
 {
     auto dlItem = m_queue.front();
     m_queue.pop_front();
-    
+
     if (m_currentFile.isOpen())
     {
         m_currentFile.close();
@@ -86,7 +86,7 @@ void Downloader::onFileDownloaded(QNetworkReply *reply)
     {
         emit error(reply->errorString());
     }
-    
+
     reply->deleteLater();
     m_reply = nullptr;
 

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -27,7 +27,7 @@ class PopupListWidget : public QListWidget
     Q_OBJECT
 
 public:
-    PopupListWidget(QWidget *parent = 0): QListWidget(parent) 
+    PopupListWidget(QWidget *parent = 0): QListWidget(parent)
     {
         setUniformItemSizes(true);
         setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -50,9 +50,9 @@ public:
     virtual ~PopupCompleter();
 
 public:
-    QString selected() 
-    { 
-        return m_selected; 
+    QString selected()
+    {
+        return m_selected;
     }
 
     int exec(SingleLineEdit*);
@@ -69,13 +69,13 @@ public:
 };
 
 class SingleLineEdit : public QLineEdit
-{   
+{
     Q_OBJECT
 public:
     SingleLineEdit(QWidget *parent = nullptr);
 
     void    reset();
-    QString getCurrentCommand() const;        
+    QString getCurrentCommand() const;
     QRect   getCursorRect() const;
 
 signals:

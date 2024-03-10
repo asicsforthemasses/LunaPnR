@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -93,20 +93,20 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
     if (match(10))
     {
         m_lineNum++;
-        m_col = 1;        
+        m_col = 1;
         match(13);
         return TOK_EOL;
     }
     else if (match(13))
     {
         m_lineNum++;
-        m_col = 1;        
+        m_col = 1;
         match(10);
         return TOK_EOL;
     }
 
     // check for line comment
-    if (match('/'))    
+    if (match('/'))
     {
         if (match('*'))
         {
@@ -120,14 +120,14 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
                 if (match(10))
                 {
                     m_lineNum++;
-                    m_col = 1;        
+                    m_col = 1;
                     match(13);
                 }
                 else if (match(13))
                 {
                     m_lineNum++;
-                    m_col = 1;        
-                    match(10);                
+                    m_col = 1;
+                    match(10);
                 }
                 else if (match('*'))
                 {
@@ -148,32 +148,32 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
 
     if (match('\\'))
     {
-        return TOK_BSLASH; 
+        return TOK_BSLASH;
     }
 
     if (match(';'))
     {
-        return TOK_SEMICOL; 
+        return TOK_SEMICOL;
     }
 
     if (match(':'))
     {
-        return TOK_COLON; 
+        return TOK_COLON;
     }
 
     if (match(','))
     {
-        return TOK_COMMA; 
+        return TOK_COMMA;
     }
 
     if (match('*'))
     {
-        return TOK_STAR; 
+        return TOK_STAR;
     }
 
     if (match('+'))
     {
-        return TOK_PLUS; 
+        return TOK_PLUS;
     }
 
     if (match('{'))
@@ -219,7 +219,7 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
             // it is indeed a number!
             c = peek();
             while(isDigit(c) || (c == '.') || (c == 'e'))
-            {                
+            {
                 tokstr += c;
                 advance();
                 c = peek();
@@ -229,7 +229,7 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
             // some letters
             //c = peek();
             //while(isAlphaNumeric(c))
-            //{                
+            //{
             //    tokstr += c;
             //    advance();
             //    c = peek();
@@ -244,11 +244,11 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
     if (isAlpha(peek()))
     {
         tokstr = peek();
-        
+
         advance();
         char c = peek();
         while(isExtendedAlphaNumeric(c))
-        {            
+        {
             tokstr += c;
             advance();
             c = peek();
@@ -290,8 +290,8 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
                     {
                         advance();
                         c = peek();
-                    }                    
-                }                
+                    }
+                }
             }
             else
             {
@@ -305,10 +305,10 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
                     return TOK_ERR;
                 }
             }
-            
+
             tokstr += c;
             lastCharWasBackslash = (c == '\\');
-            advance();            
+            advance();
             c = peek();
         }
 
@@ -334,13 +334,13 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
     if (isDigit(peek()))
     {
         tokstr = peek();
-        
+
         advance();
         char c = peek();
 
         //FIXME: overly relaxed float parsing.
         while(isDigit(c) || (c == '.') || (c == 'e') || (c == '+') || (c == '-'))
-        {            
+        {
             tokstr += c;
             advance();
             c = peek();
@@ -365,12 +365,12 @@ bool Parser::parse(const std::string &libertyString)
     m_idx = 0;
     m_col = 1;
     m_lineNum = 1;
-    
+
     m_tokstr.clear();
-    
+
     m_curtok = TOK_EOF;
     do
-    {   
+    {
         advanceToken();
         if (peekToken() == TOK_ERR)
         {
@@ -378,7 +378,7 @@ bool Parser::parse(const std::string &libertyString)
             error("");
             return false;
         }
- 
+
         parseStatement();
 
         // try to see if we have a DEFINE, ATTRIBUTE or GROUP
@@ -387,14 +387,14 @@ bool Parser::parse(const std::string &libertyString)
     } while(m_curtok != TOK_EOF);
 
     onEndParse();
- 
+
     return true;
 }
 
 void Parser::error(const std::string &errstr)
 {
     std::stringstream ss;
-    ss << "Line " << m_lineNum << " col " << m_col << " : " << errstr << "\n"; 
+    ss << "Line " << m_lineNum << " col " << m_col << " : " << errstr << "\n";
     ss << "      tok = " << m_tokstr << " id=" << m_curtok << "\n";
     Logging::doLog(Logging::LogType::ERROR, ss.str());
 }
@@ -456,7 +456,7 @@ bool Parser::parseList(std::vector<std::string> &list)
         {
             error("Expected EOL after line continuation marker.");
         }
-    } 
+    }
 
     // a parameter can be an identifier, a string, or a number
 
@@ -477,7 +477,7 @@ bool Parser::parseList(std::vector<std::string> &list)
         {
             error("Expected EOL after line continuation marker.");
         }
-    } 
+    }
 
     while(acceptToken(TOK_COMMA))
     {
@@ -487,13 +487,13 @@ bool Parser::parseList(std::vector<std::string> &list)
             {
                 error("Expected EOL after line continuation marker.");
             }
-        } 
+        }
 
         value = m_tokstr;
         if (acceptToken(TOK_IDENT) || acceptToken(TOK_STRING) || acceptToken(TOK_NUMBER))
         {
             list.push_back(value);
-        }        
+        }
         else
         {
             error("Exected an identifier, string or number in list\n");
@@ -550,9 +550,9 @@ bool Parser::parseGroupOrComplexAttribute(const std::string &group)
             // eat EOL here because the RCURLY is often on
             // a new line
             while(acceptToken(TOK_EOL)) {}
-            
+
             if (acceptToken(TOK_RCURLY))
-            {                    
+            {
                 onEndGroup();
                 return true;
             }
@@ -577,7 +577,7 @@ bool Parser::parseGroupOrComplexAttribute(const std::string &group)
         {
             // complex attribute
             onComplexAttribute(group, params);
-            return true;            
+            return true;
         }
 
         // check for closing ';'
@@ -614,7 +614,7 @@ bool Parser::parseSimpleAttribute(const std::string &name)
     //
     // I've seen expressions as 'values', such as "0.3 * VDD"
     // so we'll also have to accept that.. :-/
-    // 
+    //
 
     constexpr std::array<token_t, 7> matchList =
         {TOK_IDENT, TOK_STRING, TOK_NUMBER, TOK_SLASH, TOK_STAR, TOK_MINUS, TOK_PLUS};
@@ -623,7 +623,7 @@ bool Parser::parseSimpleAttribute(const std::string &name)
     size_t itemCount = 0;
     while(std::find(matchList.begin(), matchList.end(), m_curtok) != matchList.end())
     //while(isSimpleValueToken(m_curtok))
-    {   
+    {
         value += m_tokstr;
         itemCount++;
         advanceToken();
@@ -637,7 +637,7 @@ bool Parser::parseSimpleAttribute(const std::string &name)
     if (m_curtok == TOK_EOL)
     {
         onSimpleAttribute(name, value);
-        return true;        
+        return true;
     }
 
     // check for closing ';'
@@ -647,7 +647,7 @@ bool Parser::parseSimpleAttribute(const std::string &name)
     }
 
     onSimpleAttribute(name, value);
-    return true;    
+    return true;
 }
 
 bool Parser::parseDefine()

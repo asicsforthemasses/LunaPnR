@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(various_interval_tests)
     BOOST_CHECK(!I1.contains(9));
 
     BOOST_CHECK(I1.overlap({7,20}));
-    BOOST_CHECK(I1.overlap({7,40})); 
+    BOOST_CHECK(I1.overlap({7,40}));
     BOOST_CHECK(I1.overlap({12,18}));
     BOOST_CHECK(!I1.overlap({21,28}));
     BOOST_CHECK(!I1.overlap({1,3}));
@@ -42,7 +42,7 @@ BOOST_AUTO_TEST_CASE(various_interval_tests)
     BOOST_CHECK(c1.x2 == 18);
 };
 
-bool checkIntervals(const ChipDB::IntervalList &list, 
+bool checkIntervals(const ChipDB::IntervalList &list,
     const std::vector<ChipDB::Interval> &check)
 {
     if (list.size() != check.size()) return false;
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(various_interval_list_tests)
     BOOST_CHECK(checkIntervals(myIntervals, check));
 
     myIntervals.addInterval({40,50});
-    
+
     const std::vector<ChipDB::Interval> check2 =
     {
         {1,5},{10,20},{30,50}
@@ -92,7 +92,7 @@ BOOST_AUTO_TEST_CASE(various_interval_list_tests)
     BOOST_CHECK(checkIntervals(myIntervals, check2));
 
     myIntervals.addInterval({0,100});
-    
+
     const std::vector<ChipDB::Interval> check3 =
     {
         {0,100}
@@ -102,7 +102,7 @@ BOOST_AUTO_TEST_CASE(various_interval_list_tests)
 
     myIntervals.clear();
     BOOST_CHECK(myIntervals.size() == 0);
-    
+
     myIntervals.addInterval({10,20});
     myIntervals.addInterval({30,40});
     myIntervals.addInterval({50,60});

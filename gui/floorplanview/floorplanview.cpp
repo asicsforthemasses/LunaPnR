@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -15,10 +15,10 @@ using namespace GUI;
 constexpr const QPointF toScreen(const ChipDB::Coord64 &p, const QRectF &viewport,
     const QSizeF &screenSize)
 {
-    // going from floorplan coordinate system to 
+    // going from floorplan coordinate system to
     // widget screen space
 
-    //const double cw = 100000.0; // floorplan view width 
+    //const double cw = 100000.0; // floorplan view width
     //const double ch = 100000.0; // floorplan view height
     //const double ox = 0.0;      // floorplan view origin x
     //const double oy = 0.0;      // floorplan view origin y
@@ -56,7 +56,7 @@ constexpr const ChipDB::Coord64 deltaFromScreen(const QPointF &screenp1, const Q
 }
 #endif
 
-FloorplanView::FloorplanView(QWidget *parent) : QWidget(parent), m_db(nullptr), 
+FloorplanView::FloorplanView(QWidget *parent) : QWidget(parent), m_db(nullptr),
     m_mouseState(MouseState::None),
     m_crosshairEnabled(true)
 {
@@ -87,14 +87,14 @@ FloorplanView::~FloorplanView()
 
 QSize FloorplanView::sizeHint() const
 {
-    return QWidget::sizeHint();    
+    return QWidget::sizeHint();
 }
 
 void FloorplanView::resizeEvent(QResizeEvent *event)
 {
     m_viewPort.setScreenRect(rect());
 
-#if 0    
+#if 0
     if (width() > height())
     {
         m_viewPort.setScreenRect(rect());
@@ -126,7 +126,7 @@ void FloorplanView::mouseReleaseEvent(QMouseEvent *event)
 {
     if (m_mouseState == MouseState::Dragging)
     {
-            auto deltaInChipCoordinates = m_viewPort.toViewport(event->pos()) 
+            auto deltaInChipCoordinates = m_viewPort.toViewport(event->pos())
                 - m_viewPort.toViewport(m_mouseDownPos);
 
             m_viewPort.setViewportRect(m_viewPortRef - deltaInChipCoordinates);
@@ -143,7 +143,7 @@ void FloorplanView::mouseMoveEvent(QMouseEvent *event)
     {
     case MouseState::Dragging:
         {
-            auto deltaInChipCoordinates = m_viewPort.toViewport(event->pos()) 
+            auto deltaInChipCoordinates = m_viewPort.toViewport(event->pos())
                 - m_viewPort.toViewport(m_mouseDownPos);
 
             m_viewPort.setViewportRect(m_viewPortRef - deltaInChipCoordinates);
@@ -171,8 +171,8 @@ void FloorplanView::wheelEvent(QWheelEvent *event)
     auto mousePosInViewport = m_viewPort.toViewport(mousePos);
 
     auto tmpViewPortRect = m_viewPort.getViewportRect();
-    
-    if (!numPixels.isNull()) 
+
+    if (!numPixels.isNull())
     {
         // FIXME: zoom in then zoom out should lead to the same extents
         //        right now this isn't the case due to rounding.
@@ -184,9 +184,9 @@ void FloorplanView::wheelEvent(QWheelEvent *event)
         tmpViewPortRect -= mousePosInViewport;
         if (numPixels.ry() > 0)
         {
-            tmpViewPortRect.m_ll = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ll.m_x * 1.1), 
+            tmpViewPortRect.m_ll = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ll.m_x * 1.1),
                 static_cast<int64_t>(tmpViewPortRect.m_ll.m_y * 1.1)};
-            tmpViewPortRect.m_ur = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ur.m_x * 1.1), 
+            tmpViewPortRect.m_ur = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ur.m_x * 1.1),
                 static_cast<int64_t>(tmpViewPortRect.m_ur.m_y * 1.1)};
             tmpViewPortRect += mousePosInViewport;
             m_viewPort.setViewportRect(tmpViewPortRect);
@@ -194,34 +194,34 @@ void FloorplanView::wheelEvent(QWheelEvent *event)
         }
         else
         {
-            tmpViewPortRect.m_ll = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ll.m_x / 1.1), 
+            tmpViewPortRect.m_ll = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ll.m_x / 1.1),
                 static_cast<int64_t>(tmpViewPortRect.m_ll.m_y / 1.1)};
-            tmpViewPortRect.m_ur = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ur.m_x / 1.1), 
+            tmpViewPortRect.m_ur = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ur.m_x / 1.1),
                 static_cast<int64_t>(tmpViewPortRect.m_ur.m_y / 1.1)};
             tmpViewPortRect += mousePosInViewport;
             m_viewPort.setViewportRect(tmpViewPortRect);
             update();
         }
-    } 
-    else if (!numDegrees.isNull()) 
+    }
+    else if (!numDegrees.isNull())
     {
         tmpViewPortRect -= mousePosInViewport;
         QPoint numSteps = numDegrees / 15;
         if (numSteps.ry() > 0)
         {
-            tmpViewPortRect.m_ll = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ll.m_x * 1.1), 
+            tmpViewPortRect.m_ll = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ll.m_x * 1.1),
                 static_cast<int64_t>(tmpViewPortRect.m_ll.m_y * 1.1)};
-            tmpViewPortRect.m_ur = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ur.m_x * 1.1), 
+            tmpViewPortRect.m_ur = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ur.m_x * 1.1),
                 static_cast<int64_t>(tmpViewPortRect.m_ur.m_y * 1.1)};
             tmpViewPortRect += mousePosInViewport;
-            m_viewPort.setViewportRect(tmpViewPortRect);           
+            m_viewPort.setViewportRect(tmpViewPortRect);
             update();
         }
         else
         {
-            tmpViewPortRect.m_ll = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ll.m_x / 1.1), 
+            tmpViewPortRect.m_ll = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ll.m_x / 1.1),
                 static_cast<int64_t>(tmpViewPortRect.m_ll.m_y / 1.1)};
-            tmpViewPortRect.m_ur = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ur.m_x / 1.1), 
+            tmpViewPortRect.m_ur = ChipDB::Coord64{static_cast<int64_t>(tmpViewPortRect.m_ur.m_x / 1.1),
                 static_cast<int64_t>(tmpViewPortRect.m_ur.m_y / 1.1)};
             tmpViewPortRect += mousePosInViewport;
             m_viewPort.setViewportRect(tmpViewPortRect);
@@ -229,7 +229,7 @@ void FloorplanView::wheelEvent(QWheelEvent *event)
         }
     }
 
-    event->accept();    
+    event->accept();
 }
 
 void FloorplanView::paintEvent(QPaintEvent *event)
@@ -270,10 +270,10 @@ void FloorplanView::paintEvent(QPaintEvent *event)
     painter.setBrush(Qt::NoBrush);
     painter.setPen(Qt::darkGray);
     for(auto const ins : m_netlist->m_instances)
-    {   
+    {
         drawInstance(painter, ins);
     }
-#endif    
+#endif
 }
 
 void FloorplanView::leaveEvent(QEvent *event)
@@ -299,7 +299,7 @@ void FloorplanView::drawRegions(QPainter &p)
     {
         auto regionRect     = m_viewPort.toScreen(region->m_rect);
         auto placementRect  = m_viewPort.toScreen(region->getPlacementRect());
-        
+
         // draw outer region (with halo)
         if (!region->m_halo.isNull())
         {
@@ -321,7 +321,7 @@ void FloorplanView::drawRows(QPainter &p, const std::shared_ptr<ChipDB::Region> 
 
     p.setBrush(Qt::NoBrush);
     p.setPen(rowColor);
-    
+
     for(auto const& row : region->m_rows)
     {
         auto rowRect = m_viewPort.toScreen(row.m_rect);
@@ -330,7 +330,7 @@ void FloorplanView::drawRows(QPainter &p, const std::shared_ptr<ChipDB::Region> 
 }
 
 void FloorplanView::drawCell(QPainter &p, const std::shared_ptr<ChipDB::Instance> ins)
-{    
+{
     QRectF cellRect;
     cellRect.setBottomLeft(m_viewPort.toScreen(ins->m_pos));
     cellRect.setTopRight(m_viewPort.toScreen(ins->m_pos + ins->instanceSize() ));
@@ -358,10 +358,10 @@ void FloorplanView::drawCell(QPainter &p, const std::shared_ptr<ChipDB::Instance
             auto p1 = cellRect.topLeft() + QPointF{0, cellRect.height() / 2};
             auto p2 = cellRect.topLeft() + QPointF{cellRect.width() / 2, 0};
             p.drawLine(p1, p2);
-        }            
+        }
         break;
     default:
-        break;            
+        break;
     }
 
     // check if there is enough room to display the cell type
@@ -416,7 +416,7 @@ void FloorplanView::drawNet(QPainter &p, const std::shared_ptr<ChipDB::Net> net)
     }
 
     if (!net->m_isClockNet) return;
-    
+
     auto topModule = m_db->design().getTopModule();
 
     p.setPen(QColor("#FFFFFF20"));  // transparent white
@@ -448,7 +448,7 @@ void FloorplanView::drawNet(QPainter &p, const std::shared_ptr<ChipDB::Net> net)
         if (insKey == driverKey) continue;
 
         auto insPtr = topModule->m_netlist->lookupInstance(insKey);
-        if ((insPtr->m_placementInfo == ChipDB::PlacementInfo::PLACED) || 
+        if ((insPtr->m_placementInfo == ChipDB::PlacementInfo::PLACED) ||
             (insPtr->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED))
         {
             auto s = insPtr->instanceSize();
@@ -477,7 +477,7 @@ void FloorplanView::drawNets(QPainter &p)
         {
             drawNet(p, net.ptr());
         }
-    }    
+    }
 }
 
 void FloorplanView::drawInstances(QPainter &p)
@@ -510,7 +510,7 @@ void FloorplanView::drawInstances(QPainter &p)
                 drawCell(p, ins.ptr());
                 break;
             default:
-                break;         
+                break;
             }
         }
     }
@@ -615,7 +615,7 @@ void FloorplanView::drawLeftRuler(QPainter &p)
         // adjust size of bounding box because somehow the text
         // doesn't quite fit (linux at least.. )
         txtBoundingRect.adjust(-5,-2,5,2);
-        
+
         QTransform t;
         //t.translate(txtBoundingRect.width()/2, screen_tick.y());
         t.translate(0, screen_tick.y() - txtBoundingRect.width()/2);

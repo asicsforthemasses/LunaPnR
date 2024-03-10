@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -76,7 +76,7 @@ public:
 BOOST_AUTO_TEST_CASE(can_parse_netlist)
 {
     std::cout << "--== VERILOG PARSER ==--\n";
-    
+
     std::ifstream verilogfile("test/files/verilog/adder2.v");
     BOOST_CHECK(verilogfile.good());
 

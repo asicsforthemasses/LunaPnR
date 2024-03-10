@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -34,7 +34,7 @@ bool createStringOfInstancesConnectingTwoTerminals(ChipDB::Design &design, std::
     auto insCell   = design.m_cellLib->createCell("InsCell");
     auto inInsPin   = insCell->m_pins.createPin("in");
     auto outInsPin  = insCell->m_pins.createPin("out");
-    
+
     inInsPin->m_iotype  = ChipDB::IOType::INPUT;
     outInsPin->m_iotype = ChipDB::IOType::OUTPUT;
 
@@ -71,7 +71,7 @@ bool createStringOfInstancesConnectingTwoTerminals(ChipDB::Design &design, std::
         if (!pin2.isValid())
         {
             return false;
-        }        
+        }
 
         if (pin1.m_pinInfo->m_iotype != ChipDB::IOType::INPUT)
         {
@@ -81,7 +81,7 @@ bool createStringOfInstancesConnectingTwoTerminals(ChipDB::Design &design, std::
         if (pin2.m_pinInfo->m_iotype != ChipDB::IOType::OUTPUT)
         {
             return false;
-        }        
+        }
     }
 
     std::vector<std::string> netNames;
@@ -117,7 +117,7 @@ bool createStringOfInstancesConnectingTwoTerminals(ChipDB::Design &design, std::
     if (!mod->m_netlist->connect("dst", "in", "n6"))
     {
         return false;
-    }    
+    }
 
     return true;
 }
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE(check_qla_netlist_placement)
     // check that all movable nodes are inside the rectangle
     for(auto ins : mod->m_netlist->m_instances)
     {
-        auto placed = (ins->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED) || 
+        auto placed = (ins->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED) ||
             (ins->m_placementInfo == ChipDB::PlacementInfo::PLACED);
 
         BOOST_CHECK(placed);

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -29,7 +29,7 @@ void SelectHatchButton::changeHatch()
         {
             setHatch(hatchLib.m_hatches.at(index));
             emit onHatchChanged();
-        }        
+        }
     }
 }
 #endif
@@ -48,7 +48,7 @@ QPixmap SelectHatchButton::getHatch() const
 void SelectHatchButton::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    
+
     auto r = rect().adjusted(2,2,-2,-2);
 
     painter.setPen(Qt::black);

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -23,7 +23,7 @@ class PropertyView : public QWidget
 public:
     explicit PropertyView(QWidget *parent = nullptr);
     virtual ~PropertyView();
-    
+
     void setPropertyModel(PropertyModelInterface *model)
     {
         m_model = model;

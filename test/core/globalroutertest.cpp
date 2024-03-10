@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -107,7 +107,7 @@ BOOST_AUTO_TEST_CASE(global_router_cell_size2)
     ChipDB::Design design;
     BOOST_REQUIRE(ChipDB::LEF::Reader::load(design, leffile));
 
-    BOOST_REQUIRE(design.m_techLib->getNumberOfSites() > 0);    
+    BOOST_REQUIRE(design.m_techLib->getNumberOfSites() > 0);
 
     Logging::doLog(Logging::LogType::INFO,"Found the following Nangate sites:\n");
     for(auto site : design.m_techLib->sites())
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_simple)
     router.createGrid(100,100,{1,1}, 100);
     BOOST_REQUIRE(router.grid() != nullptr);
     auto result = router.routeTwoPointRoute({49,0},{49,49});
-    
+
     BOOST_CHECK(result);
 
     auto route1bm = router.grid()->generateBitmap();
@@ -188,7 +188,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_simple)
     LunaCore::PPM::write("test/files/results/route2.ppm", route2bm);
 
     BOOST_CHECK(Helpers::compareBitmapToPPM("test/files/ppm/route2.ppm", route2bm));
-    
+
     // check that a simple vertical route will go around
     // a blocked part of the grid
 
@@ -220,7 +220,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex)
     BOOST_REQUIRE(netNodes.size() == 65);
 
     auto tree = LunaCore::Prim::prim(netNodes);
-    BOOST_CHECK(tree.size() == 65);    
+    BOOST_CHECK(tree.size() == 65);
 
     auto logLevel = Logging::getLogLevel();
     Logging::setLogLevel(Logging::LogType::VERBOSE);
@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex2)
     BOOST_REQUIRE(segmentList);
 
     // check that all the tree segments
-    // have a parent except the first four    
+    // have a parent except the first four
     bool regularNode = false;
     std::size_t segCounter = 0;
     ChipDB::Coord64 startPos{0,0};
@@ -337,7 +337,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex2)
         }
     }
 
-    // check that we found at least one cell of capacity == 1    
+    // check that we found at least one cell of capacity == 1
     BOOST_CHECK(foundCellWithCapacityOne);
 
     // generate a bitmap using the returned segments and compare the output
@@ -346,7 +346,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex2)
     for(const auto seg : segmentList.value())
     {
         BOOST_REQUIRE(seg != nullptr);
-        
+
         auto pos = seg->m_start;
         auto count = seg->m_length;
         while(count > 0)
@@ -360,13 +360,13 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex2)
                 break;
             case LunaCore::GlobalRouter::Direction::West:
                 pos.m_x++;
-                break;   
+                break;
             case LunaCore::GlobalRouter::Direction::North:
                 pos.m_y++;
-                break;                                
+                break;
             case LunaCore::GlobalRouter::Direction::South:
                 pos.m_y--;
-                break;                  
+                break;
             }
         }
     }
@@ -408,7 +408,7 @@ BOOST_AUTO_TEST_CASE(global_router_test_complex2)
 BOOST_AUTO_TEST_CASE(global_router_parallel_routes)
 {
     std::cout << "--== CHECK GLOBAL ROUTER (parallel routes) ==--\n";
-    
+
     TestableRouter router;
     router.createGrid(100,100,{1,1}, 100);
     BOOST_REQUIRE(router.grid() != nullptr);

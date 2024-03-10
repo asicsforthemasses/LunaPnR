@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -58,7 +58,7 @@ inline bool compareBitmapToPPM(const std::string &filename, const LunaCore::PPM:
         }
     }
 
-    return (bm->m_width == bitmap.m_width) && (bm->m_height == bitmap.m_height) && 
+    return (bm->m_width == bitmap.m_width) && (bm->m_height == bitmap.m_height) &&
         (bm->m_data == bitmap.m_data);
 }
 
@@ -90,7 +90,7 @@ inline std::optional<LunaCore::PPM::Bitmap> createDiffBitmap(const LunaCore::PPM
         }
         else
         {
-            diff.m_data.at(offset) = LunaCore::PPM::RGB{255,255,255,0};            
+            diff.m_data.at(offset) = LunaCore::PPM::RGB{255,255,255,0};
         }
     }
 

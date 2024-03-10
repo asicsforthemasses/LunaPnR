@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -17,7 +17,7 @@ CellLibListModel::CellLibListModel(std::shared_ptr<ChipDB::CellLib> cellLib)
 {
     m_lightColor = QColor("#F0F0F0");
     m_darkColor  = QColor("#D0D0D0");
-    setCellLib(cellLib);    
+    setCellLib(cellLib);
 }
 
 void CellLibListModel::setCellLib(std::shared_ptr<ChipDB::CellLib> cellLib)
@@ -63,7 +63,7 @@ QVariant CellLibListModel::data(const QModelIndex &index, int role) const
         else
             return m_lightColor;
 
-        break;    
+        break;
     }
 
     return v;
@@ -103,7 +103,7 @@ std::shared_ptr<ChipDB::Cell> CellLibListModel::getCell(int row) const
 CellLibTableModel::CellLibTableModel(std::shared_ptr<ChipDB::CellLib> cellLib) : m_cellLib(nullptr)
 {
     m_lightColor = QColor("#F0F0F0");
-    m_darkColor  = QColor("#D0D0D0");  
+    m_darkColor  = QColor("#D0D0D0");
     setCellLib(cellLib);
 }
 
@@ -149,7 +149,7 @@ bool CellLibTableModel::setData(const QModelIndex &index, const QVariant &value,
     {
         return false;
     }
-    
+
     if (m_cellLib == nullptr)
     {
         return false;
@@ -198,7 +198,7 @@ QVariant CellLibTableModel::data(const QModelIndex &index, int role) const
                     return QString::fromStdString(ChipDB::toString(cell->m_subclass));
                 }
             }
-                
+
             else
                 return QString("(null)");
         }
@@ -219,18 +219,18 @@ QVariant CellLibTableModel::data(const QModelIndex &index, int role) const
                 default:
                     return QString::fromStdString(ChipDB::toString(cell->m_subclass));
                 }
-            }                
+            }
             else
                 return QString("(null)");
         }
-        break;        
+        break;
     case Qt::BackgroundRole:
         if (index.row() % 2)
             return m_darkColor;
         else
             return m_lightColor;
 
-        break;    
+        break;
     }
 
     return v;
@@ -238,7 +238,7 @@ QVariant CellLibTableModel::data(const QModelIndex &index, int role) const
 
 QVariant CellLibTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    const std::array<const char *,3> headerNames= 
+    const std::array<const char *,3> headerNames=
     {
         "Name","Class","Subclass"
     };
@@ -290,5 +290,5 @@ std::shared_ptr<ChipDB::Cell> CellLibTableModel::getCell(int row) const
 void CellLibTableModel::notify(ChipDB::ObjectKey index, ChipDB::INamedStorageListener::NotificationType t)
 {
     beginResetModel();
-    endResetModel();    
+    endResetModel();
 }

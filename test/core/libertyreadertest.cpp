@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_SUITE(LibertyReaderTest)
 BOOST_AUTO_TEST_CASE(can_read_Liberty)
 {
     std::cout << "--== LIBERTY READER ==--\n";
-    
+
     std::ifstream libertyfile("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib");
     BOOST_REQUIRE(libertyfile.good());
 
@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty)
     for(auto pinInfoPtr : cellKeyObjPair->m_pins)
     {
         std::cout << "    " << pinInfoPtr->name() << "  max cap " << pinInfoPtr->m_maxCap << "  function: " << pinInfoPtr->m_function << "\n";
-    }   
+    }
 
     // check pins of a complex cell, like FAX1
     auto fax1 = design.m_cellLib->lookupCell("FAX1");
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty)
     for(auto pinInfoPtr : fax1->m_pins)
     {
         std::cout << "    " << pinInfoPtr->name() << "  max cap " << pinInfoPtr->m_maxCap << "  function: " << pinInfoPtr->m_function << "\n";
-    } 
+    }
 
     auto ysPin = fax1->lookupPin("YS");
     BOOST_REQUIRE(ysPin.isValid());
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty)
 BOOST_AUTO_TEST_CASE(can_read_Liberty2)
 {
     std::cout << "--== LIBERTY READER NANGATE==--\n";
-    
+
     std::ifstream libertyfile("test/files/nangate/lpocl_functional.lib");
     BOOST_REQUIRE(libertyfile.good());
 
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty2)
 BOOST_AUTO_TEST_CASE(can_read_Liberty3)
 {
     std::cout << "--== LIBERTY READER NANGATE 2==--\n";
-    
+
     std::ifstream libertyfile("test/files/nangate/ocl_functional.lib");
     BOOST_REQUIRE(libertyfile.good());
 
@@ -105,7 +105,7 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty3)
 BOOST_AUTO_TEST_CASE(can_read_Liberty4)
 {
     std::cout << "--== LIBERTY READER SKY130 ==--\n";
-    
+
     std::ifstream libertyfile("test/files/sky130/sky130_fd_sc_hd__tt_025C_1v80.lib");
     BOOST_REQUIRE(libertyfile.good());
 
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(can_read_Liberty4)
 BOOST_AUTO_TEST_CASE(can_read_Liberty5)
 {
     std::cout << "--== LIBERTY READER SKY130 2 ==--\n";
-    
+
     std::ifstream libertyfile("test/files/sky130/sky130_fd_sc_hd__tt_100C_1v80.lib");
     BOOST_REQUIRE(libertyfile.good());
 

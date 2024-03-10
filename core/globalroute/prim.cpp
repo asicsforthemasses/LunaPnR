@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -16,7 +16,7 @@ bool LunaCore::Prim::MSTreeNode::operator==(const MSTreeNode &rhs) noexcept
     if (m_pos != rhs.m_pos) return false;
     if (m_parent != rhs.m_parent) return false;
     if (m_self != rhs.m_self) return false;
-    
+
     if (m_edges.size() != rhs.m_edges.size()) return false;
     for(std::size_t idx=0; idx < m_edges.size(); idx++)
     {
@@ -77,8 +77,8 @@ MSTree LunaCore::Prim::prim(const std::vector<ChipDB::Coord64> &netNodes)
             if (nextNodeId == currentNodeId)
             {
                 // the head node has from == -1,
-                // and this will cause an exception if we don't 
-                // check for it. 
+                // and this will cause an exception if we don't
+                // check for it.
                 if (minEdge->from >= 0)
                 {
                     tree.at(minEdge->from).addEdge(minEdge->to, netNodes.at(minEdge->to));
@@ -95,7 +95,7 @@ MSTree LunaCore::Prim::prim(const std::vector<ChipDB::Coord64> &netNodes)
                 newEdge->m_edgeCost = calcCost(currentNodePos, nextNodePos);
                 pqueue.push(newEdge);
             }
-        }        
+        }
     }
 
 
@@ -123,7 +123,7 @@ std::vector<ChipDB::Coord64> LunaCore::Prim::loadNetNodes(const std::string &src
         auto &newNode = nodes.emplace_back();
         newNode.m_x = x;
         newNode.m_y = y;
-    }    
+    }
 
     return std::move(nodes);
 }
@@ -186,7 +186,7 @@ void LunaCore::Prim::toSVG(std::ostream &os, const MSTree &tree)
                 );
                 canvas.line(
                     SVGPoint{vp.toWindow(SVGPoint{steinerPoint->m_x, steinerPoint->m_y})},
-                    SVGPoint{vp.toWindow(SVGPoint{p2.m_x, p2.m_y})}                    
+                    SVGPoint{vp.toWindow(SVGPoint{p2.m_x, p2.m_y})}
                 );
             }
             else
@@ -229,7 +229,7 @@ void LunaCore::Prim::toSVG(std::ostream &os, const MSTree &tree)
     for(auto const& node : tree)
     {
         auto p = vp.toWindow(toSVGPoint(node.m_pos));
-        if (node.m_self == 0) 
+        if (node.m_self == 0)
             canvas.stroke("red").circle(p, 6.0).stroke("orange");
         else
             canvas.circle(p, 2.0);

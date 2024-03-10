@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -66,8 +66,8 @@ protected:
     void drawLeftRuler(QPainter &p);
 
     void drawNet(QPainter &p, const std::shared_ptr<ChipDB::Net> net);
-    
-    Viewport m_viewPort;    
+
+    Viewport m_viewPort;
 
     enum class MouseState
     {

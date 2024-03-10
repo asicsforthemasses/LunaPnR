@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -24,7 +24,7 @@ CTSDialog::CTSDialog(Database &db, QWidget *parent) : QDialog(parent), m_db(db)
 
     auto layout = new QGridLayout();
     layout->setSizeConstraint(QLayout::SetMinimumSize);
-    
+
     m_ctsBufferCombo = new QComboBox();
     m_ctsBufferCombo->setEditable(false);
 
@@ -70,7 +70,7 @@ void CTSDialog::populateBufferList()
     for(auto cell : *cellLib)
     {
         int inputs{0};
-        int outputs{0};        
+        int outputs{0};
         for(auto pin : cell->m_pins)
         {
             if (pin->isInput()) inputs++;
@@ -80,7 +80,7 @@ void CTSDialog::populateBufferList()
         if ((inputs==1) && (outputs==1))
         {
             m_ctsBufferCombo->addItem(QString::fromStdString(cell->name()));
-        }        
+        }
     }
 }
 

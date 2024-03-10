@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -21,13 +21,13 @@ bool Reader::load(Design &design, std::istream &source)
             Logging::doLog(Logging::LogType::ERROR,"DEF::Reader failed to load file.\n");
             return false;
         }
-        
+
         return true;
     }
     catch(std::runtime_error &e)
     {
         Logging::doLog(Logging::LogType::ERROR,"%s\n", e.what());
     }
-    
-    return false;    
+
+    return false;
 }

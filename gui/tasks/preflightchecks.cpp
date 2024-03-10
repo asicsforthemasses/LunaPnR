@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -66,7 +66,7 @@ void Tasks::PreflightChecks::execute(GUI::Database &database, ProgressCallback c
             error("Cannot deduce top module\n");
             return;
         }
-    }    
+    }
 
     // check that the top module has a netlist
     if (!topModule->m_netlist)
@@ -94,7 +94,7 @@ void Tasks::PreflightChecks::execute(GUI::Database &database, ProgressCallback c
 
     int starty = 0;
     int rowHeight = 10000;
-    
+
     ChipDB::Coord64 ll = placeRect.m_ll + ChipDB::Coord64{0,starty};
     ChipDB::Coord64 ur = ll + ChipDB::Coord64{placeRect.width(), rowHeight};
     size_t skippedRows = 0;
@@ -133,7 +133,7 @@ void Tasks::PreflightChecks::execute(GUI::Database &database, ProgressCallback c
         if (!pinInstance.isValid())
         {
             error(Logging::fmt("Module %s does not have a pin instance corresponding to pin %s!\n", topModule->name().c_str(), pin->m_name.c_str()));
-            return;            
+            return;
         }
         if (!pinInstance->isPlaced())
         {
@@ -145,7 +145,7 @@ void Tasks::PreflightChecks::execute(GUI::Database &database, ProgressCallback c
 #endif
 
     // TODO: check that all pins and pads are placed
-    
+
     //       check we have filler/decap cells
     done();
 }

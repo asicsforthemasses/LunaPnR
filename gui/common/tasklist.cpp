@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -26,11 +26,11 @@ TaskList::TaskList(QObject *projectManager) : m_projectManager(projectManager)
     //Note: the order must reflect the order in the ProjectManager.
     createTask("ReadAllFiles", new Tasks::ReadAllFiles);
     createTask("PreflightChecks", new Tasks::PreflightChecks);
-    createTask("CreateFloorplan", new Tasks::CreateFloorplan);    
+    createTask("CreateFloorplan", new Tasks::CreateFloorplan);
     createTask("PLACE", new Tasks::Place);
     createTask("CTS", new Tasks::CTS);
     createTask("TIMINGREPORT1", new Tasks::CheckTiming(Tasks::CheckTiming::Mode::CTS));
-    createTask("GLOBALROUTE", new Tasks::GlobalRoute);    
+    createTask("GLOBALROUTE", new Tasks::GlobalRoute);
     createTask("TIMINGREPORT2", new Tasks::CheckTiming(Tasks::CheckTiming::Mode::WITHSPEF));
 }
 
@@ -60,7 +60,7 @@ bool TaskList::executeToTask(Database &db, const std::string &taskName)
     if (lastTaskId >= m_tasks.size())
     {
         Logging::doLog(Logging::LogType::ERROR, Logging::fmt("TaskList: Task ID for %s is out of range\n", taskName.c_str()));
-        return false;        
+        return false;
     }
 
     // reset all the tasks from the lastTask onwards
@@ -144,7 +144,7 @@ void TaskList::taskThread(Database &db, size_t firstTask, size_t lastTask, QObje
 void TaskList::createTask(const std::string &name, Tasks::Task *task)
 {
     assert(task != nullptr);
-    
+
     m_tasks.emplace_back();
     m_tasks.back().reset(task);
     m_tasks.back()->setName(name);

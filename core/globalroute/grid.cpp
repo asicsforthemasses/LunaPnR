@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -176,7 +176,7 @@ bool GlobalRouter::Grid::exportToPPM(const std::string &filename) const
     for(auto const& net : nets)
     {
         for(auto const& terminal : net.m_points)
-        {        
+        {
             if (terminal.m_y >= 1) bitmap.at(grid.width()*(terminal.m_y-1) + terminal.m_x) = terminalColor;
             bitmap.at(grid.width()*(terminal.m_y+1) + terminal.m_x) = terminalColor;
             bitmap.at(grid.width()*terminal.m_y + terminal.m_x + 1) = terminalColor;
@@ -192,7 +192,7 @@ bool GlobalRouter::Grid::exportToPPM(const std::string &filename) const
 #endif
 
 void GlobalRouter::Grid::clearAllFlagsAndResetCost()
-{   
+{
     for(auto &cell : m_grid)
     {
         cell.resetFlags();

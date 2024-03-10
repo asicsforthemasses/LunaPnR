@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -10,7 +10,7 @@
 
 using namespace GUI;
 
-HatchDialog::HatchDialog(HatchLibrary &hatchLibrary, QWidget *parent, Qt::WindowFlags f) 
+HatchDialog::HatchDialog(HatchLibrary &hatchLibrary, QWidget *parent, Qt::WindowFlags f)
     : QDialog(parent, f), m_hatchIndex(-1)
 {
     auto topLayout = new QVBoxLayout();
@@ -31,7 +31,7 @@ HatchDialog::HatchDialog(HatchLibrary &hatchLibrary, QWidget *parent, Qt::Window
     connect(okButton, SIGNAL(clicked()), this, SLOT(accept()) );
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()) );
     connect(display, SIGNAL(clicked(int)), this, SLOT(onHatchClicked(int)));
-    
+
     setLayout(topLayout);
     setWindowTitle(tr("Choose new layer hatch pattern"));
 }

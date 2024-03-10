@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -17,7 +17,7 @@ namespace LunaCore::PPM
         [[nodiscard]] constexpr bool isBlack() const noexcept
         {
             return (r==0) && (g==0) && (b==0);
-        }        
+        }
 
         [[nodiscard]] constexpr bool operator==(const RGB &rhs) const noexcept
         {
@@ -45,7 +45,7 @@ namespace LunaCore::PPM
         uint8_t g = static_cast<uint8_t>(col1.g + (col2.g-col1.g)*frac);
         uint8_t b = static_cast<uint8_t>(col1.b + (col2.b-col1.b)*frac);
         return RGB{r,g,b,0};
-    }     
+    }
 
     struct Bitmap
     {

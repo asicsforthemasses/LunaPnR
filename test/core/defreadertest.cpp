@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_SUITE(DEFReaderTest)
 BOOST_AUTO_TEST_CASE(can_read_def)
 {
     std::cout << "--== DEF READER ==--\n";
-    
+
     std::ifstream deffile("test/files/def/testcase01.def");
     BOOST_REQUIRE(deffile.good());
 
@@ -51,7 +51,7 @@ BOOST_AUTO_TEST_CASE(can_read_def)
 BOOST_AUTO_TEST_CASE(can_read_def2)
 {
     std::cout << "--== DEF READER 2 ==--\n";
-    
+
     std::ifstream deffile("test/files/def/testcase02.def");
     BOOST_REQUIRE(deffile.good());
 
@@ -91,7 +91,7 @@ BOOST_AUTO_TEST_CASE(can_read_def3)
 
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_REQUIRE(leffile.good());
-    
+
     std::ifstream leffile2("test/files/iit_stdcells_extra/fake_ties018.lef");
     BOOST_REQUIRE(leffile2.good());
 

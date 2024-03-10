@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -22,7 +22,7 @@ DesignBrowser::DesignBrowser(QWidget *parent) : QWidget(parent)
 
     m_moduleModel.reset(new ModuleTableModel(nullptr));
     m_moduleTableView->setModel(m_moduleModel.get());
-    
+
     // module information view
     m_moduleTreeView = new QTreeView();
     m_moduleTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers); // make read-only
@@ -42,8 +42,8 @@ DesignBrowser::DesignBrowser(QWidget *parent) : QWidget(parent)
 
     setLayout(m_layout);
 
-    connect(m_moduleTableView->selectionModel(), 
-        SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), 
+    connect(m_moduleTableView->selectionModel(),
+        SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
         this,
         SLOT(onModuleSelectionChanged(const QItemSelection&, const QItemSelection&)));
 }
@@ -74,7 +74,7 @@ void DesignBrowser::onModuleSelectionChanged(const QItemSelection &cur, const QI
     QModelIndex index = m_moduleTableView->currentIndex();
 
     if (index.isValid())
-    {        
+    {
         auto module = m_moduleModel->getModule(index.row());
         if (module != nullptr)
         {

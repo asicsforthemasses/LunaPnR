@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -22,7 +22,7 @@ PyObject* Scripting::PyConsoleRedirect::PyStdout::pyWrite(PyObject *self, PyObje
         if (PyArg_ParseTuple(args, "s#", &str, &strLen))
         {
             //std::cout << (counter++) << " PyWrite pre\n";
-            //std::cout << "'" << str << "'" << "\n"; 
+            //std::cout << "'" << str << "'" << "\n";
             pyStdout->writeFunc(str, strLen);
             //std::cout << "PyWrite post\n";
             Py_RETURN_NONE;
@@ -54,7 +54,7 @@ PyMethodDef PyStdout_methods[] =    // NOLINT(modernize-avoid-c-arrays)
     {nullptr, nullptr, 0, nullptr} // sentinel
 };
 
-PyTypeObject PyStdoutType = 
+PyTypeObject PyStdoutType =
 {
     PyVarObject_HEAD_INIT(nullptr, 0)
     "PyStdoutType",       /* tp_name */

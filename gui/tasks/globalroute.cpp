@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -17,12 +17,12 @@ void Tasks::GlobalRoute::execute(GUI::Database &database, ProgressCallback callb
     {
         error("Top module not set\n");
         return;
-    }    
+    }
 
     if (!topModule->m_netlist)
     {
         error("Top module has no netlist\n");
-        return;        
+        return;
     }
 
     auto netlist = topModule->m_netlist;
@@ -51,7 +51,7 @@ void Tasks::GlobalRoute::execute(GUI::Database &database, ProgressCallback callb
         return;
     }
 
-    LunaCore::GlobalRouter::Router grouter;    
+    LunaCore::GlobalRouter::Router grouter;
 
     auto minCellSize = site->m_size;
     if ((minCellSize.m_x <= 0) || (minCellSize.m_y <= 0))
@@ -66,7 +66,7 @@ void Tasks::GlobalRoute::execute(GUI::Database &database, ProgressCallback callb
     if (!gcellSize.has_value())
     {
         error("Could not determine GCell size!\n");
-        return;        
+        return;
     }
 
     ss.str("");
@@ -143,7 +143,7 @@ void Tasks::GlobalRoute::execute(GUI::Database &database, ProgressCallback callb
         netKeys.at(idx++) = netKeyPair.key();
     }
 
-    std::sort(netKeys.begin(), netKeys.end(), 
+    std::sort(netKeys.begin(), netKeys.end(),
         [&netlist](auto const &key1, auto const &key2)
         {
             return netlist->m_nets.at(key1)->numberOfConnections() < netlist->m_nets.at(key2)->numberOfConnections();
@@ -179,7 +179,7 @@ void Tasks::GlobalRoute::execute(GUI::Database &database, ProgressCallback callb
 
         auto segList = grouter.routeNet(netNodes, net->name());
         if (!segList)
-        {   
+        {
             auto debugBitmap = grouter.grid()->generateCapacityBitmap();
             LunaCore::PPM::write("globalroutegrid_fail.ppm", debugBitmap);
 

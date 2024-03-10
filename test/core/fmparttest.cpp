@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -29,7 +29,7 @@ public:
     void removeNodeFromBucket(LunaCore::Partitioner::NodeId nodeId)
     {
         LunaCore::Partitioner::FMPart::removeNodeFromBucket(nodeId);
-    }  
+    }
 
     bool init(ChipDB::Netlist *nl)
     {
@@ -93,7 +93,7 @@ public:
         return noError;
     }
 
-    /** write the node partitioning to an internal vector so we 
+    /** write the node partitioning to an internal vector so we
      *  can call 'countNodesMoved' later.
     */
     void saveOriginalNodePartitioning()
@@ -113,7 +113,7 @@ public:
         if (m_originalNodePartition.size() != m_nodes.size())
         {
             std::cout << "m_originalNodePartition.size) != m_nodes.size() failed\n";
-            return -1; 
+            return -1;
         }
 
         ssize_t count = 0;
@@ -225,12 +225,12 @@ BOOST_AUTO_TEST_CASE(test_distance_to_partition)
 
     BOOST_CHECK(helper.distanceToPartition(part1, ChipDB::Coord64(10000,0)) == 0);
     BOOST_CHECK(helper.distanceToPartition(part2, ChipDB::Coord64(10000,0)) == 0);
-    
+
     BOOST_CHECK(helper.distanceToPartition(part1, ChipDB::Coord64(20000,0)) == 10000);
-    BOOST_CHECK(helper.distanceToPartition(part2, ChipDB::Coord64(20000,0)) == 0);    
+    BOOST_CHECK(helper.distanceToPartition(part2, ChipDB::Coord64(20000,0)) == 0);
 
     BOOST_CHECK(helper.distanceToPartition(part1, ChipDB::Coord64(20000,20000)) == 20000);
-    BOOST_CHECK(helper.distanceToPartition(part2, ChipDB::Coord64(20000,20000)) == 10000);  
+    BOOST_CHECK(helper.distanceToPartition(part2, ChipDB::Coord64(20000,20000)) == 10000);
 }
 
 BOOST_AUTO_TEST_CASE(test_buckets)
@@ -267,10 +267,10 @@ BOOST_AUTO_TEST_CASE(test_buckets)
     // check that buckets for gain = 0 exist
     BOOST_CHECK(helper.m_partitions[0].hasBucket(0));
     BOOST_CHECK(helper.m_partitions[1].hasBucket(0));
-    
+
     // node 1 should be at the front of the only partition 0 bucket
     BOOST_CHECK(helper.m_partitions[0].m_buckets[0 /* gain */] == 1);
-    
+
     // node 2 should be at the front of the only partition 1 bucket for gain = 0
     BOOST_CHECK(helper.m_partitions[1].m_buckets[0 /* gain */] == 2);
 
@@ -309,7 +309,7 @@ BOOST_AUTO_TEST_CASE(test_buckets)
     // ==== check the partition iterator ====
     helper.m_nodes.resize(5);
     helper.m_nodes[3].reset(3);
-    helper.m_nodes[4].reset(4);    
+    helper.m_nodes[4].reset(4);
     helper.m_nodes[3].m_partitionId = 0;
     helper.m_nodes[4].m_partitionId = 0;
     helper.m_nodes[3].m_gain = 1;
@@ -386,7 +386,7 @@ BOOST_AUTO_TEST_CASE(can_partition_adder2)
             {
                 ins->m_pos = {0, left_y};
                 ins->m_placementInfo = ChipDB::PLACEMENT_PLACEDANDFIXED;
-                left_y += 5000;                
+                left_y += 5000;
             }
             else
             {
@@ -402,14 +402,14 @@ BOOST_AUTO_TEST_CASE(can_partition_adder2)
     // write partition out as a dot file
     std::ofstream dotfile2("test/files/results/adder2_before.dot");
     if (dotfile2.good())
-    {        
+    {
         partitioner.exportToDot(dotfile2);
         dotfile2.close();
     }
 
     partitioner.saveConnectionCount();
     partitioner.saveOriginalNodePartitioning();
-    
+
     for(size_t i=0; i<7; i++)
     {
         auto cost = partitioner.cycle();
@@ -425,7 +425,7 @@ BOOST_AUTO_TEST_CASE(can_partition_adder2)
     // write partition out as a dot file
     std::ofstream dotfile("test/files/results/adder2_after.dot");
     if (dotfile.good())
-    {        
+    {
         partitioner.exportToDot(dotfile);
         dotfile.close();
     }
@@ -482,14 +482,14 @@ BOOST_AUTO_TEST_CASE(can_partition_multiplier)
     // write partition out as a dot file
     std::ofstream dotfile2("test/files/results/multiplier_before.dot");
     if (dotfile2.good())
-    {        
+    {
         partitioner.exportToDot(dotfile2);
         dotfile2.close();
     }
 
     partitioner.saveConnectionCount();
     partitioner.saveOriginalNodePartitioning();
-    
+
     for(size_t i=0; i<7; i++)
     {
         auto cost = partitioner.cycle();
@@ -505,7 +505,7 @@ BOOST_AUTO_TEST_CASE(can_partition_multiplier)
     // write partition out as a dot file
     std::ofstream dotfile("test/files/results/multiplier_after.dot");
     if (dotfile.good())
-    {        
+    {
         partitioner.exportToDot(dotfile);
         dotfile.close();
     }
@@ -515,7 +515,7 @@ BOOST_AUTO_TEST_CASE(can_partition_multiplier)
 BOOST_AUTO_TEST_CASE(can_partition_nerv)
 {
     std::cout << "--== FMPart (partitioning NERV CPU) test ==--\n";
-    
+
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_CHECK(leffile.good());
 
@@ -529,7 +529,7 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv)
 
     auto mod = design.m_moduleLib.lookup("nerv");
 
-    // nerv fits in approx 650x650 um    
+    // nerv fits in approx 650x650 um
     FMPartTestHelper partitioner;
     partitioner.m_partitions[0].m_region = {{0,0}, {650000/2, 650000}};             // left partition
     partitioner.m_partitions[1].m_region = {{650000/2, 0}, {650000, 650000}};  // right partition
@@ -627,7 +627,7 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv)
             widthP[partitioner.m_nodes[ins->m_flags].m_partitionId] += ins->instanceSize().m_x;
         }
     }
-    
+
     ofile << "\n\n";
 
     size_t partId = 0;
@@ -670,8 +670,8 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv)
         BOOST_CHECK(partitioner.compareConnectionCount());
     }
     std::cout << "  end FM\n";
-    ofile << "  end FM\n";    
-    
+    ofile << "  end FM\n";
+
     // go thought the partition with the bucket iterator
     partitioner.reportPartitions(ofile);
     std::cout << "  number of cut nets: " << partitioner.reportNumberOfCutNets(ofile) << "\n";
@@ -736,7 +736,7 @@ BOOST_AUTO_TEST_CASE(can_partition_multiplier)
     // write partition out as a dot file
     std::ofstream dotfile("test/files/results/multiplier_after.dot");
     if (dotfile.good())
-    {        
+    {
         partitioner.exportToDot(dotfile, container);
         dotfile.close();
     }
@@ -747,7 +747,7 @@ BOOST_AUTO_TEST_CASE(can_partition_multiplier)
 BOOST_AUTO_TEST_CASE(can_partition_nerv_concise)
 {
     std::cout << "--== FMPart (partitioning NERV CPU) test ==--\n";
-    
+
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_CHECK(leffile.good());
 
@@ -761,7 +761,7 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv_concise)
 
     auto modKeyObjPair = design.m_moduleLib->lookupModule("nerv");
 
-    // nerv fits in approx 650x650 um    
+    // nerv fits in approx 650x650 um
     LunaCore::Partitioner::FMPart partitioner;
     LunaCore::Partitioner::FMContainer container;
     container.m_region = {{0,0}, {650000, 650000}};
@@ -806,7 +806,7 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv_concise)
     // check that the clock net is huge
     auto clknetKeyObjPair = modKeyObjPair->m_netlist->m_nets.at("clock");
     BOOST_ASSERT(clknetKeyObjPair.isValid());
-    
+
     //FIXME: objects no longer have an ID
     //auto cnet = container.m_nets.at(clknetKeyObjPair->m_id);
     //BOOST_ASSERT(cnet.m_nodes.size() > 25);

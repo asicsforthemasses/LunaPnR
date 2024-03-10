@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -44,7 +44,7 @@ PyObject* Python::toPython(const std::string_view &t)
     else
     {
         return PyUnicode_FromStringAndSize(&t.at(0), t.size());
-    }    
+    }
 }
 
 PyObject* Python::toPython(const std::string &t)
@@ -56,7 +56,7 @@ PyObject* Python::toPython(const std::string &t)
     else
     {
         return PyUnicode_FromStringAndSize(&t.at(0), t.size());
-    }    
+    }
 }
 
 PyObject* Python::toPython(const char *t)
@@ -71,7 +71,7 @@ PyObject* Python::toPython(const ChipDB::Coord64 &t)
 
 PyObject* toPython(const ChipDB::Rect64 &t)
 {
-    return Py_BuildValue("(ll)(ll)", t.getLL().m_x, t.getLL().m_y, 
+    return Py_BuildValue("(ll)(ll)", t.getLL().m_x, t.getLL().m_y,
         t.getUR().m_x, t.getUR().m_y);
 }
 
@@ -82,7 +82,7 @@ PyObject* Python::toPython(const ChipDB::CellClass &t)
 
 PyObject* Python::toPython(const ChipDB::CellSubclass &t)
 {
-    return Python::toPython(ChipDB::toString(t));    
+    return Python::toPython(ChipDB::toString(t));
 }
 
 PyObject* Python::toPython(const ChipDB::SymmetryFlags &t)

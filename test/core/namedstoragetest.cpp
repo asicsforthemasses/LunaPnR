@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -62,7 +62,7 @@ BOOST_AUTO_TEST_CASE(check_NamedStorage)
 
 struct MyListener : public ChipDB::INamedStorageListener
 {
-    MyListener() : 
+    MyListener() :
         m_mostRecentKey(ChipDB::ObjectNotFound),
         m_mostRecentNotificationType(NotificationType::UNSPECIFIED)
     {
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(check_Notifier)
 
     auto objKey2 = storage.add(std::make_shared<MyObject>("Obj2"));
 
-    BOOST_CHECK(listener.m_mostRecentKey == objKey2.value().key()); 
+    BOOST_CHECK(listener.m_mostRecentKey == objKey2.value().key());
     BOOST_CHECK(listener.m_mostRecentNotificationType == ChipDB::INamedStorageListener::NotificationType::ADD);
 
     BOOST_CHECK(storage.remove("Obj1"));

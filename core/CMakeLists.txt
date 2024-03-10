@@ -81,19 +81,6 @@ CPMAddPackage("bb:trcwm/tinysvgpp#main")
 CPMAddPackage("bb:trcwm/strutilspp#main")
 
 ########################################################################
-# Add optional Python
-########################################################################
-
-option(USE_PYTHON "Enabled Python scripting" OFF)
-
-if (USE_PYTHON)
-    find_package (PythonLibs 3.8 REQUIRED COMPONENTS Interpreter Development)
-    message(STATUS "Python scripting is ENABLED")
-else(USE_PYTHON)
-    message(STATUS "Python scripting is DISABLED")
-endif(USE_PYTHON)
-
-########################################################################
 # Add Eigen3
 ########################################################################
 

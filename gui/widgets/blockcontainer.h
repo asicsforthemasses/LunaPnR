@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -25,7 +25,7 @@ public:
     BlockContainerHeader(const QString &name, BlockContainer *owner, QWidget *parent = 0);
 
     void setName(const QString &name);
-    
+
     void addWidget(QWidget *widget);
 
     bool isFolded() const;

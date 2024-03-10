@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -18,16 +18,16 @@
 #include "common/logging.h"
 
 int main(int argc, char *argv[]) {
-    
+
     QApplication app(argc, argv);
 
     QCoreApplication::setOrganizationName("LunaPnR_Org");
     QCoreApplication::setApplicationName("LunaPnR");
 
     Logging::setLogLevel(Logging::LogType::INFO);
-    
+
     QCommandLineParser parser;
-        
+
     QCommandLineOption localeOption("locale", "Set locale name", "locale_value", "");
     parser.addOption(localeOption);
 
@@ -41,24 +41,24 @@ int main(int argc, char *argv[]) {
     {
         std::cout << "Resources:\n";
         QDirIterator it(":", QDirIterator::Subdirectories);
-        while (it.hasNext()) 
+        while (it.hasNext())
         {
             auto s = it.next();
             std::cout << s.toStdString() << "\n";
-        }    
+        }
     }
 #endif
 
     auto locale = QLocale();
     auto localeNameStr = locale.name().toStdString();
-    
+
     QString localeOptionString = parser.value(localeOption);
     if (!localeOptionString.isEmpty())
     {
         localeNameStr = localeOptionString.toStdString();
         Logging::doLog(Logging::LogType::INFO,"Using locale %s\n", localeNameStr.c_str());
     }
-    
+
     QTranslator lunapnrTranslator;
     auto langResourcePath = QString::asprintf(":/translations/lunapnr.%s.qm", localeNameStr.c_str());
     if (!lunapnrTranslator.load(langResourcePath))
@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (!app.installTranslator(&lunapnrTranslator))
-    {        
+    {
         Logging::doLog(Logging::LogType::WARNING,"Failed to install translator for locale: %s\n", localeNameStr.c_str());
     }
     else
@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
 
     qApp->setStyle("fusion");
 
-    // set the local to C again because Qt 
+    // set the local to C again because Qt
     // so functions will use the period as the decimal indicator.
     // if we don't do this, the gates of hell will open.
 
@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
     }
 
     window.move((width - window.width()) / 2.0,
-                    (height - window.height()) / 2.0);        
+                    (height - window.height()) / 2.0);
 
     QString title = LUNAVERSIONSTRING;
     title.append(QObject::tr(" - a moonshot ASIC place&route tool"));

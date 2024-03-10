@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -32,7 +32,7 @@ std::string toString(Eigen::ComputationInfo info)
     case Eigen::ComputationInfo::NumericalIssue:
         return "Numerical issue";
     case Eigen::ComputationInfo::InvalidInput:
-        return "Invalid input";    
+        return "Invalid input";
     }
 
     return "Unknown";
@@ -93,7 +93,7 @@ bool LunaCore::QLAPlacer::Private::updatePositions(const LunaCore::QPlacer::Plac
             Logging::doLog(Logging::LogType::VERBOSE,"  ins: %s -> %d,%d\n", ins->name().c_str(), ins->m_pos.m_x, ins->m_pos.m_y);
         }
         nodeIdx++;
-    }   
+    }
 
     return true;
 }
@@ -112,7 +112,7 @@ LunaCore::QPlacer::PlacerNetlist LunaCore::QLAPlacer::Private::createPlacerNetli
         placerNode.setSize(ins->instanceSize());
         placerNode.setLLPos(ins->m_pos);
         placerNode.m_weight = 1.0;
-        
+
         if (ins->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED)
         {
             placerNode.m_type = LunaCore::QPlacer::PlacerNodeType::FixedNode;
@@ -152,15 +152,15 @@ LunaCore::QPlacer::PlacerNetlist LunaCore::QLAPlacer::Private::createPlacerNetli
             netlist.getNode(placerNodeId).m_connections.push_back(placerNetId);
 
             // FIXME:
-            if (ins->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED) 
+            if (ins->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED)
             {
                 placerNet.m_weight = 1;
             }
 
             Logging::doLog(Logging::LogType::VERBOSE, "  NodeId %d %s\n", placerNodeId, ins->name().c_str());
-        }    
+        }
 
-        netIdx++;    
+        netIdx++;
     }
 
     return netlist;
@@ -169,9 +169,9 @@ LunaCore::QPlacer::PlacerNetlist LunaCore::QLAPlacer::Private::createPlacerNetli
 template<class AxisAccessor>
 void updateWeights(
     LunaCore::QLAPlacer::Private::SolverData &solverData,
-    const LunaCore::QPlacer::PlacerNetlist &netlist, 
-    const LunaCore::QPlacer::PlacerNodeId &node1Id, 
-    const LunaCore::QPlacer::PlacerNodeId &node2Id, 
+    const LunaCore::QPlacer::PlacerNetlist &netlist,
+    const LunaCore::QPlacer::PlacerNodeId &node1Id,
+    const LunaCore::QPlacer::PlacerNodeId &node2Id,
     double netWeight,
     ssize_t netSize)
 {
@@ -252,12 +252,12 @@ ExtremaResults findExtremeNodes(const LunaCore::QPlacer::PlacerNetlist &netlist,
         {
             results.m_minNodeIdx = nodeId;
             results.m_min = pos;
-        }        
+        }
     }
 
     while (results.m_minNodeIdx == results.m_maxNodeIdx)
     {
-        // min and max nodes are the same 
+        // min and max nodes are the same
         // so we randomly choose another
         results.m_maxNodeIdx = rand() % net.m_nodes.size();
     }
@@ -272,7 +272,7 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
 {
     // two-pin nets are connected together with weight w=1/|length|
     //
-    // multi-pin nets: extreme nodes are connected together and 
+    // multi-pin nets: extreme nodes are connected together and
     //                 each to the interior nodes using weight
     //                 w = 1/((p-1)|length_of_edge|)
 
@@ -294,14 +294,14 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
     {
         if (net.m_nodes.size() == 2)
         {
-            updateWeights<ChipDB::XAxisAccessor>(XSolverData, 
-                netlist, 
-                net.m_nodes.at(0), net.m_nodes.at(1), 
+            updateWeights<ChipDB::XAxisAccessor>(XSolverData,
+                netlist,
+                net.m_nodes.at(0), net.m_nodes.at(1),
                 net.m_weight, net.m_nodes.size());
 
-            updateWeights<ChipDB::YAxisAccessor>(YSolverData, 
-                netlist, 
-                net.m_nodes.at(0), net.m_nodes.at(1), 
+            updateWeights<ChipDB::YAxisAccessor>(YSolverData,
+                netlist,
+                net.m_nodes.at(0), net.m_nodes.at(1),
                 net.m_weight, net.m_nodes.size());
         }
         else if (net.m_nodes.size() > 2)
@@ -328,12 +328,12 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
 #endif
             // connect the extreme nodes together
             updateWeights<ChipDB::XAxisAccessor>(XSolverData,
-                netlist, 
+                netlist,
                 xResult.m_minNodeIdx, xResult.m_maxNodeIdx,
                 net.m_weight, net.m_nodes.size());
 
             updateWeights<ChipDB::YAxisAccessor>(YSolverData,
-                netlist, 
+                netlist,
                 yResult.m_minNodeIdx, yResult.m_maxNodeIdx,
                 net.m_weight, net.m_nodes.size());
 
@@ -343,12 +343,12 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
                 if ((nodeIdx != xResult.m_minNodeIdx) && (nodeIdx != xResult.m_maxNodeIdx))
                 {
                     updateWeights<ChipDB::XAxisAccessor>(XSolverData,
-                        netlist, 
+                        netlist,
                         xResult.m_minNodeIdx, nodeIdx,
                         net.m_weight, net.m_nodes.size());
 
                     updateWeights<ChipDB::XAxisAccessor>(XSolverData,
-                        netlist, 
+                        netlist,
                         xResult.m_maxNodeIdx, nodeIdx,
                         net.m_weight, net.m_nodes.size());
                 }
@@ -356,12 +356,12 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
                 if ((nodeIdx != yResult.m_minNodeIdx) && (nodeIdx != yResult.m_maxNodeIdx))
                 {
                     updateWeights<ChipDB::YAxisAccessor>(YSolverData,
-                        netlist, 
+                        netlist,
                         yResult.m_minNodeIdx, nodeIdx,
                         net.m_weight, net.m_nodes.size());
 
                     updateWeights<ChipDB::YAxisAccessor>(YSolverData,
-                        netlist, 
+                        netlist,
                         yResult.m_maxNodeIdx, nodeIdx,
                         net.m_weight, net.m_nodes.size());
                 }
@@ -385,7 +385,7 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
     for(auto const& node : netlist.m_nodes)
     {
         ss << "Node " << LnodeIdx << "  pos: " << node.getCenterPos().m_x << " " << node.getCenterPos().m_y;
-        if (node.isFixed()) 
+        if (node.isFixed())
         {
             ss << "  FIXED";
         }
@@ -397,7 +397,7 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
     ss << "X Amat: \n" << XSolverData.m_Amat << "\n";
     ss << "X Bvec: \n" << XSolverData.m_Bvec << "\n";
 
-    ss << "Y Amat: \n" << YSolverData.m_Amat << "\n";    
+    ss << "Y Amat: \n" << YSolverData.m_Amat << "\n";
     ss << "Y Bvec: \n" << YSolverData.m_Bvec << "\n";
 
 /*
@@ -415,7 +415,7 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
 
     Eigen::SparseMatrix<double> EigenMatX(netlist.numberOfNodes(), netlist.numberOfNodes());
     LunaCore::toEigen(XSolverData.m_Amat, EigenMatX);
-    
+
     EigenMatX.makeCompressed();
     solver.compute(EigenMatX);
     Eigen::VectorXd xpos = solver.solve(XSolverData.m_Bvec);
@@ -449,7 +449,7 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
         {
             const ChipDB::Coord64 pos(static_cast<ChipDB::CoordType>(xpos(idx)), static_cast<ChipDB::CoordType>(ypos(idx)));
             //std::cout << "Node " << idx << "  -> (" << xpos(idx) << "," << ypos(idx) << ")\n";
-            node.setCenterPos(pos); 
+            node.setCenterPos(pos);
             //std::cout << "    C  (" << node.getCenterPos().m_x << "," << node.getCenterPos().m_y << ")\n";
             //std::cout << "    LL (" << node.getLLPos().m_x << "," << node.getLLPos().m_y << ")\n";
         }
@@ -466,7 +466,7 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
     for(auto const& node : netlist.m_nodes)
     {
         ss << "Node " << LnodeIdx << "  pos: " << node.getCenterPos().m_x << " " << node.getCenterPos().m_y;
-        if (node.isFixed()) 
+        if (node.isFixed())
         {
             ss << "  FIXED";
         }
@@ -512,7 +512,7 @@ double LunaCore::QLAPlacer::Private::calcHPWL(const LunaCore::QPlacer::PlacerNet
     return hpwl;
 }
 
-void LunaCore::QLAPlacer::Private::writeNetlistToSVG(std::ostream &os, 
+void LunaCore::QLAPlacer::Private::writeNetlistToSVG(std::ostream &os,
     const ChipDB::Rect64 &regionRect,
     const LunaCore::QPlacer::PlacerNetlist &netlist)
 {
@@ -524,9 +524,9 @@ void LunaCore::QLAPlacer::Private::writeNetlistToSVG(std::ostream &os,
     svg.setFontSize(16);
 
     svg.setViewport(regionRect.expanded(ChipDB::Margins64{100,100,100,100}));
-    
+
     //draw nodes
-    
+
     svg.setStrokeWidth(5);
     size_t nodeIdx = 0;
     for(auto const &node : netlist.m_nodes)
@@ -571,7 +571,7 @@ void LunaCore::QLAPlacer::Private::lookaheadLegaliser(const ChipDB::Rect64 &regi
 {
     // FIXME: these constants should come from the cell library.
 
-    const ChipDB::CoordType blockMinHeight = 20000; 
+    const ChipDB::CoordType blockMinHeight = 20000;
     const ChipDB::CoordType blockMinWidth  = 4*blockMinHeight;
 
     std::deque<Block> blockQueue;
@@ -606,7 +606,7 @@ void LunaCore::QLAPlacer::Private::lookaheadLegaliser(const ChipDB::Rect64 &regi
         double totalCellArea = 0;
         for(auto const &nodeId : movableNodesInBlock)
         {
-            totalCellArea += static_cast<double>(netlist.m_nodes.at(nodeId).width()) 
+            totalCellArea += static_cast<double>(netlist.m_nodes.at(nodeId).width())
                 * static_cast<double>(netlist.m_nodes.at(nodeId).height());
         }
 
@@ -625,7 +625,7 @@ void LunaCore::QLAPlacer::Private::lookaheadLegaliser(const ChipDB::Rect64 &regi
             Block SubBlockleft  = {.m_extents = block.m_extents, .m_level = block.m_level + 1};
             Block SubBlockright = {.m_extents = block.m_extents, .m_level = block.m_level + 1};
 
-            double leftBlockArea = static_cast<double>(SubBlockleft.m_extents.width()) 
+            double leftBlockArea = static_cast<double>(SubBlockleft.m_extents.width())
                 * static_cast<double>(SubBlockleft.m_extents.height());
 
             auto cutPos = block.m_extents.left() + block.m_extents.width()/2;
@@ -647,7 +647,7 @@ void LunaCore::QLAPlacer::Private::lookaheadLegaliser(const ChipDB::Rect64 &regi
                 {
                     return netlist.m_nodes.at(n1).getCenterY() < netlist.m_nodes.at(n2).getCenterY();
                 }
-            );          
+            );
 
             // divide the block into two part with equal white space
             // FIXME: for now we assume no blockages

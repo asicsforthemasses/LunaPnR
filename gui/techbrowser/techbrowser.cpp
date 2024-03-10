@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -68,7 +68,7 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent), m_db(nullptr)
 
     auto gbox2 = new QGroupBox(tr("Obstructions"));
     auto gbox2Layout = new QHBoxLayout();
-    
+
     gbox2Layout->addWidget(m_hatchObsButton,0);
     gbox2Layout->addWidget(m_colorObsButton,0);
     gbox2->setLayout(gbox2Layout);
@@ -113,35 +113,35 @@ TechBrowser::TechBrowser(QWidget *parent) : QWidget(parent), m_db(nullptr)
     // connect signals/slots
     // ************************************************************************
 
-    connect(m_layerTableView->selectionModel(), 
-        SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), 
+    connect(m_layerTableView->selectionModel(),
+        SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
         this,
         SLOT(onLayerSelectionChanged(const QItemSelection&, const QItemSelection&)));
 
-    connect(m_colorButton, 
-        SIGNAL(onColorChanged()), 
+    connect(m_colorButton,
+        SIGNAL(onColorChanged()),
         this,
         SLOT(onLayerColorChanged()));
 
-    connect(m_hatchButton, 
-        SIGNAL(clicked()), 
+    connect(m_hatchButton,
+        SIGNAL(clicked()),
         this,
         SLOT(onChangeHatch()) );
 
-    connect(m_colorObsButton, 
-        SIGNAL(onColorChanged()), 
+    connect(m_colorObsButton,
+        SIGNAL(onColorChanged()),
         this,
         SLOT(onLayerObsColorChanged()));
 
-    connect(m_hatchObsButton, 
-        SIGNAL(clicked()), 
+    connect(m_hatchObsButton,
+        SIGNAL(clicked()),
         this,
-        SLOT(onChangeObsHatch()) );    
+        SLOT(onChangeObsHatch()) );
 
-    connect(m_siteTableView->selectionModel(), 
-        SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), 
+    connect(m_siteTableView->selectionModel(),
+        SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
         this,
-        SLOT(onSiteSelectionChanged(const QItemSelection&, const QItemSelection&)));            
+        SLOT(onSiteSelectionChanged(const QItemSelection&, const QItemSelection&)));
 }
 
 TechBrowser::~TechBrowser()
@@ -222,10 +222,10 @@ void TechBrowser::setDatabase(std::shared_ptr<Database> db)
             c, QHeaderView::Stretch);
     }
 
-    m_layerTreeView->expandAll();    
+    m_layerTreeView->expandAll();
     m_layerTableView->selectRow(0);
-    
-    m_siteTreeView->expandAll();    
+
+    m_siteTreeView->expandAll();
     m_siteTableView->selectRow(0);
 }
 
@@ -237,12 +237,12 @@ void TechBrowser::refreshDatabase()
         // has a corresponding layer in the layer render library
 
         for(auto techLayer : m_db->techLib()->layers())
-        {   
+        {
             m_db->m_layerRenderInfoDB.createLayer(techLayer->name());
         }
-                
+
         m_layerTableModel->setTechLib(m_db->techLib());
-    }    
+    }
 }
 
 void TechBrowser::onLayerSelectionChanged(const QItemSelection &cur, const QItemSelection &prev)
@@ -250,7 +250,7 @@ void TechBrowser::onLayerSelectionChanged(const QItemSelection &cur, const QItem
     QModelIndex index = m_layerTableView->currentIndex();
 
     if (index.isValid())
-    {        
+    {
         auto layer = m_layerTableModel->getLayer(index.row());
         if (layer != nullptr)
         {
@@ -279,10 +279,10 @@ void TechBrowser::onLayerSelectionChanged(const QItemSelection &cur, const QItem
                 }
                 else
                 {
-                    m_colorButton->setDisabled(true);    
+                    m_colorButton->setDisabled(true);
                     m_hatchButton->setDisabled(true);
                     m_colorObsButton->setDisabled(true);
-                    m_hatchObsButton->setDisabled(true);                    
+                    m_hatchObsButton->setDisabled(true);
                 }
             }
             else
@@ -303,7 +303,7 @@ void TechBrowser::onLayerColorChanged()
 {
     QModelIndex index = m_layerTableView->currentIndex();
     auto layer = m_layerTableModel->getLayer(index.row());
-    
+
     if ((layer != nullptr) && (m_db != nullptr))
     {
         auto info = m_db->m_layerRenderInfoDB[layer->name()];
@@ -311,12 +311,12 @@ void TechBrowser::onLayerColorChanged()
         {
             info->routing().setColor(m_colorButton->getColor());
             m_db->m_layerRenderInfoDB.contentsChanged();
-        }        
+        }
     }
 }
 
 void TechBrowser::onChangeHatch()
-{    
+{
     if (m_db == nullptr)
     {
         return;
@@ -343,16 +343,16 @@ void TechBrowser::onChangeHatch()
                     info->routing().setTexture(hatch);
                     m_db->m_layerRenderInfoDB.contentsChanged();
                 }
-            }            
-        }        
-    }    
+            }
+        }
+    }
 }
 
 void TechBrowser::onLayerObsColorChanged()
 {
     QModelIndex index = m_layerTableView->currentIndex();
     auto layer = m_layerTableModel->getLayer(index.row());
-    
+
     if ((layer != nullptr) && (m_db != nullptr))
     {
         auto info = m_db->m_layerRenderInfoDB[layer->name()];
@@ -360,7 +360,7 @@ void TechBrowser::onLayerObsColorChanged()
         {
             info->obstruction().setColor(m_colorObsButton->getColor());
             m_db->m_layerRenderInfoDB.contentsChanged();
-        }        
+        }
     }
 }
 
@@ -392,9 +392,9 @@ void TechBrowser::onChangeObsHatch()
                     info->obstruction().setTexture(hatch);
                     m_db->m_layerRenderInfoDB.contentsChanged();
                 }
-            }            
-        }        
-    } 
+            }
+        }
+    }
 }
 
 void TechBrowser::onSiteSelectionChanged(const QItemSelection &cur, const QItemSelection &prev)
@@ -402,7 +402,7 @@ void TechBrowser::onSiteSelectionChanged(const QItemSelection &cur, const QItemS
     QModelIndex index = m_siteTableView->currentIndex();
 
     if (index.isValid())
-    {        
+    {
         auto site = m_siteTableModel->getSite(index.row());
         if (site != nullptr)
         {
@@ -432,10 +432,10 @@ void TechBrowser::onSiteSelectionChanged(const QItemSelection &cur, const QItemS
                 }
                 else
                 {
-                    m_colorButton->setDisabled(true);    
+                    m_colorButton->setDisabled(true);
                     m_hatchButton->setDisabled(true);
                     m_colorObsButton->setDisabled(true);
-                    m_hatchObsButton->setDisabled(true);                    
+                    m_hatchObsButton->setDisabled(true);
                 }
             }
             else

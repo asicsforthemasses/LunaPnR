@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -37,13 +37,13 @@ BOOST_AUTO_TEST_CASE(Solver)
 
     // solve Ax + b = 0
     const size_t N = 10;
-    Eigen::VectorXd vx(N);     // x vector 
+    Eigen::VectorXd vx(N);     // x vector
     Eigen::VectorXd vb(N);     // b vector
 
     vb <<  26.717, 29.451, 30.383, 18.453, 28.383, 19.795, 33.162, 29.254, 25.458, 30.753;
 
     Eigen::MatrixXd mat(N,N);
-    
+
     mat <<
         0.229695,   0.690635,   0.616636,   0.211123,   0.832392,   0.370716,   0.734110,   0.699650,   0.187762,   0.359942,
         0.863408,   0.985869,   0.404228,   0.476515,   0.273468,   0.320162,   0.858238,   0.728686,   0.743069,   0.168414,
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(Solver)
 
     Eigen::LeastSquaresConjugateGradient<Eigen::MatrixXd> solver;
     vx = solver.compute(mat).solve(vb);
-    
+
     // the solution we expect
     Eigen::VectorXd checkX(N);
     checkX << 1,2,3,4,5,6,7,8,9,10;

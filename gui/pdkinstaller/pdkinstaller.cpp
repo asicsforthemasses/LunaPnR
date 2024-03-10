@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -85,7 +85,7 @@ ReadResult readInstallFile(std::istream &toml)
                     extractInfo.m_compressor = cmd[1].value<std::string>().value();
                     info.m_extract.emplace_back(extractInfo);
                 }
-            );            
+            );
         }
 
         auto urlArr = tbl["url"].as_array();
@@ -97,7 +97,7 @@ ReadResult readInstallFile(std::istream &toml)
                     UrlWithDir urlWithDir;
                     urlWithDir.m_url = url[0].value<std::string>().value();
                     urlWithDir.m_installdir = url[1].value<std::string>().value();
-                    info.m_url.emplace_back(urlWithDir);                    
+                    info.m_url.emplace_back(urlWithDir);
                 }
             );
         }
@@ -152,7 +152,7 @@ ReadResult readInstallFile(std::istream &toml)
 namespace GUI
 {
 
-PDKInstallDialog::PDKInstallDialog(const std::filesystem::path &PDKRoot, 
+PDKInstallDialog::PDKInstallDialog(const std::filesystem::path &PDKRoot,
     QWidget *parent) : QDialog(parent)
 {
     m_pdkroot = PDKRoot;
@@ -179,7 +179,7 @@ PDKInstallDialog::PDKInstallDialog(const std::filesystem::path &PDKRoot,
     m_pdkTitle = new QLineEdit("");
     m_pdkTitle->setReadOnly(true);
     m_pdkVersion = new QLineEdit("");
-    m_pdkVersion->setReadOnly(true);    
+    m_pdkVersion->setReadOnly(true);
     m_pdkDescription = new QPlainTextEdit();
     m_pdkDescription->setReadOnly(true);
     m_installDirDisplay = new QLineEdit("");
@@ -307,7 +307,7 @@ void PDKInstallDialog::onInstall()
                 // dir create error
                 std::cerr << "Cannot create dir " << filedir << "\n";
                 return;
-            }      
+            }
         }
 
         m_downloader.download(QUrl(QString::fromStdString(urlAndDir.m_url)), filepath.c_str());
@@ -324,7 +324,7 @@ void PDKInstallDialog::onInstall()
     PDKInfo pdkinfo;
     pdkinfo.m_title = m_installInfo->m_title;
     pdkinfo.m_name = m_installInfo->m_name;
-    pdkinfo.m_copyright = m_installInfo->m_copyright; 
+    pdkinfo.m_copyright = m_installInfo->m_copyright;
     pdkinfo.m_date = m_installInfo->m_date;
     pdkinfo.m_description = m_installInfo->m_description;
     pdkinfo.m_lefs = m_installInfo->m_lefs;
@@ -393,13 +393,13 @@ void PDKInstallDialog::onDownloaded(QString filename)
                 std::stringstream ss;
                 ss << "tar -xjf " << filepath;
                 std::system(ss.str().c_str());
-            }   
+            }
             else if (extractInfo.m_compressor == "xz")
             {
                 std::stringstream ss;
                 ss << "tar -xJf " << filepath;
                 std::system(ss.str().c_str());
-            }                        
+            }
             else
             {
                 // unsupported compression

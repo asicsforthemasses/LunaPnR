@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -32,7 +32,7 @@ void LayerAppearanceTableModel::setLayers(LayerRenderInfoDB *layers)
     if (m_layers != nullptr)
     {
         m_layers->addListener(this);
-    }    
+    }
 }
 
 int LayerAppearanceTableModel::rowCount(const QModelIndex &parent) const
@@ -88,7 +88,7 @@ QVariant LayerAppearanceTableModel::data(const QModelIndex &index, int role) con
         break;
     case Qt::DecorationRole:
         if (idx < m_pixmapCache.size())
-        {              
+        {
             if (index.column() == 0)
             {
                 return m_pixmapCache.at(idx).m_pixmap;

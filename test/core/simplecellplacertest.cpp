@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -26,7 +26,7 @@ BOOST_AUTO_TEST_CASE(check_simplecellplacer)
     std::ifstream verilogfile("test/files/verilog/nerv_tsmc018.v");
     BOOST_CHECK(verilogfile.good());
 
-    ChipDB::Verilog::Reader::load(design, verilogfile);    
+    ChipDB::Verilog::Reader::load(design, verilogfile);
 
     auto mod = design.m_moduleLib->lookupModule("nerv");
     BOOST_CHECK(mod.isValid());

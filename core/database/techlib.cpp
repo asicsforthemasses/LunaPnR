@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -9,25 +9,25 @@ using namespace ChipDB;
 
 std::string ChipDB::toString(const LayerType &lt)
 {
-    switch(lt)    
+    switch(lt)
     {
     default:
     case LayerType::UNDEFINED:
         return "UNDEFINED";
     case LayerType::ROUTING:
-        return "ROUTING";        
+        return "ROUTING";
     case LayerType::CUT:
         return "CUT";
     case LayerType::MASTERSLICE:
         return "MASTERSLICE";
     case LayerType::OVERLAP:
         return "OVERLAP";
-    }    
+    }
 }
 
 std::string ChipDB::toString(const LayerDirection &ldir)
 {
-    switch(ldir)    
+    switch(ldir)
     {
     default:
     case LayerDirection::UNDEFINED:

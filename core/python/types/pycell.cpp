@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -24,7 +24,7 @@ struct PyCell : public Python::TypeTemplate<ChipDB::Cell>
         {
             return Python::toPython(self->obj()->name());
         }
-        
+
         return nullptr;
     };
 
@@ -34,8 +34,8 @@ struct PyCell : public Python::TypeTemplate<ChipDB::Cell>
         {
             return Python::toPython(self->obj()->m_leakagePower);
         }
-        
-        return nullptr;        
+
+        return nullptr;
     };
 
     static PyObject* getArea(PyCell *self, void *closure)
@@ -44,8 +44,8 @@ struct PyCell : public Python::TypeTemplate<ChipDB::Cell>
         {
             return Python::toPython(self->obj()->m_area);
         }
-        
-        return nullptr;        
+
+        return nullptr;
     };
 
     static PyObject* getSize(PyCell *self, void *closure)
@@ -54,8 +54,8 @@ struct PyCell : public Python::TypeTemplate<ChipDB::Cell>
         {
             return Python::toPython(self->obj()->m_size);
         }
-        
-        return nullptr;        
+
+        return nullptr;
     };
 
     static PyObject* getOffset(PyCell *self, void *closure)
@@ -64,8 +64,8 @@ struct PyCell : public Python::TypeTemplate<ChipDB::Cell>
         {
             return Python::toPython(self->obj()->m_offset);
         }
-        
-        return nullptr;        
+
+        return nullptr;
     };
 
     static PyObject* getSite(PyCell *self, void *closure)
@@ -74,8 +74,8 @@ struct PyCell : public Python::TypeTemplate<ChipDB::Cell>
         {
             return Python::toPython(self->obj()->m_site);
         }
-        
-        return nullptr;        
+
+        return nullptr;
     };
 
     static PyObject* getClass(PyCell *self, void *closure)
@@ -84,8 +84,8 @@ struct PyCell : public Python::TypeTemplate<ChipDB::Cell>
         {
             return Python::toPython(self->obj()->m_class);
         }
-        
-        return nullptr;        
+
+        return nullptr;
     };
 
     static PyObject* getSubClass(PyCell *self, void *closure)
@@ -94,8 +94,8 @@ struct PyCell : public Python::TypeTemplate<ChipDB::Cell>
         {
             return Python::toPython(self->obj()->m_subclass);
         }
-        
-        return nullptr;        
+
+        return nullptr;
     };
 
     static PyObject* getSymmetry(PyCell *self, void *closure)
@@ -104,7 +104,7 @@ struct PyCell : public Python::TypeTemplate<ChipDB::Cell>
         {
             return Python::toPython(self->obj()->m_symmetry);
         }
-        
+
         return nullptr;
     };
 
@@ -116,7 +116,7 @@ struct PyCell : public Python::TypeTemplate<ChipDB::Cell>
             auto pinInfoList = Python::toPython( &(self->obj()->m_pins));
             return pinInfoList;
         }
-        
+
         return nullptr;
     }
 

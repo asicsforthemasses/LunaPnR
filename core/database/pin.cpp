@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -32,14 +32,14 @@ std::string ChipDB::toString(const IOType &iotype)
 
 
 KeyObjPair<PinInfo> PinInfoList::createPin(const std::string &name)
-{    
+{
     KeyObjPair<PinInfo> result = find(name);
     if (!result.isValid())
     {
         m_pins.push_back(std::make_shared<PinInfo>(name));
         return {static_cast<ObjectKey>(m_pins.size()-1), m_pins.back()};
     }
-    
+
     // return the existing one
     return result;
 }

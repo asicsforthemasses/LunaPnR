@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -43,19 +43,19 @@ BOOST_AUTO_TEST_CASE(check_pininfolist)
 {
     ChipDB::KeyObjPair<float> t;
     std::cout << "--== CHECK PININFOLIST ==--\n";
-    
+
     ChipDB::PinInfoList list;
 
     // check non-existing pin lookup returns nullptr
     BOOST_CHECK(!list["alfred"].isValid());
-    
+
     // create pin 'henk'
     auto p1 = list.createPin("henk");
     BOOST_CHECK(p1->name() == "henk");
 
     // check index of henk is 0
     BOOST_CHECK(list["henk"].key() == 0);
-    
+
     // check pin 'henk' is not a nullptr
     auto henkKeyObjPair = list["henk"];
     BOOST_CHECK(henkKeyObjPair.isValid());

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -33,7 +33,7 @@ void FileSetupManager::addCategory(const QString &name, const QStringList &fileE
     m_model.addCategory(name, fileExt, data);
 }
 
-void FileSetupManager::addCategory(const QString &name, const QString &fileExt,  
+void FileSetupManager::addCategory(const QString &name, const QString &fileExt,
     std::vector<std::string > *data)
 {
     m_model.addCategory(name, QStringList{fileExt}, data);

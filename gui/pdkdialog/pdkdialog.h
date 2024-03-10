@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -30,12 +30,12 @@ private slots:
 protected:
     int m_selected{-1};
     std::vector<PDKInfo>    &m_pdks;
-    
+
     PDKTileList *m_tileList{nullptr};
     QScrollArea *m_tileListScroll{nullptr};
 
     QDialogButtonBox *m_buttonBox{nullptr};
-    
+
 };
 
 };

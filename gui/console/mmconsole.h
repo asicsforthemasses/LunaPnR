@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -75,7 +75,7 @@ public:
             case Logging::LogType::WARNING:
                 return m_warningCol;
             default:
-                return m_promptCol;                
+                return m_promptCol;
             }
         }
     };
@@ -104,10 +104,10 @@ signals:
 protected:
     void    displayPrompt();
     void    appendWithoutNewline(const QString &txt);
-    
+
     bool event(QEvent *event) override;
     std::unique_ptr<MTStringBuffer> m_mtStringBuffer;
-    
+
     QTextEdit       *m_textDisplay;   ///< widget to display all console messages
     SingleLineEdit  *m_commandLine;   ///< single line text edit.
     ConsoleColours  m_colours;

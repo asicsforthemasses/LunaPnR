@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -23,7 +23,7 @@ struct PyPinInfo : public Python::TypeTemplate<ChipDB::PinInfo>
         {
             return Python::toPython(self->obj()->name());
         }
-        
+
         return nullptr;
     };
 
@@ -69,7 +69,7 @@ struct PyPinInfo : public Python::TypeTemplate<ChipDB::PinInfo>
         {
             return Python::toPython(self->obj()->m_offset);
         }
-        return nullptr;        
+        return nullptr;
     };
 
     static PyObject* getFunction(PyPinInfo *self, void *closure)
@@ -78,7 +78,7 @@ struct PyPinInfo : public Python::TypeTemplate<ChipDB::PinInfo>
         {
             return Python::toPython(self->obj()->m_function);
         }
-        return nullptr;        
+        return nullptr;
     };
 
     static PyObject* getTristateFunction(PyPinInfo *self, void *closure)
@@ -87,7 +87,7 @@ struct PyPinInfo : public Python::TypeTemplate<ChipDB::PinInfo>
         {
             return Python::toPython(self->obj()->m_tristateFunction);
         }
-        return nullptr;        
+        return nullptr;
     };
 
     /** set internal values of PyCell */

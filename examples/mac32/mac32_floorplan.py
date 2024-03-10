@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+# SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 #
 # SPDX-License-Identifier: GPL-3.0-only
 
@@ -25,13 +25,13 @@ xpos = 0
 xinc = 16000
 x = xofs+10000
 
-for idx in range(0,32): 
+for idx in range(0,32):
     pinName = "a_in[" + str(idx) + "]"
     placeInstance(pinName, "mac32", x, yofs+ys+pin_distance)
     x = x + xinc
     pinName = "b_in[" + str(idx) + "]"
     placeInstance(pinName, "mac32", x, yofs+ys+pin_distance)
-    x = x + xinc    
+    x = x + xinc
 
 xinc = 16000
 x = xofs+10000

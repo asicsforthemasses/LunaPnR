@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    std::string outputFileName(argv[argc-1]);    
+    std::string outputFileName(argv[argc-1]);
     std::ofstream ofile(outputFileName);
 
     if (!ofile.good())
@@ -59,9 +59,9 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
 
-        std::cout << "input : " << inputFileName << "\n";    
-        
-        for (std::string line; std::getline(ifile, line); ) 
+        std::cout << "input : " << inputFileName << "\n";
+
+        for (std::string line; std::getline(ifile, line); )
         {
             std::smatch sm;
             if (std::regex_search(line, sm, luaregex))
@@ -72,8 +72,8 @@ int main(int argc, char *argv[])
                 if (std::regex_search(helpStr, sm2, cmdregex))
                 {
                     auto cmdStr = sm2[1];
-                    if (!firstItem) 
-                    {   
+                    if (!firstItem)
+                    {
                         ss << ",";
                     }
                     ss << "{\"" << cmdStr << "\",\"" << helpStr << "\"}\n";

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(test_can_read_FemtoRV32_quark)
     auto mod = design.m_moduleLib.lookup("FemtoRV32");
     BOOST_CHECK(mod != nullptr);
 
-    // femtorv32 fits in approx 650x650 um    
+    // femtorv32 fits in approx 650x650 um
     LunaCore::Partitioner::FMPart partitioner;
     LunaCore::Partitioner::FMContainer container;
     container.m_region = {{0,0}, {650000, 650000}};
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE(test_can_read_FemtoRV32_quark)
             {
                 ins->m_pos = {0, left_y};
                 ins->m_placementInfo = ChipDB::PLACEMENT_PLACEDANDFIXED;
-                left_y += 5000;                
+                left_y += 5000;
             }
             else
             {

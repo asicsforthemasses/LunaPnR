@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_CASE(file_utils_test)
 {
     std::cout << "--== CHECK FILE UTILS: envvars ==--\n";
     const std::string envName{"CheckFileUtilsEnvVarTest"};
-    
+
     BOOST_CHECK(ChipDB::setEnvironmentVar(envName, "1234"));
     BOOST_CHECK(ChipDB::getEnvironmentVar(envName) == "1234");
 

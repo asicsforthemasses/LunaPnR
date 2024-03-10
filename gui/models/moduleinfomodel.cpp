@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -70,7 +70,7 @@ void ModuleInfoModel::setModule(std::shared_ptr<ChipDB::Module> module)
     {
         // generic cell information
         auto instancesNode = new ModuleInfoNode("Instances #", "BLACK BOX", m_altColors.getColorAndUpdate());
-        m_rootNode->addChild(instancesNode);        
+        m_rootNode->addChild(instancesNode);
     }
 
     int32_t numberOfPins = module->m_pins.size();
@@ -90,7 +90,7 @@ void ModuleInfoModel::setModule(std::shared_ptr<ChipDB::Module> module)
     auto leakPowerNode = new ModuleInfoNode("Leakage pwr (nW)", cell->m_leakagePower * 1e9f, m_altColors.getColorAndUpdate());
     m_rootNode->addChild(leakPowerNode);
 
-    auto offsetNode = new ModuleInfoNode("Offset ", QString::asprintf("%ld,%ld", cell->m_offset.m_x, cell->m_offset.m_y), 
+    auto offsetNode = new ModuleInfoNode("Offset ", QString::asprintf("%ld,%ld", cell->m_offset.m_x, cell->m_offset.m_y),
         m_altColors.getColorAndUpdate());
 
     m_rootNode->addChild(offsetNode);
@@ -112,7 +112,7 @@ void ModuleInfoModel::setModule(std::shared_ptr<ChipDB::Module> module)
 
         // add input/output for each pin
         int colSelect = 0;
-        
+
         auto pinTypeStr = QString::fromStdString(toString(pin->m_iotype));
         if (pin->m_clock)
         {
@@ -130,7 +130,7 @@ void ModuleInfoModel::setModule(std::shared_ptr<ChipDB::Module> module)
         {
             pinNode->addChild(new ModuleInfoNode("Capacitance (pF)", pin->m_cap * 1.e12f, m_altColors.getColorAndUpdate()));
         }
-        
+
     }
 
     endResetModel();

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -34,7 +34,7 @@ BOOST_AUTO_TEST_CASE(various_instance_tests)
     // check unconnected pin returns ObjectNotFound
     auto pin = insPtr->getPin("A");
     BOOST_CHECK(pin.netKey() == ChipDB::ObjectNotFound);
-        
+
     size_t pinCount = 0;
     for(auto pinKey=0; pinKey < insPtr->getNumberOfPins(); pinKey++)
     {
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_CASE(various_instance_tests)
             pinCount++;
         }
     }
-    
+
     BOOST_CHECK(pinCount == 3);
     BOOST_CHECK(insPtr->getNumberOfPins() == 3);
 
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(various_instance_tests)
 
     // test pin A gain to see if we haven't overwritten anything
     BOOST_CHECK(insPtr->getPin("A").netKey() == 123);   // lookup by name
-    BOOST_CHECK(insPtr->getPin(0).netKey() == 123);   // lookup by id for good measure    
+    BOOST_CHECK(insPtr->getPin(0).netKey() == 123);   // lookup by id for good measure
 }
 
 BOOST_AUTO_TEST_SUITE_END()

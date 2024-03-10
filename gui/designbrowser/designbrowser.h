@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -40,7 +40,7 @@ public slots:
 protected:
     std::unique_ptr<ModuleTableModel>  m_moduleModel;
     std::unique_ptr<ModuleInfoModel>   m_moduleInfoModel;
-    
+
     QHBoxLayout     *m_layout;
     QVBoxLayout     *m_layout2;
     QTableView      *m_moduleTableView;

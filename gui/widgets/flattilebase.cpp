@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -6,7 +6,7 @@
 
 using namespace GUI;
 
-FlatTileBase::FlatTileBase(const QString &text, const QString &iconUrl, 
+FlatTileBase::FlatTileBase(const QString &text, const QString &iconUrl,
     const QString &actionName, QWidget *parent) : QFrame(parent), m_actionName(actionName)
 {
     m_statusIndicator = new FlatImage("://images/status_empty.png");
@@ -48,13 +48,13 @@ void FlatTileBase::setStatus(Status s) noexcept
         break;
     case Status::RUNNING:
         m_statusIndicator->setPixmap("://images/status_running.png");
-        break;        
+        break;
     case Status::ERROR:
         m_statusIndicator->setPixmap("://images/status_error.png");
         break;
     case Status::OK:
         m_statusIndicator->setPixmap("://images/status_ok.png");
-        break;        
+        break;
     default:
         break;
     }

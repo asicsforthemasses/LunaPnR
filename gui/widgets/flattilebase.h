@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -18,7 +18,7 @@ class FlatTileBase : public QFrame
 {
     Q_OBJECT
 public:
-    FlatTileBase(const QString &text, const QString &iconUrl, 
+    FlatTileBase(const QString &text, const QString &iconUrl,
         const QString &actionName, QWidget *parent = nullptr);
 
     virtual ~FlatTileBase() = default;
@@ -47,8 +47,8 @@ public:
 protected:
     QLabel      *m_textLabel = nullptr;
     QString     m_actionName;
-    FlatImage   *m_statusIndicator = nullptr;    
-    FlatImage   *m_icon = nullptr;    
+    FlatImage   *m_statusIndicator = nullptr;
+    FlatImage   *m_icon = nullptr;
     QHBoxLayout *m_hlayout = nullptr;
     Status      m_status{Status::NONE};
 };

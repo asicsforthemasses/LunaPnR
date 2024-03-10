@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -25,11 +25,11 @@ public:
     virtual ~CheckTiming() = default;
 
 protected:
-    std::string createTCL(const GUI::Database &database, 
+    std::string createTCL(const GUI::Database &database,
         const std::string &topModuleName,
         const std::string &spefFilename,
         const std::string &verilogFilename) const;
-        
+
     void execute(GUI::Database &database, ProgressCallback callback) override;
 
     Mode m_mode{Mode::BARE};

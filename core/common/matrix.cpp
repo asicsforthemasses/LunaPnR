@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -7,7 +7,7 @@
 void LunaCore::toEigen(const Matrix &matrix, Eigen::SparseMatrix<double> &eigenMatrix) noexcept
 {
     auto nnz = matrix.nonZeroItemCount();
-    
+
     std::vector<Eigen::Triplet<double> > triples;
     triples.reserve(nnz);
 

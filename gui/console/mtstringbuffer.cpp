@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -43,7 +43,7 @@ void MTStringBuffer::print(const Logging::LogType &logType, const std::string_vi
     {
         auto event = new QEvent(QEvent::User);
         QApplication::postEvent(m_eventReceiver, event);
-    }    
+    }
 }
 
 MTStringBuffer::LogString MTStringBuffer::pop()

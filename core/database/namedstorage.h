@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -105,10 +105,10 @@ struct INamedStorageListener
     virtual void notify(ObjectKey index = ObjectUnspecified, NotificationType t = NotificationType::UNSPECIFIED) = 0;
 };
 
-/** container to store object pointers and provides fast named lookup. 
- * 
+/** container to store object pointers and provides fast named lookup.
+ *
  *  TODO: when updating to C++20, use concepts to contrain the type to INamedObject
- * 
+ *
 */
 
 template <class T>
@@ -123,7 +123,7 @@ public:
     virtual ~NamedStorage()
     {
     }
-    
+
     void clear()
     {
         m_objects.clear();
@@ -138,8 +138,8 @@ public:
         return m_objects.size();
     }
 
-    /** adds an named object to the container. 
-     *  returns ObjectAlreadyExists if an object with the same name already exists. 
+    /** adds an named object to the container.
+     *  returns ObjectAlreadyExists if an object with the same name already exists.
      *  returns the ObjectKey is the object was successfully added. */
     std::optional<KeyObjPair<T> > add(std::shared_ptr<T> objectPtr)
     {
@@ -183,7 +183,7 @@ public:
 
     /** remove an object by key. returns true if successful */
     bool remove(ObjectKey key)
-    {        
+    {
         auto iter = m_objects.find(key);
         if (iter == m_objects.end())
         {
@@ -209,7 +209,7 @@ public:
 
     /** access an object by name. Will throw std::out_of_range exception when the object does not exist */
     KeyObjPair<T> at(const std::string &name)
-    {        
+    {
         auto objKey = m_nameToKey.at(name);
         return KeyObjPair<T>(objKey, m_objects.at(objKey));
     }
@@ -226,7 +226,7 @@ public:
     {
         return m_objects.at(key);
     }
- 
+
     /** access an object by key. Will throw std::out_of_range exception when the object does not exist */
     constexpr const std::shared_ptr<T> at(ObjectKey key) const
     {
@@ -255,7 +255,7 @@ public:
         return static_cast<const T&>(*objPtr.get());
     }
 
-    /** access an object by key. Returns an object pointer. 
+    /** access an object by key. Returns an object pointer.
      *  Will throw std::out_of_range exception when the object does not exist.
      *  Will throw std::runtime_error when the object is nullptr.
     */
@@ -269,7 +269,7 @@ public:
         return objPtr.get();
     }
 
-    /** access an object by key. Returns an object pointer. 
+    /** access an object by key. Returns an object pointer.
      *  Will throw std::out_of_range exception when the object does not exist.
      *  Will throw std::runtime_error when the object is nullptr.
     */
@@ -288,7 +288,7 @@ public:
     {
         return findObject(key);
     }
- 
+
     /** access an object by key. Will return a nullptr when the object does not exist */
     constexpr const std::shared_ptr<T> operator[](ObjectKey key) const
     {
@@ -300,7 +300,7 @@ public:
     {
         return findObject(name);
     }
- 
+
     /** access an object by name. Will return a nullptr when the object does not exist */
     constexpr KeyObjPair<T> operator[](const std::string &name) const
     {
@@ -319,7 +319,7 @@ public:
         Iterator() = default;
         Iterator(const Iterator &) = default;
 
-        Iterator(BaseIteratorType baseIterator) 
+        Iterator(BaseIteratorType baseIterator)
             : m_baseIterator(baseIterator) {}
 
         constexpr value_type operator*()
@@ -335,7 +335,7 @@ public:
         // prefix increment
         Iterator& operator++()
         {
-            m_baseIterator++; 
+            m_baseIterator++;
             return *this;
         }
 
@@ -372,8 +372,8 @@ public:
 
         ConstIterator() = default;
         ConstIterator(const ConstIterator &) = default;
-        
-        ConstIterator(BaseIteratorType baseIterator) 
+
+        ConstIterator(BaseIteratorType baseIterator)
             : m_baseIterator(baseIterator) {}
 
         constexpr value_type operator*()
@@ -389,7 +389,7 @@ public:
         // prefix increment
         ConstIterator& operator++()
         {
-            m_baseIterator++; 
+            m_baseIterator++;
             return *this;
         }
 
@@ -401,7 +401,7 @@ public:
             return tmp;
         }
 
-        friend bool operator==(const ConstIterator &lhs, const ConstIterator &rhs) 
+        friend bool operator==(const ConstIterator &lhs, const ConstIterator &rhs)
         {
             return lhs.m_baseIterator == rhs.m_baseIterator;
         }
@@ -438,7 +438,7 @@ public:
     void addListener(INamedStorageListener *listener)
     {
         // check if the listener already exists.
-        auto iter = std::find_if(m_listeners.begin(), m_listeners.end(), 
+        auto iter = std::find_if(m_listeners.begin(), m_listeners.end(),
             [listener](auto const &listenerData)
             {
                 return listenerData.m_listener == listener;
@@ -447,7 +447,7 @@ public:
 
         // if not, add it!
         if (iter == m_listeners.end())
-        {            
+        {
             m_listeners.emplace_back();
             m_listeners.back().m_listener = listener;
         }
@@ -455,7 +455,7 @@ public:
 
     void removeListener(INamedStorageListener *listener)
     {
-        auto iter = std::find_if(m_listeners.begin(), m_listeners.end(), 
+        auto iter = std::find_if(m_listeners.begin(), m_listeners.end(),
             [listener](auto const &listenerData)
             {
                 return listenerData.m_listener == listener;
@@ -465,7 +465,7 @@ public:
         if (iter != m_listeners.end())
         {
             m_listeners.erase(iter);
-        }        
+        }
     }
 
     /** trigger a generic message to all the listeners that the data has changed */
@@ -478,8 +478,8 @@ public:
     using const_iterator = ConstIterator;
 
 protected:
-    
-    void notifyAll(ObjectKey key = ObjectUnspecified, INamedStorageListener::NotificationType t = 
+
+    void notifyAll(ObjectKey key = ObjectUnspecified, INamedStorageListener::NotificationType t =
         INamedStorageListener::NotificationType::UNSPECIFIED) const
     {
         for(auto &listenerData : m_listeners)
@@ -533,7 +533,7 @@ protected:
         if (objIter == m_objects.end())
         {
             return KeyObjPair<T>();
-        }        
+        }
 
         return KeyObjPair<T>(objIter->first, objIter->second);
     }
@@ -550,7 +550,7 @@ protected:
         if (objIter == m_objects.end())
         {
             return KeyObjPair<T>();
-        }        
+        }
 
         return KeyObjPair<T>(objIter->first, objIter->second);
     }

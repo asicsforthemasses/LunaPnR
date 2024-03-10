@@ -1,5 +1,5 @@
 
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -20,7 +20,7 @@ std::optional<LunaCore::PPM::Bitmap> LunaCore::PPM::read(const std::string &file
     return read(ifile);
 }
 
-std::optional<LunaCore::PPM::Bitmap> 
+std::optional<LunaCore::PPM::Bitmap>
     LunaCore::PPM::read(std::istream &is)
 {
     if (!is.good()) return std::nullopt;
@@ -55,7 +55,7 @@ std::optional<LunaCore::PPM::Bitmap>
         if ((width > 10240) || (height > 10240))
         {
             Logging::doLog(Logging::LogType::ERROR,"PPM::read PPM too big! (max width or height is 10240.\n");
-            return std::nullopt;  
+            return std::nullopt;
         }
 
         LunaCore::PPM::Bitmap bm;

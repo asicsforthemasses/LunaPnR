@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -17,8 +17,8 @@ class FlatActionTile : public FlatTileBase
 {
     Q_OBJECT
 public:
-    FlatActionTile(const QString &actionTitle, 
-        const QString &iconUrl,        
+    FlatActionTile(const QString &actionTitle,
+        const QString &iconUrl,
         const QString &actionIconUrl,
         const QString &actionName,
         QWidget *parent = nullptr);

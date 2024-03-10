@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -18,8 +18,8 @@ KeyObjPair<Region> Floorplan::addRegion(std::shared_ptr<Region> regionPtr)
     {
         return optKeyObjPair.value();
     }
-    
-    return KeyObjPair<Region>{};    
+
+    return KeyObjPair<Region>{};
 }
 
 KeyObjPair<Region> Floorplan::createRegion(const std::string &name, const std::string &site)
@@ -29,7 +29,7 @@ KeyObjPair<Region> Floorplan::createRegion(const std::string &name, const std::s
     {
         return optKeyObjPair.value();
     }
-    
+
     return KeyObjPair<Region>{};
 }
 

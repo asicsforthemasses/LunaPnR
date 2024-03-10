@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -21,14 +21,14 @@ namespace ChipDB::Liberty {
 class Parser
 {
 public:
-    Parser() : 
-        m_curtok(TOK_ERR), 
+    Parser() :
+        m_curtok(TOK_ERR),
         m_src(nullptr),
         m_idx(0),
         m_lineNum(0),
         m_col(0)
          {}
-    
+
     virtual ~Parser() {}
 
     enum token_t : int32_t
@@ -72,7 +72,7 @@ public:
 
     /** Called for complex attributes, such as timing tables */
     virtual void onComplexAttribute(const std::string &attrname, const std::vector<std::string> &list) {}
-    
+
     /** Called at the end of every group */
     virtual void onEndGroup() {}
 
@@ -102,7 +102,7 @@ protected:
     void error(const std::string &errstr);
 
     /** accept the current token if it is equal
-     *  to 'tok', advance to next token, return true, 
+     *  to 'tok', advance to next token, return true,
      * else return false.
     */
     bool acceptToken(const token_t tok);
@@ -111,7 +111,7 @@ protected:
     {
         return m_curtok;
     }
-    
+
     // lexer functions
     token_t         m_curtok;
     std::string     m_tokstr;
@@ -120,7 +120,7 @@ protected:
     void advance();
     char peek() const;
     bool atEnd() const;
-    
+
     const std::string *m_src;
     uint32_t    m_idx;
     uint32_t    m_lineNum;

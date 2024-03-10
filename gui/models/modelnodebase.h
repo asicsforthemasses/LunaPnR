@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -37,10 +37,10 @@ public:
     size_t getNumberOfColumns() const;
 
     NodeBase *getParent() const;
-    
+
     QColor getBackgroundColor(int column) const;
     void   setBackgroundColor(int column, QColor col);
-    
+
     const QPixmap& getIcon() const;
     void setIcon(QPixmap icon);
 
@@ -66,7 +66,7 @@ public:
     ModelBase();
     virtual ~ModelBase();
 
-    QModelIndex index(int row, int column, 
+    QModelIndex index(int row, int column,
         const QModelIndex &parent) const override;
 
     QModelIndex parent(const QModelIndex &child) const override;

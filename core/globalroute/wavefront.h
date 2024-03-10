@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -31,10 +31,10 @@ public:
     void clear();
 
 protected:
-    
+
     struct WavefrontItemCompare
     {
-        constexpr bool operator()(const WavefrontItem &left, const WavefrontItem &right) const 
+        constexpr bool operator()(const WavefrontItem &left, const WavefrontItem &right) const
         {
             return left.m_pathCost > right.m_pathCost;
         }

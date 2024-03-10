@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -33,7 +33,7 @@ bool LunaCore::QLAPlacer::place(
     }
 
     Logging::doLog(Logging::LogType::INFO, "Placing netlist in rectangle (%d,%d)-(%d,%d).\n",
-        regionRect.left(), regionRect.bottom(), 
+        regionRect.left(), regionRect.bottom(),
         regionRect.right(), regionRect.top());
 
     // check if pins have been fixed
@@ -67,8 +67,8 @@ bool LunaCore::QLAPlacer::place(
     Logging::doLog(Logging::LogType::INFO, "Utilization = %3.1f percent\n", 100.0* area / static_cast<double>(regionArea));
 
     auto placerNetlist = Private::createPlacerNetlist(netlist);
-    
-    Private::doInitialPlacement(regionRect, placerNetlist);    
+
+    Private::doInitialPlacement(regionRect, placerNetlist);
     Private::updatePositions(placerNetlist, netlist);
 
     Logging::doLog(Logging::LogType::INFO, "Initial HPWL = %lf\n", Private::calcHPWL(placerNetlist));
@@ -77,10 +77,10 @@ bool LunaCore::QLAPlacer::place(
     double oldHpwlCost = std::numeric_limits<double>::max();
     size_t iterCount = 1;
     while(iterCount < 20)
-    {   
+    {
         oldHpwlCost = hpwlCost;
         Private::doQuadraticB2B(placerNetlist);
-                
+
         if (callback)
         {
             callback(placerNetlist);
@@ -99,7 +99,7 @@ bool LunaCore::QLAPlacer::place(
         }
 
         iterCount++;
-    } 
+    }
 
     Logging::doLog(Logging::LogType::VERBOSE, "Running final legalization.\n");
     LunaCore::Legalizer legalizer;

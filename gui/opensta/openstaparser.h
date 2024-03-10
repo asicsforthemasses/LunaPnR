@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -132,7 +132,7 @@ public:
         return m_foundSPEFReport;
     }
 
-    /** returns true if OpenSTA found no problems in the SPEF setup 
+    /** returns true if OpenSTA found no problems in the SPEF setup
      *  i.e. all nets were fully annotated.
     */
     [[nodiscard]] bool SPEFChecksOk() const noexcept

@@ -1,17 +1,17 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
-#pragma once 
+#pragma once
 
 #include <vector>
 #include <QPaintEvent>
 #include <QAbstractButton>
 
-namespace GUI 
+namespace GUI
 {
 
-class FlatImageButton : public QAbstractButton 
+class FlatImageButton : public QAbstractButton
 {
     Q_OBJECT
 public:

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -18,7 +18,6 @@ HatchLibrary::HatchLibrary()
         "*     *     *     *     *     "
         "*     *     *     *     *     "
         "*     *     *     *     *     "
-        "*     *     *     *     *     "                
         "*     *     *     *     *     "
         "*     *     *     *     *     "
         "*     *     *     *     *     "
@@ -26,14 +25,15 @@ HatchLibrary::HatchLibrary()
         "*     *     *     *     *     "
         "*     *     *     *     *     "
         "*     *     *     *     *     "
-        "*     *     *     *     *     "        
+        "*     *     *     *     *     "
+        "*     *     *     *     *     "
         ,30,16
     );
-    
+
     if (p.has_value())
     {
         m_hatches.push_back(*p);
-    } 
+    }
 
     p = createPixmapFromString(
         "*           *           "
@@ -51,14 +51,14 @@ HatchLibrary::HatchLibrary()
         "*           *           "
         "                        "
         "      *           *     "
-        "                        "                        
+        "                        "
         ,24,16
     );
-    
+
     if (p.has_value())
     {
         m_hatches.push_back(*p);
-    } 
+    }
 
     p = createPixmapFromString(
         "*   *   *   *   *   *   *   *   "
@@ -76,14 +76,14 @@ HatchLibrary::HatchLibrary()
         "*   *   *   *   *   *   *   *   "
         " *   *   *   *   *   *   *   *  "
         "  *   *   *   *   *   *   *   * "
-        "   *   *   *   *   *   *   *   *"                
+        "   *   *   *   *   *   *   *   *"
         ,32,16
     );
-    
+
     if (p.has_value())
     {
         m_hatches.push_back(*p);
-    } 
+    }
 
     p = createPixmapFromString(
         "*   *   *   *   *   *   *   *   "
@@ -129,11 +129,11 @@ HatchLibrary::HatchLibrary()
         "*   *   *   *   *   *   *   *   "
         ,32,16
     );
-    
+
     if (p.has_value())
     {
         m_hatches.push_back(*p);
-    }   
+    }
 
     p = createPixmapFromString(
         "* * * * * * * * * * * * * * * * "
@@ -151,7 +151,7 @@ HatchLibrary::HatchLibrary()
         "* * * * * * * * * * * * * * * * "
         "                                "
         "                                "
-        "                                "                
+        "                                "
         ,32,16
     );
 
@@ -160,11 +160,6 @@ HatchLibrary::HatchLibrary()
         "*   *   *   *   *   *   *   *   "
         "*   *   *   *   *   *   *   *   "
         "*   *   *   *   *   *   *   *   "
-        "*   *   *   *   *   *   *   *   "        
-        "* * * * * * * * * * * * * * * * "
-        "*   *   *   *   *   *   *   *   "
-        "*   *   *   *   *   *   *   *   "
-        "*   *   *   *   *   *   *   *   "
         "*   *   *   *   *   *   *   *   "
         "* * * * * * * * * * * * * * * * "
         "*   *   *   *   *   *   *   *   "
@@ -175,10 +170,15 @@ HatchLibrary::HatchLibrary()
         "*   *   *   *   *   *   *   *   "
         "*   *   *   *   *   *   *   *   "
         "*   *   *   *   *   *   *   *   "
-        "*   *   *   *   *   *   *   *   "                        
+        "*   *   *   *   *   *   *   *   "
+        "* * * * * * * * * * * * * * * * "
+        "*   *   *   *   *   *   *   *   "
+        "*   *   *   *   *   *   *   *   "
+        "*   *   *   *   *   *   *   *   "
+        "*   *   *   *   *   *   *   *   "
         ,32,16
     );
-    
+
     if (p.has_value())
     {
         m_hatches.push_back(*p);
@@ -199,7 +199,7 @@ HatchLibrary::HatchLibrary()
         "                                         "
         ,41,12
     );
-    
+
     if (p.has_value())
     {
         m_hatches.push_back(*p);

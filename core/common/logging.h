@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -18,15 +18,15 @@ namespace Logging
 
 enum class LogType : uint8_t
 {
-    VERBOSE = 1, 
-    DEBUG = 2, 
-    INFO = 3, 
-    WARNING = 4, 
-    ERROR = 8, 
+    VERBOSE = 1,
+    DEBUG = 2,
+    INFO = 3,
+    WARNING = 4,
+    ERROR = 8,
     PRINT = 100
 };
 
-/** subclass LogOutputHandler to provide your own output processing 
+/** subclass LogOutputHandler to provide your own output processing
  *  you must provide multi-threading support yourself.
 */
 struct LogOutputHandler

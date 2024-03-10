@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -50,7 +50,7 @@ public:
         uint32_t    m_col;
     };
 
-    /** tokenize the input source 
+    /** tokenize the input source
      *  returns true if no errors.
     */
     bool execute(const std::string &src, std::vector<token> &tokens);
@@ -58,7 +58,7 @@ public:
 protected:
     /** if character == c -> advance and return true,
      *  else return false
-    */ 
+    */
     bool match(char c);
 
     /** peek at the next character */
@@ -75,12 +75,12 @@ protected:
     bool isHex(char c) const;
     bool isBin(char c) const;
     bool isWhitespace(char c) const;
-    
+
     uint32_t m_idx;     ///< index of current character
     uint32_t m_line;    ///< current line number
     uint32_t m_col;     ///< current column number
-    
-    enum state_t 
+
+    enum state_t
     {
         S_IDLE,
         S_COMMENT,

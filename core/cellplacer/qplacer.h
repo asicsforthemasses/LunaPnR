@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -20,7 +20,7 @@
 // predeclarations
 namespace ChipDB
 {
-    class Module;   
+    class Module;
     class Region;
     class Design;
 };
@@ -49,7 +49,7 @@ protected:
     template<class AxisAccessor>
     void buildEquations(const PlacerNetlist &netlist,
         Eigen::SparseMatrix<double> &Amat, Eigen::VectorXd &Bvec)
-    {   
+    {
         Amat.resize(netlist.numberOfNodes(), netlist.numberOfNodes());
 
         Amat.reserve(2*netlist.numberOfNodes());    // rough estimate of size
@@ -84,7 +84,7 @@ protected:
 
                         // Note: if we want to account for pin offset within an instance cell
                         //       Bvec should also be changed. See: https://d-nb.info/990084132/34 page 38.
-                        //  
+                        //
                     }
                     else
                     {
@@ -108,7 +108,7 @@ protected:
                 assert(!node1.isFixed());
 
                 auto const& node2 = netlist.getNode(node2Idx); // maybe movable node
-                
+
                 const double effectiveWeight = 1.0;
                 if (!node2.isFixed())
                 {

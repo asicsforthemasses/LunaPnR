@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -21,7 +21,7 @@ bool Parser::isAlpha(char c)
     if (((c >= 'A') && (c <= 'Z')) || ((c >= 'a') && (c <= 'z')))
         return true;
 
-    
+
     if ((c == '_') || (c == '!'))
         return true;
 
@@ -40,9 +40,9 @@ bool Parser::isAlphaNumeric(char c)
 
 bool Parser::isExtendedAlphaNumeric(char c)
 {
-    // DEF apparently allows '-' to be part of a string.. 
-    return (isAlpha(c) || isDigit(c) || (c==']') || (c=='[') 
-        || (c=='-') || (c=='.') || (c=='_') || (c=='/') 
+    // DEF apparently allows '-' to be part of a string..
+    return (isAlpha(c) || isDigit(c) || (c==']') || (c=='[')
+        || (c=='-') || (c=='.') || (c=='_') || (c=='/')
         || (c=='\\') || (c=='<') || (c=='>'));
 }
 
@@ -85,17 +85,17 @@ float Parser::toMicrons(const std::string &value)
     try
     {
         // *sigh* stod is locale dependent, so
-        // it fucks up decimal point handling.. 
+        // it fucks up decimal point handling..
         setlocale(LC_ALL,"C");
         v = std::stod(value);
         setlocale (LC_ALL,"");
     }
     catch(const std::invalid_argument& ia)
-    {        
+    {
         doLog(LogType::ERROR,"Cannot convert %s into a float\n", value.c_str());
         error(ia.what());
     }
-    
+
     return v;
 }
 #endif
@@ -103,7 +103,7 @@ float Parser::toMicrons(const std::string &value)
 int64_t Parser::flt2int(const std::string &value, bool &ok)
 {
     const int32_t numberBase = 10;
-    
+
     int64_t v = 0;
     ok = false;
     bool decimalPointSeen = false;
@@ -114,7 +114,7 @@ int64_t Parser::flt2int(const std::string &value, bool &ok)
         // error: to string, return 0
         return 0;
     }
-    
+
     bool negative = false;
     for(uint32_t i=0; i<value.size(); i++)
     {
@@ -142,7 +142,7 @@ int64_t Parser::flt2int(const std::string &value, bool &ok)
             return 0;
         }
     }
-    
+
     // check that we have 3 decimal digits
     // if not, adjust the value accordingly
     // so we get values in nanometers, no microns.
@@ -184,18 +184,18 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
     }
 
     // check for end-of-line
-    if (match(NEWLINE)) 
+    if (match(NEWLINE))
     {
         m_lineNum++;
-        m_col = 1;        
+        m_col = 1;
         match(CR);
         return TOK_EOL;
     }
-    
+
     if (match(CR))
     {
         m_lineNum++;
-        m_col = 1;        
+        m_col = 1;
         match(NEWLINE);
         return TOK_EOL;
     }
@@ -209,17 +209,17 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
         bool noEOL = true;
         while(noEOL)
         {
-            if (match(NEWLINE)) 
+            if (match(NEWLINE))
             {
                 m_lineNum++;
-                m_col = 1;        
+                m_col = 1;
                 match(CR);
                 noEOL = false;
             }
             else if (match(CR))
             {
                 m_lineNum++;
-                m_col = 1;        
+                m_col = 1;
                 match(NEWLINE);
                 noEOL = false;
             }
@@ -229,13 +229,13 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
             }
         }
         //m_lineNum++;
-        //m_col = 1;                 
-        return TOK_EOL; 
+        //m_col = 1;
+        return TOK_EOL;
     }
 
     if (match(';'))
     {
-        return TOK_SEMICOL; 
+        return TOK_SEMICOL;
     }
 
     if (match('('))
@@ -281,12 +281,12 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
             // it is indeed a number!
             c = peek();
             while(isDigit(c) || (c == '.') || (c == 'e'))
-            {                
+            {
                 tokstr += c;
                 advance();
                 c = peek();
             }
-            return TOK_NUMBER;            
+            return TOK_NUMBER;
         }
         return TOK_MINUS;
     }
@@ -295,11 +295,11 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
     if (isAlpha(peek()))
     {
         tokstr = peek();
-        
+
         advance();
         char c = peek();
         while(isExtendedAlphaNumeric(c))
-        {            
+        {
             tokstr += c;
             advance();
             c = peek();
@@ -328,7 +328,7 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
 
             advance();
             c = peek();
-            
+
             if (c == 0)
             {
                 // unexpected EOF!
@@ -339,10 +339,10 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
 
         // skip closing quotes
         if (!match('"'))
-        {            
+        {
             return TOK_ERR;
         }
-        
+
         return TOK_STRING;
     }
 
@@ -350,13 +350,13 @@ Parser::token_t Parser::tokenize(std::string &tokstr)
     if (isDigit(peek()))
     {
         tokstr = peek();
-        
+
         advance();
         char c = peek();
 
         //FIXME: overly relaxed float parsing.
         while(isDigit(c) || (c == '.') || (c == 'E') || (c == 'e') || (c == '+') || (c == '-'))
-        {            
+        {
             tokstr += c;
             advance();
             c = peek();
@@ -373,15 +373,15 @@ bool Parser::parse(const std::string &defstring)
     m_idx = 0;
     m_col = 1;
     m_lineNum = 1;
-    
+
     m_dBMicrons = 100.0;    // the default value mentioned in LEF/DEF documentation.
 
-    m_tokstr.clear();    
+    m_tokstr.clear();
     bool m_inComment = false;
-    
+
     m_curtok = TOK_EOF;
     do
-    {   
+    {
         m_curtok = tokenize(m_tokstr);
         if (m_curtok == TOK_ERR)
         {
@@ -390,7 +390,7 @@ bool Parser::parse(const std::string &defstring)
             error(ss.str());
             return false;
         }
- 
+
         switch(m_curtok)
         {
         case TOK_HASH:  // line comment
@@ -406,7 +406,7 @@ bool Parser::parse(const std::string &defstring)
             }
             else if (m_tokstr == "PROPERTYDEFINITIONS")
             {
-                if (!parsePropertyDefinitions()) 
+                if (!parsePropertyDefinitions())
                 {
                     error("Error parsing PROPERTYDEFINITIONS\n");
                     return false;
@@ -414,7 +414,7 @@ bool Parser::parse(const std::string &defstring)
             }
             else if (m_tokstr == "VIAS")
             {
-                if (!parseVias()) 
+                if (!parseVias())
                 {
                     error("Error parsing VIAS\n");
                     return false;
@@ -427,13 +427,13 @@ bool Parser::parse(const std::string &defstring)
                 skipUntilEOL();
             }
             else if (!m_tokstr.empty())
-            {   
+            {
                 Logging::doLog(Logging::LogType::VERBOSE, "  DEF skipping: %s on line %u\n", m_tokstr.c_str(), m_lineNum);
             }
             break;
         default:
             if (!m_tokstr.empty())
-            {   
+            {
                 Logging::doLog(Logging::LogType::VERBOSE, "  DEF skipping: %s on line %u\n", m_tokstr.c_str(), m_lineNum);
             }
             break;
@@ -448,7 +448,7 @@ bool Parser::parse(const std::string &defstring)
 void Parser::error(const char *errstr) const
 {
     std::stringstream ss;
-    ss << "Line " << m_lineNum << " col " << m_col << " : " << errstr << "\n"; 
+    ss << "Line " << m_lineNum << " col " << m_col << " : " << errstr << "\n";
     Logging::doLog(Logging::LogType::ERROR, ss.str());
     throw std::runtime_error(ss.str());
 }
@@ -456,7 +456,7 @@ void Parser::error(const char *errstr) const
 void Parser::error(const std::string &errstr) const
 {
     std::stringstream ss;
-    ss << "Line " << m_lineNum << " col " << m_col << " : " << errstr << "\n"; 
+    ss << "Line " << m_lineNum << " col " << m_col << " : " << errstr << "\n";
     Logging::doLog(Logging::LogType::ERROR, ss.str());
     throw std::runtime_error(ss.str());
 }
@@ -510,13 +510,13 @@ bool Parser::parseEnd()
     {
         error("Expected END DESIGN name ;\n");
         return false;
-    }    
+    }
 
     m_curtok = tokenize(m_tokstr);
     if (m_curtok != TOK_SEMICOL)
     {
         error("Expected ;\n");
-        return false;        
+        return false;
     }
 
     onEndDesign(designName);
@@ -539,14 +539,14 @@ bool Parser::parseComponents()
     if (m_curtok != TOK_SEMICOL)
     {
         error("Expected ; after COMPONENTS <number>");
-        return false;        
+        return false;
     }
 
     m_curtok = tokenize(m_tokstr);
     if (m_curtok != TOK_EOL)
     {
         error("Expected EOL after COMPONENTS <number> ;");
-        return false;        
+        return false;
     }
 
     int numComponents = 0;
@@ -646,7 +646,7 @@ bool Parser::parseComponent()
         m_curtok = tokenize(m_tokstr);
         if (m_curtok == TOK_IDENT)
         {
-            if (m_tokstr == "FIXED") 
+            if (m_tokstr == "FIXED")
             {
                 if (!parseFixed()) return false;
                 m_curtok = tokenize(m_tokstr);
@@ -656,21 +656,21 @@ bool Parser::parseComponent()
                 if (!parsePlaced()) return false;
                 m_curtok = tokenize(m_tokstr);
             }
-            else if (m_tokstr == "UNPLACED") 
-            { 
+            else if (m_tokstr == "UNPLACED")
+            {
                 if (!parseUnplaced()) return false;
                 m_curtok = tokenize(m_tokstr);
             }
             else
             {
-                // unknown statement .. 
+                // unknown statement ..
                 skipUntilEOLorSemicolon();
             }
 
             // check if we have an EOL
             // if we do, it means there
             // should be more to come
-            // but if we get a ';' 
+            // but if we get a ';'
             // this is the end.. my friend.
             if (m_curtok == TOK_EOL)
             {
@@ -722,11 +722,11 @@ bool Parser::parsePlaced()
     else if (orient == "W")
     {
         onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::R90});
-    }    
+    }
     else if (orient == "E")
     {
         onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::R270});
-    }   
+    }
     else if (orient == "FN")
     {
         onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::MY});
@@ -738,7 +738,7 @@ bool Parser::parsePlaced()
     else if (orient == "FW")
     {
         onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::MX90});
-    }    
+    }
     else if (orient == "FE")
     {
         onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::MY90});
@@ -756,7 +756,7 @@ bool Parser::parsePlaced()
 
 bool Parser::parseUnplaced()
 {
-    onComponentPlacement({0,0}, ChipDB::PlacementInfo{ChipDB::PlacementInfo::UNPLACED}, 
+    onComponentPlacement({0,0}, ChipDB::PlacementInfo{ChipDB::PlacementInfo::UNPLACED},
         ChipDB::Orientation{ChipDB::Orientation::UNDEFINED});
 
     return true;
@@ -787,11 +787,11 @@ bool Parser::parseFixed()
     else if (orient == "W")
     {
         onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::R90});
-    }    
+    }
     else if (orient == "E")
     {
         onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::R270});
-    }   
+    }
     else if (orient == "FN")
     {
         onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::MY});
@@ -803,7 +803,7 @@ bool Parser::parseFixed()
     else if (orient == "FW")
     {
         onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::MX90});
-    }    
+    }
     else if (orient == "FE")
     {
         onComponentPlacement(point.value(), pl, ChipDB::Orientation{ChipDB::Orientation::MY90});
@@ -815,7 +815,7 @@ bool Parser::parseFixed()
         error(ss.str());
         return false;
     }
-    
+
     return true;
 }
 
@@ -905,7 +905,7 @@ bool Parser::skipUntilSemicolon()
     std::string name;
     m_curtok = tokenize(name);
     while(m_curtok != TOK_SEMICOL)
-    {        
+    {
         if (atEnd())
         {
             error("Unexpected end of file");
@@ -922,7 +922,7 @@ bool Parser::skipUntilEOL()
     std::string name;
     m_curtok = tokenize(name);
     while(m_curtok != TOK_EOL)
-    {        
+    {
         if (atEnd())
         {
             error("Unexpected end of file");
@@ -939,7 +939,7 @@ bool Parser::skipUntilEOLorSemicolon()
     std::string name;
     m_curtok = tokenize(name);
     while((m_curtok != TOK_EOL) && (m_curtok != TOK_SEMICOL))
-    {        
+    {
         if (atEnd())
         {
             error("Unexpected end of file\n");
@@ -979,7 +979,7 @@ bool Parser::parseUntilEnd(const std::string &postfix)
                 if (!m_tokstr.empty())
                 {
                     Logging::doLog(Logging::LogType::VERBOSE,"  DEF skipping: %s on line %d\n", m_tokstr.c_str(), m_lineNum);
-                }                
+                }
             }
         }
     }

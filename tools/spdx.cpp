@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -69,9 +69,9 @@ bool scanFile(const std::string &filename)
     size_t lineNumber = 1;
     State state = State::IDLE;
 
-    std::string contents; 
+    std::string contents;
 
-    size_t      commentLine;   
+    size_t      commentLine;
     std::string comment;
 
     {
@@ -113,7 +113,7 @@ bool scanFile(const std::string &filename)
             {
                 comment += c;
                 state = State::MULTILINE;
-                commentLine = lineNumber;                
+                commentLine = lineNumber;
             }
             else
             {
@@ -133,7 +133,7 @@ bool scanFile(const std::string &filename)
                 if (hasCC(comment))
                 {
                     hasCopyright = true;
-                }                
+                }
             }
             else
             {
@@ -203,7 +203,7 @@ bool inSkipList(const std::string &path)
 {
     std::array<std::string, 8> list = {
         ".vscode", "cmake", "doc", "examples", "resources", "scripts", "contrib", "build"
-    }; 
+    };
 
     for(auto item : list)
     {
@@ -232,24 +232,24 @@ int main(int argc, char *argv[])
         rootpath = argv[1];
     }
 
-    for (const std::filesystem::directory_entry& dir_entry : 
-        std::filesystem::recursive_directory_iterator{rootpath}) 
-    {    
+    for (const std::filesystem::directory_entry& dir_entry :
+        std::filesystem::recursive_directory_iterator{rootpath})
+    {
         auto path = dir_entry.path().string();
-        
+
         if (inSkipList(path))
         {
             continue;
         }
 
         if (!dir_entry.is_directory())
-        {       
+        {
             if (path.find(".html") != std::string::npos)
             {
                 continue;
             }
 
-            if ((path.find(".cpp") != std::string::npos) || 
+            if ((path.find(".cpp") != std::string::npos) ||
                 (path.find(".h") != std::string::npos))
             {
                 if (scanFile(path))

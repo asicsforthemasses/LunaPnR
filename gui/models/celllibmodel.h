@@ -1,10 +1,10 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
 /*
 
-    String list model that adapts a vector 
+    String list model that adapts a vector
     of strings to a QAbstractListModel
 
 */

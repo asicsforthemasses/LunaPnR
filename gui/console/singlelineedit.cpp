@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -56,13 +56,13 @@ void SingleLineEdit::keyPressEvent(QKeyEvent *e)
 
         {
             replaceCurrentCommand(QString(m_history[m_historyReadIdx].c_str()));
-        }        
+        }
         return;
     case Qt::Key_Down:
         ++m_historyReadIdx;
         if (m_historyReadIdx >= m_history.size())
         {
-            m_historyReadIdx = 0;    
+            m_historyReadIdx = 0;
         }
 
         replaceCurrentCommand(QString(m_history[m_historyReadIdx].c_str()));
@@ -75,7 +75,7 @@ void SingleLineEdit::keyPressEvent(QKeyEvent *e)
         return;
     case Qt::Key_Return:
     case Qt::Key_Enter:
-        {            
+        {
             auto cmd = getCurrentCommand();
 
             // add to the command history
@@ -99,7 +99,7 @@ void SingleLineEdit::keyPressEvent(QKeyEvent *e)
             }
 #endif
             emit executeCommand(cmd);
-            
+
             clear();
             m_overlay->hide();
             setFocus();
@@ -108,7 +108,7 @@ void SingleLineEdit::keyPressEvent(QKeyEvent *e)
         return;
     case Qt::Key_Backspace:
         {
-#if 0            
+#if 0
             QTextCursor cur = textCursor();
             auto column = cur.columnNumber();
             auto block  = cur.blockNumber();
@@ -117,10 +117,10 @@ void SingleLineEdit::keyPressEvent(QKeyEvent *e)
                 return;
             }
             else
-#endif            
+#endif
             {
                 QLineEdit::keyPressEvent(e);
-                updateHelpOverlay();                
+                updateHelpOverlay();
             }
         }
         return;
@@ -131,7 +131,7 @@ void SingleLineEdit::keyPressEvent(QKeyEvent *e)
 
 #if 0
     QTextCursor cur = textCursor();
-    auto block  = cur.blockNumber();        
+    auto block  = cur.blockNumber();
     if (block != m_promptBlock)
     {
         cur.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
@@ -141,7 +141,7 @@ void SingleLineEdit::keyPressEvent(QKeyEvent *e)
 
     QLineEdit::keyPressEvent(e);
 
-    updateHelpOverlay();    
+    updateHelpOverlay();
 }
 
 void SingleLineEdit::reset()
@@ -184,10 +184,10 @@ void SingleLineEdit::handleTabKeypress()
             replaceCurrentCommand(cmdList[0]);
         }
         else
-        {            
+        {
             auto popup = std::make_unique<PopupCompleter>(cmdList);
             if (popup->exec(this) == QDialog::Accepted)
-            { 
+            {
                 replaceCurrentCommand(popup->selected());
             }
         }
@@ -203,18 +203,18 @@ void SingleLineEdit::updateHelpOverlay()
         {
             return;
         }
-        
+
         const int32_t overlayDistance = 4;  // pixels from the cursor y pos
         auto overlayPos = cursorRect().bottomRight();
         overlayPos += QPoint(0, overlayDistance);
-        
+
         m_overlay->setText(getHelpString(cmd));
         m_overlay->move(overlayPos);
-        
+
         // make sure the overlay is always visible,
         // even when the cursor is on the last line.
         // then, we move the overlay 2 lines up
-        
+
         auto overlayBottomPos = m_overlay->height() + m_overlay->pos().y();
         if (overlayBottomPos >= rect().bottom())
         {
@@ -223,7 +223,7 @@ void SingleLineEdit::updateHelpOverlay()
             overlayPos.ry() -= lineHeight + m_overlay->height() + 2*overlayDistance;
             m_overlay->move(overlayPos);
         }
-        
+
         m_overlay->show();
     }
     else
@@ -242,7 +242,7 @@ bool SingleLineEdit::canShowHelp(const QString &cmd) const
         }
     }
 
-    return false;    
+    return false;
 }
 
 QString SingleLineEdit::getHelpString(const QString &cmd) const
@@ -269,7 +269,7 @@ QStringList SingleLineEdit::suggestCommand(QString partialCommand)
         }
     }
 
-    return cmdOptions;    
+    return cmdOptions;
 }
 
 
@@ -287,7 +287,7 @@ PopupCompleter::PopupCompleter(const QStringList& sl, QWidget *parent)
         item->setText(str);
         m_listWidget->addItem(item);
     }
-    
+
     //qDebug() << "sizeHint(): " << m_listWidget->sizeHint();
     m_listWidget->setFixedSize(m_listWidget->sizeHint());
 
@@ -325,19 +325,19 @@ int PopupCompleter::exec(SingleLineEdit *parent)
 
     auto currentScreen = QGuiApplication::primaryScreen();
     QRect screenGeom = currentScreen->availableGeometry();
-    
+
     if (globalPt.y() + popupSizeHint.height() > screenGeom.height()) {
         globalPt = parent->mapToGlobal(cursorRect.topRight());
         globalPt.setY(globalPt.y() - popupSizeHint.height());
     }
-    
+
     move(globalPt);
     setFocus();
     return QDialog::exec();
 }
 
 
-void PopupListWidget::keyPressEvent(QKeyEvent *e) 
+void PopupListWidget::keyPressEvent(QKeyEvent *e)
 {
     if (e->key() == Qt::Key_Tab || e->key() == Qt::Key_Return)
     {
@@ -389,7 +389,7 @@ QSize PopupListWidget::sizeHint() const
 
     QSize sizeHint(width + hOffset, 0);
     sizeHint.setHeight(height + vOffset);
-    if (vScrollOn) 
+    if (vScrollOn)
     {
         int scrollWidth = verticalScrollBar()->sizeHint().width();
         sizeHint.setWidth(sizeHint.width() + scrollWidth);

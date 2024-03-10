@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_SUITE(SPEFWriterTest)
 BOOST_AUTO_TEST_CASE(can_write_spef)
 {
     std::cout << "--== SPEF WRITER ==--\n";
-    
+
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_REQUIRE(leffile.good());
 
@@ -32,7 +32,7 @@ BOOST_AUTO_TEST_CASE(can_write_spef)
     // check the design
     BOOST_REQUIRE(design.m_moduleLib->size() == 1);
     BOOST_REQUIRE(design.m_moduleLib->lookupModule("adder2").isValid());
-    
+
     auto mod = design.m_moduleLib->lookupModule("adder2");
 
     BOOST_CHECK(LunaCore::SPEF::write("test/files/results/adders2.spef", mod.ptr()));

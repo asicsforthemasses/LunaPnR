@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -68,7 +68,7 @@ std::shared_ptr<ChipDB::Region> ChipDB::createRegion(
     {
         region->m_rows.emplace_back();
         region->m_rows.back().m_region = region;
-        region->m_rows.back().m_rect   = ChipDB::Rect64({placementLL.m_x, placementLL.m_y}, 
+        region->m_rows.back().m_rect   = ChipDB::Rect64({placementLL.m_x, placementLL.m_y},
             {placementLL.m_x+rowWidth, placementLL.m_y+rowHeight});
         placementLL += {0,rowHeight};
     }
@@ -79,8 +79,8 @@ std::shared_ptr<ChipDB::Region> ChipDB::createRegion(
 #if 0
 std::shared_ptr<ChipDB::Region> ChipDB::createRegion(
     float   aspectRatio,    /// width / height
-    int64_t minCellWidth, 
-    int64_t rowHeight, 
+    int64_t minCellWidth,
+    int64_t rowHeight,
     int64_t rowDistance,
     int64_t totalCellWidth,
     std::optional<Margins64> halo)
@@ -93,7 +93,7 @@ std::shared_ptr<ChipDB::Region> ChipDB::createRegion(
 
     // round up to multiple of minCellWidth
     auto rowWidth = static_cast<int64_t>(roundUp(rowWidthDouble,  minCellWidth));
-    
+
     double rowHeightDouble = effectiveCellArea / static_cast<double>(rowWidth);
     auto rowCount = static_cast<int64_t>(std::ceil(rowHeightDouble / effectiveRowHeight));
 

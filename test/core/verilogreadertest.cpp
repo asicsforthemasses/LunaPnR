@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_SUITE(VerilogReaderTest)
 BOOST_AUTO_TEST_CASE(can_read_netlist)
 {
     std::cout << "--== VERILOG NETLIST READER ==--\n";
-    
+
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_CHECK(leffile.good());
 
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(can_read_netlist)
     std::cout << "  Found " << design.m_moduleLib->size() << " modules\n";
     BOOST_CHECK(design.m_moduleLib->size() == 1);
     BOOST_CHECK(design.m_moduleLib->lookupModule("adder2").isValid());
-    
+
     auto mod = design.m_moduleLib->lookupModule("adder2");
 
     BOOST_CHECK(mod->m_netlist);
@@ -60,10 +60,10 @@ BOOST_AUTO_TEST_CASE(can_read_netlist)
             }
             break;
         default:
-            break;            
+            break;
         }
     }
-    
+
     std::cout << "  module has " << mod->m_netlist->m_nets.size() << " nets\n";
     BOOST_CHECK(mod->m_netlist->m_nets.size() == 29);
     for(auto const net : mod->m_netlist->m_nets)
@@ -82,13 +82,13 @@ BOOST_AUTO_TEST_CASE(can_read_netlist)
     for(auto modPin : mod->m_pins)
     {
         BOOST_CHECK(mod->m_netlist->m_instances.at(modPin->m_name).isValid());
-    }    
+    }
 }
 
 BOOST_AUTO_TEST_CASE(can_read_multiplier)
 {
     std::cout << "--== VERILOG NETLIST READER MULTIPLIER ==--\n";
-    
+
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_REQUIRE(leffile.good());
 
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
     std::cout << "  Found " << design.m_moduleLib->size() << " modules\n";
     BOOST_CHECK(design.m_moduleLib->size() == 1);
     BOOST_CHECK(design.m_moduleLib->lookupModule("multiplier").isValid());
-    
+
     auto mod = design.m_moduleLib->lookupModule("multiplier");
     if (mod.isValid())
     {
@@ -115,11 +115,11 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
         BOOST_CHECK(mod->m_netlist->m_nets.size() != 0);
 
         std::cout << "  module has " << mod->m_pins.size() << " pins\n";
-        BOOST_CHECK(mod->m_pins.size() != 0);       
+        BOOST_CHECK(mod->m_pins.size() != 0);
 
         // check that module pins have a __pin instance in the netlist
         for(auto modPin : mod->m_pins)
-        {            
+        {
             if (!mod->m_netlist->m_instances.at(modPin->m_name).isValid())
             {
                 std::cout << "  missing pin instance for pin '" << modPin->name() << "'\n";
@@ -142,12 +142,12 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
     auto const& netlist = mod->m_netlist;
     for(auto ins : netlist->m_instances)
     {
-        int pinIndex = 0; 
+        int pinIndex = 0;
         for(auto connection : ins->connections())
-        {   
+        {
             auto checkPin = ins->getPin(pinIndex);
             if ((checkPin.m_pinInfo) && (checkPin.m_pinInfo->isPGPin())) continue;    // skip power and ground pins.
-            
+
             if (connection == ChipDB::ObjectNotFound)
             {
                 unconnectedPins++;
@@ -163,7 +163,7 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
 BOOST_AUTO_TEST_CASE(can_read_nerv32)
 {
     std::cout << "--== VERILOG NETLIST READER NERV ==--\n";
-    
+
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_REQUIRE(leffile.good());
 
@@ -179,7 +179,7 @@ BOOST_AUTO_TEST_CASE(can_read_nerv32)
     std::cout << "  Found " << design.m_moduleLib->size() << " modules\n";
     BOOST_CHECK(design.m_moduleLib->size() == 1);
     BOOST_CHECK(design.m_moduleLib->lookupModule("nerv").isValid());
-    
+
     auto mod = design.m_moduleLib->lookupModule("nerv");
     BOOST_REQUIRE(mod.isValid());
 
@@ -190,7 +190,7 @@ BOOST_AUTO_TEST_CASE(can_read_nerv32)
     BOOST_CHECK(mod->m_netlist->m_nets.size() != 0);
 
     std::cout << "  module has " << mod->m_pins.size() << " pins\n";
-    BOOST_CHECK(mod->m_pins.size() != 0);                
+    BOOST_CHECK(mod->m_pins.size() != 0);
 
     // check that module pins have a __pin instance in the netlist
     for(auto modPin : mod->m_pins)
@@ -205,14 +205,14 @@ BOOST_AUTO_TEST_CASE(can_read_nerv32)
         area += ins->getArea();
     }
 
-    std::cout << "  module area " << area << " um²\n";        
+    std::cout << "  module area " << area << " um²\n";
 
     auto netlist = mod->m_netlist;
 
     // check that there is a clk instance
     auto clkins = netlist->lookupInstance("clock");
     BOOST_CHECK(clkins.isValid());
-    
+
     // check that this has one output pin.
     BOOST_CHECK(clkins->getNumberOfPins() == 1);
     auto pin = clkins->getPin(0);
@@ -227,13 +227,13 @@ BOOST_AUTO_TEST_CASE(can_read_nerv32)
     BOOST_REQUIRE(net);
 
     std::cout << "  clk net has " << net->numberOfConnections() << " connections\n";
-    BOOST_CHECK(net->numberOfConnections() > 1);       
+    BOOST_CHECK(net->numberOfConnections() > 1);
 }
 
 BOOST_AUTO_TEST_CASE(can_read_picorv32)
 {
     std::cout << "--== VERILOG NETLIST READER PICORV32 ==--\n";
-    
+
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_REQUIRE(leffile.good());
 
@@ -253,7 +253,7 @@ BOOST_AUTO_TEST_CASE(can_read_picorv32)
     std::cout << "  Found " << design.m_moduleLib->size() << " modules\n";
     BOOST_CHECK(design.m_moduleLib->size() == 1);
     BOOST_CHECK(design.m_moduleLib->lookupModule("picorv32").isValid());
-    
+
     auto mod = design.m_moduleLib->lookupModule("picorv32");
     BOOST_REQUIRE(mod.isValid());
 
@@ -266,7 +266,7 @@ BOOST_AUTO_TEST_CASE(can_read_picorv32)
     BOOST_CHECK(mod->m_netlist->m_nets.size() != 0);
 
     std::cout << "  module has " << mod->m_pins.size() << " pins\n";
-    BOOST_CHECK(mod->m_pins.size() != 0);       
+    BOOST_CHECK(mod->m_pins.size() != 0);
 
     // check that module pins have a __pin instance in the netlist
     for(auto modPin : mod->m_pins)
@@ -284,11 +284,11 @@ BOOST_AUTO_TEST_CASE(can_read_picorv32)
     std::cout << "  module area " << area << " um²\n";
 
     auto netlist = mod->m_netlist;
-    
+
     // check that there is a clk instance
     auto clkins = netlist->lookupInstance("clk");
     BOOST_CHECK(clkins.isValid());
-    
+
     // check that this has one output pin.
     BOOST_CHECK(clkins->getNumberOfPins() == 1);
     auto pin = clkins->getPin(0);
@@ -303,13 +303,13 @@ BOOST_AUTO_TEST_CASE(can_read_picorv32)
     BOOST_REQUIRE(net);
 
     std::cout << "  clk net has " << net->numberOfConnections() << " connections\n";
-    BOOST_CHECK(net->numberOfConnections() > 1);    
+    BOOST_CHECK(net->numberOfConnections() > 1);
 }
 
 BOOST_AUTO_TEST_CASE(can_read_FemtoRV32)
 {
     std::cout << "--== VERILOG NETLIST READER FemtoRV32 ==--\n";
-    
+
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_REQUIRE(leffile.good());
 
@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE(can_read_FemtoRV32)
     std::cout << "  Found " << design.m_moduleLib->size() << " modules\n";
     BOOST_CHECK(design.m_moduleLib->size() == 1);
     BOOST_CHECK(design.m_moduleLib->lookupModule("FemtoRV32").isValid());
-    
+
     auto mod = design.m_moduleLib->lookupModule("FemtoRV32");
     BOOST_REQUIRE(mod.isValid());
 
@@ -342,7 +342,7 @@ BOOST_AUTO_TEST_CASE(can_read_FemtoRV32)
     BOOST_CHECK(mod->m_netlist->m_nets.size() != 0);
 
     std::cout << "  module has " << mod->m_pins.size() << " pins\n";
-    BOOST_CHECK(mod->m_pins.size() != 0);       
+    BOOST_CHECK(mod->m_pins.size() != 0);
 
     // check that module pins have a __pin instance in the netlist
     for(auto modPin : mod->m_pins)
@@ -360,11 +360,11 @@ BOOST_AUTO_TEST_CASE(can_read_FemtoRV32)
     std::cout << "  module area " << area << " um²\n";
 
     auto netlist = mod->m_netlist;
-    
+
     // check that there is a clk instance
     auto clkins = netlist->lookupInstance("clk");
     BOOST_CHECK(clkins.isValid());
-    
+
     // check that this has one output pin.
     BOOST_CHECK(clkins->getNumberOfPins() == 1);
     auto pin = clkins->getPin(0);

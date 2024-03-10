@@ -1,11 +1,11 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include "rowlegalizer.h"
 #include "common/logging.h"
 
-#include <list> 
+#include <list>
 #include <cmath>
 
 using namespace LunaCore;
@@ -38,13 +38,13 @@ void Legalizer::Cluster::addCluster(Cluster &cluster)
     m_totalWidth += cluster.m_totalWidth;
 }
 
-void Collapse(const Legalizer::Row &row, std::list<Legalizer::Cluster> &clusters, 
-    std::list<Legalizer::Cluster>::iterator clusterIter, 
+void Collapse(const Legalizer::Row &row, std::list<Legalizer::Cluster> &clusters,
+    std::list<Legalizer::Cluster>::iterator clusterIter,
     const ChipDB::CoordType minCellWidth)
 {
     auto &cluster = *clusterIter;
     auto const optPos = cluster.optimalPosition();
-    auto xc = row.m_rect.left() + 
+    auto xc = row.m_rect.left() +
         roundToNearestValidPosition(optPos - row.m_rect.left(), minCellWidth);
 
     const auto xmin = row.m_rect.left();
@@ -82,13 +82,13 @@ void Legalizer::placeRow(std::vector<Cell> &cells, const Row &row, const ChipDB:
 
         // Well, here's a problem. We want to place the cell on a legal grid position
         // in order to do that we round the x coordinate to the nearest available
-        // position. But we might round it to fall just outside the position of the 
+        // position. But we might round it to fall just outside the position of the
         // row. This is undesirable.
         //
         // Some cells are positioned outside the row, whether we round to the
         // nearest valid position or not. These will generate an infinte cost.
         // This is by design.
-        // 
+        //
         // In an attempt to fix this situation, we try regular rounding first.
         // If the left cell edge is outside the row, we round xpos down to the lower
         // grid position and try again.
@@ -110,7 +110,7 @@ void Legalizer::placeRow(std::vector<Cell> &cells, const Row &row, const ChipDB:
             cluster.init();
             cluster.m_xleft = cellXPos;
             cluster.m_firstCellIndex = cellIdx;
-            
+
             cluster.addCell(cellXPos, cell, cellIdx);
             firstCell = false;
         }
@@ -161,7 +161,7 @@ void Legalizer::placeRow(std::vector<Cell> &cells, const Row &row, const ChipDB:
                 cell.m_orientation = ChipDB::Orientation::R0;
                 break;
             }
-            
+
             x += cell.m_size.m_x;
         }
     }
@@ -214,7 +214,7 @@ bool LunaCore::Legalizer::legalizeRegion(const ChipDB::Region &region, ChipDB::N
             continue;
         }
 
-        if (ins->m_placementInfo == ChipDB::PlacementInfo::PLACED)    
+        if (ins->m_placementInfo == ChipDB::PlacementInfo::PLACED)
         {
             auto &cell = cells.emplace_back();
 
@@ -239,13 +239,13 @@ bool LunaCore::Legalizer::legalizeRegion(const ChipDB::Region &region, ChipDB::N
 
     // create custom row legalizer Row objects that mirror the Rows in the region.
     // FIXME: insert fixed objects into the row legalizer Rows.
-    //        things like fixed end-caps 
+    //        things like fixed end-caps
     //        we also need some kind of provision for density constraints
     //        w.r.t. decap and filler cells.
 
     std::vector<Row> rows;
     rows.resize(region.m_rows.size());
-    
+
     for(size_t rowIdx=0; rowIdx < region.m_rows.size(); rowIdx++)
     {
         rows.at(rowIdx).m_rect    = region.m_rows.at(rowIdx).m_rect;

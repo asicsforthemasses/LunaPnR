@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -37,7 +37,7 @@ void GUI::drawLeftText(QPainter &painter, const QPointF &pos, const std::string 
     pp += QPointF(0.0f, pixelsHigh/2.0f);
     QRectF fillRect(pp - QPointF(0,fm.ascent()), QSize(pixelsWide, fm.height()));
     painter.fillRect(fillRect, style);
-    painter.drawText(pp, str);    
+    painter.drawText(pp, str);
 }
 
 std::optional<QPixmap> GUI::createPixmapFromString(const std::string &pixels, int width, int height)
@@ -92,7 +92,7 @@ std::optional<QPixmap> GUI::createPixmapFromString(const std::string &pixels, in
             x = 0;
             y++;
         }
-        
+
         numPixels--;
         ofs++;
     }
@@ -135,7 +135,7 @@ std::string GUI::pixmapToString(const QPixmap &p)
             else
             {
                 pattern += '*';
-            }            
+            }
         }
         pattern += '\n';
     }
@@ -209,7 +209,7 @@ QPointF GUI::Viewport::toScreen(const ChipDB::Coord64 &point) const noexcept
 
 ChipDB::Rect64  GUI::Viewport::toViewport(const QRectF &rect) const noexcept
 {
-    const ChipDB::Coord64 ll(static_cast<int64_t>(rect.bottomLeft().x()), 
+    const ChipDB::Coord64 ll(static_cast<int64_t>(rect.bottomLeft().x()),
         static_cast<int64_t>(rect.bottomLeft().y()));
 
     const ChipDB::Coord64 ur(static_cast<int64_t>(rect.topRight().x()),
@@ -235,7 +235,7 @@ ChipDB::Coord64 GUI::Viewport::toViewport(const QPointF &point) const noexcept
         const float y = m_viewport.top()  - (point.y() - m_screen.top()) / m_sy;
         return ChipDB::Coord64{static_cast<int64_t>(x), static_cast<int64_t>(y)};
     }
-    else 
+    else
     {
         return ChipDB::Coord64{0,0};
     }
@@ -247,23 +247,23 @@ ChipDB::Coord64 GUI::Viewport::toViewport(const QPoint &point) const noexcept
     {
         const float x = m_viewport.left() + (point.x() - m_screen.left()) / m_sx;
         const float y = m_viewport.top()  - (point.y() - m_screen.top()) / m_sy;
-        return ChipDB::Coord64{static_cast<int64_t>(x), static_cast<int64_t>(y)};    
+        return ChipDB::Coord64{static_cast<int64_t>(x), static_cast<int64_t>(y)};
     }
-    else 
+    else
     {
         return ChipDB::Coord64{0,0};
-    }    
+    }
 }
 
 QString GUI::toQString(const ChipDB::Rect64 &rect) noexcept
 {
-    return QString::asprintf("(%ld,%ld)-(%ld,%ld)", rect.m_ll.m_x, rect.m_ll.m_y, 
+    return QString::asprintf("(%ld,%ld)-(%ld,%ld)", rect.m_ll.m_x, rect.m_ll.m_y,
         rect.m_ur.m_x, rect.m_ur.m_y);
 }
 
 QString GUI::toQString(const ChipDB::Margins64 &margins) noexcept
 {
-    return QString::asprintf("L %ld, B %ld, T %ld, R %ld", margins.m_left, margins.m_bottom, 
+    return QString::asprintf("L %ld, B %ld, T %ld, R %ld", margins.m_left, margins.m_bottom,
         margins.m_right, margins.m_top);
 }
 

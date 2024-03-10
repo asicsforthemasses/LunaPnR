@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -48,7 +48,7 @@ protected:
     /** copy a node to the new netlist and return its new node Id */
     PlacerNodeId copyNodeToNewNetlistAndClearConnections(const PlacerNode &node);
     PlacerNetId  copyNetToNewNetlistAndClearNodes(const PlacerNet &net);
-    
+
     void addNodeToNet(PlacerNodeId nodeId, PlacerNetId netId);
     void addNetToNode(PlacerNetId netId, PlacerNodeId nodeId);
 

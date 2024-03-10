@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -24,7 +24,7 @@ public:
 
     /** add a download to the queue */
     void download(QUrl url, QString filename);
-    
+
     /** returns true if the download queue is empty */
     [[nodiscard]] bool empty() const noexcept
     {

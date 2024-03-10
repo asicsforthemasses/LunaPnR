@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -17,7 +17,7 @@ SubclassDelegate::SubclassDelegate(QObject *parent) : QItemDelegate(parent)
 
 QWidget* SubclassDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    if (index.column() == 2) 
+    if (index.column() == 2)
     {
         auto classIndex = index.siblingAtColumn(1);
         if (index.model()->data(classIndex, Qt::EditRole) == "CORE")
@@ -36,11 +36,11 @@ QWidget* SubclassDelegate::createEditor(QWidget *parent, const QStyleOptionViewI
         {
             return nullptr;
         }
-    } 
-    else 
+    }
+    else
     {
         return QItemDelegate::createEditor(parent, option, index);
-    }    
+    }
 }
 
 void SubclassDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
@@ -93,7 +93,7 @@ CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
 
     m_cellModel.reset(new CellLibTableModel(nullptr));
     m_cellTableView->setModel(m_cellModel.get());
-    
+
     // pin list view
     m_cellTreeView = new QTreeView();
     m_cellTreeView->setEditTriggers(QAbstractItemView::NoEditTriggers); // make read-only
@@ -122,8 +122,8 @@ CellBrowser::CellBrowser(QWidget *parent) : QWidget(parent)
 
     setLayout(m_layout);
 
-    connect(m_cellTableView->selectionModel(), 
-        SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), 
+    connect(m_cellTableView->selectionModel(),
+        SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
         this,
         SLOT(onCellSelectionChanged(const QItemSelection&, const QItemSelection&)));
 }
@@ -141,14 +141,14 @@ QSize CellBrowser::sizeHint() const
 void CellBrowser::setDatabase(std::shared_ptr<Database> db)
 {
     m_db = db;
-    
+
     m_cellLayoutView->setDatabase(db);
     m_cellModel->setCellLib(db->cellLib());
     m_layerTableModel->setLayers(&db->m_layerRenderInfoDB);
 
     auto cellPtr = db->cellLib()->lookupCell(0);
-    
-    m_cellLayoutView->setCell(cellPtr);    
+
+    m_cellLayoutView->setCell(cellPtr);
     m_cellInfoModel->setCell(cellPtr);
 
     // make sure all columns can expand
@@ -156,11 +156,11 @@ void CellBrowser::setDatabase(std::shared_ptr<Database> db)
     {
         m_cellTreeView->header()->setSectionResizeMode(
             c, QHeaderView::Stretch);
-    }    
+    }
 
     m_layerView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     m_cellTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    
+
 }
 
 void CellBrowser::refreshDatabase()
@@ -173,13 +173,13 @@ void CellBrowser::onCellSelectionChanged(const QItemSelection &cur, const QItemS
     QModelIndex index = m_cellTableView->currentIndex();
 
     if (index.isValid())
-    {        
+    {
         auto cell = m_cellModel->getCell(index.row());
         if (cell != nullptr)
         {
             m_cellLayoutView->setCell(cell);
             m_cellInfoModel->setCell(cell);
-            m_layerView->update();   // ?? 
+            m_layerView->update();   // ??
             update();
             Logging::doLog(Logging::LogType::VERBOSE, "Selected cell %s\n", cell->name().c_str());
         }

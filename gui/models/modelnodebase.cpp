@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -97,7 +97,7 @@ void NodeBase::setBackgroundColor(int column, QColor col)
     if ((column>=0) && (column<m_bkColors.size()))
     {
         m_bkColors.at(column) = col;
-    }    
+    }
 }
 
 const QPixmap& NodeBase::getIcon() const
@@ -237,7 +237,7 @@ QVariant ModelBase::data(const QModelIndex &index, int role) const
 QVariant ModelBase::headerData(int section, Qt::Orientation orientation,
         int role) const
 {
-#if 0    
+#if 0
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
         if (section == 0) {
             return tr("Node");
@@ -246,7 +246,7 @@ QVariant ModelBase::headerData(int section, Qt::Orientation orientation,
         }
     }
 #endif
-    return QVariant();    
+    return QVariant();
 }
 
 Qt::ItemFlags ModelBase::flags(const QModelIndex &index) const

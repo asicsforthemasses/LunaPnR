@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -31,9 +31,9 @@ MMConsole::MMConsole(QWidget *parent) : QFrame(parent)
     m_textDisplay->setUndoRedoEnabled(false);
     m_textDisplay->setReadOnly(true);
     m_textDisplay->document()->setMaximumBlockCount(1000);
-    
+
     m_commandLine = new SingleLineEdit();
-    
+
     vlayout->addWidget(m_textDisplay, 1);
     vlayout->addWidget(m_commandLine, 0);
 
@@ -49,7 +49,7 @@ MMConsole::MMConsole(QWidget *parent) : QFrame(parent)
     connect(m_commandLine, &SingleLineEdit::executeCommand, this, &MMConsole::executeCommand);
 }
 
-void MMConsole::setColours(const QColor &bkCol, const QColor &promptCol, 
+void MMConsole::setColours(const QColor &bkCol, const QColor &promptCol,
     const QColor &errorCol, const QColor &warningCol) noexcept
 {
     QPalette pal = palette();
@@ -64,7 +64,7 @@ void MMConsole::setColours(const QColor &bkCol, const QColor &promptCol,
     //m_commandLine->setAutoFillBackground(true);
     //m_commandLine->setTextColor(promptCol);
     //m_textDisplay->setAutoFillBackground(true);
-    
+
     m_colours.m_bkCol      = bkCol;
     m_colours.m_promptCol  = promptCol;
     m_colours.m_errorCol   = errorCol;
@@ -84,7 +84,7 @@ bool MMConsole::event(QEvent *event)
             }
             return true;
         }
-        return false;        
+        return false;
     }
     return QFrame::event(event);
 }
@@ -168,7 +168,7 @@ void MMConsole::setPrompt(const QString &prompt)
 
 void MMConsole::displayPrompt()
 {
-#if 0    
+#if 0
     setUndoRedoEnabled(false);
 
     setTextColor(m_colours.m_promptCol);
@@ -214,7 +214,7 @@ void MMConsole::print(const Logging::LogType &logType, const QString &txt)
     if (!txt.endsWith("\n"))
     {
         m_textDisplay->append("");
-    }   
+    }
     m_textDisplay->setTextColor(m_colours.m_promptCol);
 }
 

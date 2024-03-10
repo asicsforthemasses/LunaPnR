@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -22,7 +22,7 @@ struct PyLayerInfo : public Python::TypeTemplate<ChipDB::LayerInfo>
         {
             return Python::toPython(self->obj()->name());
         }
-        
+
         PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
         return nullptr;
     };
@@ -70,7 +70,7 @@ struct PyLayerInfo : public Python::TypeTemplate<ChipDB::LayerInfo>
     {
         if (self->ok())
         {
-            const char *placementString = PyUnicode_AsUTF8(value);            
+            const char *placementString = PyUnicode_AsUTF8(value);
 
             std::cout << "  " << placementString << "\n";
 
@@ -112,9 +112,9 @@ struct PyLayerInfo : public Python::TypeTemplate<ChipDB::LayerInfo>
         {
             return Python::toPython(self->obj()->instanceSize());
         }
-        
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");        
-        return nullptr;        
+
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
+        return nullptr;
     };
 
     static PyObject* getArea(PyInstance *self, void *closure)
@@ -123,9 +123,9 @@ struct PyLayerInfo : public Python::TypeTemplate<ChipDB::LayerInfo>
         {
             return Python::toPython(self->obj()->getArea());
         }
-        
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");        
-        return nullptr;        
+
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
+        return nullptr;
     };
 
     static PyObject* getPinCount(PyInstance *self, PyObject *args)
@@ -134,8 +134,8 @@ struct PyLayerInfo : public Python::TypeTemplate<ChipDB::LayerInfo>
         {
             return Python::toPython(self->obj()->getNumberOfPins());
         }
-        
-        return nullptr;                
+
+        return nullptr;
     }
 
     static PyObject* getPin(PyInstance *self, PyObject *args)
@@ -158,15 +158,15 @@ struct PyLayerInfo : public Python::TypeTemplate<ChipDB::LayerInfo>
             {
                 auto pin = self->obj()->getPin(pinName);
                 //std::cout << "\t\tgetPin: of ins" << self->obj()->name() << " PinName:" << pin.name() << " PinKey:" << pin.m_pinKey << " NetKey:" << pin.m_netKey << "\n";
-                return Python::toPython(self->obj()->getPin(pinName));                
+                return Python::toPython(self->obj()->getPin(pinName));
             }
 
             PyErr_Format(PyExc_ValueError, "getPin requires a key or name as argument");
             return nullptr;
         }
-        
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");        
-        return nullptr;                
+
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
+        return nullptr;
     }
 
     static PyObject* setPinNet(PyInstance *self, PyObject *args)
@@ -187,7 +187,7 @@ struct PyLayerInfo : public Python::TypeTemplate<ChipDB::LayerInfo>
         }
 
         PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
-        return nullptr;                
+        return nullptr;
     }
 #endif
 
@@ -218,7 +218,7 @@ static PyMemberDef PyLayerInfoMembers[] =    // NOLINT(modernize-avoid-c-arrays)
 static PyGetSetDef PyLayerInfoGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
 {
     {"name", (getter)PyLayerInfo::getName, nullptr, "layer name", nullptr /* closure */},
-#if 0        
+#if 0
     {"archetype", (getter)PyInstance::getArchetype, nullptr, "archetype name", nullptr /* closure */},
     {"position", (getter)PyInstance::getPosition, (setter)PyInstance::setPosition, "lower left position in nm", nullptr /* closure */},
     {"pos", (getter)PyInstance::getPosition, (setter)PyInstance::setPosition, "lower left position in nm", nullptr /* closure */},
@@ -226,17 +226,17 @@ static PyGetSetDef PyLayerInfoGetSet[] =     // NOLINT(modernize-avoid-c-arrays)
     {"orientation", (getter)PyInstance::getOrientation, nullptr, "orientation of instance", nullptr /* closure */},
     {"size", (getter)PyInstance::getSize, nullptr, "size in nm", nullptr /* closure */},
     {"area", (getter)PyInstance::getArea, nullptr, "area in um^2", nullptr /* closure */},
-#endif    
+#endif
     {nullptr}
 };
 
 static PyMethodDef PyLayerInfoMethods[] =    // NOLINT(modernize-avoid-c-arrays)
 {
-#if 0    
+#if 0
     {"getPin", (PyCFunction)PyInstance::getPin, METH_VARARGS, "get pin by pin key or name"},
     {"getPinCount", (PyCFunction)PyInstance::getPinCount, METH_NOARGS, "get number of pins"},
     {"setPinNet", (PyCFunction)PyInstance::setPinNet, METH_VARARGS, "set the net key of a pin: setPinNet(pinKey, netKey). returns TRUE if successful."},
-#endif    
+#endif
     {nullptr}  /* Sentinel */
 };
 

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -59,11 +59,11 @@ static PyObject* pyLoadLEF(PyObject *self, PyObject *args)
             // Success!
             Py_RETURN_NONE;
         }
-        
+
         // TODO: set exception / error.
         // load error
         return PyErr_Format(PyExc_RuntimeError, "Unable parse/load LEF file %s", LEFFileName);
-    }    
+    }
 
     return PyErr_Format(PyExc_RuntimeError, "loadLef requires a filename argument");
 }
@@ -76,7 +76,7 @@ static PyObject* pyLoadLIB(PyObject *self, PyObject *args)
     {
         std::ifstream LIBfile(LIBFileName);
         if (!LIBfile.good())
-        {            
+        {
             return PyErr_Format(PyExc_FileNotFoundError, "Cannot open file %s", LIBFileName);
         }
 
@@ -91,10 +91,10 @@ static PyObject* pyLoadLIB(PyObject *self, PyObject *args)
             // Success!
             Py_RETURN_NONE;
         }
-        
+
         // load error
         return PyErr_Format(PyExc_RuntimeError, "Unable parse/load LIB file %s", LIBFileName);
-    }    
+    }
 
     return PyErr_Format(PyExc_RuntimeError, "loadLib requires a filename argument");
 }
@@ -122,10 +122,10 @@ static PyObject* pyLoadVerilog(PyObject *self, PyObject *args)
             // Success!
             Py_RETURN_NONE;
         }
-        
+
         // load error
         return PyErr_Format(PyExc_RuntimeError, "Unable parse/load verilog netlist file %s", VerilogFileName);
-    }    
+    }
 
     return PyErr_Format(PyExc_RuntimeError, "loadVerilog requires a filename argument");
 }
@@ -159,10 +159,10 @@ static PyObject* pyWriteVerilog(PyObject *self, PyObject *args)
             // Success!
             Py_RETURN_NONE;
         }
-        
+
         // load error
         return PyErr_Format(PyExc_RuntimeError, "Unable write verilog netlist file %s", VerilogFileName);
-    }    
+    }
 
     return PyErr_Format(PyExc_RuntimeError, "writeVerilog requires a filename argument");
 }
@@ -231,7 +231,7 @@ static PyObject* pyCreateRegion(PyObject *self, PyObject *args)
     const char *regionName;
     const char *siteName;
     if (PyArg_ParseTuple(args, "ssllll", &regionName, &siteName, &x, &y, &width, &height))
-    {   
+    {
         auto regionKeyObjPair = designPtr->m_floorplan->lookupRegion(regionName);
         if (regionKeyObjPair.isValid())
         {
@@ -250,7 +250,7 @@ static PyObject* pyCreateRegion(PyObject *self, PyObject *args)
         designPtr->m_floorplan->addRegion(regionPtr);
 
         // Success!
-        Py_RETURN_NONE;        
+        Py_RETURN_NONE;
     }
 
     return PyErr_Format(PyExc_RuntimeError, "Wrong number or type of arguments. Expected: region name, site name, x, y, width, height");
@@ -272,14 +272,14 @@ static PyObject* pyRemoveRegion(PyObject *self, PyObject *args)
 
     const char *regionName;
     if (PyArg_ParseTuple(args, "s", &regionName))
-    {        
+    {
         if (!designPtr->m_floorplan->removeRegion(regionName))
         {
             return PyErr_Format(PyExc_RuntimeError, "Could not remove region with name %s", regionName);
         }
 
         // Success!
-        Py_RETURN_NONE;        
+        Py_RETURN_NONE;
     }
 
     return PyErr_Format(PyExc_RuntimeError, "Wrong number or type of arguments");
@@ -306,7 +306,7 @@ static PyObject* pyCreateRows(PyObject *self, PyObject *args)
     long int starty,rowHeight,numRows;
     const char *regionName;
     if (PyArg_ParseTuple(args, "slll", &regionName, &starty, &rowHeight, &numRows))
-    {        
+    {
         auto region = designPtr->m_floorplan->lookupRegion(regionName);
         if (!region.isValid())
         {
@@ -327,7 +327,7 @@ static PyObject* pyCreateRows(PyObject *self, PyObject *args)
 
                 row.m_region = region.ptr();
                 row.m_rect = ChipDB::Rect64(ll,ur);
-                if ((i % 2) == 1) 
+                if ((i % 2) == 1)
                 {
                     row.m_rowType = ChipDB::RowType::FLIPY;
                 }
@@ -348,7 +348,7 @@ static PyObject* pyCreateRows(PyObject *self, PyObject *args)
         designPtr->m_floorplan->contentsChanged();
 
         // Success!
-        Py_RETURN_NONE;        
+        Py_RETURN_NONE;
     }
 
     return PyErr_Format(PyExc_RuntimeError, "Wrong number or type of arguments");
@@ -374,7 +374,7 @@ static PyObject* pyRemoveRows(PyObject *self, PyObject *args)
 
     const char *regionName;
     if (PyArg_ParseTuple(args, "s", &regionName))
-    {        
+    {
         auto region = designPtr->m_floorplan->lookupRegion(regionName);
         if (!region.isValid())
         {
@@ -386,7 +386,7 @@ static PyObject* pyRemoveRows(PyObject *self, PyObject *args)
         designPtr->m_floorplan->contentsChanged();
 
         // Success!
-        Py_RETURN_NONE;        
+        Py_RETURN_NONE;
     }
 
     return PyErr_Format(PyExc_RuntimeError, "Wrong number or type of arguments");
@@ -414,7 +414,7 @@ static PyObject* pyPlaceModule(PyObject *self, PyObject *args)
     const char *moduleName;
     const char *regionName;
     if (PyArg_ParseTuple(args, "ss", &moduleName, &regionName))
-    {        
+    {
         auto region = designPtr->m_floorplan->lookupRegion(regionName);
         if (!region.isValid())
         {
@@ -440,7 +440,7 @@ static PyObject* pyPlaceModule(PyObject *self, PyObject *args)
         designPtr->m_floorplan->contentsChanged();
 
         // Success!
-        Py_RETURN_NONE;        
+        Py_RETURN_NONE;
     }
 
     return PyErr_Format(PyExc_RuntimeError, "Wrong number or type of arguments");
@@ -473,7 +473,7 @@ static PyObject* pyPlaceInstance(PyObject *self, PyObject *args)
     const char *modName;
     long int x,y;
     if (PyArg_ParseTuple(args, "ssll", &insName, &modName, &x, &y))
-    {        
+    {
         auto mod = designPtr->m_moduleLib->lookupModule(modName);
         if (!mod.isValid())
         {
@@ -542,7 +542,7 @@ static bool incRefAndAddObject(PyObject *module, PyTypeObject *typeObj)
     if (PyModule_AddObject(module, typeObj->tp_name, (PyObject *)typeObj) < 0)
     {
         Py_DECREF(typeObj);
-        return false;        
+        return false;
     }
 
     return true;
@@ -581,13 +581,13 @@ static PyObject* PyInit_Luna()
         return nullptr;
 
     if (PyType_Ready(&PyTechLibLayersType) < 0)
-        return nullptr;        
+        return nullptr;
 
     if (PyType_Ready(&PySiteInfoType) < 0)
         return nullptr;
 
     if (PyType_Ready(&PyTechLibSitesType) < 0)
-        return nullptr;  
+        return nullptr;
 
     auto m = PyModule_Create(&LunaModule);
     if (m == nullptr)
@@ -633,7 +633,7 @@ void Scripting::Python::init()
     }
 
     auto capsule  = PyCapsule_New(m_design->m_cellLib.get(), "Luna.CellLibraryPtr", nullptr);
-    
+
     if (PyModule_AddObject(lunaModule, "CellLibraryPtr", capsule) < 0)
     {
         std::cout << "PyModule_AddObject failed!\n";
@@ -641,7 +641,7 @@ void Scripting::Python::init()
     }
 
     capsule  = PyCapsule_New(m_design->m_techLib.get(), "Luna.TechLibraryPtr", nullptr);
-    
+
     if (PyModule_AddObject(lunaModule, "TechLibraryPtr", capsule) < 0)
     {
         std::cout << "PyModule_AddObject failed!\n";
@@ -682,13 +682,13 @@ void Scripting::Python::setConsoleRedirect(std::function<void(const char *, ssiz
     if (pyStdout != nullptr)
     {
         pyStdout->writeFunc = stdoutFunc;
-    }    
+    }
 
     auto pyStderr = reinterpret_cast<Scripting::PyConsoleRedirect::PyStdout*>(PySys_GetObject("stderr"));
     if (pyStderr != nullptr)
     {
         pyStderr->writeFunc = stderrFunc;
-    }        
+    }
 }
 
 bool Scripting::Python::executeScriptFile(const std::string &fileName)
@@ -722,7 +722,7 @@ bool Scripting::Python::executeScript(const std::string &code)
 }
 
 #if 0
-void Scripting::Python::addModule(const char *moduleName, 
+void Scripting::Python::addModule(const char *moduleName,
     ModuleInitFunctionType initFunction)
 {
     PyImport_AddModule(moduleName);
@@ -730,7 +730,7 @@ void Scripting::Python::addModule(const char *moduleName,
     PyObject* sys_modules = PyImport_GetModuleDict();
     PyDict_SetItemString(sys_modules, moduleName, pyModule);
     Py_DECREF(pyModule);
-}    
+}
 
 bool Scripting::Python::createCapsule(PyModuleDef *moduleDef,
     const char *extendedName,

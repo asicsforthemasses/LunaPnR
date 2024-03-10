@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -59,7 +59,7 @@ std::string ChipDB::expandEnvironmentVars(const std::string &path)
         if (!envVarValue.empty())
         {
             outputPath = ChipDB::findAndReplace(outputPath, completeMatch, envVarValue);
-        }        
+        }
     }
     return outputPath;
 }
@@ -160,5 +160,5 @@ bool ChipDB::copyFile(const std::string &srcName, const std::string &copyName) n
 bool ChipDB::fileExists(const std::string &filename) noexcept
 {
     std::filesystem::path path(filename);
-    return std::filesystem::exists(filename);    
+    return std::filesystem::exists(filename);
 }

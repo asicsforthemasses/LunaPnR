@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -20,13 +20,13 @@ public:
 
     TaskListEvent(QString taskName, Tasks::Task::Status status, size_t taskIndex, int progress = 0)
         : QEvent(EventType), m_taskName(taskName), m_taskStatus(status), m_progress(progress)
-    {        
+    {
     }
 
     /** return the task status */
     [[nodiscard]] constexpr auto status() const noexcept
     {
-        return m_taskStatus;        
+        return m_taskStatus;
     }
 
     /** return the task index */
@@ -47,7 +47,7 @@ public:
         return m_taskName;
     }
 
-protected:    
+protected:
     QString m_taskName;
     Tasks::Task::Status m_taskStatus = Tasks::Task::Status::INVALID;
     size_t m_taskIndex = 0;         ///< index into TaskList array

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -6,7 +6,7 @@
 #include "common/logging.h"
 #include "defwriter.h"
 
-bool LunaCore::DEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod, 
+bool LunaCore::DEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod,
     const WriterOptions &options)
 {
     auto writer = std::make_unique<LunaCore::DEF::Private::WriterImpl>(os);
@@ -110,12 +110,12 @@ bool LunaCore::DEF::Private::WriterImpl::write(const std::shared_ptr<ChipDB::Ins
             m_ss << "    + PLACED ( " << defPos.m_x << " " << defPos.m_y << " ) ";
             m_ss << " N" << " ;\n";
             break;
-        case ChipDB::Orientation::R180:     // for north edge        
+        case ChipDB::Orientation::R180:     // for north edge
             defPos = toDEFCoordinates(instance->m_pos);
             m_ss << "    + PLACED ( " << defPos.m_x << " " << defPos.m_y << " ) ";
             m_ss << " S" << " ;\n";
             break;
-        case ChipDB::Orientation::R90:    // for west edge       
+        case ChipDB::Orientation::R90:    // for west edge
             //pos.m_y -= cell->m_size.m_x;
             defPos = toDEFCoordinates(instance->m_pos);
             m_ss << "    + PLACED ( " << defPos.m_x << " " << defPos.m_y << " ) ";
@@ -127,14 +127,14 @@ bool LunaCore::DEF::Private::WriterImpl::write(const std::shared_ptr<ChipDB::Ins
             defPos = toDEFCoordinates(instance->m_pos);
             m_ss << "    + PLACED ( " << defPos.m_x << " " << defPos.m_y << " ) ";
             m_ss << " E" << " ;\n";
-            break;        
+            break;
         case ChipDB::Orientation::MX:    // for east edge
             //pos.m_x -= cell->m_size.m_y;
             //pos.m_y -= cell->m_size.m_x;
             defPos = toDEFCoordinates(instance->m_pos);
             m_ss << "    + PLACED ( " << defPos.m_x << " " << defPos.m_y << " ) ";
             m_ss << " FS" << " ;\n";
-            break;        
+            break;
         case ChipDB::Orientation::MY:    // for east edge
             //pos.m_x -= cell->m_size.m_y;
             //pos.m_y -= cell->m_size.m_x;

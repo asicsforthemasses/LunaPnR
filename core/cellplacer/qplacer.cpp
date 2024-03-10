@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -43,7 +43,7 @@ void Placer::addStarNodes(PlacerNetlist &netlist)
     for(auto& net : nets)
     {
         checkAndSetUnmovableNet(net, nodes);
-        
+
         if (net.m_type != LunaCore::QPlacer::PlacerNetType::Ignore)
         {
             if (net.m_nodes.size() > 2)
@@ -116,7 +116,7 @@ std::string toString(const PlacerNetType &t)
         return "StarNet";
     case PlacerNetType::TwoNet:
         return "TwoNet";
-    
+
     default:
     case PlacerNetType::Undefined:
         return "Undefined";
@@ -171,7 +171,7 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
     {
         Logging::doLog(Logging::LogType::WARNING, "Region area is smaller than the total instance area\n");
     }
-    
+
     if (regionArea <= 0)
     {
         Logging::doLog(Logging::LogType::ERROR, "Cannot place a module in a region that has no area\n");
@@ -182,7 +182,7 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
 
     // generate QPlacer netlist
     PlacerNetlist placerNetlist;
-    
+
     std::unordered_map<ChipDB::ObjectKey, LunaCore::QPlacer::PlacerNodeId> ins2nodeId;
     std::unordered_map<ChipDB::ObjectKey, LunaCore::QPlacer::PlacerNetId>  net2netId;
 
@@ -239,7 +239,7 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
     {
         if (node.m_type != PlacerNodeType::FixedNode)
         {
-            node.setCenterPos({static_cast<ChipDB::CoordType>(xpos[pNodeIdx]), 
+            node.setCenterPos({static_cast<ChipDB::CoordType>(xpos[pNodeIdx]),
                 static_cast<ChipDB::CoordType>(ypos[pNodeIdx])});
         }
         pNodeIdx++;
@@ -260,7 +260,7 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
             // positions returned from the quadratic placement
             // are cell centers, not lower-left.
 
-            const ChipDB::Coord64 llpos = {static_cast<int64_t>(xpos[idx] - ins->instanceSize().m_x/2), 
+            const ChipDB::Coord64 llpos = {static_cast<int64_t>(xpos[idx] - ins->instanceSize().m_x/2),
                 static_cast<int64_t>(ypos[idx] - ins->instanceSize().m_y/2)};
             ins->m_pos = llpos;
         }
@@ -272,7 +272,7 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
 
     Logging::doLog(Logging::LogType::VERBOSE,"Quadratic placement done.\n");
 
-#if 0    
+#if 0
     doLog(LogType::VERBOSE,"Starting diffusion..\n");
 
     float maxDensity      = 2.0f;
@@ -280,7 +280,7 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
     const auto bitmapCellHeight = 50000;
     const float targetDensity   = 0.95;
 
-    std::unique_ptr<DensityBitmap> densityBitmap(createDensityBitmap(mod->m_netlist.get(), region, 
+    std::unique_ptr<DensityBitmap> densityBitmap(createDensityBitmap(mod->m_netlist.get(), region,
         bitmapCellWidth, bitmapCellHeight));
 
     //setMinimalDensities(densityBitmap.get(), targetDensity);
@@ -292,13 +292,13 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
     while(maxDensity > targetDensity)
     {
 
-        densityBitmap.reset(createDensityBitmap(mod->m_netlist.get(), region, 
+        densityBitmap.reset(createDensityBitmap(mod->m_netlist.get(), region,
             bitmapCellWidth, bitmapCellHeight));
 
         setMinimalDensities(densityBitmap.get(), targetDensity);
 
         calcVelocityBitmap(densityBitmap.get(), velocityBitmap.get());
-        updateMovableInstances(mod->m_netlist.get(), region, velocityBitmap.get(), 
+        updateMovableInstances(mod->m_netlist.get(), region, velocityBitmap.get(),
             bitmapCellWidth, bitmapCellHeight);
 
         maxDensity = updateDensityBitmap(densityBitmap.get());
@@ -308,18 +308,18 @@ bool LunaCore::QPlacer::placeModuleInRegion(const ChipDB::Design *design, ChipDB
         {
             break;
         }
-        
+
         doLog(LogType::VERBOSE,"  Iter: %d\t density:%f\n", iterationCount, maxDensity);
     }
 
 #if 0
     calcVelocityBitmap(densityBitmap.get(), velocityBitmap.get());
-    updateMovableInstances(mod->m_netlist.get(), region, velocityBitmap.get(), 
+    updateMovableInstances(mod->m_netlist.get(), region, velocityBitmap.get(),
         bitmapCellWidth, bitmapCellHeight);
 #endif
     doLog(LogType::VERBOSE,"Diffusion done (iterations = %ld).\n", iterationCount);
 
-#endif    
+#endif
     return true;
 }
 
@@ -389,7 +389,7 @@ struct ExternalNodeHandler : LunaCore::QPlacer::ExternalNodeOnNetHandler
                 // external node is above the below of partition p2
                 // so the external node is related to p2
                 m_externalNodesOnNet.at(newNetId).p2ExtNodecount++;
-            }            
+            }
         }
     }
 
@@ -407,7 +407,7 @@ struct ExternalNodeHandler : LunaCore::QPlacer::ExternalNodeOnNetHandler
 
 struct PartitionSelector : public LunaCore::QPlacer::Selector
 {
-    PartitionSelector(std::vector<bool> &selectedNodes, bool which) 
+    PartitionSelector(std::vector<bool> &selectedNodes, bool which)
         : m_selectedNodes(selectedNodes), m_which(which) {}
 
     bool operator()(PlacerNodeId id, const PlacerNode &node) override

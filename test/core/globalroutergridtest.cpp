@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_SUITE(GlobalRouterGridTest)
 BOOST_AUTO_TEST_CASE(check_grid)
 {
     std::cout << "--== CHECK GLOBAL ROUTER GRID ==--\n";
-    
+
     LunaCore::GlobalRouter::Grid grid(20,10,{1,1});
 
     BOOST_CHECK(grid.height() == 10);

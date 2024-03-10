@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -27,12 +27,12 @@ namespace LunaCore::Partitioner
             m_data.resize(N);
         }
 
-        auto begin() 
+        auto begin()
         {
             return m_data.begin();
         }
 
-        auto end() 
+        auto end()
         {
             return m_data.end();
         }
@@ -55,7 +55,7 @@ namespace LunaCore::Partitioner
                     return obj == item;
                 }
             );
-            
+
             if (iter == m_data.end())
                 m_data.push_back(item);
         }
@@ -81,7 +81,7 @@ namespace LunaCore::Partitioner
 
     struct Node
     {
-        Node() : m_partitionId(0), m_bestPartitionId(0), m_weight(0), m_gain(0), 
+        Node() : m_partitionId(0), m_bestPartitionId(0), m_weight(0), m_gain(0),
             m_next(-1), m_prev(-1), m_instance(nullptr),
             m_self(-1), m_visited(false), m_flags(0) {}
 

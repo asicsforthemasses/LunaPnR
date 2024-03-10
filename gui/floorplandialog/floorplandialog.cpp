@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -27,7 +27,7 @@ FloorplanDialog::FloorplanDialog(Database &db, QWidget *parent) : QDialog(parent
     auto layout = new QGridLayout();
     layout->setSizeConstraint(QLayout::SetMinimumSize);
 
-    m_regionTable = new QTableWidget();    
+    m_regionTable = new QTableWidget();
     m_regionTable->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
     m_regionTable->setSizeAdjustPolicy(QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents);
 
@@ -41,7 +41,7 @@ FloorplanDialog::FloorplanDialog(Database &db, QWidget *parent) : QDialog(parent
     m_regionTable->setRowCount(db.m_projectSetup.m_regions.size());
     m_regionTable->setColumnCount(4);
     m_regionTable->setHorizontalHeaderLabels(headerLabels);
-    
+
     // dunno why this fails:
     // the dialog will be almost infinitely wide.. ?
     // m_regionTable->horizontalHeader()->setStretchLastSection(true);
@@ -115,7 +115,7 @@ void FloorplanDialog::onOpenScriptLocationOpen()
     if (!fileName.isEmpty())
     {
         m_floorplanScriptEdit->setText(fileName);
-    }    
+    }
 }
 
 void FloorplanDialog::accept()

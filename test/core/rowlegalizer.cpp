@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(check_legal_positions)
     netlist->m_instances.add(ins4);
 
     std::vector<LunaCore::Legalizer::Cell> cells;
-    // cell 1 at 10000, 8000    
+    // cell 1 at 10000, 8000
     cells.emplace_back();
     cells.back().m_instanceKey  = netlist->m_instances.at("ins1").key();
     cells.back().m_globalPos    = ChipDB::Coord64{10000, 8000};

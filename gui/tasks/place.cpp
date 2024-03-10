@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -16,12 +16,12 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
     {
         error("Top module not set\n");
         return;
-    }    
+    }
 
     if (!topModule->m_netlist)
     {
         error("Top module has no netlist\n");
-        return;        
+        return;
     }
 
     auto netlist = topModule->m_netlist;
@@ -40,7 +40,7 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
         if (!pinInstance.isValid())
         {
             error(Logging::fmt("Module %s does not have a pin instance corresponding to pin %s!\n", topModule->name().c_str(), pin->m_name.c_str()));
-            return;            
+            return;
         }
         if (!pinInstance->isPlaced())
         {
@@ -55,7 +55,7 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
         error("No regions defined in floorplan!\n");
         return;
     }
-    
+
     auto firstRegion = *regionIter;
     if (!firstRegion.isValid())
     {
@@ -116,7 +116,7 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
     {
         info("  DEF file written.\n");
     }
-    
+
     info("Placement done.\n");
     done();
 }

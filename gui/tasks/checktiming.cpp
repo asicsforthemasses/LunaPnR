@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -87,7 +87,7 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
         return;
     }
     else
-    {   
+    {
         info("OpenSTA ok\n");
     }
 
@@ -100,20 +100,20 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
     std::size_t pathsReported = 0;
     std::size_t warnings = 0;
     bool timingErrors = false;
-    
+
     for(auto iter = parser.beginPaths(); iter != parser.endPaths(); ++iter)
     {
         if (iter->m_slack >= 0.0)
         {
-            info(Logging::fmt("  From %s to %s -> slack %f %s\n", 
-                iter->m_source.c_str(), iter->m_destination.c_str(), 
+            info(Logging::fmt("  From %s to %s -> slack %f %s\n",
+                iter->m_source.c_str(), iter->m_destination.c_str(),
                 iter->m_slack * timeUnits.first,
                 timeUnits.second.c_str()));
         }
         else
         {
-            error(Logging::fmt("  From %s to %s -> slack %f %s  FAILED\n", 
-                iter->m_source.c_str(), iter->m_destination.c_str(), 
+            error(Logging::fmt("  From %s to %s -> slack %f %s  FAILED\n",
+                iter->m_source.c_str(), iter->m_destination.c_str(),
                 iter->m_slack * timeUnits.first, timeUnits.second.c_str()));
             timingErrors = true;
         }
@@ -154,7 +154,7 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
     // report Timing errors
     // ******************************************************************************************
 
-    if (timingErrors) 
+    if (timingErrors)
     {
         error("** Timing checks failed **\n");
         return;
@@ -179,7 +179,7 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
     done();
 }
 
-std::string Tasks::CheckTiming::createTCL(const GUI::Database &database, 
+std::string Tasks::CheckTiming::createTCL(const GUI::Database &database,
     const std::string &topModuleName,
     const std::string &spefFilename,
     const std::string &verilogFilename) const
@@ -203,7 +203,7 @@ std::string Tasks::CheckTiming::createTCL(const GUI::Database &database,
     for(auto const& sdc : database.m_projectSetup.m_timingConstraintFiles)
     {
         tcl << "read_sdc " << sdc << "\n";
-    }    
+    }
 
     tcl << R"(puts "#UNITS")" "\n";
     tcl << "report_units\n";

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -7,9 +7,9 @@
 
 using namespace GUI;
 
-FlatActionTile::FlatActionTile(const QString &actionTitle, 
-    const QString &iconUrl,     
-    const QString &actionIconUrl, 
+FlatActionTile::FlatActionTile(const QString &actionTitle,
+    const QString &iconUrl,
+    const QString &actionIconUrl,
     const QString &actionName,
     QWidget *parent) : FlatTileBase(actionTitle, iconUrl, actionName, parent), m_actionName(actionName)
 {

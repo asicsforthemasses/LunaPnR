@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -41,7 +41,7 @@ void CellLayoutView::fixCoordinates(QPointF &p1, QPointF &p2)
     double y1 = p1.y();
     double x2 = p2.x();
     double y2 = p2.y();
-    
+
     if (x1 > x2)
         std::swap(x1, x2);
 
@@ -119,7 +119,7 @@ QPointF CellLayoutView::toScreen(const ChipDB::Coord64 &pos) const noexcept
 }
 
 void CellLayoutView::mousePressEvent(QMouseEvent *event)
-{    
+{
     setCursor(Qt::ClosedHandCursor);
     m_mouseState = MouseState::Dragging;
     m_mouseDownPos = event->pos();
@@ -182,12 +182,12 @@ void CellLayoutView::wheelEvent(QWheelEvent *event)
         m_viewport.setLL({llx, lly});
         m_viewport.setUR({urx, ury});
 
-        update();   
+        update();
     }
     else if (numDegrees.y() < 0)
     {
         // limit zoom level to 1
-        m_zoomLevel = std::max(m_zoomLevel-1, 1);    
+        m_zoomLevel = std::max(m_zoomLevel-1, 1);
 
         auto llx = mouseChipPos.m_x - ((mouseChipPos.m_x - m_viewport.m_ll.m_x) * 100 / 80);
         auto lly = mouseChipPos.m_y - ((mouseChipPos.m_y - m_viewport.m_ll.m_y) * 100 / 80);
@@ -197,8 +197,8 @@ void CellLayoutView::wheelEvent(QWheelEvent *event)
         m_viewport.setLL({llx, lly});
         m_viewport.setUR({urx, ury});
 
-        update();        
-    }    
+        update();
+    }
 
     event->accept();
 }
@@ -232,7 +232,7 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
     //
     // toScreen leaves 10% of the widget size for dimensional
     // drawing
-    // 
+    //
     const float dimWidth = std::min(width() * 0.1f, height() * 0.1f);
     const float d2 = dimWidth / 2.0f;
     QRectF txtrect(p1.x(), height() - dimWidth, p2.x() - p1.x(), dimWidth);
@@ -246,7 +246,7 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
 
     char txtbuf[32];
     snprintf(txtbuf, sizeof(txtbuf), "%ld.%03ld um", um, nm);
-    
+
     drawCenteredText(painter, txtrect.center(), txtbuf, font(), Qt::black);
 
     // draw the vertical dimensions of the cell
@@ -310,7 +310,7 @@ void CellLayoutView::paintEvent(QPaintEvent *event)
     {
         // don't display power and ground pins
         // FIXME: make this configurable
-        if ((pin->m_iotype == ChipDB::IOType::GROUND) || 
+        if ((pin->m_iotype == ChipDB::IOType::GROUND) ||
             (pin->m_iotype == ChipDB::IOType::POWER))
         {
             continue;
@@ -364,11 +364,11 @@ bool CellLayoutView::drawRouting(QPainter &painter, const std::string &layerName
     auto cellSize = m_cell.m_size;
 
     auto layer = m_db->techLib()->lookupLayer(layerName);
-    if (!layer.isValid()) 
+    if (!layer.isValid())
     {
         return false;
     }
-    
+
     auto info = getLayerRenderInfo(layerName);
     if (!info.isValid())
     {
@@ -391,7 +391,7 @@ bool CellLayoutView::drawRouting(QPainter &painter, const std::string &layerName
         {
             ChipDB::Rect64 wire{{0, ypos - w2}, {cellSize.m_x, ypos+w2}};
             ypos += layer->m_pitch.m_y;
-        
+
             auto ll = toScreen(wire.m_ll);
             auto ur = toScreen(wire.m_ur);
 
@@ -416,7 +416,7 @@ bool CellLayoutView::drawRouting(QPainter &painter, const std::string &layerName
         {
             ChipDB::Rect64 wire{{xpos-w2, 0}, {xpos+w2, cellSize.m_y}};
             xpos += layer->m_pitch.m_x;
-        
+
             auto ll = toScreen(wire.m_ll);
             auto ur = toScreen(wire.m_ur);
 
@@ -458,7 +458,7 @@ void CellLayoutView::drawGeometry(QPainter &painter, const ChipDB::Rectangle &r)
     auto b = painter.brush();
     b.setTransform(transf);
     painter.setBrush(b);
-    
+
     painter.drawRect(screenRect);
 }
 
@@ -472,7 +472,7 @@ void CellLayoutView::drawGeometry(QPainter &painter, const ChipDB::Polygon &r) c
     {
         poly[idx] = toScreen(r.m_points.at(idx));
     }
-    
+
     painter.drawPolygon(poly);
 }
 

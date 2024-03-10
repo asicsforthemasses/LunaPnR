@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -106,7 +106,7 @@ public:
 
     /** clears the reached flag and resets the grid cost to infinity */
     void clearReachedAndResetCost();
-    
+
     /** clears all the flags and cost in preparation for a new route */
     void clearAllFlagsAndResetCost();
 

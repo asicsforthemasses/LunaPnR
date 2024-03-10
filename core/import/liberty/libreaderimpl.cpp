@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -213,11 +213,11 @@ void ReaderImpl::onSimpleAttribute(const std::string &name, const std::string &v
         else if (name == "is_filler_cell")
         {
             m_curCell->m_subclass = ChipDB::CellSubclass::SPACER;
-        }        
+        }
         else if (name == "is_tap_cell")
         {
             m_curCell->m_subclass = ChipDB::CellSubclass::WELLTAP;
-        }                
+        }
     }
     break;
     default:

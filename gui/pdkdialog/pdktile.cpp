@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -63,7 +63,7 @@ void PDKTile::paintEvent(QPaintEvent *e)
     {
         painter.setPen(QPen{Qt::gray, 1.0});
     }
-    
+
     painter.setBrush(Qt::NoBrush);
     painter.drawRect(rect().adjusted(1,1,-2,-2));
 }
@@ -97,7 +97,7 @@ PDKTile* PDKTileList::createTile(const PDKInfo &info)
 
 void PDKTileList::onTileClicked(int id)
 {
-    
+
     if (m_selected != id)
     {
         // de-select previous

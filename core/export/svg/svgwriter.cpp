@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -8,7 +8,7 @@
 LunaCore::SVG::Writer::Writer(std::ostream &os, int64_t width, int64_t height) : m_os(os), m_width(width), m_height(height)
 {
     m_os << R"(<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 )";
-    m_os << m_width << " " << m_height << "\">\n"; 
+    m_os << m_width << " " << m_height << "\">\n";
     m_closed = false;
 
     m_viewport = ChipDB::Rect64{{0,0}, {width, height}};
@@ -50,7 +50,7 @@ LunaCore::SVG::Writer::SVGCoord LunaCore::SVG::Writer::toSVG(const ChipDB::Coord
 LunaCore::SVG::Writer::SVGCoord LunaCore::SVG::Writer::toSVG(const ChipDB::CoordType &length) const
 {
     float xmul = m_width / static_cast<float>(m_viewport.width());
-    float ymul = m_height / static_cast<float>(m_viewport.height());    
+    float ymul = m_height / static_cast<float>(m_viewport.height());
     return SVGCoord{length * xmul, length * ymul};
 }
 
@@ -98,7 +98,7 @@ void LunaCore::SVG::Writer::drawCircle(const ChipDB::Coord64 &center, const Chip
 {
     SVGCoord c = toSVG(center);
     SVGCoord r = toSVG(radius);
-            
+
     m_os << "<ellipse cx=\"" << c.m_x << "\" cy=\"" << c.m_y <<  "\" rx=\"" << r.m_x << "\" ry=\"" << r.m_y;
     m_os << "\" style=\"fill:#" << m_fillColour << "; ";
     m_os << "stroke: #" << m_strokeColour << "; ";
@@ -146,5 +146,5 @@ void LunaCore::SVG::Writer::drawCenteredText(const ChipDB::Coord64 &pos, const s
     m_os << "font-size=\"" << m_fontSize << "\" ";
     m_os << "font-family=\"" << m_fontFamily << "\" ";
     m_os << R"(dominant-baseline="middle" text-anchor="middle" )";
-    m_os << ">" << text << "</text>\n";    
+    m_os << ">" << text << "</text>\n";
 }

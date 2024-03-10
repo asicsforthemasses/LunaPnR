@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -76,7 +76,7 @@ void CellInfoModel::setCell(const std::shared_ptr<ChipDB::Cell> cell)
     auto leakPowerNode = new CellInfoNode("Leakage pwr (nW)", cell->m_leakagePower * 1e9f, m_altColors.getColorAndUpdate());
     m_rootNode->addChild(leakPowerNode);
 
-    auto offsetNode = new CellInfoNode("Offset ", QString::asprintf("%ld,%ld", cell->m_offset.m_x, cell->m_offset.m_y), 
+    auto offsetNode = new CellInfoNode("Offset ", QString::asprintf("%ld,%ld", cell->m_offset.m_x, cell->m_offset.m_y),
         m_altColors.getColorAndUpdate());
 
     m_rootNode->addChild(offsetNode);
@@ -96,7 +96,7 @@ void CellInfoModel::setCell(const std::shared_ptr<ChipDB::Cell> cell)
 
         // add input/output for each pin
         int colSelect = 0;
-        
+
         auto pinTypeStr = QString::fromStdString(toString(pin->m_iotype));
         if (pin->m_clock)
         {

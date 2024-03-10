@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -15,7 +15,7 @@
 #include "pypininfo.h"
 
 /** container for LunaCore::Cell */
-struct PyPin : public Python::TypeTemplate<ChipDB::Instance::Pin, 
+struct PyPin : public Python::TypeTemplate<ChipDB::Instance::Pin,
     Python::ValueContainer<ChipDB::Instance::Pin> >
 {
     static PyObject* getName(PyPin *self, void *closure)
@@ -24,7 +24,7 @@ struct PyPin : public Python::TypeTemplate<ChipDB::Instance::Pin,
         {
             return Python::toPython(self->obj()->name());
         }
-        
+
         PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
         return nullptr;
     };
@@ -35,7 +35,7 @@ struct PyPin : public Python::TypeTemplate<ChipDB::Instance::Pin,
         {
             return Python::toPython(self->obj()->m_netKey);
         }
-        
+
         PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
         return nullptr;
     }
@@ -46,9 +46,9 @@ struct PyPin : public Python::TypeTemplate<ChipDB::Instance::Pin,
         {
             return Python::toPython(self->obj()->m_pinKey);
         }
-        
+
         PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
-        return nullptr;        
+        return nullptr;
     }
 
     static PyObject* getPinInfo(PyPin *self, PyObject *args)
@@ -57,9 +57,9 @@ struct PyPin : public Python::TypeTemplate<ChipDB::Instance::Pin,
         {
             return Python::toPython(self->obj()->m_pinInfo);
         }
-        
+
         PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
-        return nullptr;        
+        return nullptr;
     }
 
     /** set internal values of PyPin */

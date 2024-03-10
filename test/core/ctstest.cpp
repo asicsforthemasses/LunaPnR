@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(check_cts)
 
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_REQUIRE(leffile.good());
-    
+
     std::ifstream leffile2("test/files/iit_stdcells_extra/fake_ties018.lef");
     BOOST_REQUIRE(leffile2.good());
 
@@ -49,7 +49,7 @@ BOOST_AUTO_TEST_CASE(check_cts)
     BOOST_REQUIRE(verilogfile.good());
 
     BOOST_REQUIRE(ChipDB::Verilog::Reader::load(design, verilogfile));
-    
+
     auto mod = design.m_moduleLib->lookupModule("FemtoRV32");
     BOOST_REQUIRE(mod.isValid());
 
@@ -70,7 +70,7 @@ BOOST_AUTO_TEST_CASE(check_cts)
 
     TinySVGPP::Canvas canvas;
     using SVGPoint = TinySVGPP::Point;
-    
+
     TinySVGPP::Viewport vp;
     vp.canvasWidth  = 2000;
     vp.canvasHeight = 2000;
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(check_cts)
     canvas.setSize(vp.canvasWidth, vp.canvasHeight);
     canvas.fill("black").stroke("black").rect(0,0, vp.canvasWidth, vp.canvasHeight);
 
-    // draw all terminals    
+    // draw all terminals
     for(auto const& segment : tree.value())
     {
         canvas.stroke("green", 1.0).fill("green");
@@ -114,7 +114,7 @@ BOOST_AUTO_TEST_CASE(check_cts)
     {
         if (segment.hasCell())
         {
-            endNodes.push_back(index);            
+            endNodes.push_back(index);
         }
         index++;
     }
@@ -268,7 +268,7 @@ BOOST_AUTO_TEST_CASE(check_cts)
     ctsinfo.m_bufferCell     = bufferCell.ptr();
     ctsinfo.m_maxCap         = 0.2e-12;     // 200 fF, no idea if this is realistic
     ctsinfo.m_clkNetKey      = clkNet.key();
-    
+
     BOOST_CHECK(ctsinfo.m_inputPinKey != ChipDB::ObjectNotFound);
     BOOST_CHECK(ctsinfo.m_outputPinKey != ChipDB::ObjectNotFound);
 

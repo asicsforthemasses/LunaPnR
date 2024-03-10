@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -15,7 +15,7 @@
 namespace GUI
 {
 
-/** multi-threaded string buffer 
+/** multi-threaded string buffer
  *  used by MMConsole to store log messages coming in from other threads.
 */
 class MTStringBuffer

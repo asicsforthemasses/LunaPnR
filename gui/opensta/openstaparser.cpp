@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -62,7 +62,7 @@ bool OpenSTAParser::submitLine(const std::string &line)
     case ParseState::CHECKSPEF:
         if (std::regex_search(line, matches, m_spefCheck1))
         {
-            m_foundSPEFReport = true;            
+            m_foundSPEFReport = true;
             auto netCount = std::stod(matches.str(1));
             if (netCount > 0)
             {
@@ -88,7 +88,7 @@ bool OpenSTAParser::submitLine(const std::string &line)
                 Logging::doLog(Logging::LogType::VERBOSE,"CheckTiming: all nets have SPEF annotations\n");
             }
         }
-        break;        
+        break;
     case ParseState::REPORTCHECKS:
         if (std::regex_search(line, matches, m_reSourcePath))
         {

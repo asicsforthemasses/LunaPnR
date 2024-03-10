@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -47,7 +47,7 @@ void ProjectManager::create()
     m_fileSetupManager->header()->hide();
     m_fileSetupManager->addCategory("LEF", QStringList{".lef",".tlef"}, &m_projectSetup.m_lefFiles);
     m_fileSetupManager->addCategory("LIB", ".lib", &m_projectSetup.m_libFiles);
-    m_fileSetupManager->addCategory("Verilog", ".v", &m_projectSetup.m_verilogFiles);    
+    m_fileSetupManager->addCategory("Verilog", ".v", &m_projectSetup.m_verilogFiles);
     m_fileSetupManager->addCategory("Timing constraints", ".sdc", &m_projectSetup.m_timingConstraintFiles);
     m_fileSetupManager->addCategory("Layers", ".layers", &m_projectSetup.m_layerFiles);
 
@@ -62,7 +62,7 @@ void ProjectManager::create()
     block->header()->setStyleSheet("background-color: #e8e7e8; ");
 
     auto blockFrame = new GUI::BlockFrame();
-    
+
     auto actionTile = new GUI::FlatActionTile("Floorplan setup", "://images/floorplan.png", "://images/properties.png", "FLOORPLANSETUP");
     connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onFloorplanSetup);
     m_tiles.push_back(actionTile);
@@ -89,7 +89,7 @@ void ProjectManager::create()
     block->header()->setStyleSheet("background-color: #e8e7e8; ");
 
     blockFrame = new GUI::BlockFrame();
-    
+
     actionTile = new GUI::FlatActionTile("CTS setup", "://images/floorplan.png", "://images/properties.png", "CTSSETUP");
     connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onCTSSetup);
     m_tiles.push_back(actionTile);
@@ -117,7 +117,7 @@ void ProjectManager::create()
     block->header()->setStyleSheet("background-color: #e8e7e8; ");
 
     blockFrame = new GUI::BlockFrame();
-    
+
     actionTile = new GUI::FlatActionTile("Route", "://images/floorplan.png", "://images/go.png", "GLOBALROUTE");
     connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
     m_tiles.push_back(actionTile);
@@ -142,7 +142,7 @@ void ProjectManager::create()
     block->header()->setStyleSheet("background-color: #e8e7e8; ");
 
     blockFrame = new GUI::BlockFrame();
-    
+
     //actionTile = new GUI::FlatActionTile("CTS setup", "://images/floorplan.png", "://images/properties.png");
     //connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onCTSSetup);
     //blockFrame->addWidget(actionTile);
@@ -162,7 +162,7 @@ void ProjectManager::create()
     block->header()->setStyleSheet("background-color: #e8e7e8; ");
 
     blockFrame = new GUI::BlockFrame();
-    
+
     //actionTile = new GUI::FlatActionTile("CTS setup", "://images/floorplan.png", "://images/properties.png");
     //connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onCTSSetup);
     //blockFrame->addWidget(actionTile);
@@ -192,7 +192,7 @@ void ProjectManager::create()
     block->header()->setStyleSheet("background-color: #e8e7e8; ");
 
     blockFrame = new GUI::BlockFrame();
-    
+
     actionTile = new GUI::FlatActionTile("Write GDS2", "://images/floorplan.png", "://images/go.png", "WRITEGDS2");
     connect(actionTile, &GUI::FlatActionTile::onAction, this, &ProjectManager::onAction);
     m_tiles.push_back(actionTile);
@@ -264,7 +264,7 @@ bool ProjectManager::event(QEvent * event)
 
         return true;
     }
-    
+
     return QWidget::event(event);
 }
 
@@ -301,19 +301,19 @@ void ProjectManager::onWriteToDef(QString actionName)
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save DEF File"),
                            "",
                            tr("DEF (*.def)"));
-    
+
     if (!fileName.isEmpty())
     {
         std::ofstream ofile(fileName.toStdString());
         if (!ofile.good())
         {
             Logging::doLog(Logging::LogType::ERROR, "Could not open DEF file for writing!\n");
-/*            
+/*
             int ret = QMessageBox::critical(this, tr("File Save Error"),
                                tr("Could open the DEF file for saving."),
                                QMessageBox::Ok,
                                QMessageBox::Ok);
-*/                               
+*/
             return;
         }
 

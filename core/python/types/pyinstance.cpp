@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -24,7 +24,7 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::Instance>
         {
             return Python::toPython(self->obj()->name());
         }
-        
+
         PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
         return nullptr;
     };
@@ -82,7 +82,7 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::Instance>
     {
         if (self->ok())
         {
-            const char *placementString = PyUnicode_AsUTF8(value);            
+            const char *placementString = PyUnicode_AsUTF8(value);
 
             std::cout << "  " << placementString << "\n";
 
@@ -124,9 +124,9 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::Instance>
         {
             return Python::toPython(self->obj()->instanceSize());
         }
-        
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");        
-        return nullptr;        
+
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
+        return nullptr;
     };
 
     static PyObject* getArea(PyInstance *self, void *closure)
@@ -135,9 +135,9 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::Instance>
         {
             return Python::toPython(self->obj()->getArea());
         }
-        
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");        
-        return nullptr;        
+
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
+        return nullptr;
     };
 
     static PyObject* getPinCount(PyInstance *self, PyObject *args)
@@ -146,8 +146,8 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::Instance>
         {
             return Python::toPython(self->obj()->getNumberOfPins());
         }
-        
-        return nullptr;                
+
+        return nullptr;
     }
 
     static PyObject* getPin(PyInstance *self, PyObject *args)
@@ -170,15 +170,15 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::Instance>
             {
                 auto pin = self->obj()->getPin(pinName);
                 //std::cout << "\t\tgetPin: of ins" << self->obj()->name() << " PinName:" << pin.name() << " PinKey:" << pin.m_pinKey << " NetKey:" << pin.m_netKey << "\n";
-                return Python::toPython(self->obj()->getPin(pinName));                
+                return Python::toPython(self->obj()->getPin(pinName));
             }
 
             PyErr_Format(PyExc_ValueError, "getPin requires a key or name as argument");
             return nullptr;
         }
-        
-        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");        
-        return nullptr;                
+
+        PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
+        return nullptr;
     }
 
     static PyObject* setPinNet(PyInstance *self, PyObject *args)
@@ -199,7 +199,7 @@ struct PyInstance : public Python::TypeTemplate<ChipDB::Instance>
         }
 
         PyErr_Format(PyExc_RuntimeError, "Self is uninitialized");
-        return nullptr;                
+        return nullptr;
     }
 
     /** set internal values of PyInstance */

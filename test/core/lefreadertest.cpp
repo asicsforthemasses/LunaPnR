@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_SUITE(LEFReaderTest)
 BOOST_AUTO_TEST_CASE(can_read_lef)
 {
     std::cout << "--== LEF READER ==--\n";
-    
+
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
     BOOST_CHECK(leffile.good());
 
@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(can_read_lef)
     for(auto cellKeyObjPair : *design.m_cellLib)
     {
         std::cout << "  " << cellKeyObjPair->name() << "\n";
-    }    
+    }
 
     // check parameters of NANDX1 cell
     auto cellKeyObjPtr = design.m_cellLib->lookupCell("NAND2X1");
@@ -68,7 +68,7 @@ BOOST_AUTO_TEST_CASE(can_read_lef)
 
     pin = cellKeyObjPtr->lookupPin("Y");
     BOOST_CHECK(pin.isValid());
-    BOOST_CHECK(pin->m_iotype == ChipDB::IOType::OUTPUT);    
+    BOOST_CHECK(pin->m_iotype == ChipDB::IOType::OUTPUT);
     BOOST_CHECK(!pin->m_pinLayout.empty()); // check that the pin has geometry
 
     // OAI22X1
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(can_read_lef)
 BOOST_AUTO_TEST_CASE(can_read_lef2)
 {
     std::cout << "--== LEF READER NANGATE ==--\n";
-    
+
     std::ifstream leffile("test/files/nangate/ocl.lef");
     BOOST_REQUIRE(leffile.good());
 
@@ -100,7 +100,7 @@ BOOST_AUTO_TEST_CASE(can_read_lef2)
 BOOST_AUTO_TEST_CASE(can_read_techlef2)
 {
     std::cout << "--== LEF READER NANGATE TECH ==--\n";
-    
+
     std::ifstream leffile("test/files/nangate/ocl.tech.lef");
     BOOST_REQUIRE(leffile.good());
 
@@ -132,7 +132,7 @@ BOOST_AUTO_TEST_CASE(can_read_techlef2)
 BOOST_AUTO_TEST_CASE(can_read_lef3)
 {
     std::cout << "--== LEF READER SKY130 TECH+CELL ==--\n";
-    
+
     std::ifstream leffile("test/files/sky130/sky130_fd_sc_hd.tlef");
     BOOST_REQUIRE(leffile.good());
 
@@ -171,7 +171,7 @@ BOOST_AUTO_TEST_CASE(can_read_lef3)
 BOOST_AUTO_TEST_CASE(can_read_lef4)
 {
     std::cout << "--== LEF READER IHP130 TECH+CELL ==--\n";
-    
+
     std::ifstream leffile("test/files/ihp130/sg13g2_tech.lef");
     BOOST_REQUIRE(leffile.good());
 

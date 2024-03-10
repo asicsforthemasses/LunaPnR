@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -10,7 +10,7 @@
 namespace LunaCore
 {
 
-/** Sparse matrix class to function as intermediary for Eigen3 
+/** Sparse matrix class to function as intermediary for Eigen3
     to get around the slowness of building Eigen3 matrices directly.
 */
 struct Matrix
@@ -40,7 +40,7 @@ struct Matrix
     ValueType& operator()(RowIndex r, ColIndex c) noexcept
     {
         auto &row = m_rows[r];
-        
+
         // make sure the value is zero
         // when it is created automatically by
         // std::unordered_map!
@@ -88,7 +88,7 @@ struct Matrix
     const RowType& row(RowIndex r) const noexcept
     {
         return m_rows.at(r);
-    }   
+    }
 
     /** clear/empty the matrix */
     void clear()

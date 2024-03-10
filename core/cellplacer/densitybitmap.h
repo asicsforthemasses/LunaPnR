@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -30,7 +30,7 @@ public:
     {
         return "TerminationInstance";
     }
-    
+
     /** return the size of the instance in nm */
     const ChipDB::Coord64 instanceSize() const override
     {
@@ -124,7 +124,7 @@ public:
         }
 
         return m_bitmap[x + y * m_width];
-    }        
+    }
 
     const PixelType& at(int64_t x, int64_t y) const noexcept
     {
@@ -139,7 +139,7 @@ public:
         }
 
         return m_bitmap[x + y * m_width];
-    }        
+    }
 
 
 protected:
@@ -172,7 +172,7 @@ struct Velocity
     [[nodiscard]] Velocity operator*(const float &rhs) const noexcept
     {
         return Velocity{m_dx*rhs, m_dy*rhs};
-    }     
+    }
 };
 
 Velocity operator*(const float &lhs, const Velocity &rhs);
@@ -187,14 +187,14 @@ using VelocityBitmap = Bitmap<Velocity>;
 //       which instances are present.
 
 DensityBitmap* createDensityBitmap(const ChipDB::Netlist *netlist, const ChipDB::Region *region,
-    const int64_t bitmapCellWidth /* nm */, 
+    const int64_t bitmapCellWidth /* nm */,
     const int64_t bitmapCellHeight /* nm */);
 
 void calcVelocityBitmap(const DensityBitmap *bm, VelocityBitmap *vm);
 
-void updateMovableInstances(ChipDB::Netlist *netlist, const ChipDB::Region *region, 
-    VelocityBitmap *vm, 
-    const int64_t bitmapCellWidth, 
+void updateMovableInstances(ChipDB::Netlist *netlist, const ChipDB::Region *region,
+    VelocityBitmap *vm,
+    const int64_t bitmapCellWidth,
     const int64_t bitmapCellHeight);
 
 void setMinimalDensities(DensityBitmap *bm, const float maxDensity);
@@ -203,7 +203,7 @@ float updateDensityBitmap(DensityBitmap *bm);
 
 void writeToPGM(std::ostream &os, const DensityBitmap *bitmap);
 
-Velocity interpolateVelocity(const VelocityBitmap *vbitmap, 
+Velocity interpolateVelocity(const VelocityBitmap *vbitmap,
     const int64_t bitmapCellWidth, const int64_t bitmapCellHeight,
     const ChipDB::Coord64 &instanceCenter);
 

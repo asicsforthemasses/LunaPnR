@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -58,7 +58,7 @@ struct Interval
         if ((v.x1 < x1) && (v.x2 < x1)) return false;
         if ((v.x1 > x2) && (v.x2 > x2)) return false;
         return true;
-    }    
+    }
 
     /** return true if coordinate p is within the (closed) interval */
     [[nodiscard]] constexpr bool contains(const CoordType &p) const noexcept
@@ -83,7 +83,7 @@ struct Interval
     {
         return (x2 < rhs.x1);
     }
-    
+
     /** return true if rhs if full to the right of this interval */
     bool operator > (const Interval &rhs) const noexcept
     {
@@ -101,7 +101,7 @@ struct Interval
 class IntervalList
 {
 public:
-    
+
     [[nodiscard]] auto size() const noexcept { return m_intervals.size(); }
 
     [[nodiscard]] auto begin()    {return m_intervals.begin(); };
@@ -112,7 +112,7 @@ public:
 
     /** add an interval to the list. sorting and merging is performed automatically */
     bool addInterval(const Interval &v);
-    
+
     /** remove all intervals from the list */
     void clear();
 
@@ -122,13 +122,13 @@ public:
 protected:
 
     // vector of sorted/ascending x1 intervals
-    std::list<Interval> m_intervals;  
+    std::list<Interval> m_intervals;
 };
 
-/** find the valid pin locations of a cell pin, given the rectangles/polygons describing 
+/** find the valid pin locations of a cell pin, given the rectangles/polygons describing
  *  the cell pin.
 */
-void findPinLocations(const GeometryObjects &objs, 
+void findPinLocations(const GeometryObjects &objs,
     const ChipDB::Size64 &cellSize,
     const ChipDB::Coord64 &routingPitch,
     const ChipDB::CoordType routingWidth,

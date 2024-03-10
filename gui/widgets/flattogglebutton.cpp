@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -44,7 +44,7 @@ void FlatToggleButton::paintEvent(QPaintEvent *event)
 
     if (m_hover)
     {
-        auto bkBrush = palette().window();        
+        auto bkBrush = palette().window();
         auto fillRect = rect().adjusted(0,0,-1,-1);
 
         painter.fillRect(fillRect, bkBrush.color().darker(110));
@@ -68,7 +68,7 @@ void FlatToggleButton::paintEvent(QPaintEvent *event)
 }
 
 QSize FlatToggleButton::sizeHint() const
-{    
+{
     return minimumSize();
 }
 

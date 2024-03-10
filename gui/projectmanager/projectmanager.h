@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -25,7 +25,7 @@ public:
 
 signals:
     void onAction(QString actionName);
-    
+
 protected slots:
     void onFloorplanSetup(QString actionName);
     void onWriteToDef(QString actionName);
@@ -33,13 +33,13 @@ protected slots:
 
 protected:
     bool event(QEvent * event) override;
-    void create();    
-    
+    void create();
+
     Database &m_db;
     ProjectSetup &m_projectSetup;
 
     QVBoxLayout *m_managerLayout = nullptr;
-    
+
     GUI::FileSetupManager *m_fileSetupManager = nullptr;
     std::vector<FlatTileBase*> m_tiles;
 };

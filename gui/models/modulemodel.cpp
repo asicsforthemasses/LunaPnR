@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -9,7 +9,7 @@ using namespace GUI;
 ModuleTableModel::ModuleTableModel(std::shared_ptr<ChipDB::ModuleLib> moduleLib) : m_moduleLib(nullptr)
 {
     m_lightColor = QColor("#F0F0F0");
-    m_darkColor  = QColor("#D0D0D0");  
+    m_darkColor  = QColor("#D0D0D0");
     setModuleLib(moduleLib);
 }
 
@@ -95,7 +95,7 @@ QVariant ModuleTableModel::data(const QModelIndex &index, int role) const
         else
             return m_lightColor;
 
-        break;    
+        break;
     }
 
     return v;
@@ -103,7 +103,7 @@ QVariant ModuleTableModel::data(const QModelIndex &index, int role) const
 
 QVariant ModuleTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    const std::array<const char *,1> headerNames= 
+    const std::array<const char *,1> headerNames=
     {
         "Module"
     };
@@ -208,7 +208,7 @@ QVariant ModuleListModel::data(const QModelIndex &index, int role) const
             if (module != nullptr)
             {
                 return QString::fromStdString(module->name());
-            }                
+            }
             else
                 return QString("(null)");
         }
@@ -219,10 +219,10 @@ QVariant ModuleListModel::data(const QModelIndex &index, int role) const
         else
             return m_lightColor;
 
-        break;    
+        break;
     }
 
-    return v;    
+    return v;
 }
 
 void ModuleListModel::notify(ChipDB::ObjectKey index, NotificationType t)

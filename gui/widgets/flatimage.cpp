@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -35,7 +35,7 @@ void FlatImage::setPixmap(const QString &pixmapUrl)
 void FlatImage::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    
+
     if ((m_pixmap) && (!m_pixmap->isNull()))
         painter.drawPixmap(0,0, *m_pixmap);
 }
@@ -48,6 +48,6 @@ QSize FlatImage::sizeHint() const
     {
         return m_pixmap->size();
     }
-    
+
     return minimumSize();
 }

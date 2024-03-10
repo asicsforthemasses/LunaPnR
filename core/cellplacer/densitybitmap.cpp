@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -48,7 +48,7 @@ void LunaCore::QPlacer::writeToPGM(std::ostream &os, const DensityBitmap *bitmap
 
 //FIXME: refactor out raw pointers
 DensityBitmap* LunaCore::QPlacer::createDensityBitmap(const ChipDB::Netlist *netlist, const ChipDB::Region *region,
-    const int64_t bitmapCellWidth /* nm */, 
+    const int64_t bitmapCellWidth /* nm */,
     const int64_t bitmapCellHeight /* nm */)
 {
     // The region is covered by the bitmap and divides into bitmap cells
@@ -96,7 +96,7 @@ DensityBitmap* LunaCore::QPlacer::createDensityBitmap(const ChipDB::Netlist *net
 
     std::deque<std::shared_ptr<ChipDB::Instance> > active;
 
-    int64_t x = 0;  // sweep position    
+    int64_t x = 0;  // sweep position
     int64_t nextGridx = bitmapCellWidth;
     int64_t gridxIndex = 0;
 
@@ -145,7 +145,7 @@ DensityBitmap* LunaCore::QPlacer::createDensityBitmap(const ChipDB::Netlist *net
                 activeIter = active.erase(activeIter);
             }
             else
-            {                
+            {
                 // chop the instance into blocks according to the
                 // grid cell height
 
@@ -168,7 +168,7 @@ DensityBitmap* LunaCore::QPlacer::createDensityBitmap(const ChipDB::Netlist *net
 
                 activeIter++;
             }
-        }   
+        }
 
         // add newly active cells to the active list
         while(!queue.empty() && ((queue.front()->m_pos.m_x - regionOffset.m_x) <= newx))
@@ -183,7 +183,7 @@ DensityBitmap* LunaCore::QPlacer::createDensityBitmap(const ChipDB::Netlist *net
             gridxIndex++;
         }
 
-        x = newx;             
+        x = newx;
     }
 
     return bitmap.release();
@@ -228,11 +228,11 @@ void LunaCore::QPlacer::calcVelocityBitmap(const DensityBitmap *bm, VelocityBitm
                 vm->at(x,y) = {0,0};
             }
         }
-    }    
+    }
 }
 
-Velocity LunaCore::QPlacer::interpolateVelocity(const VelocityBitmap *vbitmap, 
-    const int64_t bitmapCellWidth, 
+Velocity LunaCore::QPlacer::interpolateVelocity(const VelocityBitmap *vbitmap,
+    const int64_t bitmapCellWidth,
     const int64_t bitmapCellHeight,
     const ChipDB::Coord64 &instanceCenter)
 {
@@ -256,9 +256,9 @@ Velocity LunaCore::QPlacer::interpolateVelocity(const VelocityBitmap *vbitmap,
     return v;
 }
 
-void LunaCore::QPlacer::updateMovableInstances(ChipDB::Netlist *netlist, const ChipDB::Region *region, 
+void LunaCore::QPlacer::updateMovableInstances(ChipDB::Netlist *netlist, const ChipDB::Region *region,
     VelocityBitmap *vm,
-    const int64_t bitmapCellWidth, 
+    const int64_t bitmapCellWidth,
     const int64_t bitmapCellHeight)
 {
     assert(netlist != nullptr);
@@ -316,7 +316,7 @@ float LunaCore::QPlacer::updateDensityBitmap(DensityBitmap *bm)
             const float vDelta = up + down - 2.0f*center;
 
             float newDensity = (deltaT)*(hDelta + vDelta);
-            
+
             bm->at(x,y) += newDensity;
 
             maxDensity = std::max(maxDensity, bm->at(x,y));

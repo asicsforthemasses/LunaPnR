@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+# SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 #
 # SPDX-License-Identifier: GPL-3.0-only
 
@@ -9,7 +9,7 @@ synth -top mac32
 dfflibmap -liberty ../../test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib
 abc -liberty ../../test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib -liberty ../../test/files/iit_stdcells_extra/fake_ties018.lib
 
-flatten 
+flatten
 
 # for now, we'll use fake tie cells
 hilomap -hicell TIEHI Y -locell TIELO Y

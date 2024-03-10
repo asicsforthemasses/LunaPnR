@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -11,8 +11,8 @@ QWidget* RectDelegate::createEditor(QWidget *parent,
     const QStyleOptionViewItem &option,
     const QModelIndex &index) const
 {
-#if 0    
-    if (index.data().canConvert<StarRating>()) 
+#if 0
+    if (index.data().canConvert<StarRating>())
     {
         StarEditor *editor = new StarEditor(parent);
         connect(editor, &StarEditor::editingFinished,
@@ -40,13 +40,13 @@ void RectDelegate::commitAndCloseEditor()
 void RectDelegate::setEditorData(QWidget *editor,
     const QModelIndex &index) const
 {
-    //if (index.data().canConvert<StarRating>()) 
+    //if (index.data().canConvert<StarRating>())
     {
         //StarRating starRating = qvariant_cast<StarRating>(index.data());
         //StarEditor *starEditor = qobject_cast<StarEditor *>(editor);
         //starEditor->setStarRating(starRating);
-    } 
-    //else 
+    }
+    //else
     {
         QStyledItemDelegate::setEditorData(editor, index);
     }

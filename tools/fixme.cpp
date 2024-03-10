@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -68,7 +68,7 @@ void process(const std::string filename, const std::string comment, size_t lineN
             std::cout << yellow << comment << normal << "\n";
         }
         else
-        {        
+        {
             std::cout << "\tLine " << lineNumber << "  " << yellow << comment << normal << "\n";
         }
     }
@@ -79,9 +79,9 @@ void scanFile(const std::string &filename)
     size_t lineNumber = 1;
     State state = State::IDLE;
 
-    std::string contents; 
+    std::string contents;
 
-    size_t      commentLine;   
+    size_t      commentLine;
     std::string comment;
 
     {
@@ -120,7 +120,7 @@ void scanFile(const std::string &filename)
             {
                 comment += c;
                 state = State::MULTILINE;
-                commentLine = lineNumber;                
+                commentLine = lineNumber;
             }
             else
             {
@@ -188,13 +188,13 @@ int main(int argc, char *argv[])
         rootpath = argv[1];
     }
 
-    for (const std::filesystem::directory_entry& dir_entry : 
-        std::filesystem::recursive_directory_iterator{rootpath}) 
-    {        
+    for (const std::filesystem::directory_entry& dir_entry :
+        std::filesystem::recursive_directory_iterator{rootpath})
+    {
         if (!dir_entry.is_directory())
         {
             auto path = dir_entry.path().string();
-            if ((path.find(".cpp") != std::string::npos) || 
+            if ((path.find(".cpp") != std::string::npos) ||
                 (path.find(".h") != std::string::npos))
             {
                 //std::cout << path << "\n";

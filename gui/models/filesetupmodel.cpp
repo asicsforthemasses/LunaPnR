@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -43,13 +43,13 @@ void FileSetupModel::addCategoryItem(size_t categoryIndex, const QString &data)
     if (categoryIndex < m_categories.size())
     {
         auto catDataPtr = m_categories.at(categoryIndex).m_data;
-        
+
         if (catDataPtr == nullptr)
         {
             return;
         }
 
-        const auto newRowIndex = catDataPtr->size();        
+        const auto newRowIndex = catDataPtr->size();
 
         auto parent = createIndex(categoryIndex, 0, 0xFFFFFFFF);
         if (insertRow(newRowIndex, parent))
@@ -80,7 +80,7 @@ QModelIndex FileSetupModel::index(int row, int column,
 
     if (isCategory(parent))
     {
-        // make an item node where the internalId is set to 
+        // make an item node where the internalId is set to
         // the parent row. This allows finding the parent
         // easily.
         return createIndex(row, column, parent.row());
@@ -91,7 +91,7 @@ QModelIndex FileSetupModel::index(int row, int column,
         if (row < m_categories.size())
         {
             return createIndex(row, column, 0xFFFFFFFF);
-        }        
+        }
     }
 
     return QModelIndex();
@@ -115,7 +115,7 @@ QModelIndex FileSetupModel::parent(const QModelIndex &child) const
 }
 
 int FileSetupModel::rowCount(const QModelIndex &parent) const
-{   
+{
     //std::cout << "  FileSetupModel::rowCount " << parent.row() << " " << parent.column() << "\n";
     if (!parent.isValid())
     {
@@ -149,7 +149,7 @@ bool FileSetupModel::removeRows(int row, int count, const QModelIndex &parent)
     {
         return false;
     }
-    
+
     auto categoryData = m_categories.at(categoryIndex).m_data;
     if (categoryData == nullptr)
     {
@@ -170,7 +170,7 @@ bool FileSetupModel::removeRows(int row, int count, const QModelIndex &parent)
     return true;
 }
 
-bool FileSetupModel::insertRows(int row, int count, const QModelIndex &parent) 
+bool FileSetupModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     if (parent.isValid() && isCategory(parent))
     {
@@ -289,7 +289,7 @@ QVariant FileSetupModel::categoryItemData(const Category &cat, size_t index, int
     case Qt::ToolTipRole:
         return QString::fromStdString(cat.m_data->at(index));
     case Qt::EditRole:
-        return QString::fromStdString(cat.m_data->at(index));        
+        return QString::fromStdString(cat.m_data->at(index));
     }
     return QVariant();
 }

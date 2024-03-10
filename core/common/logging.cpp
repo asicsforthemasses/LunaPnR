@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -30,7 +30,7 @@ public:
         case Logging::LogType::DEBUG:
             ss << FGDEBUG  << "[DBG ] ";
             break;
-        case Logging::LogType::WARNING: 
+        case Logging::LogType::WARNING:
             ss << FGWARN   << "[WARN] ";
             break;
         case Logging::LogType::ERROR:
@@ -88,7 +88,7 @@ void Logging::doLog(LogType t, const std::string &txt)
 }
 
 void Logging::doLog(LogType t, const char *format, ...)
-{   
+{
     if (t < gs_loglevel)
     {
         return;
@@ -101,7 +101,7 @@ void Logging::doLog(LogType t, const char *format, ...)
     va_start(argptr, format);
     vsnprintf(&buffer[0], buffer.size(), format, argptr);
     va_end(argptr);
-    
+
     if (gs_logOutputHandler == nullptr)
     {
         gs_defaultLogHandler.print(t, std::string_view(&buffer[0]));
@@ -138,6 +138,6 @@ std::string Logging::fmt(const char *format, ...)
     va_start(argptr, format);
     vsnprintf(&buffer[0], buffer.size(), format, argptr);
     va_end(argptr);
-   
+
     return &buffer[0];
 }

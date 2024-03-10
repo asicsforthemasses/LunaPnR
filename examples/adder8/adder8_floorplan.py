@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+# SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 #
 # SPDX-License-Identifier: GPL-3.0-only
 
@@ -12,13 +12,13 @@ xpos = 0
 xinc = 10000
 x = 20000
 
-for idx in range(0,8): 
+for idx in range(0,8):
     pinName = "a[" + str(idx) + "]"
     placeInstance(pinName, "adder8", x, 50000)
     x = x + xinc
     pinName = "b[" + str(idx) + "]"
     placeInstance(pinName, "adder8", x, 50000)
-    x = x + xinc    
+    x = x + xinc
 
 xinc = 20000
 x = 10000

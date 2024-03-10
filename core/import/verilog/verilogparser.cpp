@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -191,21 +191,21 @@ bool Parser::pInput()
             error("Expected integer in range.\n");
             return false;
         }
-        
+
         // FIXME: better type checking
         start = atoi(previous().m_value.c_str());
 
         if (!match(Lexer::TOK_COLON))
         {
             error("Expected ':' in range.\n");
-            return false;       
+            return false;
         }
 
         if (!match(Lexer::TOK_INTEGER))
         {
             error("Expected integer in range.\n");
             return false;
-        }    
+        }
 
         // FIXME: better type checking
         stop = atoi(previous().m_value.c_str());
@@ -225,7 +225,7 @@ bool Parser::pInput()
         return false;
     }
 
-    if (hasRange) 
+    if (hasRange)
         onInput(previous().m_value, start, stop);
     else
         onInput(previous().m_value);
@@ -253,21 +253,21 @@ bool Parser::pOutput()
             error("Expected integer in range.\n");
             return false;
         }
-        
+
         // FIXME: better type checking
         start = atoi(previous().m_value.c_str());
 
         if (!match(Lexer::TOK_COLON))
         {
             error("Expected ':' in range.\n");
-            return false;       
+            return false;
         }
 
         if (!match(Lexer::TOK_INTEGER))
         {
             error("Expected integer in range.\n");
             return false;
-        }    
+        }
 
         // FIXME: better type checking
         stop = atoi(previous().m_value.c_str());
@@ -306,7 +306,7 @@ bool Parser::pWire()
     // ('[' INTEGER ':' INTEGER ']') ident ';'
     // or a comma separated list of those.
 
-    do 
+    do
     {
         uint32_t start = 0; // range start default
         uint32_t stop  = 0; // range stop default
@@ -319,21 +319,21 @@ bool Parser::pWire()
                 error("Expected integer in range.\n");
                 return false;
             }
-            
+
             // FIXME: better type checking
             start = atoi(previous().m_value.c_str());
 
             if (!match(Lexer::TOK_COLON))
             {
                 error("Expected ':' in range.\n");
-                return false;       
+                return false;
             }
 
             if (!match(Lexer::TOK_INTEGER))
             {
                 error("Expected integer in range.\n");
                 return false;
-            }    
+            }
 
             // FIXME: better type checking
             stop = atoi(previous().m_value.c_str());
@@ -406,7 +406,7 @@ bool Parser::pAssign()
 
     onAssign(left, right);
 
-    return true;    
+    return true;
 }
 
 bool Parser::pInstance()
@@ -479,7 +479,7 @@ bool Parser::pInstanceOrderedPortList()
             if (!match(Lexer::TOK_RBRACKET))
             {
                 error("Expected ']' in slice.\n");
-                return false;                
+                return false;
             }
         }
         onInstancePort(portIndex++, netname);
@@ -507,7 +507,7 @@ bool Parser::pInstanceOrderedPortList()
                 if (!match(Lexer::TOK_RBRACKET))
                 {
                     error("Expected ']' in slice.\n");
-                    return false;                
+                    return false;
                 }
             }
             onInstancePort(portIndex++, netname);
@@ -519,7 +519,7 @@ bool Parser::pInstanceOrderedPortList()
 bool Parser::pInstanceNamedPortList()
 {
     // accept zero or more net names
-    
+
     if (peek().m_tok == Lexer::TOK_RPAREN)
     {
         return true;
@@ -551,7 +551,7 @@ bool Parser::pInstanceNamedPortList()
         {
             error("Expected net name.\n");
             return false;
-        }    
+        }
 
         std::string netname = previous().m_value;
 
@@ -565,11 +565,11 @@ bool Parser::pInstanceNamedPortList()
             }
             netname += '[';
             netname += previous().m_value;
-            netname += ']';            
+            netname += ']';
             if (!match(Lexer::TOK_RBRACKET))
             {
                 error("Expected ']' in slice.\n");
-                return false;                
+                return false;
             }
         }
 

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -23,7 +23,7 @@ PDKDialog::PDKDialog(std::vector<PDKInfo> &pdks) : m_pdks(pdks)
         m_tileList->createTile(pdk);
     }
 
-    connect(m_tileList, &PDKTileList::selectionChanged, 
+    connect(m_tileList, &PDKTileList::selectionChanged,
         this, &PDKDialog::onSelectionChanged);
 
     m_tileListScroll = new QScrollArea();
@@ -43,7 +43,7 @@ PDKDialog::PDKDialog(std::vector<PDKInfo> &pdks) : m_pdks(pdks)
     connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     mainLayout->addWidget(m_buttonBox, 0, Qt::AlignRight);
-    
+
     setLayout(mainLayout);
 }
 

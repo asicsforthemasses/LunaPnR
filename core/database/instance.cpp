@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -36,7 +36,7 @@ std::string Instance::getArchetypeName() const noexcept
     case InstanceType::CELL:
     case InstanceType::ABSTRACT:
         if (m_cell != nullptr)
-            return m_cell->name();  
+            return m_cell->name();
     default:    // intentional fall-though
         return "UNKNOWN";
     }

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -33,7 +33,7 @@ public:
 
     void setDatabase(std::shared_ptr<Database> db);
     void refreshDatabase();
-    
+
     QSize sizeHint() const;
 
 public slots:
@@ -57,7 +57,7 @@ protected:
 
     QHBoxLayout     *m_layerLayout;
     QHBoxLayout     *m_siteLayout;
-    
+
     QTableView      *m_siteTableView;
     QTreeView       *m_siteTreeView;
 

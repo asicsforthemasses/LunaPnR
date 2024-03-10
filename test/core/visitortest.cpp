@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -38,11 +38,11 @@ public:
             if (ins)
             {
                 auto pin = ins->getPin(conn.m_pinKey);
-                
+
                 m_capacitance += pin.m_pinInfo->m_cap;
-                
+
                 if (pin.m_pinInfo->isInput())
-                    m_inputCount++;                
+                    m_inputCount++;
             }
         }
     };
@@ -57,7 +57,7 @@ protected:
 BOOST_AUTO_TEST_CASE(iterator_clock_net)
 {
     std::cout << "--== VISITOR TEST ==--\n";
-    
+
     ChipDB::Design design;
 
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
@@ -77,7 +77,7 @@ BOOST_AUTO_TEST_CASE(iterator_clock_net)
     BOOST_CHECK(mod.isValid());
     if (!mod.isValid())
         return;
-        
+
     BOOST_CHECK(mod->m_netlist);
 
     auto net = mod->m_netlist->m_nets.at("clock");

@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -29,11 +29,11 @@ class SubclassDelegate : public QItemDelegate
 {
 public:
     SubclassDelegate(QObject *parent = 0);
-    
+
     QWidget* createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
-    
+
     void setEditorData(QWidget *editor, const QModelIndex &index) const override;
-    
+
     void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const override;
 };
 
@@ -65,7 +65,7 @@ protected:
 
     QTreeView       *m_cellTreeView;
     QTableView      *m_layerView;
-    
+
     SubclassDelegate m_subclassDelegate;
 
     std::shared_ptr<Database> m_db;

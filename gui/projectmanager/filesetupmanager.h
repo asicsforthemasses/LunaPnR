@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -24,7 +24,7 @@ public:
         std::vector<std::string > *data);
 
     /** add a file category with multiple file extensions */
-    void addCategory(const QString &name, const QStringList &fileExt,  
+    void addCategory(const QString &name, const QStringList &fileExt,
         std::vector<std::string > *data);
 
     void addCategoryItem(size_t categoryIndex, const QString &name);

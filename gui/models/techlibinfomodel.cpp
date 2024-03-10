@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -69,7 +69,7 @@ void LayerInfoModel::setLayer(std::shared_ptr<ChipDB::LayerInfo> layer)
     layerNode->addChild(new LayerInfoNode("Offset (nm)", QString::asprintf("%ld,%ld", layer->m_offset.m_x, layer->m_offset.m_y), m_altColors.getColorAndUpdate() ));
     layerNode->addChild(new LayerInfoNode("Resistance (ohm/sq)", layer->m_resistance, m_altColors.getColorAndUpdate()));
     layerNode->addChild(new LayerInfoNode("Capacitance (F/um²)", layer->m_capacitance, m_altColors.getColorAndUpdate()));
-    
+
     endResetModel();
 }
 
@@ -89,7 +89,7 @@ LayerTableModel::LayerTableModel(std::shared_ptr<ChipDB::TechLib> techLib) : m_t
 {
     m_lightColor = QColor("#F0F0F0");
     m_darkColor  = QColor("#D0D0D0");
-    
+
     setTechLib(techLib);
 }
 
@@ -170,18 +170,18 @@ QVariant LayerTableModel::data(const QModelIndex &index, int role) const
                     //return QString::fromStdString(ChipDB::toString(layer->m_));
                 }
             }
-                
+
             else
                 return QString("(null)");
         }
         break;
-    case Qt::BackgroundRole:        
+    case Qt::BackgroundRole:
         if (index.row() % 2)
             return m_darkColor;
         else
             return m_lightColor;
 
-        break;    
+        break;
     }
 
     return v;
@@ -189,7 +189,7 @@ QVariant LayerTableModel::data(const QModelIndex &index, int role) const
 
 QVariant LayerTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    const std::array<const char *,2> headerNames= 
+    const std::array<const char *,2> headerNames=
     {
         "Name","Type"
     };

@@ -2,11 +2,12 @@
 ##
 ##  SPDX-License-Identifier: GPL-3.0-only
 ##  SPDX-FileCopyrightText: 2022,2023 Niels Moseley <asicsforthemasses@gmail.com>
-##  
+##
 
 cmake_minimum_required(VERSION 3.20)
 
 OPTION(ENABLE_PACKAGING "ENABLE_PACKAGING Option" ON)
+OPTION(USE_PYTHON "Enabled Python scripting" OFF)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 20)
@@ -38,6 +39,17 @@ endif()
 message("${CPMstatus}")
 
 include(${CPM_DOWNLOAD_LOCATION})
+
+########################################################################
+# Add optional Python
+########################################################################
+
+if (USE_PYTHON)
+    find_package (PythonLibs 3.8 REQUIRED COMPONENTS Interpreter Development)
+    message(STATUS "Python scripting is ENABLED")
+else(USE_PYTHON)
+    message(STATUS "Python scripting is DISABLED")
+endif(USE_PYTHON)
 
 ############################################################
 ## Setup LunaPnR version string

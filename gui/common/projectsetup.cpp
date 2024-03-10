@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -166,10 +166,10 @@ bool ProjectSetup::readFromJSON(std::istream &is)
     rawData.resize(length);
 
     is.read(rawData.data(), length);
-    
+
     QJsonParseError error;
     auto doc = QJsonDocument::fromJson(rawData, &error);
-            
+
     if (doc.isNull())
     {
         std::cerr << "JSON parse error: " << error.errorString().toStdString() << "\n";
@@ -192,6 +192,6 @@ bool ProjectSetup::readFromJSON(std::istream &is)
     if (json.contains("FloorplanScriptLocation")) m_floorplanScriptLocation = fromJsonToString(json["FloorplanScriptLocation"]);
     if (json.contains("CTSBuffer")) m_ctsBuffer = fromJsonToString(json["CTSBuffer"]);
     if (json.contains("CTSMaxCap")) m_ctsMaxCap = fromJsonToFloat(json["CTSMaxCap"]);
-    
+
     return true;
 }

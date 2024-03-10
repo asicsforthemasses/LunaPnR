@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -104,11 +104,11 @@ void PropertyView::addPropertyWidget(QWidget *widget, int32_t row, int32_t col)
     auto layout = new QHBoxLayout();
     layout->addWidget(widget);
     layout->setContentsMargins(QMargins(2,0,2,0));
-    
+
     frame->setLayout(layout);
     frame->setFrameStyle(QFrame::Box);
     frame->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed));
-    
+
     if (row == 0)
         frame->setContentsMargins(QMargins((col == 0) ? 1 : 0,1,1,1));
     else

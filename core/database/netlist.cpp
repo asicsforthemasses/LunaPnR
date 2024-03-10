@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -32,13 +32,13 @@ KeyObjPair<Net> Netlist::createNet(const std::string &netName)
         // net exists, return this instead of createing a new one
         return netObjPair;
     }
-    
+
     auto result = m_nets.add(std::make_shared<Net>(netName));
     if (result)
     {
         return result.value();
     }
-    
+
     return KeyObjPair<Net>{};
 }
 

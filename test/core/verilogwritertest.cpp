@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -25,11 +25,11 @@ BOOST_AUTO_TEST_CASE(can_write_netlist_to_verilog)
     ChipDB::Design design;
 
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
-    BOOST_CHECK(leffile.good());    
+    BOOST_CHECK(leffile.good());
     BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
     std::ifstream libertyfile("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib");
-    BOOST_CHECK(libertyfile.good());    
+    BOOST_CHECK(libertyfile.good());
     BOOST_CHECK(ChipDB::Liberty::Reader::load(design, libertyfile));
 
     std::ifstream verilogfile("test/files/verilog/adder2.v");
@@ -56,11 +56,11 @@ BOOST_AUTO_TEST_CASE(can_write_adder8_to_verilog)
     ChipDB::Design design;
 
     std::ifstream leffile("test/files/iit_stdcells/lib/tsmc018/lib/iit018_stdcells.lef");
-    BOOST_CHECK(leffile.good());    
+    BOOST_CHECK(leffile.good());
     BOOST_CHECK(ChipDB::LEF::Reader::load(design, leffile));
 
     std::ifstream libertyfile("test/files/iit_stdcells/lib/tsmc018/signalstorm/iit018_stdcells.lib");
-    BOOST_CHECK(libertyfile.good());    
+    BOOST_CHECK(libertyfile.good());
     BOOST_CHECK(ChipDB::Liberty::Reader::load(design, libertyfile));
 
     std::ifstream verilogfile("test/files/verilog/adder8.v");

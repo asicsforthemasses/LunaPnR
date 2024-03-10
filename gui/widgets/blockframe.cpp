@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -14,7 +14,7 @@ BlockFrame::BlockFrame(QWidget *parent) : QFrame(parent)
     QPalette pal = QPalette();
     pal.setColor(QPalette::Window, Qt::white);
 
-    setAutoFillBackground(true); 
+    setAutoFillBackground(true);
     setPalette(pal);
 
     setLayout(m_layout);

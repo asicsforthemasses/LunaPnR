@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -21,7 +21,7 @@ bool LunaCore::NetlistTools::writePlacementFile(std::ostream &os, const ChipDB::
 
     for(auto ins : netlist->m_instances)
     {
-        if (ins.isValid() && 
+        if (ins.isValid() &&
             ((ins->m_placementInfo == ChipDB::PlacementInfo::PLACED) || (ins->m_placementInfo == ChipDB::PlacementInfo::PLACEDANDFIXED)))
         {
             auto insSize = ins->instanceSize();
@@ -53,8 +53,8 @@ LunaCore::NetlistTools::NetlistHistogram LunaCore::NetlistTools::calcNetlistHist
 bool LunaCore::NetlistTools::removeNetconInstances(ChipDB::Netlist &netlist)
 {
     //FIXME: this needs re-writing!
-    
-#if 0    
+
+#if 0
     size_t netsRemoved = 0;
     size_t degenerateNets = 0;
     for (auto insKeyObjPair : netlist.m_instances)
@@ -66,7 +66,7 @@ bool LunaCore::NetlistTools::removeNetconInstances(ChipDB::Netlist &netlist)
 
             if ((net1Key < 0) || (net2Key < 0))
             {
-                // handle degenerate net: remove NETCON            
+                // handle degenerate net: remove NETCON
                 degenerateNets++;
             }
             else
@@ -93,7 +93,7 @@ bool LunaCore::NetlistTools::removeNetconInstances(ChipDB::Netlist &netlist)
     std::stringstream ss;
     ss << "Removed " << netsRemoved << " netcon nets (found " << degenerateNets << " degerate nets)\n";
     doLog(LogType::VERBOSE, ss);
-#endif    
+#endif
     return true;
 }
 
@@ -121,7 +121,7 @@ double LunaCore::NetlistTools::calcHPWL(const ChipDB::Netlist &netlist)
             minCoord.m_x = std::min(minCoord.m_x, center.m_x);
             minCoord.m_y = std::min(minCoord.m_y, center.m_y);
             maxCoord.m_x = std::max(maxCoord.m_x, center.m_x);
-            maxCoord.m_y = std::max(maxCoord.m_y, center.m_y);            
+            maxCoord.m_y = std::max(maxCoord.m_y, center.m_y);
             ++iter;
         }
 

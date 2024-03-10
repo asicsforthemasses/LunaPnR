@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2023 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -66,7 +66,7 @@ public:
 
         /** get the texture for the hatch pattern.
          *  this is a one-bit-per-pixel pixmap.
-         * 
+         *
         */
         QPixmap getTexture() const
         {
@@ -81,7 +81,7 @@ public:
         {
             return m_colorPixmap;
         }
-        
+
         /** create a pixmap of the given size, filled with a background color and
          *  apply the color hatch pattern. This is meant for layer tool / list displays
         */
