@@ -2,6 +2,7 @@
 
 #include "dbtypes.h"
 #include "observer.h"
+#include "table.hpp"
 #include "namedstorage.h"
 #include "net.h"
 #include "instance.h"
