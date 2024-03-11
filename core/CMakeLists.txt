@@ -190,6 +190,10 @@ add_library(lunacore
     export/verilog/verilogwriter.cpp
     export/txt/txtwriter.cpp
     export/spef/spefwriter.cpp
+
+    passes/pass.cpp
+    passes/passes.cpp
+
     ${PYTHON_SRC}
     globalroute/globalrouter.cpp
     globalroute/prim_private.cpp
@@ -205,6 +209,10 @@ target_include_directories(lunacore PRIVATE ${PYTHON_INCLUDE_DIRS})
 target_include_directories(lunacore PUBLIC ../contrib)
 target_include_directories(lunacore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
 target_link_libraries(lunacore Eigen3::Eigen ${PYTHON_LIBRARIES} tinysvgpp strutilspp tomlplusplus::tomlplusplus)
+
+## main: lunapnrcon console version
+add_executable(lunapnrcon main.cpp)
+target_link_libraries(lunapnrcon lunacore)
 
 ## utilties based on LunaPnR Core
 add_subdirectory(utilities)

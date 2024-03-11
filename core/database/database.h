@@ -12,3 +12,13 @@
 #include "techlib.h"
 #include "floorplan.h"
 #include "design.h"
+
+namespace LunaCore
+{
+
+struct Database
+{
+
+};
+
+};

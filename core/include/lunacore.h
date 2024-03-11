@@ -30,6 +30,8 @@
 #include "../globalroute/prim.h"
 #include "../globalroute/lshape.h"
 
+#include "../passes/passes.hpp"
+
 #ifdef USE_PYTHON
 #include "../python/pylunapnr.h"
 #endif
