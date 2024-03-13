@@ -5,6 +5,9 @@
 #include "pass.hpp"
 
 #include <memory>
+#include <map>
+#include <algorithm>
+
 #include "common/logging.h"
 
 namespace LunaCore::Passes
@@ -14,6 +17,12 @@ struct Passes
 {
     bool runPass(Database &database, const std::string &passName, ArgList args)
     {
+        if (passName == "help")
+        {
+            displayMainHelp();
+            return true;
+        }
+
         if (!m_passes.contains(passName))
         {
             Logging::doLog(Logging::LogType::ERROR, "Pass %s not found\n", passName.c_str());
@@ -46,8 +55,28 @@ struct Passes
         return true;
     }
 
-    std::unordered_map<std::string /* pass name */, std::unique_ptr<Pass>> m_passes;
+    void displayMainHelp()
+    {
+        Logging::doLog(Logging::LogType::INFO, "Main help:\n");
+
+        for(auto const& pass : m_passes)
+        {
+            auto passName = pass.first;
+            std::string indentStr;
+            int spaceCount = std::max(0UL, 30 - passName.length());
+            indentStr.assign(spaceCount, ' ');
+
+            Logging::doLog(Logging::LogType::INFO, "    %s%s%s\n",
+                passName.c_str(),
+                indentStr.c_str(),
+                pass.second->shortHelp().c_str() );
+        }
+    }
+
+    std::map<std::string /* pass name */, std::unique_ptr<Pass>> m_passes;
 };
+
+
 
 static Passes gs_passes;
 
@@ -82,6 +111,13 @@ bool Pass::processParameters(ArgList args)
 {
     auto paramState = ParamState::IDLE;
 
+    //FIXME: check the numner of parameter arguments
+    // and produce an error if there is no match
+    //
+    // also add support for variadic parameters:
+    // just read until there is another named parameter
+    // or an end of line
+
     m_namedParams.clear();
     m_params.clear();
 
@@ -100,7 +136,10 @@ bool Pass::processParameters(ArgList args)
                 if (iter != m_namedParamDefs.end())
                 {
                     paramArgCount = iter->second.m_argCount;
-                    if (paramArgCount != 0) paramState = ParamState::NAMEDPARAM;
+                    if (paramArgCount != 0)
+                    {
+                        paramState = ParamState::NAMEDPARAM;
+                    }
 
                     m_namedParams[paramName];
                 }

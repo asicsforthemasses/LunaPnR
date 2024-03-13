@@ -2,6 +2,9 @@
 
 #include "passes.hpp"
 #include "floorplanpass.hpp"
+#include "readpass.hpp"
+#include "writepass.hpp"
+#include "infopass.hpp"
 #include "common/strutils.hpp"
 
 namespace LunaCore::Passes
@@ -21,6 +24,9 @@ bool run(Database &database, const std::string &cmdstring)
 void registerAllPasses()
 {
     registerPass(new Floorplan());
+    registerPass(new ReadPass());
+    registerPass(new WritePass());
+    registerPass(new InfoPass());
 }
 
 };

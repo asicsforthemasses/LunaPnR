@@ -37,11 +37,7 @@ public:
         }
 #endif
 
-        if (m_namedParams.contains("help"))
-        {
-            Logging::doLog(Logging::LogType::INFO,  help());
-            return false;
-        }
+
 
         return true;
     }
@@ -57,6 +53,14 @@ public:
         ss << "    -width   : the width of the floorplan in nm     [required]\n";
         ss << "    -height  : the height of the floorplan in nm    [required]\n";
         return ss.str();
+    }
+
+    /**
+        returns a one-line short help text for a pass.
+    */
+    virtual std::string shortHelp() const noexcept
+    {
+        return "create a floorplan";
     }
 
     /**

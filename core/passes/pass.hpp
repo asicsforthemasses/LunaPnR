@@ -56,6 +56,14 @@ public:
     }
 
     /**
+        returns a one-line short help text for a pass.
+    */
+    virtual std::string shortHelp() const noexcept
+    {
+        return "no short help";
+    }
+
+    /**
         Initialize a pass. this is called by registerPass()
     */
     virtual bool init()
@@ -98,5 +106,5 @@ protected:
 
 bool runPass(Database &database, const std::string &passName, ArgList args);
 bool registerPass(Pass *pass);
-
+void displayMainHelp();
 };

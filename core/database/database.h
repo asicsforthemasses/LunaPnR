@@ -18,7 +18,7 @@ namespace LunaCore
 
 struct Database
 {
-
+    ChipDB::Design m_design;
 };
 
 };
