@@ -1,6 +1,5 @@
 #pragma once
 #include "common/logging.h"
-#include "database/database.h"
 #include "pass.hpp"
 
 namespace LunaCore::Passes
@@ -9,25 +8,39 @@ namespace LunaCore::Passes
 class Floorplan : public Pass
 {
 public:
-    Floorplan() : Pass("floorplan") {}
+    Floorplan() : Pass("floorplan")
+    {
+        registerNamedParameter("width", "", 1, true);
+        registerNamedParameter("height", "", 1, true);
+    }
 
     virtual ~Floorplan() = default;
 
     /** execute a pass given a list of input arguments.
         returns true if succesful, else false.
     */
-    [[nodiscard]] bool execute(Database &database, const ArgList &args) override
+    [[nodiscard]] bool execute(Database &database) override
     {
-        processParameters(args);
-
+#if 0
         for(auto const& param : m_namedParams)
         {
-            Logging::doLog(Logging::LogType::INFO, "  %s=%s\n", param.first.c_str(), param.second.c_str());
+            Logging::doLog(Logging::LogType::INFO, "  %s\n", param.first.c_str());
+            for(auto const& paramArg : param.second)
+            {
+                Logging::doLog(Logging::LogType::INFO, "      %s\n", paramArg.c_str());
+            }
         }
 
         for(auto const& param : m_params)
         {
             Logging::doLog(Logging::LogType::INFO, "  %s\n", param.c_str());
+        }
+#endif
+
+        if (m_namedParams.contains("help"))
+        {
+            Logging::doLog(Logging::LogType::INFO,  help());
+            return false;
         }
 
         return true;
@@ -39,7 +52,10 @@ public:
     std::string help() const noexcept override
     {
         std::stringstream ss;
-        ss << "Not help available for " << m_name << "\n";
+        ss << "Floorplan - create a floorplan\n";
+        ss << "  Options:\n";
+        ss << "    -width   : the width of the floorplan in nm     [required]\n";
+        ss << "    -height  : the height of the floorplan in nm    [required]\n";
         return ss.str();
     }
 

@@ -41,6 +41,7 @@ int main(int argc, const char *argv[])
     std::string line;
     while(line != "exit")
     {
+		std::cout << "> ";
         std::getline(std::cin, line);
 
         if (line != "exit")

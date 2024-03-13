@@ -12,7 +12,7 @@ bool run(Database &database, const std::string &cmdstring)
     auto chunks = LunaCore::split(cmdstring, ' ');
     if (!chunks.empty())
     {
-        return executePass(database,chunks.front(), std::span(chunks.begin()+1, chunks.end()));
+        return runPass(database,chunks.front(), std::span(chunks.begin()+1, chunks.end()));
     }
 
     return false;

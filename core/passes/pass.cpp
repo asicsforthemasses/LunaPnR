@@ -12,7 +12,7 @@ namespace LunaCore::Passes
 
 struct Passes
 {
-    bool executePass(Database &database, const std::string &passName, ArgList args)
+    bool runPass(Database &database, const std::string &passName, ArgList args)
     {
         if (!m_passes.contains(passName))
         {
@@ -20,7 +20,7 @@ struct Passes
             return false;
         }
 
-        return m_passes.at(passName)->execute(database, args);
+        return m_passes.at(passName)->run(database, args);
     }
 
     bool registerPass(Pass *pass)
@@ -51,9 +51,9 @@ struct Passes
 
 static Passes gs_passes;
 
-bool executePass(Database &database, const std::string &passName, ArgList args)
+bool runPass(Database &database, const std::string &passName, ArgList args)
 {
-    return gs_passes.executePass(database, passName, args);
+    return gs_passes.runPass(database, passName, args);
 }
 
 bool registerPass(Pass *pass)
@@ -61,33 +61,106 @@ bool registerPass(Pass *pass)
     return gs_passes.registerPass(pass);
 }
 
-void Pass::processParameters(ArgList args)
+enum class ParamState
 {
+    IDLE,
+    NAMEDPARAM
+};
+
+void Pass::registerNamedParameter(const std::string &name,
+    const std::string &defaultValue,
+    int argCount,
+    bool required)
+{
+    m_namedParamDefs[name].m_name = name;
+    m_namedParamDefs[name].m_argCount = argCount;
+    m_namedParamDefs[name].m_required = required;
+    m_namedParamDefs[name].m_default = defaultValue;
+}
+
+bool Pass::processParameters(ArgList args)
+{
+    auto paramState = ParamState::IDLE;
+
     m_namedParams.clear();
     m_params.clear();
 
-    bool namedParam = false;
     std::string paramName;
+    int paramArgCount{0};
     for(auto const& arg : args)
     {
-        if (namedParam)
+        switch(paramState)
         {
-            m_namedParams[paramName] = arg;
-            namedParam = false;
-        }
-        else
-        {
+        case ParamState::IDLE:
             if (arg.starts_with('-'))
             {
                 paramName = arg.substr(1);
-                namedParam = true;
+
+                auto iter = m_namedParamDefs.find(paramName);
+                if (iter != m_namedParamDefs.end())
+                {
+                    paramArgCount = iter->second.m_argCount;
+                    if (paramArgCount != 0) paramState = ParamState::NAMEDPARAM;
+
+                    m_namedParams[paramName];
+                }
+                else
+                {
+                    // error cannot find named parameter!
+                    std::stringstream ss;
+                    ss << "Pass " << m_name << " does not recognize parameter " << paramName << "\n";
+                    Logging::doLog(Logging::LogType::ERROR, ss.str());
+                    return false;
+                }
             }
             else
             {
                 m_params.push_back(arg);
             }
+            break;
+        case ParamState::NAMEDPARAM:
+            paramArgCount--;
+            if (paramArgCount == 0)
+            {
+                paramState = ParamState::IDLE;
+            }
+
+            if (arg.starts_with('-'))
+            {
+                std::stringstream ss;
+                ss << "Unexpectedly found a named parameter " << arg.substr(1) << " while parsing " << paramName << "\n";
+                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                return false;
+            }
+
+            m_namedParams[paramName].push_back(arg);
+            break;
         }
     }
+
+    // if -help was specified, display it
+    if (m_namedParams.contains("help"))
+    {
+        Logging::doLog(Logging::LogType::INFO,  help());
+        return false;
+    }
+
+    // check that all the required parameters are there
+    for (auto const paramDef : m_namedParamDefs)
+    {
+        if (paramDef.second.m_required)
+        {
+            if (!m_namedParams.contains(paramDef.first))
+            {
+                std::stringstream ss;
+                ss << "Required parameter " << paramDef.first << " is missing.\n";
+                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                return false;
+            }
+        }
+    }
+
+    return true;
 }
 
 };
