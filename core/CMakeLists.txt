@@ -99,6 +99,17 @@ if (UNIX)
 endif (UNIX)
 
 ########################################################################
+# Add optional readline
+########################################################################
+
+find_package(Readline)
+if (READLINE_FOUND)
+    message("Using READLINE")
+else()
+    message("Skipping READLINE")
+endif()
+
+########################################################################
 # Add TomlPlusPlus
 ########################################################################
 
@@ -212,7 +223,12 @@ target_link_libraries(lunacore Eigen3::Eigen ${PYTHON_LIBRARIES} tinysvgpp strut
 
 ## main: lunapnrcon console version
 add_executable(lunapnrcon main.cpp)
-target_link_libraries(lunapnrcon lunacore)
+target_include_directories(lunapnrcon PRIVATE ${Readline_INCLUDE_DIR})
+target_link_libraries(lunapnrcon lunacore ${Readline_LIBRARY})
+
+if (READLINE_FOUND)
+    target_compile_definitions(lunapnrcon PRIVATE USE_READLINE)
+endif()
 
 ## utilties based on LunaPnR Core
 add_subdirectory(utilities)

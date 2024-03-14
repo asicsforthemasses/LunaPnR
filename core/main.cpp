@@ -6,6 +6,11 @@
 #include <iostream>
 #include <lunacore.h>
 
+#ifdef USE_READLINE
+	#include <readline/readline.h>
+	#include <readline/history.h>
+#endif
+
 using namespace Logging;
 
 int main(int argc, const char *argv[])
@@ -38,6 +43,32 @@ int main(int argc, const char *argv[])
 
     LunaCore::Database db;
 
+#ifdef USE_READLINE
+	// See: https://eli.thegreenplace.net/2016/basics-of-using-the-readline-library/
+	//rl_bind_key('\t', rl_insert);
+	char* buf;
+	bool exitLoop = false;
+
+	while(!exitLoop && ((buf = readline("> ")) != nullptr))
+	{
+    	if (strlen(buf) > 0)
+		{
+      		add_history(buf);
+    	}
+
+		if (strcmp(buf, "exit") != 0)
+		{
+			LunaCore::Passes::run(db, std::string(buf));
+		}
+		else
+		{
+			exitLoop = true;
+		}
+
+    	// readline malloc's a new buffer every time.
+    	free(buf);
+  	}
+#else
     std::string line;
     while(line != "exit")
     {
@@ -49,6 +80,7 @@ int main(int argc, const char *argv[])
             LunaCore::Passes::run(db, line);
         }
     }
+#endif
 
     return EXIT_SUCCESS;
 }
