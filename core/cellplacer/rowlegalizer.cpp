@@ -195,13 +195,13 @@ double LunaCore::Legalizer::calcRowCost(const std::vector<Cell> &cells, const Ro
     return cost;
 }
 
-bool LunaCore::Legalizer::legalizeRegion(const ChipDB::Region &region, ChipDB::Netlist &netlist)
+bool LunaCore::Legalizer::legalize(const ChipDB::Floorplan &floorplan, ChipDB::Netlist &netlist)
 {
-    const auto minCellWidth  = region.getMinCellSize().m_x;
+    const auto minCellWidth  = floorplan.minimumCellSize().m_x;
 
     if (minCellWidth == 0)
     {
-        Logging::doLog(Logging::LogType::ERROR,"Legalizer::legalizeRegion: min cell width has not been defined in region.\n");
+        Logging::doLog(Logging::LogType::ERROR,"Legalizer::legalize: min cell width has not been defined for core area.\n");
         return false;
     }
 
@@ -244,12 +244,13 @@ bool LunaCore::Legalizer::legalizeRegion(const ChipDB::Region &region, ChipDB::N
     //        w.r.t. decap and filler cells.
 
     std::vector<Row> rows;
-    rows.resize(region.m_rows.size());
+    rows.resize(floorplan.rows().size());
 
-    for(size_t rowIdx=0; rowIdx < region.m_rows.size(); rowIdx++)
+    std::size_t Nrows = floorplan.rows().size();
+    for(size_t rowIdx=0; rowIdx < Nrows; rowIdx++)
     {
-        rows.at(rowIdx).m_rect    = region.m_rows.at(rowIdx).m_rect;
-        rows.at(rowIdx).m_rowType = region.m_rows.at(rowIdx).m_rowType;
+        rows.at(rowIdx).m_rect    = floorplan.rows().at(rowIdx).m_rect;
+        rows.at(rowIdx).m_rowType = floorplan.rows().at(rowIdx).m_rowType;
     }
 
     // try the sorted cells in each row and see which row has the lowest

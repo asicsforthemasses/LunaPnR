@@ -13,22 +13,13 @@
 namespace ChipDB
 {
 
+/**
+    The floorplan holds information about the die area and core area, among other things.
+
+*/
 class Floorplan
 {
 public:
-
-    /** add an already created region to the floorplan. returns an invalid KeyObjPair if a region
-     *  of the same name already exists */
-    KeyObjPair<Region> addRegion(std::shared_ptr<Region> regionPtr);
-
-    /** create a region with the specified name and add it to the floorplan. returns an invalid KeyObjPair if a region
-     *  of the same name already exists */
-    KeyObjPair<Region> createRegion(const std::string &name, const std::string &site);
-
-    std::shared_ptr<Region> lookupRegion(ChipDB::ObjectKey key) const;
-    KeyObjPair<Region> lookupRegion(const std::string &name) const;
-    [[nodiscard]] bool removeRegion(const std::string &name);
-    [[nodiscard]] bool removeRegion(ChipDB::ObjectKey key);
 
     void clear();
 
@@ -38,23 +29,59 @@ public:
     /** notify all listeners that the floorplan has changed */
     void contentsChanged() const;
 
-    auto begin() const
+    [[nodiscard]] Size64 dieSize() const noexcept;
+    [[nodiscard]] Rect64 coreRect() const noexcept;
+
+    [[nodiscard]] Size64 coreSize() const noexcept
     {
-        return m_regions.begin();
+        return m_coreSize;
     }
 
-    auto end() const
+    constexpr void setIO2CoreMargins(const Margins64 &margins) noexcept
     {
-        return m_regions.end();
+        m_io2coreMargins = margins;
     }
 
-    [[nodiscard]] size_t regionCount() const noexcept
+    [[nodiscard]] Margins64 io2CoreMargins() const noexcept
     {
-        return m_regions.size();
+        return m_io2coreMargins;
     }
 
+    constexpr void setIOMargins(const Margins64 &margins) noexcept
+    {
+        m_io2coreMargins = margins;
+    }
+
+    [[nodiscard]] Margins64 ioMargins() const noexcept
+    {
+        return m_io2coreMargins;
+    }
+
+    constexpr void setCoreSize(const Size64 &coreSize) noexcept
+    {
+        m_coreSize = coreSize;
+    }
+
+    [[nodiscard]] constexpr auto& rows() noexcept { return m_rows; }
+    [[nodiscard]] constexpr auto const& rows() const noexcept { return m_rows; }
+
+    constexpr void setMinimumCellSize(const Size64 &minimumCellSize) noexcept
+    {
+        m_minimumCellSize = minimumCellSize;
+    }
+
+    [[nodiscard]] Size64 minimumCellSize() const noexcept
+    {
+        return m_minimumCellSize;
+    }
 protected:
-    NamedStorage<Region> m_regions;
+    Size64    m_coreSize;       ///< core area
+    Margins64 m_io2coreMargins; ///< margins between core and io area
+    Margins64 m_ioMargins;      ///< size of IO area at top, bottom, left and right sides.
+
+    Size64    m_minimumCellSize;
+
+    std::vector<ChipDB::Row> m_rows;
 };
 
 };

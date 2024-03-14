@@ -8,62 +8,56 @@ using namespace ChipDB;
 
 void Floorplan::clear()
 {
-    m_regions.clear();
+    m_coreSize = Size64();
+    m_io2coreMargins = Margins64();
+    m_ioMargins = Margins64();
 }
 
-KeyObjPair<Region> Floorplan::addRegion(std::shared_ptr<Region> regionPtr)
+Rect64 Floorplan::coreRect() const noexcept
 {
-    auto optKeyObjPair = m_regions.add(regionPtr);
-    if (optKeyObjPair)
-    {
-        return optKeyObjPair.value();
-    }
+    Rect64 core;
+    core.setLL(
+        Coord64(
+            m_io2coreMargins.left() +
+            m_ioMargins.left(),
+            m_io2coreMargins.bottom() +
+            m_ioMargins.bottom()
+        )
+    );
 
-    return KeyObjPair<Region>{};
+    core.setSize(m_coreSize);
+    return core;
 }
 
-KeyObjPair<Region> Floorplan::createRegion(const std::string &name, const std::string &site)
+Size64 Floorplan::dieSize() const noexcept
 {
-    auto optKeyObjPair = m_regions.add(std::make_shared<Region>(name, site));
-    if (optKeyObjPair)
-    {
-        return optKeyObjPair.value();
-    }
+    // calculate the die size
+    auto width = m_coreSize.m_x +
+        m_io2coreMargins.left() +
+        m_io2coreMargins.right() +
+        m_ioMargins.left() +
+        m_ioMargins.right();
 
-    return KeyObjPair<Region>{};
-}
+    auto height = m_coreSize.m_y +
+        m_io2coreMargins.top() +
+        m_io2coreMargins.bottom() +
+        m_ioMargins.top() +
+        m_ioMargins.bottom();
 
-std::shared_ptr<Region> Floorplan::lookupRegion(ChipDB::ObjectKey key) const
-{
-    return m_regions[key];
-}
-
-KeyObjPair<Region> Floorplan::lookupRegion(const std::string &name) const
-{
-    return m_regions[name];
-}
-
-bool Floorplan::removeRegion(const std::string &name)
-{
-    return m_regions.remove(name);
-}
-
-bool Floorplan::removeRegion(ChipDB::ObjectKey key)
-{
-    return m_regions.remove(key);
+    return Size64(width, height);
 }
 
 void Floorplan::addListener(INamedStorageListener *listener)
 {
-    m_regions.addListener(listener);
+
 }
 
 void Floorplan::removeListener(INamedStorageListener *listener)
 {
-    m_regions.removeListener(listener);
+
 }
 
 void Floorplan::contentsChanged() const
 {
-    m_regions.contentsChanged();
+
 }

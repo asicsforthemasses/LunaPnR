@@ -12,23 +12,23 @@ using namespace LunaCore::QLAPlacer;
 
 
 bool LunaCore::QLAPlacer::place(
-    const ChipDB::Region  &region,
+    const ChipDB::Floorplan &floorplan,
     ChipDB::Netlist &netlist,
     std::function<void(const LunaCore::QPlacer::PlacerNetlist &)> callback)
 {
     double area = 0.0f;
 
-    if (region.getMinCellSize().isNullSize())
+    if (floorplan.minimumCellSize().isNullSize())
     {
         Logging::doLog(Logging::LogType::ERROR,"Cannot place: minimum cell size is 0.\n");
         return false;
     }
 
-    const auto regionRect = region.m_rect;
+    const auto regionRect = floorplan.coreRect();
 
-    if (region.m_rows.empty())
+    if (floorplan.rows().empty())
     {
-        Logging::doLog(Logging::LogType::ERROR,"Cannot place: region has no rows\n");
+        Logging::doLog(Logging::LogType::ERROR,"Cannot place: core has no rows\n");
         return false;
     }
 
@@ -103,7 +103,7 @@ bool LunaCore::QLAPlacer::place(
 
     Logging::doLog(Logging::LogType::VERBOSE, "Running final legalization.\n");
     LunaCore::Legalizer legalizer;
-    if (!legalizer.legalizeRegion(region, netlist))
+    if (!legalizer.legalize(floorplan, netlist))
     {
         return false;
     }

@@ -26,11 +26,9 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
 
     auto netlist = topModule->m_netlist;
 
-    // FIXME: for now use the first region to place the top module
-    // check there is a valid floorplan
-    if (database.floorplan()->regionCount() == 0)
+    if (database.floorplan()->coreSize().isNullSize())
     {
-        error("No regions defined in floorplan!\n");
+        error("Core area is not defined; create a floorplan!\n");
         return;
     }
 
@@ -49,6 +47,7 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
         }
     }
 
+#if 0
     auto regionIter = database.floorplan()->begin();
     if (regionIter == database.floorplan()->end())
     {
@@ -62,10 +61,11 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
         error("First region in floorplan is invalid!\n");
         return;
     }
+#endif
 
     info("Using CellPlacer2\n");
     LunaCore::CellPlacer2::Placer placer;
-    if (!placer.place(*netlist, *firstRegion, 20, 10))
+    if (!placer.place(*netlist, *database.floorplan(), 20, 10))
     {
         error("Placement failed\n");
         return;

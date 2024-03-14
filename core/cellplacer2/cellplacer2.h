@@ -103,7 +103,7 @@ public:
      *  Recursive subregion division also stops when a subregion contains
      *  fewer than 'minInstances' cells/gates/instances.
     */
-    [[nodiscard]] bool place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
+    [[nodiscard]] bool place(ChipDB::Netlist &netlist, ChipDB::Floorplan &floorplan,
         std::size_t maxLevels, std::size_t minInstances);
 
 protected:
@@ -128,7 +128,7 @@ protected:
         const PlacementRegion &r,
         GateToRowContainer &gate2Row);
 
-    void populateGatePositions(const ChipDB::Netlist &netlist, const ChipDB::Region &region);
+    void populateGatePositions(const ChipDB::Netlist &netlist, ChipDB::Floorplan &floorplan);
 
     enum class Direction
     {

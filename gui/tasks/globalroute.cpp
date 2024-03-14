@@ -29,31 +29,26 @@ void Tasks::GlobalRoute::execute(GUI::Database &database, ProgressCallback callb
 
     // FIXME: for now use the first region to global route the top module
     // check there is a valid floorplan
-    if (database.floorplan()->regionCount() == 0)
+    if (database.floorplan()->coreSize().isNullSize())
     {
-        error("No regions defined in floorplan!\n");
+        error("No core defined in floorplan!\n");
         return;
     }
 
-    auto regionIter = database.floorplan()->begin();
-    auto region = *regionIter;
-
-    std::stringstream ss;
-    ss << "Routing region: " << region->name() << "\n";
-
-    info(ss.str());
-
     // determining GCell size
+    // FIXME: site check
+#if 0
     auto site = database.techLib()->lookupSiteInfo(region->site());
     if (!site.isValid())
     {
         error("Site name of region isn't valid!\n");
         return;
     }
+#endif
 
     LunaCore::GlobalRouter::Router grouter;
 
-    auto minCellSize = site->m_size;
+    auto minCellSize = database.floorplan()->minimumCellSize();
     if ((minCellSize.m_x <= 0) || (minCellSize.m_y <= 0))
     {
         std::stringstream ss;
@@ -62,19 +57,20 @@ void Tasks::GlobalRoute::execute(GUI::Database &database, ProgressCallback callb
         return;
     }
 
-    auto gcellSize = grouter.determineGridCellSize(database.design(), site->name(), 100, 100);
+    auto gcellSize = grouter.determineGridCellSize(database.design(), "core", 100, 100);
     if (!gcellSize.has_value())
     {
         error("Could not determine GCell size!\n");
         return;
     }
 
+    std::stringstream ss;
     ss.str("");
     ss << "GCell size = " << gcellSize->m_x << " by " << gcellSize->m_y << " nm\n";
     info(ss.str());
 
     // calculate actual number of tracks in the GCell
-    auto trackInfo = grouter.calcNumberOfTracks(database.design(), site->name(), gcellSize.value());
+    auto trackInfo = grouter.calcNumberOfTracks(database.design(), "core", gcellSize.value());
     if (!trackInfo)
     {
         error("Could not determine the number of tracks in a GCell!\n");

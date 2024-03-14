@@ -73,8 +73,8 @@ public:
         }
     };
 
-    [[nodiscard]] bool legalizeRegion(
-        const ChipDB::Region &region,
+    [[nodiscard]] bool legalize(
+        const ChipDB::Floorplan &floorplan,
         ChipDB::Netlist &netlist);
 
 protected:

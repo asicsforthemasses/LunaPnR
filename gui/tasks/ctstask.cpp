@@ -28,9 +28,9 @@ void Tasks::CTS::execute(GUI::Database &database, ProgressCallback callback)
 
     // FIXME: for now use the first region to place the top module
     // check there is a valid floorplan
-    if (database.floorplan()->regionCount() == 0)
+    if (database.floorplan()->coreSize().isNullSize())
     {
-        error("No regions defined in floorplan!\n");
+        error("No core defined in floorplan!\n");
         return;
     }
 
@@ -137,6 +137,7 @@ void Tasks::CTS::execute(GUI::Database &database, ProgressCallback callback)
     }
 #endif
 
+#if 0
     auto regionIter = database.floorplan()->begin();
     if (regionIter == database.floorplan()->end())
     {
@@ -150,10 +151,11 @@ void Tasks::CTS::execute(GUI::Database &database, ProgressCallback callback)
         error("First region in floorplan is invalid!\n");
         return;
     }
+#endif
 
     // legalise the cells
     LunaCore::Legalizer cellLegalizer;
-    if (!cellLegalizer.legalizeRegion(*firstRegion, *netlist))
+    if (!cellLegalizer.legalize(*database.floorplan(), *netlist))
     {
         error("  row legalizer failed!");
         return;

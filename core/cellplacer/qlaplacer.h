@@ -66,7 +66,7 @@ namespace LunaCore::QLAPlacer
      *  the callback is called each iteration when the positions have been updated
     */
     bool place(
-        const ChipDB::Region  &region,
+        const ChipDB::Floorplan &floorplan,
         ChipDB::Netlist &netlist,
         std::function<void(const LunaCore::QPlacer::PlacerNetlist &)> callback);
 

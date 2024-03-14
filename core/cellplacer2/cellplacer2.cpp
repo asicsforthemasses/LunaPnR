@@ -261,7 +261,7 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
     //if (fixups != 0) std::cout << "  Number of gate fixups: " << fixups << "\n";
 }
 
-void Placer::populateGatePositions(const ChipDB::Netlist &netlist, const ChipDB::Region &region)
+void Placer::populateGatePositions(const ChipDB::Netlist &netlist, ChipDB::Floorplan &floorplan)
 {
     m_gatePositions.clear();
     m_gatePositions.reserve(netlist.m_instances.size());
@@ -282,49 +282,49 @@ void Placer::populateGatePositions(const ChipDB::Netlist &netlist, const ChipDB:
         {
             // move all placable gates/instances to the center of the
             // region
-            m_gatePositions[insKeyPair.key()] = region.m_rect.center();
+            m_gatePositions[insKeyPair.key()] = floorplan.coreRect().center();
         }
     }
 }
 
-bool Placer::place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
+bool Placer::place(ChipDB::Netlist &netlist,
+    ChipDB::Floorplan &floorplan,
     std::size_t maxLevels, std::size_t minInstances)
 {
     // sanity checks
-    if (region.getMinCellSize().isNullSize())
+    if (floorplan.minimumCellSize().isNullSize())
     {
-        Logging::doLog(Logging::LogType::ERROR,"Placer: minimum cell size has not been defined for the region!\n");
+        Logging::doLog(Logging::LogType::ERROR,"Placer: minimum cell size has not been defined for the core area!\n");
         return false;
     }
 
-    if (region.m_rows.size() == 0)
+    if (floorplan.rows().size() == 0)
     {
-        Logging::doLog(Logging::LogType::ERROR,"Placer: no row have been defined in the region!\n");
+        Logging::doLog(Logging::LogType::ERROR,"Placer: no row have been defined in the floorplan!\n");
         return false;
     }
 
     // report utilization factor
     const double nm2um = 1.0e-3;
     double totalCellArea = LunaCore::NetlistTools::calcTotalCellArea(netlist);
-    auto regionSize      = region.m_rect.getSize();
+    auto regionSize      = floorplan.coreSize();
     double regionArea    = static_cast<double>(regionSize.m_x)*nm2um *
         static_cast<double>(regionSize.m_y)*nm2um;
 
     auto utilization = static_cast<float>(totalCellArea / regionArea);
-    Logging::doLog(Logging::LogType::INFO, "Region %s utilization is %f percent\n",
-        region.name().c_str(),
+    Logging::doLog(Logging::LogType::INFO, "Core utilization is %f percent\n",
         utilization*100.0f);
 
     m_maxLevels = maxLevels;
     m_minInstancesInRegion = minInstances;
 
-    populateGatePositions(netlist, region);
+    populateGatePositions(netlist, floorplan);
 
     std::deque<std::unique_ptr<PlacementRegion>> placementRegions;
 
     auto &placementRegion = placementRegions.emplace_back(std::make_unique<PlacementRegion>());
 
-    placementRegion->m_rect = region.getPlacementRect();
+    placementRegion->m_rect = floorplan.coreRect();
     for(auto insKeyObjPair : netlist.m_instances)
     {
         if (!insKeyObjPair->isFixed())
@@ -354,7 +354,7 @@ bool Placer::place(ChipDB::Netlist &netlist, const ChipDB::Region &region,
 
     // legalise the cells
     LunaCore::Legalizer cellLegalizer;
-    if (!cellLegalizer.legalizeRegion(region, netlist))
+    if (!cellLegalizer.legalize(floorplan, netlist))
     {
         return false;
     }

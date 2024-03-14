@@ -292,9 +292,39 @@ void FloorplanView::drawRegions(QPainter &p)
         return;
     }
 
-    const QColor regionColor("#FF90EE90"); // light green
+    const QColor coreColor("#FF90EE90");    // light green
+    const QColor ioColor("#FF90EE90");      // light green
+    const QColor dieColor("#FF90EE90");     // light green
 
     p.setBrush(Qt::NoBrush);
+
+    // draw the dia area
+    auto dieSize = m_db->floorplan()->dieSize();
+    ChipDB::Rect64 dieRect;
+    dieRect.setSize(dieSize);
+    auto dieScreenRect = m_viewPort.toScreen(dieRect);
+
+    p.setPen(QPen(dieColor, 1, Qt::SolidLine));
+    p.drawRect(dieScreenRect);
+
+    // draw the io area
+    ChipDB::Rect64 ioRect = dieRect.contracted(m_db->floorplan()->ioMargins());
+    auto ioScreenRect = m_viewPort.toScreen(ioRect);
+
+    p.setPen(QPen(ioColor, 1, Qt::DashDotDotLine));
+    p.drawRect(ioScreenRect);
+
+    // draw the core area
+    auto coreRect = m_db->floorplan()->coreRect();
+    auto coreScreenRect  = m_viewPort.toScreen(coreRect);
+
+    p.setPen(QPen(coreColor, 1, Qt::SolidLine));
+    p.drawRect(coreScreenRect);
+
+    // draw the rows
+    // drawRows(p, region.ptr());
+
+#if 0
     for(auto region : *m_db->floorplan())
     {
         auto regionRect     = m_viewPort.toScreen(region->m_rect);
@@ -310,9 +340,9 @@ void FloorplanView::drawRegions(QPainter &p)
         // draw placeable region
         p.setPen(QPen(regionColor, 1, Qt::SolidLine));
         p.drawRect(placementRect);
-
-        drawRows(p, region.ptr());
     }
+#endif
+
 }
 
 void FloorplanView::drawRows(QPainter &p, const std::shared_ptr<ChipDB::Region> region)
