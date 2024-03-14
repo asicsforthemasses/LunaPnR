@@ -24,10 +24,12 @@ int main(int argc, const char *argv[])
 	doLog(LogType::INFO, " |  LunaPnR -- Luna Place and Route                                             |\n");
 	doLog(LogType::INFO, " |                                                                              |\n");
 	doLog(LogType::INFO, " |  Copyright (C) 2021 - 2024  Niels Moseley <asicsforthemasses@gmail.com>      |\n");
+#if 0
 	doLog(LogType::INFO, " |                                                                              |\n");
 	doLog(LogType::INFO, " |  Permission to use, copy, modify, and/or distribute this software for any    |\n");
 	doLog(LogType::INFO, " |  purpose with or without fee is hereby granted, provided that the above      |\n");
 	doLog(LogType::INFO, " |  copyright notice and this permission notice appear in all copies.           |\n");
+#endif
 	doLog(LogType::INFO, " |                                                                              |\n");
 	doLog(LogType::INFO, " |  THE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES    |\n");
 	doLog(LogType::INFO, " |  WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF            |\n");
@@ -72,7 +74,6 @@ int main(int argc, const char *argv[])
 
 	read_history(historyFile.c_str());
 
-	//rl_bind_key('\t', rl_insert);
 	char* buf;
 	bool exitLoop = false;
 
