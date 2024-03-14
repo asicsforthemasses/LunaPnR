@@ -4,6 +4,7 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <filesystem>
 #include <lunacore.h>
 
 #ifdef USE_READLINE
@@ -44,7 +45,33 @@ int main(int argc, const char *argv[])
     LunaCore::Database db;
 
 #ifdef USE_READLINE
+
 	// See: https://eli.thegreenplace.net/2016/basics-of-using-the-readline-library/
+	//      https://stackoverflow.com/questions/38792542/readline-h-history-usage-in-c
+
+	std::filesystem::path lunaPnrDir;
+
+	lunaPnrDir.append(getenv("HOME"));
+	lunaPnrDir.append(".lunapnr");
+
+	if (!std::filesystem::exists(lunaPnrDir))
+	{
+		std::filesystem::create_directory(lunaPnrDir);
+	}
+
+	std::filesystem::path historyFile = lunaPnrDir;
+	historyFile.append(".history");
+
+	// make special printable history file
+	std::filesystem::path printableHistoryPath("~/");
+	printableHistoryPath.append(".lunapnr/.history");
+
+	std::stringstream ss;
+	ss << "using history file: " << printableHistoryPath << "\n";
+	doLog(LogType::INFO, ss.str());
+
+	read_history(historyFile.c_str());
+
 	//rl_bind_key('\t', rl_insert);
 	char* buf;
 	bool exitLoop = false;
@@ -68,6 +95,10 @@ int main(int argc, const char *argv[])
     	// readline malloc's a new buffer every time.
     	free(buf);
   	}
+
+	write_history(historyFile.c_str());
+	history_truncate_file(historyFile.c_str(), 20);
+
 #else
     std::string line;
     while(line != "exit")
