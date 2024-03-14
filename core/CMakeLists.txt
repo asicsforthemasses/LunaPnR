@@ -225,6 +225,7 @@ target_link_libraries(lunacore Eigen3::Eigen ${PYTHON_LIBRARIES} tinysvgpp strut
 add_executable(lunapnrcon main.cpp)
 target_include_directories(lunapnrcon PRIVATE ${Readline_INCLUDE_DIR})
 target_link_libraries(lunapnrcon lunacore ${Readline_LIBRARY})
+target_compile_definitions(lunapnrcon PRIVATE -DLUNAVERSIONSTRING=${SHORTLUNAVERSIONSTRING})
 
 if (READLINE_FOUND)
     target_compile_definitions(lunapnrcon PRIVATE USE_READLINE)
