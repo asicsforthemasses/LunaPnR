@@ -12,6 +12,8 @@ public:
     {
         registerNamedParameter("width", "", 1, true);
         registerNamedParameter("height", "", 1, true);
+        registerNamedParameter("coremargins", "", 4, true);
+        registerNamedParameter("cornersize", "", 1, true);
     }
 
     virtual ~Floorplan() = default;
@@ -21,23 +23,59 @@ public:
     */
     [[nodiscard]] bool execute(Database &database) override
     {
-#if 0
-        for(auto const& param : m_namedParams)
+        try
         {
-            Logging::doLog(Logging::LogType::INFO, "  %s\n", param.first.c_str());
-            for(auto const& paramArg : param.second)
+            auto widthStr  = m_namedParams.at("width").at(0);
+            auto heightStr = m_namedParams.at("height").at(0);
+
+            auto leftStr  = m_namedParams.at("coremargins").at(0);
+            auto rightStr  = m_namedParams.at("coremargins").at(1);
+            auto topStr    = m_namedParams.at("coremargins").at(2);
+            auto bottomStr = m_namedParams.at("coremargins").at(3);
+
+            ChipDB::Coord64 coreSize;
+            coreSize.m_x = std::stold(widthStr);
+            coreSize.m_y = std::stold(heightStr);
+
+            database.m_design.m_floorplan->setCoreSize(coreSize);
+
+            ChipDB::Margins64 io2coreMargins(
+                std::stold(topStr),
+                std::stold(bottomStr),
+                std::stold(leftStr),
+                std::stold(rightStr)
+            );
+
+            database.m_design.m_floorplan->setIO2CoreMargins(io2coreMargins);
+
+            if (m_namedParams.contains("cornersize"))
             {
-                Logging::doLog(Logging::LogType::INFO, "      %s\n", paramArg.c_str());
+                auto cornerDimension  = std::stold(m_namedParams.at("cornersize").at(0));
+
+                ChipDB::Margins64 cornerMargins(
+                    cornerDimension,
+                    cornerDimension,
+                    cornerDimension,
+                    cornerDimension
+                );
+
+                database.m_design.m_floorplan->setIOMargins(cornerMargins);
+            }
+            else
+            {
+                // Find corner cells and set the size of the io margins that way
+                auto ioMarginsOpt = findIOMarginsBasedOnCornerCells();
+                if (!ioMarginsOpt)
+                {
+                    Logging::doLog(Logging::LogType::WARNING, "Cannot find any IO corner cells to set the padring margins.\n");
+                }
             }
         }
-
-        for(auto const& param : m_params)
+        catch(const std::exception& e)
         {
-            Logging::doLog(Logging::LogType::INFO, "  %s\n", param.c_str());
+            Logging::doLog(Logging::LogType::ERROR, "Cannot parse one of the parameter numbers.\n");
+            return false;
         }
-#endif
-
-
 
         return true;
     }
@@ -50,8 +88,11 @@ public:
         std::stringstream ss;
         ss << "Floorplan - create a floorplan\n";
         ss << "  Options:\n";
-        ss << "    -width   : the width of the floorplan in nm     [required]\n";
-        ss << "    -height  : the height of the floorplan in nm    [required]\n";
+        ss << "    -width       : the width of the core in nm               [required]\n";
+        ss << "    -height      : the height of the core in nm              [required]\n";
+        ss << "    -coremargins : the margins between core and io cells     [required]\n";
+        ss << "                   <left> <right <top> <bottom> in nm\n";
+        ss << "    -cornersize  : dimension of the IO corner in nm          [optional]\n";
         return ss.str();
     }
 
@@ -69,6 +110,13 @@ public:
     bool init() override
     {
         return true;
+    }
+
+protected:
+
+    std::optional<ChipDB::Margins64> findIOMarginsBasedOnCornerCells() const
+    {
+        return std::nullopt;
     }
 };
 

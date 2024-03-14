@@ -15,6 +15,7 @@ public:
     {
         registerNamedParameter("cells", "", 0, false);
         registerNamedParameter("cell", "", 1, false);
+        registerNamedParameter("floorplan", "", 0, false);
     }
 
     virtual ~InfoPass() = default;
@@ -65,6 +66,24 @@ public:
             }
         }
 
+        if (m_namedParams.contains("floorplan"))
+        {
+            auto &fp = database.m_design.m_floorplan;
+            Logging::doLog(Logging::LogType::INFO, "Floorplan:\n");
+            Logging::doLog(Logging::LogType::INFO, "    Die size    %d x %d nm\n", fp->dieSize().m_x, fp->dieSize().m_y);
+            Logging::doLog(Logging::LogType::INFO, "    Core size   %d x %d nm\n", fp->coreSize().m_x, fp->coreSize().m_y);
+            Logging::doLog(Logging::LogType::INFO, "    Core to IO margins:\n");
+            Logging::doLog(Logging::LogType::INFO, "        Left    %d nm\n", fp->io2CoreMargins().left());
+            Logging::doLog(Logging::LogType::INFO, "        Right   %d nm\n", fp->io2CoreMargins().right());
+            Logging::doLog(Logging::LogType::INFO, "        Top     %d nm\n", fp->io2CoreMargins().top());
+            Logging::doLog(Logging::LogType::INFO, "        Bottom  %d nm\n", fp->io2CoreMargins().bottom());
+            Logging::doLog(Logging::LogType::INFO, "    IO cell margins:\n");
+            Logging::doLog(Logging::LogType::INFO, "        Left    %d nm\n", fp->ioMargins().left());
+            Logging::doLog(Logging::LogType::INFO, "        Right   %d nm\n", fp->ioMargins().right());
+            Logging::doLog(Logging::LogType::INFO, "        Top     %d nm\n", fp->ioMargins().top());
+            Logging::doLog(Logging::LogType::INFO, "        Bottom  %d nm\n", fp->ioMargins().bottom());
+        }
+
         return true;
     }
 
@@ -77,7 +96,9 @@ public:
         ss << "info - query the database\n";
         ss << "  info <info type> [name1 name2 ...]\n\n";
         ss << "  Info type options:\n";
-        ss << "    -cells   : show all the cells\n";
+        ss << "    -cell <cellname>   : show data on a specific cell\n";
+        ss << "    -cells             : show all the available cells\n";
+        ss << "    -floorplan         : show floorplan data\n";
         ss << "\n";
         return ss.str();
     }

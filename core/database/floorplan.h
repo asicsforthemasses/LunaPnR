@@ -49,12 +49,12 @@ public:
 
     constexpr void setIOMargins(const Margins64 &margins) noexcept
     {
-        m_io2coreMargins = margins;
+        m_ioMargins = margins;
     }
 
     [[nodiscard]] Margins64 ioMargins() const noexcept
     {
-        return m_io2coreMargins;
+        return m_ioMargins;
     }
 
     constexpr void setCoreSize(const Size64 &coreSize) noexcept
