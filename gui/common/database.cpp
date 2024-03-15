@@ -9,7 +9,7 @@ namespace GUI
 
 void Database::clear()
 {
-    m_design.clear();
+    m_coreDatabase.m_design.clear();
     m_layerRenderInfoDB.clear();
 }
 

@@ -20,8 +20,39 @@ public:
         clearLine();
     }
 
+    void cmdReply(const QString &text);
+
+    void lock()
+    {
+        m_locked = true;
+    }
+
+    void unlock()
+    {
+        m_locked = false;
+        insertPlainText(m_promptStr);
+    }
+
 protected:
     void keyPressEvent(QKeyEvent *e);
+
+    // Do not handle other events
+    // FIXME: allow copy/paste with mouse.
+    void mousePressEvent(QMouseEvent *)
+    {
+    }
+
+    void mouseDoubleClickEvent(QMouseEvent *)
+    {
+    }
+
+    void mouseMoveEvent(QMouseEvent *)
+    {
+    }
+
+    void mouseReleaseEvent(QMouseEvent *)
+    {
+    }
 
     void handleLeft(QKeyEvent *e);
     void handleEnter();
@@ -43,9 +74,6 @@ protected:
 
 signals:
     void command(const QString &command);
-
-public slots:
-    void cmdReply(const QString &text, bool done = false);
 };
 
 };  // namespace

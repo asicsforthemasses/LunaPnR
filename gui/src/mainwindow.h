@@ -17,7 +17,8 @@
 #include <QTimer>
 #include <QSettings>
 
-#include "../console/mmconsole.h"
+//#include "../console/mmconsole.h"
+#include "../console/replwidget.hpp"
 #include "../techbrowser/techbrowser.h"
 #include "../cellbrowser/cellbrowser.h"
 #include "../designbrowser/designbrowser.h"
@@ -47,13 +48,13 @@
 class ConsoleLogOutputHandler : public Logging::LogOutputHandler
 {
 public:
-    ConsoleLogOutputHandler(GUI::MMConsole *console);
+    ConsoleLogOutputHandler(GUI::ReplWidget *console);
 
     void print(Logging::LogType t, const std::string &txt);
     void print(Logging::LogType t, const std::string_view &txt);
 
 protected:
-    GUI::MMConsole *m_console = nullptr;
+    GUI::ReplWidget *m_console{nullptr};
 };
 
 class MainWindow : public QMainWindow, public ChipDB::INamedStorageListener
@@ -107,34 +108,35 @@ protected:
     void loadSettings();
     void scanPDKs();
 
-    QAction *m_clearAct;
-    QAction *m_quitAct;
-    QAction *m_aboutAct;
-    QAction *m_aboutQtAct;
+    QAction *m_clearAct{nullptr};
+    QAction *m_quitAct{nullptr};
+    QAction *m_aboutAct{nullptr};
+    QAction *m_aboutQtAct{nullptr};
 
-    QAction *m_configAct;
+    QAction *m_configAct{nullptr};
 
-    QAction *m_loadProject;
-    QAction *m_saveProject;
-    QAction *m_saveProjectAs;
+    QAction *m_loadProject{nullptr};
+    QAction *m_saveProject{nullptr};
+    QAction *m_saveProjectAs{nullptr};
 
-    QAction *m_installPDK;
-    QAction *m_selectPDK;
+    QAction *m_installPDK{nullptr};
+    QAction *m_selectPDK{nullptr};
 
-    QAction *m_exportLayers;
-    QAction *m_runScriptAct;
-    QAction *m_consoleFontAct;
+    QAction *m_exportLayers{nullptr};
+    QAction *m_runScriptAct{nullptr};
+    QAction *m_consoleFontAct{nullptr};
 
-    QSplitter   *m_projectSplitter;
-    QSplitter   *m_consoleSplitter;
-    QTabWidget  *m_mainTabWidget;
+    QSplitter   *m_projectSplitter{nullptr};
+    QSplitter   *m_consoleSplitter{nullptr};
+    QTabWidget  *m_mainTabWidget{nullptr};
 
-    GUI::MMConsole      *m_console;
-    GUI::CellBrowser    *m_cellBrowser;
-    GUI::TechBrowser    *m_techBrowser;
-    GUI::DesignBrowser  *m_designBrowser;
-    GUI::FloorplanView  *m_floorplanView;
-    GUI::ProjectManager *m_projectManager;
+    //GUI::MMConsole      *m_console;
+    GUI::ReplWidget     *m_console{nullptr};
+    GUI::CellBrowser    *m_cellBrowser{nullptr};
+    GUI::TechBrowser    *m_techBrowser{nullptr};
+    GUI::DesignBrowser  *m_designBrowser{nullptr};
+    GUI::FloorplanView  *m_floorplanView{nullptr};
+    GUI::ProjectManager *m_projectManager{nullptr};
 
     std::unique_ptr<GUI::TaskList> m_taskList;
 
@@ -151,5 +153,5 @@ protected:
     QTimer m_guiUpdateTimer;
 
     std::unique_ptr<ConsoleLogOutputHandler> m_consoleHandler;
-    std::unique_ptr<GUI::Python> m_python;
+    //std::unique_ptr<GUI::Python> m_python;
 };

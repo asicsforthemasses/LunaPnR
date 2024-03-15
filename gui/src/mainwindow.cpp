@@ -23,7 +23,6 @@
 
 #include "mainwindow.h"
 #include "common/subprocess.h"
-
 #include "common/tasklist.h"
 
 #include "configurationdialog.h"
@@ -32,6 +31,8 @@
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
+    LunaCore::Passes::registerAllPasses();
+
     setWindowIcon(QIcon("://icons/lunapnr128x128.png"));
 
     m_db = std::make_shared<GUI::Database>();
@@ -67,9 +68,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_mainTabWidget->addTab(m_floorplanView, tr("Floorplan"));
 
     // create console
-    m_console = new GUI::MMConsole(this);
+    m_console = new GUI::ReplWidget(this);
 
-    connect(m_console, &GUI::MMConsole::executeCommand, this, &MainWindow::onConsoleCommand);
+    connect(m_console, &GUI::ReplWidget::command, this, &MainWindow::onConsoleCommand);
 
     m_consoleHandler = std::make_unique<ConsoleLogOutputHandler>(m_console);
     Logging::setOutputHandler(m_consoleHandler.get());
@@ -269,12 +270,14 @@ void MainWindow::saveSettings()
 
     settings.setValue("application/size", size());
 
+    //FIXME: Console stuff
+#if 0
     auto consoleColours = m_console->getColours();
     settings.setValue("console/bkcolour", consoleColours.m_bkCol.name(QColor::HexRgb));
     settings.setValue("console/promptcolour", consoleColours.m_promptCol.name(QColor::HexRgb));
     settings.setValue("console/errorcolour", consoleColours.m_errorCol.name(QColor::HexRgb));
     settings.setValue("console/warningcolour", consoleColours.m_warningCol.name(QColor::HexRgb));
-
+#endif
     settings.setValue("console/font", m_console->font().family());
     settings.setValue("console/fontsize", m_console->font().pointSize());
 
@@ -287,12 +290,14 @@ void MainWindow::loadSettings()
 
     Logging::doLog(Logging::LogType::VERBOSE, "Loading settings from %s\n", settings.fileName().toStdString().c_str());
 
+#if 0
     m_console->setColours(
         QColor(settings.value("console/bkcolour", "#1d1f21").toString()),
         QColor(settings.value("console/promptcolour", "#c5c8c6").toString()),
         QColor(settings.value("console/errorcolour", "#a54242").toString()),
         QColor(settings.value("console/warningcolour", "#a68542").toString())
     );
+#endif
 
     QFont font;
     font.setFamily(settings.value("console/font", "Consolas").toString());
@@ -410,16 +415,8 @@ void MainWindow::onExportLayers()
 
 void MainWindow::onConsoleCommand(const QString &cmd)
 {
-    if (m_python)
-    {
-        m_console->disablePrompt();
-        m_python->executeScript(cmd.toUtf8().data());
-        m_console->enablePrompt();
-    }
-    else
-    {
-        Logging::doLog(Logging::LogType::ERROR, "Python not available!\n");
-    }
+    LunaCore::Passes::run(m_db->m_coreDatabase, cmd.toStdString());
+    m_console->unlock();
 }
 
 void MainWindow::onRunScript()
@@ -478,7 +475,9 @@ void MainWindow::onGUIUpdateTimer()
 void MainWindow::onClearDatabase()
 {
     m_db->clear();
-    m_console->print("Database cleared");
+    m_console->lock();
+    m_console->cmdReply("Database cleared");
+    m_console->unlock();
 }
 
 void MainWindow::onConsoleFontDialog()
@@ -488,11 +487,6 @@ void MainWindow::onConsoleFontDialog()
 
 void MainWindow::onProjectManagerAction(QString actionName)
 {
-    if (!m_db)
-    {
-        m_console->print("Error: no database");
-    }
-
     if (actionName != "NONE")
     {
 #if 0
@@ -581,7 +575,7 @@ void MainWindow::onSelectPDK()
     dialog.exec();
 }
 
-ConsoleLogOutputHandler::ConsoleLogOutputHandler(GUI::MMConsole *console) : m_console(console)
+ConsoleLogOutputHandler::ConsoleLogOutputHandler(GUI::ReplWidget *console) : m_console(console)
 {
 }
 
@@ -589,7 +583,7 @@ void ConsoleLogOutputHandler::print(Logging::LogType t, const std::string &txt)
 {
     if (m_console != nullptr)
     {
-        m_console->mtPrint(t, txt);
+        m_console->cmdReply(QString::fromStdString(txt));
     }
     else
     {
@@ -601,7 +595,7 @@ void ConsoleLogOutputHandler::print(Logging::LogType t, const std::string_view &
 {
     if (m_console != nullptr)
     {
-        m_console->mtPrint(t, txt);
+        m_console->cmdReply(QString::fromStdString(std::string(txt)));
     }
     else
     {

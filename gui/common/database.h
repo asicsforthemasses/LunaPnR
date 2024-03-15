@@ -22,40 +22,38 @@ public:
 
     const ChipDB::Design& design() const
     {
-        return m_design;
+        return m_coreDatabase.m_design;
     }
 
     ChipDB::Design& design()
     {
-        return m_design;
+        return m_coreDatabase.m_design;
     }
 
     std::shared_ptr<ChipDB::CellLib> cellLib() const
     {
-        return m_design.m_cellLib;
+        return m_coreDatabase.m_design.m_cellLib;
     }
 
     std::shared_ptr<ChipDB::TechLib> techLib() const
     {
-        return m_design.m_techLib;
+        return m_coreDatabase.m_design.m_techLib;
     }
 
     std::shared_ptr<ChipDB::ModuleLib> moduleLib() const
     {
-        return m_design.m_moduleLib;
+        return m_coreDatabase.m_design.m_moduleLib;
     }
 
     std::shared_ptr<ChipDB::Floorplan> floorplan() const
     {
-        return m_design.m_floorplan;
+        return m_coreDatabase.m_design.m_floorplan;
     }
 
-    LayerRenderInfoDB m_layerRenderInfoDB;
-    HatchLibrary      m_hatchLib;
-    ProjectSetup      m_projectSetup;
-
-protected:
-    ChipDB::Design  m_design;
+    LunaCore::Database  m_coreDatabase;
+    LayerRenderInfoDB   m_layerRenderInfoDB;
+    HatchLibrary        m_hatchLib;
+    ProjectSetup        m_projectSetup;
 };
 
 };

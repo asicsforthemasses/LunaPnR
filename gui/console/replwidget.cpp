@@ -65,7 +65,7 @@ void ReplWidget::handleEnter()
 
     if (!cmd.isEmpty())
     {
-        m_locked = true;
+        lock();
         setFocus();
         insertPlainText("\n");
         emit command(cmd);
@@ -171,17 +171,14 @@ int ReplWidget::getIndex(const QTextCursor &textCursor)
     return column;
 }
 
-void ReplWidget::cmdReply(const QString &result, bool done)
+void ReplWidget::cmdReply(const QString &result)
 {
     insertPlainText(result);
-    insertPlainText("\n");
-    insertPlainText(m_promptStr);
-    ensureCursorVisible();
-
-    if (done)
+    if (!result.endsWith("\n"))
     {
-        m_locked = false;
+        insertPlainText("\n");
     }
+    ensureCursorVisible();
 }
 
 };
