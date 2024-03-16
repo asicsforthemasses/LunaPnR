@@ -92,6 +92,7 @@ set (LUNA_SRC_FILES
     pdkdialog/pdkdialog.cpp
     pdkdialog/pdktile.cpp
     console/replwidget.cpp
+    console/cmdcompleter.cpp
     console/mmconsole.cpp
     console/mtstringbuffer.cpp
     console/singlelineedit.cpp

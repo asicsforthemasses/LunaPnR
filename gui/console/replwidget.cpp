@@ -1,3 +1,5 @@
+#include <cassert>
+
 #include "replwidget.hpp"
 #include <QTextBlock>
 
@@ -9,6 +11,11 @@ ReplWidget::ReplWidget(QWidget *parent)
 {
     setLineWrapMode(NoWrap);
     insertPlainText(m_promptStr);
+}
+
+void ReplWidget::installCompleter(ICompleter *completer)
+{
+    m_completer.reset(completer);
 }
 
 void ReplWidget::keyPressEvent(QKeyEvent *e)
@@ -38,8 +45,9 @@ void ReplWidget::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Home:
         handleHome();
         break;
-    //case Qt::Key_Tab:
-    //    break;
+    case Qt::Key_Tab:
+        handleCompleter();
+        break;
     default:
         QPlainTextEdit::keyPressEvent(e);
         break;
@@ -119,7 +127,7 @@ void ReplWidget::handleHistoryDown()
 
 void ReplWidget::clearLine()
 {
-    QTextCursor c = this->textCursor();
+    QTextCursor c = textCursor();
     c.select(QTextCursor::LineUnderCursor);
     c.removeSelectedText();
     insertPlainText(m_promptStr);
@@ -136,6 +144,15 @@ QString ReplWidget::getCommand() const
     return text;
 }
 
+void ReplWidget::setCommand(QString &cmd)
+{
+    QTextCursor c = textCursor();
+    c.select(QTextCursor::LineUnderCursor);
+
+    c.removeSelectedText();
+    c.insertText(m_promptStr+cmd);
+    moveToEndOfLine();
+}
 
 void ReplWidget::moveToEndOfLine()
 {
@@ -179,6 +196,55 @@ void ReplWidget::cmdReply(const QString &result)
         insertPlainText("\n");
     }
     ensureCursorVisible();
+}
+
+constexpr bool isWhitespace(QChar c) noexcept
+{
+    return (c=='\t') || (c==' ');
+}
+
+ReplWidget::LastToken ReplWidget::strGetLastToken(const QString &str) const
+{
+    LastToken result;
+    int startIndex = 0, endIndex = 0;
+    for (int i = 0; i <= str.size(); i++)
+    {
+        // If we reached the end of the word or the end of the input.
+        if ((i == str.size()) || isWhitespace(str[i]))
+        {
+            endIndex = i;
+            result.m_len = endIndex - startIndex;
+            result.m_offset = startIndex;
+            result.m_str = str.mid(startIndex, endIndex - startIndex);
+
+            startIndex = endIndex + 1;
+        }
+    }
+    return result;
+}
+
+void ReplWidget::handleCompleter()
+{
+    if (!m_completer) return;   // no completer installed
+
+    auto result = strGetLastToken(getCommand());
+    if (result.m_str.isEmpty()) return; // command/token list is empty
+
+    auto options = m_completer->tryComplete(result.m_str);
+
+    // the options list can never have a length of 2.
+    assert(options.size() != 2);
+
+    if (options.size() == 1)
+    {
+        auto cmd = getCommand().first(result.m_offset);
+        cmd.append(options.front());
+        setCommand(cmd);
+    }
+    else
+    {
+        auto commonPrefix = options.front();
+    }
 }
 
 };

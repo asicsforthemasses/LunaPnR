@@ -22,6 +22,7 @@
 #include <fstream>
 
 #include "mainwindow.h"
+#include "console/cmdcompleter.hpp"
 #include "common/subprocess.h"
 #include "common/tasklist.h"
 
@@ -69,6 +70,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     // create console
     m_console = new GUI::ReplWidget(this);
+    m_console->installCompleter(new GUI::LunaCommandCompleter());
 
     connect(m_console, &GUI::ReplWidget::command, this, &MainWindow::onConsoleCommand);
 
@@ -105,40 +107,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     m_guiUpdateTimer.start(1000);
 
     loadSettings();
-
-#ifdef USE_PYTHON
-    m_python = std::make_unique<GUI::Python>(m_db.get(),
-        m_console);
-
-    m_python->init();
-
-    // install python console redirection
-    m_python->setConsoleRedirect(
-        [this](const char *txt, ssize_t strLen)
-        {
-            if ((txt == nullptr)  || (strLen <= 0))
-            {
-                return;
-            }
-
-            std::string_view svTxt(txt, strLen);
-
-            m_console->print(svTxt);
-        },
-        [this](const char *txt, ssize_t strLen)
-        {
-            if ((txt == nullptr)  || (strLen <= 0))
-            {
-                return;
-            }
-
-            m_console->print(txt);
-        }
-    );
-
-    m_python->executeScript(R"(import sys; print("Python version"); print (sys.version); )");
-    m_python->executeScript(R"(from Luna import *; from LunaExtra import *;)");
-#endif
 
     connect(m_projectManager, &GUI::ProjectManager::onAction, this, &MainWindow::onProjectManagerAction);
 

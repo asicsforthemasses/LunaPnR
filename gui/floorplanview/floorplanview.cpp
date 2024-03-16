@@ -94,6 +94,8 @@ void FloorplanView::resizeEvent(QResizeEvent *event)
 {
     m_viewPort.setScreenRect(rect());
 
+    //FIXME: make sure the aspect ratio of the viewport stays 1:1
+
 #if 0
     if (width() > height())
     {

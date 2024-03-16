@@ -153,5 +153,4 @@ protected:
     QTimer m_guiUpdateTimer;
 
     std::unique_ptr<ConsoleLogOutputHandler> m_consoleHandler;
-    //std::unique_ptr<GUI::Python> m_python;
 };
