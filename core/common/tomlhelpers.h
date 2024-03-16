@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
 #pragma once
 #include <type_traits>
 #include <toml++/toml.h>
@@ -6,18 +10,18 @@ namespace ChipDB::TOML
 {
 
 template <typename T>
-concept SimpleType = std::is_integral_v<T> || std::is_same_v<T, std::string> 
+concept SimpleType = std::is_integral_v<T> || std::is_same_v<T, std::string>
     || std::is_same_v<T, const std::string>
     || std::is_same_v<T, bool>;
 
-void insert(toml::table &tbl, const std::string &name, 
+void insert(toml::table &tbl, const std::string &name,
     SimpleType auto const& value)
 {
     tbl.insert(name, value);
 }
 
 template<typename T>
-void insert(toml::table &tbl, const std::string &arrayName, 
+void insert(toml::table &tbl, const std::string &arrayName,
     const std::vector<T> &array)
 {
     toml::array arr;
@@ -36,7 +40,7 @@ bool retrieve(toml::table &tbl, const std::string &name, SimpleType auto &result
         {
             result.clear();
         }
-        
+
         if constexpr (std::is_same_v<valueType, bool>)
         {
             result = false;
@@ -45,9 +49,9 @@ bool retrieve(toml::table &tbl, const std::string &name, SimpleType auto &result
         if constexpr (std::is_integral_v<valueType>)
         {
             result = 0;
-        }   
+        }
 
-        return false;     
+        return false;
     }
 
     result = ptr.value();

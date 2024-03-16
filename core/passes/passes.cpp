@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include <span>
 
 #include "common/strutils.hpp"
@@ -10,6 +14,7 @@
 #include "filesystempass.hpp"
 #include "checkpass.hpp"
 #include "placepass.hpp"
+#include "flattenpass.hpp"
 
 namespace LunaCore::Passes
 {
@@ -37,6 +42,7 @@ void registerAllPasses()
     registerPass(new CWDPass());
     registerPass(new CheckPass());
     registerPass(new PlacePass());
+    registerPass(new FlattenPass());
 }
 
 };

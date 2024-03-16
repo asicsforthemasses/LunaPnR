@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
 #pragma once
 #include <fstream>
 #include <filesystem>
@@ -16,6 +20,7 @@ public:
         registerNamedParameter("verilog", "", 0, false);
         registerNamedParameter("lib", "", 0, false);
         registerNamedParameter("lef", "", 0, false);
+        registerNamedParameter("sdc", "", 0, false);
     }
 
     virtual ~ReadPass() = default;
@@ -118,9 +123,15 @@ public:
                 }
             }
         }
+        else if (m_namedParams.contains("sdc"))
+        {
+            Logging::doLog(Logging::LogType::ERROR, "Not implemented.\n");
+            return false;
+
+        }
         else
         {
-            doLog(Logging::LogType::ERROR, "Missing file type, use -verilog, -lib or -lef\n");
+            doLog(Logging::LogType::ERROR, "Missing file type, use -verilog, -lib, -lef or -sdc\n");
             return false;
         }
 
@@ -139,6 +150,7 @@ public:
         ss << "    -verilog : read a Verilog netlist\n";
         ss << "    -lib     : read a Liberty timing file\n";
         ss << "    -lef     : read a LEF layout file\n";
+        ss << "    -sdc     : read timing specification file\n";
         ss << "\n";
         ss << "Note: the order of the files is important; specify lower hierarchy files first.\n";
         return ss.str();
