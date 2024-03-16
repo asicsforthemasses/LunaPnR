@@ -54,14 +54,13 @@ public:
     std::string help() const noexcept override
     {
         std::stringstream ss;
-        ss << "read - read files into the database\n";
-        ss << "  read <file type> file1 file2 ...\n\n";
+        ss << "check - check design/timing/drc\n";
+        ss << "  check <check type>\n\n";
         ss << "  File type options:\n";
-        ss << "    -verilog : read a Verilog netlist\n";
-        ss << "    -lib     : read a Liberty timing file\n";
-        ss << "    -lef     : read a LEF layout file\n";
+        ss << "    -design  : check design hierachy and cell libraries\n";
+        ss << "    -timing  : check timing of the netlist\n";
+        ss << "    -drc     : check the physical layout for design rule violations\n";
         ss << "\n";
-        ss << "Note: the order of the files is important; specify lower hierarchy files first.\n";
         return ss.str();
     }
 
@@ -70,7 +69,7 @@ public:
     */
     virtual std::string shortHelp() const noexcept
     {
-        return "read files into the datatbase";
+        return "check design/timing/drc";
     }
 
     /**
