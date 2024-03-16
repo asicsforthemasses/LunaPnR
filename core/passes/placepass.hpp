@@ -7,41 +7,41 @@
 namespace LunaCore::Passes
 {
 
-class CheckPass : public Pass
+class PlacePass : public Pass
 {
 public:
-    CheckPass() : Pass("check")
+    PlacePass() : Pass("place")
     {
-        registerNamedParameter("design", "", 0, false);
-        registerNamedParameter("timing", "", 0, false);
-        registerNamedParameter("drc", "", 0, false);
+        registerNamedParameter("pads", "", 0, false);
+        registerNamedParameter("core", "", 0, false);
+        registerNamedParameter("cell", "", 0, false);
     }
 
-    virtual ~CheckPass() = default;
+    virtual ~PlacePass() = default;
 
     /** execute a pass given a list of input arguments.
         returns true if succesful, else false.
     */
     [[nodiscard]] bool execute(Database &database) override
     {
-        if (m_namedParams.contains("design"))
+        if (m_namedParams.contains("pads"))
         {
             doLog(Logging::LogType::ERROR, "Not implemented yet\n");
             return false;
         }
-        else if (m_namedParams.contains("timing"))
+        else if (m_namedParams.contains("core"))
         {
             doLog(Logging::LogType::ERROR, "Not implemented yet\n");
             return false;
         }
-        else if (m_namedParams.contains("drc"))
+        else if (m_namedParams.contains("cell"))
         {
             doLog(Logging::LogType::ERROR, "Not implemented yet\n");
             return false;
         }
         else
         {
-            doLog(Logging::LogType::ERROR, "Missing check type, use -design, -timing or -drc\n");
+            doLog(Logging::LogType::ERROR, "Missing place type, use -pads, -core or -cell\n");
             return false;
         }
 
@@ -54,12 +54,12 @@ public:
     std::string help() const noexcept override
     {
         std::stringstream ss;
-        ss << "check - check design/timing/drc\n";
-        ss << "  check <check type>\n\n";
-        ss << "  check type options:\n";
-        ss << "    -design  : check design hierachy and cell libraries\n";
-        ss << "    -timing  : check timing of the netlist\n";
-        ss << "    -drc     : check the physical layout for design rule violations\n";
+        ss << "place - place pads/core/cell\n";
+        ss << "  place <place type>\n\n";
+        ss << "  Place type options:\n";
+        ss << "    -pads    : place the IO pads\n";
+        ss << "    -core    : place all core cells\n";
+        ss << "    -cell    : place a specific cell at a specified position\n";
         ss << "\n";
         return ss.str();
     }
@@ -69,7 +69,7 @@ public:
     */
     virtual std::string shortHelp() const noexcept
     {
-        return "check design/timing/drc";
+        return "place pads/core/cell";
     }
 
     /**
