@@ -70,7 +70,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     // create console
     m_console = new GUI::ReplWidget(this);
-    m_console->installCompleter(new GUI::LunaCommandCompleter());
+    auto completer = new GUI::LunaCommandCompleter();
+    auto namesOfPasses = LunaCore::Passes::getNamesOfPasses();
+    for(auto const& passName : namesOfPasses)
+    {
+        completer->m_words.emplace_back(QString::fromStdString(passName));
+    }
+
+    m_console->installCompleter(completer);
 
     connect(m_console, &GUI::ReplWidget::command, this, &MainWindow::onConsoleCommand);
 

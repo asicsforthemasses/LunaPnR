@@ -202,4 +202,14 @@ bool Pass::processParameters(ArgList args)
     return true;
 }
 
+std::vector<std::string> getNamesOfPasses()
+{
+    std::vector<std::string> names;
+    for(auto const &pass : gs_passes.m_passes)
+    {
+        names.push_back(pass.first);
+    }
+    return names;
+}
+
 };

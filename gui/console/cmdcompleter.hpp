@@ -9,6 +9,8 @@ namespace GUI
 struct LunaCommandCompleter : public ReplWidget::ICompleter
 {
     std::list<QString> tryComplete(const QString &str);
+
+    std::vector<QString> m_words;
 };
 
 };

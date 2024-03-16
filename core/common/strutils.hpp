@@ -1,7 +1,10 @@
 #pragma once
 #include <cstdlib>
 #include <vector>
+#include <list>
 #include <string>
+#include <string_view>
+#include <limits>
 #include <algorithm>
 
 namespace LunaCore

@@ -7,6 +7,7 @@
 #include "writepass.hpp"
 #include "infopass.hpp"
 #include "scriptpass.hpp"
+#include "filesystempass.hpp"
 
 namespace LunaCore::Passes
 {
@@ -29,6 +30,9 @@ void registerAllPasses()
     registerPass(new WritePass());
     registerPass(new InfoPass());
     registerPass(new ScriptPass());
+    registerPass(new LSPass());
+    registerPass(new CDPass());
+    registerPass(new CWDPass());
 }
 
 };

@@ -107,4 +107,5 @@ protected:
 bool runPass(Database &database, const std::string &passName, ArgList args);
 bool registerPass(Pass *pass);
 void displayMainHelp();
+
 };
