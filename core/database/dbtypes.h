@@ -490,10 +490,6 @@ namespace ChipDB
 
     std::string toString(const SymmetryFlags &v);
 
-    /** create a new string with upper case characters */
-    std::string toUpper(const std::string &txt);
-
-
     struct XAxisAccessor
     {
         static constexpr ChipDB::CoordType get(const ChipDB::Coord64 &pos) noexcept

@@ -9,6 +9,7 @@
 #include "lefreaderimpl.h"
 #include "database/database.h"
 #include "common/logging.h"
+#include "common/strutils.hpp"
 
 using namespace ChipDB::LEF;
 
@@ -162,7 +163,7 @@ void ReaderImpl::onClass(const std::string &className)
         return;
     }
 
-    std::string classNameUpper = toUpper(className);
+    std::string classNameUpper = LunaCore::toupper(className);
 
     if (classNameUpper == "CORE")
     {
@@ -200,8 +201,8 @@ void ReaderImpl::onClass(const std::string &className,
         return;
     }
 
-    std::string classNameUpper = toUpper(className);
-    std::string subclassUpper = toUpper(subclass);
+    std::string classNameUpper = LunaCore::toupper(className);
+    std::string subclassUpper = LunaCore::toupper(subclass);
 
     if (classNameUpper == "CORE")
     {
@@ -463,7 +464,7 @@ void ReaderImpl::onLayerType(const std::string &layerType)
         {"OVERLAP", LayerType::OVERLAP}
     }};
 
-    std::string layerTypeUpper = toUpper(layerType);
+    std::string layerTypeUpper = LunaCore::toupper(layerType);
 
     for(auto option : validOptions)
     {
@@ -481,12 +482,12 @@ void ReaderImpl::onLayerType(const std::string &layerType)
 
 void ReaderImpl::onPinUse(const std::string &use)
 {
-    m_pinUse = toUpper(use);
+    m_pinUse = LunaCore::toupper(use);
 }
 
 void ReaderImpl::onPinDirection(const std::string &direction)
 {
-    m_pinDirection = toUpper(direction);
+    m_pinDirection = LunaCore::toupper(direction);
 }
 
 void ReaderImpl::onLayerPitch(int64_t pitchx, int64_t pitchy)

@@ -8,6 +8,7 @@
 
 #include "lefparser.h"
 #include "common/logging.h"
+#include "common/strutils.hpp"
 
 using namespace ChipDB::LEF;
 
@@ -386,9 +387,7 @@ bool Parser::parse(const std::string &lefstring)
 
             // make sure the token string is upper case
             // FIXME: do this for all the other keywords
-            std::transform(m_tokstr.begin(), m_tokstr.end(), m_tokstr.begin(),
-                   [](unsigned char c){ return std::toupper(c); }
-            );
+            m_tokstr = LunaCore::toupper(m_tokstr);
 
             if (m_tokstr == "MACRO")
             {
@@ -2060,7 +2059,7 @@ bool Parser::parseSiteClass()
         return false;
     }
 
-    std::string className = toUpper(m_tokstr);
+    std::string className = LunaCore::toupper(m_tokstr);
 
     onSiteClass(className);
 
@@ -2091,7 +2090,7 @@ bool Parser::parseSiteSymmetry()
         m_curtok = tokenize(m_tokstr);
     }
 
-    symmetry = toUpper(symmetry);
+    symmetry = LunaCore::toupper(symmetry);
 
     SymmetryFlags flags;
     flags.m_flags = SymmetryFlags::SYM_NONE;
