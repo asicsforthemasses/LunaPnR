@@ -14,7 +14,7 @@ void Tasks::ReadAllFiles::execute(GUI::Database &database, ProgressCallback call
 
     for(auto const& lef : database.m_projectSetup.m_lefFiles)
     {
-        std::ifstream lefFile(ChipDB::expandEnvironmentVars(lef));
+        std::ifstream lefFile(LunaCore::expandEnvironmentVars(lef));
         if (!lefFile.good())
         {
             std::stringstream ss;
@@ -34,7 +34,7 @@ void Tasks::ReadAllFiles::execute(GUI::Database &database, ProgressCallback call
 
     for(auto const& lib : database.m_projectSetup.m_libFiles)
     {
-        std::ifstream libFile(ChipDB::expandEnvironmentVars(lib));
+        std::ifstream libFile(LunaCore::expandEnvironmentVars(lib));
         if (!libFile.good())
         {
             std::stringstream ss;
@@ -54,7 +54,7 @@ void Tasks::ReadAllFiles::execute(GUI::Database &database, ProgressCallback call
 
     for(auto const& layerFileName : database.m_projectSetup.m_layerFiles)
     {
-        std::ifstream layerFile(ChipDB::expandEnvironmentVars(layerFileName));
+        std::ifstream layerFile(LunaCore::expandEnvironmentVars(layerFileName));
         if (!layerFile.good())
         {
             std::stringstream ss;
@@ -75,7 +75,7 @@ void Tasks::ReadAllFiles::execute(GUI::Database &database, ProgressCallback call
 
     for(auto const& verilog : database.m_projectSetup.m_verilogFiles)
     {
-        std::ifstream verilogFile(ChipDB::expandEnvironmentVars(verilog));
+        std::ifstream verilogFile(LunaCore::expandEnvironmentVars(verilog));
         if (!verilogFile.good())
         {
             std::stringstream ss;

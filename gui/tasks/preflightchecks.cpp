@@ -13,7 +13,7 @@ void Tasks::PreflightChecks::execute(GUI::Database &database, ProgressCallback c
 
     // TODO: check that OpenSTA exists
     auto opensta = database.m_projectSetup.m_openSTALocation;
-    if (!ChipDB::fileExists(opensta))
+    if (!LunaCore::fileExists(opensta))
     {
         error("OpenSTA binary cannot be found: configure path in setup\n");
         haveErrors = true;

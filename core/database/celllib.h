@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <unordered_map>
+#include "properties.hpp"
 #include "dbtypes.h"
 #include "namedstorage.h"
 #include "cell.h"
@@ -73,6 +74,16 @@ public:
     void addListener(INamedStorageListener *listener);
     void removeListener(INamedStorageListener *listener);
 
+    auto& properties() noexcept
+    {
+        return m_properties;
+    }
+
+    auto const& properties() const noexcept
+    {
+        return m_properties;
+    }
+
 protected:
     /** create a special net connection cell so we can connect nets */
     void createNetConCell();
@@ -87,6 +98,7 @@ protected:
     void createIOPinCell();
 
     NamedStorage<Cell> m_cells;
+    ChipDB::Properties m_properties;
 };
 
 class ModuleLib
@@ -125,8 +137,20 @@ public:
     void addListener(INamedStorageListener *listener);
     void removeListener(INamedStorageListener *listener);
 
+    auto& properties() noexcept
+    {
+        return m_properties;
+    }
+
+    auto const& properties() const noexcept
+    {
+        return m_properties;
+    }
+
 protected:
     NamedStorage<Module> m_modules;
+
+    Properties m_properties;
 };
 
 };

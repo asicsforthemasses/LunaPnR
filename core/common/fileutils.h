@@ -8,7 +8,7 @@
 #include <memory>
 #include <string>
 
-namespace ChipDB
+namespace LunaCore
 {
     /** replace {envvar} with its expansion */
     std::string expandEnvironmentVars(const std::string &path);
@@ -16,8 +16,6 @@ namespace ChipDB
     bool setEnvironmentVar(const std::string &key, const std::string &value);
     bool unsetEnvironmentVar(const std::string &key);
     std::string getEnvironmentVar(const std::string &key);
-
-    std::string findAndReplace(const std::string &str, const std::string &findMe, const std::string &replaceWithMe);
 
     struct TempFileDescriptor
     {

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <vector>
+#include "properties.hpp"
 #include "floorplan.h"
 #include "netlist.h"
 #include "techlib.h"
@@ -38,9 +39,21 @@ public:
         return m_topModule;
     }
 
+    auto& properties() noexcept
+    {
+        return m_properties;
+    }
+
+    auto const& properties() const noexcept
+    {
+        return m_properties;
+    }
+
 protected:
-    std::shared_ptr<ChipDB::Module> m_topModule;
+    std::shared_ptr<Module> m_topModule;
     uint32_t m_uniqueIDCounter{0};
+
+    Properties m_properties;
 };
 
 };

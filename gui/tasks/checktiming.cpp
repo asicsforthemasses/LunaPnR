@@ -23,7 +23,7 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
 
     info(Logging::fmt("Checking timing using module: %s\n", topModule->name().c_str()));
 
-    auto spefTempFile = ChipDB::createTempFile("spef");
+    auto spefTempFile = LunaCore::createTempFile("spef");
     if (m_mode == Mode::WITHSPEF)
     {
         // create SPEF file
@@ -38,22 +38,22 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
         spefTempFile->close();   // close but keep the file in existence
 
         //FIXME: remove this.
-        ChipDB::copyFile(spefTempFile->m_name, "debug.spef");
+        LunaCore::copyFile(spefTempFile->m_name, "debug.spef");
     }
 
-    auto verilogTempFile = ChipDB::createTempFile("v");
+    auto verilogTempFile = LunaCore::createTempFile("v");
     if (!LunaCore::Verilog::Writer::write(verilogTempFile->m_stream, topModule))
     {
         error("Verilog file creation failed!");
         return;
     }
     verilogTempFile->close();
-    ChipDB::copyFile(verilogTempFile->m_name, "debug.v");
+    LunaCore::copyFile(verilogTempFile->m_name, "debug.v");
 
     auto tclContents = createTCL(database, topModule->name(), spefTempFile->m_name, verilogTempFile->m_name);
 
     // create a temporary file to give to OpenSTA
-    auto tclFileDescriptor = ChipDB::createTempFile("tcl");
+    auto tclFileDescriptor = LunaCore::createTempFile("tcl");
 
     if (!tclFileDescriptor->good())
     {

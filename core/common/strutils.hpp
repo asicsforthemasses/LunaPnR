@@ -10,6 +10,7 @@
 #include <string_view>
 #include <limits>
 #include <algorithm>
+#include <regex>
 
 namespace LunaCore
 {
@@ -113,6 +114,59 @@ inline std::vector<std::string> split(const std::string &text, const std::string
     }
 
     return chunks;
+}
+
+/** replace 'from' with 'to' in string 'str' */
+inline std::string findAndReplace(const std::string &str, const std::string &findMe, const std::string &replaceWithMe)
+{
+    std::ostringstream result;
+    std::size_t pos = 0;
+    std::size_t prevPos;
+
+    while(true)
+    {
+        prevPos = pos;
+        pos = str.find(findMe, pos);
+        if (pos == std::string::npos)
+            break;
+        result << str.substr(prevPos, pos - prevPos);
+        result << replaceWithMe;
+        pos += findMe.size();
+    }
+
+    result << str.substr(prevPos);
+    return result.str();
+}
+
+/** replace keys in curly braces with those found in a lookup-by-string container.
+    keys that cannot be found in the container are not replaced.
+*/
+inline std::string replaceKeysInBraces(const auto &container, const std::string &str)
+{
+    std::regex curlymatcher(R"(\{(.*?)\})");    // matches everything within {}
+
+    auto matches_begin = std::sregex_iterator(str.begin(),
+        str.end(), curlymatcher);
+    auto matches_end   = std::sregex_iterator();
+
+    auto result = str;
+    for(auto iter = matches_begin; iter != matches_end; iter++)
+    {
+        auto match = *iter;
+        if (match.size() < 2) continue;
+
+        auto const& completeMatch = match.str(0);
+        auto const& keyName       = match.str(1);
+
+        // get the key from the container
+        // if the key doesn't exist, don't replace it
+
+        if (container.contains(keyName))
+        {
+            result = findAndReplace(result, completeMatch, container.at(keyName));
+        }
+    }
+    return result;
 }
 
 };
