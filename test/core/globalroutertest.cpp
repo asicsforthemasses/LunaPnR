@@ -109,10 +109,10 @@ BOOST_AUTO_TEST_CASE(global_router_cell_size2)
 
     BOOST_REQUIRE(design.m_techLib->getNumberOfSites() > 0);
 
-    Logging::doLog(Logging::LogType::INFO,"Found the following Nangate sites:\n");
+    Logging::logInfo("Found the following Nangate sites:\n");
     for(auto site : design.m_techLib->sites())
     {
-        Logging::doLog(Logging::LogType::INFO, "  Site: %s\n", site->name().c_str());
+        Logging::logInfo("  Site: %s\n", site->name().c_str());
     }
 
     auto site = design.m_techLib->lookupSiteInfo("FreePDK45_38x28_10R_NP_162NW_34O");

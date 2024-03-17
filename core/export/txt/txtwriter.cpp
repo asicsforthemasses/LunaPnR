@@ -10,7 +10,7 @@ bool LunaCore::TXT::write(std::ostream &os, const std::shared_ptr<ChipDB::Netlis
 {
     if (!netlist)
     {
-        Logging::doLog(Logging::LogType::ERROR, "TXT writer: netlist is nullptr\n");
+        Logging::logError("TXT writer: netlist is nullptr\n");
         return false;
     }
 
@@ -28,7 +28,7 @@ bool LunaCore::TXT::write(std::ostream &os, const std::shared_ptr<ChipDB::Netlis
             auto ins = netlist->lookupInstance(netConnect.m_instanceKey);
             if (!ins->isPlaced())
             {
-                Logging::doLog(Logging::LogType::WARNING,"TXT writer: instance %s has no location / is not placed.!\n", ins->name().c_str());
+                Logging::logWarning("TXT writer: instance %s has no location / is not placed.!\n", ins->name().c_str());
                 return false;
             }
 

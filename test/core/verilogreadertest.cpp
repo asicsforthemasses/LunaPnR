@@ -151,8 +151,8 @@ BOOST_AUTO_TEST_CASE(can_read_multiplier)
             if (connection == ChipDB::ObjectNotFound)
             {
                 unconnectedPins++;
-                Logging::doLog(Logging::LogType::ERROR, Logging::fmt("Pin with index %d (name is %s) on instance %s is unconnected\n",
-                    pinIndex, checkPin.name().c_str(), ins->name().c_str()));
+                Logging::logError("Pin with index %d (name is %s) on instance %s is unconnected\n",
+                    pinIndex, checkPin.name().c_str(), ins->name().c_str());
             }
             pinIndex++;
         }

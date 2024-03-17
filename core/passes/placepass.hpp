@@ -30,22 +30,22 @@ public:
     {
         if (m_namedParams.contains("pads"))
         {
-            doLog(Logging::LogType::ERROR, "Not implemented yet\n");
+            Logging::logError("Not implemented yet\n");
             return false;
         }
         else if (m_namedParams.contains("core"))
         {
-            doLog(Logging::LogType::ERROR, "Not implemented yet\n");
+            Logging::logError("Not implemented yet\n");
             return false;
         }
         else if (m_namedParams.contains("cell"))
         {
-            doLog(Logging::LogType::ERROR, "Not implemented yet\n");
+            Logging::logError("Not implemented yet\n");
             return false;
         }
         else
         {
-            doLog(Logging::LogType::ERROR, "Missing place type, use -pads, -core or -cell\n");
+            Logging::logError("Missing place type, use -pads, -core or -cell\n");
             return false;
         }
 

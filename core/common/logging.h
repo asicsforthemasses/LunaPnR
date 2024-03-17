@@ -35,17 +35,6 @@ struct LogOutputHandler
     virtual void print(LogType level, const std::string_view &txt) = 0;
 };
 
-/** log something using standard C printf format varargs - limit 2049 chars */
-void doLog(LogType t, const char *format, ...);
-
-/** log something using standard C++ std::string - limit 2049 chars */
-void doLog(LogType t, const std::string &txt);
-
-/** log something using standard C++ std::stringstream - no limit */
-void doLog(LogType t, const std::stringstream &txt);
-
-std::string fmt(const char *format, ...);
-
 /** set the log level ... */
 void setLogLevel(LogType level);
 
@@ -54,5 +43,12 @@ LogType getLogLevel();
 
 /** set new log output handler */
 void setOutputHandler(LogOutputHandler *handler);
+
+void logError(std::string_view fmt, ...);
+void logWarning(std::string_view fmt, ...);
+void logVerbose(std::string_view fmt, ...);
+void logDebug(std::string_view fmt, ...);
+void logPrint(std::string_view fmt, ...);
+void logInfo(std::string_view fmt, ...);
 
 };

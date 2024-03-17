@@ -241,7 +241,7 @@ void MainWindow::saveSettings()
 {
     QSettings settings;
 
-    Logging::doLog(Logging::LogType::VERBOSE, "Saving settings to %s\n", settings.fileName().toStdString().c_str());
+    Logging::logVerbose("Saving settings to %s\n", settings.fileName().toStdString().c_str());
 
     settings.setValue("application/size", size());
 
@@ -263,7 +263,7 @@ void MainWindow::loadSettings()
 {
     QSettings settings;
 
-    Logging::doLog(Logging::LogType::VERBOSE, "Loading settings from %s\n", settings.fileName().toStdString().c_str());
+    Logging::logVerbose("Loading settings from %s\n", settings.fileName().toStdString().c_str());
 
 #if 0
     m_console->setColours(
@@ -313,7 +313,7 @@ void MainWindow::onLoadProject()
         std::ifstream pfile(fileName.toStdString());
         if (!pfile.good() || (!m_db->m_projectSetup.readFromJSON(pfile)))
         {
-            Logging::doLog(Logging::LogType::ERROR,"Project file '%s' cannot be opened for reading\n", fileName.toStdString().c_str());
+            Logging::logError("Project file '%s' cannot be opened for reading\n", fileName.toStdString().c_str());
             QMessageBox::critical(this, tr("Error"), tr("The project file could not be opened for reading"), QMessageBox::Close);
             return;
         }
@@ -339,7 +339,7 @@ void MainWindow::onSaveProject()
         std::ofstream pfile(m_projectFileName.toStdString());
         if (!pfile.good() || (!m_db->m_projectSetup.writeToJSON(pfile)))
         {
-            Logging::doLog(Logging::LogType::ERROR,"Project file '%s' cannot be saved\n", m_projectFileName.toStdString().c_str());
+            Logging::logError("Project file '%s' cannot be saved\n", m_projectFileName.toStdString().c_str());
             QMessageBox::critical(this, tr("Error"), tr("The project file could not be saved"), QMessageBox::Close);
             return;
         }
@@ -357,7 +357,7 @@ void MainWindow::onSaveProjectAs()
         std::ofstream pfile(fileName.toStdString());
         if (!pfile.good() || (!m_db->m_projectSetup.writeToJSON(pfile)))
         {
-            Logging::doLog(Logging::LogType::ERROR,"Project file '%s' cannot be saved\n", m_projectFileName.toStdString().c_str());
+            Logging::logError("Project file '%s' cannot be saved\n", m_projectFileName.toStdString().c_str());
             QMessageBox::critical(this, tr("Error"), tr("The project file could not be saved"), QMessageBox::Close);
             return;
         }
@@ -378,12 +378,12 @@ void MainWindow::onExportLayers()
         if (!ofile.is_open())
         {
             QMessageBox::critical(this, tr("Error"), tr("Cannot save Layer setup file"), QMessageBox::Close);
-            Logging::doLog(Logging::LogType::ERROR, "Cannot save Layer setup file!\n");
+            Logging::logError( "Cannot save Layer setup file!\n");
         }
         else
         {
             ofile << json << "\n";
-            Logging::doLog(Logging::LogType::VERBOSE, "Layer setup file saved!\n");
+            Logging::logVerbose("Layer setup file saved!\n");
         }
     }
 }
@@ -408,7 +408,7 @@ void MainWindow::onRunScript()
         std::ifstream pyFile(fileName.toStdString());
         if (!pyFile.good())
         {
-            Logging::doLog(Logging::LogType::ERROR,"Script file '%s' cannot be opened for reading\n", fileName.toStdString().c_str());
+            Logging::logError("Script file '%s' cannot be opened for reading\n", fileName.toStdString().c_str());
             QMessageBox::critical(this, tr("Error"), tr("The Python script file could not be opened for reading"), QMessageBox::Close);
             return;
         }
@@ -501,7 +501,7 @@ void MainWindow::scanPDKs()
     {
         std::stringstream ss;
         ss << "PDK directory " << m_PDKRoot << " does not exist";
-        Logging::doLog(Logging::LogType::WARNING, ss.str());
+        Logging::logWarning(ss.str());
         return;
     }
 
@@ -528,13 +528,13 @@ void MainWindow::scanPDKs()
 
                                 std::stringstream ss;
                                 ss << "Loaded PDK: " << pdkInfo.m_title << "\n";
-                                Logging::doLog(Logging::LogType::VERBOSE, ss.str());
+                                Logging::logVerbose(ss.str());
                             }
                             else
                             {
                                 std::stringstream ss;
                                 ss << "Failed to load PDK: " << entry.path() << "\n";
-                                Logging::doLog(Logging::LogType::WARNING, ss.str());
+                                Logging::logWarning(ss.str());
                             }
                         }
                     }

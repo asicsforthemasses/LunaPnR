@@ -35,14 +35,14 @@ public:
             auto cellLibPtr = database.m_design.m_cellLib;
             if (!cellLibPtr)
             {
-                Logging::doLog(Logging::LogType::ERROR, "Cell library does not exist\n");
+                Logging::logError("Cell library does not exist\n");
                 return false;
             }
 
-            Logging::doLog(Logging::LogType::INFO, "Cells:\n");
+            Logging::logInfo("Cells:\n");
             for(auto cellKp : *cellLibPtr)
             {
-                Logging::doLog(Logging::LogType::INFO, "    %s\n", cellKp->name().c_str());
+                Logging::logInfo("    %s\n", cellKp->name().c_str());
             }
         }
 
@@ -51,21 +51,21 @@ public:
             auto cellLibPtr = database.m_design.m_cellLib;
             if (!cellLibPtr)
             {
-                Logging::doLog(Logging::LogType::ERROR, "Cell library does not exist\n");
+                Logging::logError("Cell library does not exist\n");
                 return false;
             }
 
             for(auto cellName : m_namedParams.at("cell"))
             {
                 auto cellKp = cellLibPtr->lookupCell(cellName);
-                Logging::doLog(Logging::LogType::INFO, "    Name   : %s\n", cellKp->name().c_str());
-                Logging::doLog(Logging::LogType::INFO, "    Width  : %d nm\n", cellKp->m_size.m_x);
-                Logging::doLog(Logging::LogType::INFO, "    Height : %d nm\n", cellKp->m_size.m_y);
-                Logging::doLog(Logging::LogType::INFO, "    Pins   : %d\n", cellKp->getNumberOfPins());
+                Logging::logInfo("    Name   : %s\n", cellKp->name().c_str());
+                Logging::logInfo("    Width  : %d nm\n", cellKp->m_size.m_x);
+                Logging::logInfo("    Height : %d nm\n", cellKp->m_size.m_y);
+                Logging::logInfo("    Pins   : %d\n", cellKp->getNumberOfPins());
 
                 for(auto pin : cellKp->m_pins)
                 {
-                    Logging::doLog(Logging::LogType::INFO, "        %s\t%s\n", pin->m_name.c_str(), toString(pin->m_iotype).c_str());
+                    Logging::logInfo("        %s\t%s\n", pin->m_name.c_str(), toString(pin->m_iotype).c_str());
                 }
             }
         }
@@ -73,19 +73,19 @@ public:
         if (m_namedParams.contains("floorplan"))
         {
             auto &fp = database.m_design.m_floorplan;
-            Logging::doLog(Logging::LogType::INFO, "Floorplan:\n");
-            Logging::doLog(Logging::LogType::INFO, "    Die size    %d x %d nm\n", fp->dieSize().m_x, fp->dieSize().m_y);
-            Logging::doLog(Logging::LogType::INFO, "    Core size   %d x %d nm\n", fp->coreSize().m_x, fp->coreSize().m_y);
-            Logging::doLog(Logging::LogType::INFO, "    Core to IO margins:\n");
-            Logging::doLog(Logging::LogType::INFO, "        Left    %d nm\n", fp->io2CoreMargins().left());
-            Logging::doLog(Logging::LogType::INFO, "        Right   %d nm\n", fp->io2CoreMargins().right());
-            Logging::doLog(Logging::LogType::INFO, "        Top     %d nm\n", fp->io2CoreMargins().top());
-            Logging::doLog(Logging::LogType::INFO, "        Bottom  %d nm\n", fp->io2CoreMargins().bottom());
-            Logging::doLog(Logging::LogType::INFO, "    IO cell margins:\n");
-            Logging::doLog(Logging::LogType::INFO, "        Left    %d nm\n", fp->ioMargins().left());
-            Logging::doLog(Logging::LogType::INFO, "        Right   %d nm\n", fp->ioMargins().right());
-            Logging::doLog(Logging::LogType::INFO, "        Top     %d nm\n", fp->ioMargins().top());
-            Logging::doLog(Logging::LogType::INFO, "        Bottom  %d nm\n", fp->ioMargins().bottom());
+            Logging::logInfo("Floorplan:\n");
+            Logging::logInfo("    Die size    %d x %d nm\n", fp->dieSize().m_x, fp->dieSize().m_y);
+            Logging::logInfo("    Core size   %d x %d nm\n", fp->coreSize().m_x, fp->coreSize().m_y);
+            Logging::logInfo("    Core to IO margins:\n");
+            Logging::logInfo("        Left    %d nm\n", fp->io2CoreMargins().left());
+            Logging::logInfo("        Right   %d nm\n", fp->io2CoreMargins().right());
+            Logging::logInfo("        Top     %d nm\n", fp->io2CoreMargins().top());
+            Logging::logInfo("        Bottom  %d nm\n", fp->io2CoreMargins().bottom());
+            Logging::logInfo("    IO cell margins:\n");
+            Logging::logInfo("        Left    %d nm\n", fp->ioMargins().left());
+            Logging::logInfo("        Right   %d nm\n", fp->ioMargins().right());
+            Logging::logInfo("        Top     %d nm\n", fp->ioMargins().top());
+            Logging::logInfo("        Bottom  %d nm\n", fp->ioMargins().bottom());
         }
 
         return true;

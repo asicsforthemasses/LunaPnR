@@ -47,7 +47,7 @@ void Parser::error(const std::string &error)
 {
     std::stringstream ss;
     ss << "Line: " << peek().m_line << " col: " << peek().m_col << " " << error;
-    Logging::doLog(Logging::LogType::ERROR, ss.str());
+    Logging::logError(ss.str());
 }
 
 bool Parser::execute(const std::vector<Lexer::token> &tokens)

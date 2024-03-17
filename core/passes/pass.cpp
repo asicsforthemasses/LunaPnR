@@ -25,7 +25,7 @@ struct Passes
 
         if (!m_passes.contains(passName))
         {
-            Logging::doLog(Logging::LogType::ERROR, "Pass %s not found\n", passName.c_str());
+            Logging::logError("Pass %s not found\n", passName.c_str());
             return false;
         }
 
@@ -36,19 +36,19 @@ struct Passes
     {
         if (pass == nullptr)
         {
-            Logging::doLog(Logging::LogType::ERROR, "registerPass: Pass is nullptr\n");
+            Logging::logError("registerPass: Pass is nullptr\n");
             return false;
         }
 
         if (pass->name().empty())
         {
-            Logging::doLog(Logging::LogType::ERROR, "registerPass: Pass name cannot be empty\n");
+            Logging::logError("registerPass: Pass name cannot be empty\n");
             return false;
         }
 
         if (m_passes.contains(pass->name()))
         {
-            Logging::doLog(Logging::LogType::WARNING, "registerPass: Pass with name %s already exists, replacing.\n", pass->name().c_str());
+            Logging::logWarning("registerPass: Pass with name %s already exists, replacing.\n", pass->name().c_str());
         }
 
         m_passes[pass->name()].reset(pass);
@@ -57,7 +57,7 @@ struct Passes
 
     void displayMainHelp()
     {
-        Logging::doLog(Logging::LogType::INFO, "Main help:\n");
+        Logging::logInfo("Main help:\n");
 
         for(auto const& pass : m_passes)
         {
@@ -66,7 +66,7 @@ struct Passes
             int spaceCount = std::max(0UL, 30 - passName.length());
             indentStr.assign(spaceCount, ' ');
 
-            Logging::doLog(Logging::LogType::INFO, "    %s%s%s\n",
+            Logging::logInfo("    %s%s%s\n",
                 passName.c_str(),
                 indentStr.c_str(),
                 pass.second->shortHelp().c_str() );
@@ -148,7 +148,7 @@ bool Pass::processParameters(ArgList args)
                     // error cannot find named parameter!
                     std::stringstream ss;
                     ss << "Pass " << m_name << " does not recognize parameter " << paramName << "\n";
-                    Logging::doLog(Logging::LogType::ERROR, ss.str());
+                    Logging::logError(ss.str());
                     return false;
                 }
             }
@@ -168,7 +168,7 @@ bool Pass::processParameters(ArgList args)
             {
                 std::stringstream ss;
                 ss << "Unexpectedly found a named parameter " << arg.substr(1) << " while parsing " << paramName << "\n";
-                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                Logging::logError(ss.str());
                 return false;
             }
 
@@ -180,7 +180,7 @@ bool Pass::processParameters(ArgList args)
     // if -help was specified, display it
     if (m_namedParams.contains("help"))
     {
-        Logging::doLog(Logging::LogType::INFO,  help());
+        Logging::logInfo(help());
         return false;
     }
 
@@ -193,7 +193,7 @@ bool Pass::processParameters(ArgList args)
             {
                 std::stringstream ss;
                 ss << "Required parameter " << paramDef.first << " is missing.\n";
-                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                Logging::logError(ss.str());
                 return false;
             }
         }

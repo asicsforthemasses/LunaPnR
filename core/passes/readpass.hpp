@@ -38,7 +38,7 @@ public:
                 {
                     std::stringstream ss;
                     ss << "'"<< fname << "' is not a file\n";
-                    Logging::doLog(Logging::LogType::ERROR, ss.str());
+                    Logging::logError(ss.str());
                     return false;
                 }
 
@@ -47,7 +47,7 @@ public:
                 {
                     std::stringstream ss;
                     ss << "Cannot open file '"<< fname << "'\n";
-                    Logging::doLog(Logging::LogType::ERROR, ss.str());
+                    Logging::logError(ss.str());
                     return false;
                 }
 
@@ -56,7 +56,7 @@ public:
                 {
                     std::stringstream ss;
                     ss << "Failed to load '"<< fname << "'\n";
-                    Logging::doLog(Logging::LogType::ERROR, ss.str());
+                    Logging::logError(ss.str());
                     return false;
                 }
             }
@@ -69,7 +69,7 @@ public:
                 {
                     std::stringstream ss;
                     ss << "'"<< fname << "' is not a file\n";
-                    Logging::doLog(Logging::LogType::ERROR, ss.str());
+                    Logging::logError(ss.str());
                     return false;
                 }
 
@@ -78,7 +78,7 @@ public:
                 {
                     std::stringstream ss;
                     ss << "Cannot open file '"<< fname << "'\n";
-                    Logging::doLog(Logging::LogType::ERROR, ss.str());
+                    Logging::logError(ss.str());
                     return false;
                 }
 
@@ -87,7 +87,7 @@ public:
                 {
                     std::stringstream ss;
                     ss << "Failed to load '"<< fname << "'\n";
-                    Logging::doLog(Logging::LogType::ERROR, ss.str());
+                    Logging::logError(ss.str());
                     return false;
                 }
             }
@@ -100,7 +100,7 @@ public:
                 {
                     std::stringstream ss;
                     ss << "'"<< fname << " is not a file'\n";
-                    Logging::doLog(Logging::LogType::ERROR, ss.str());
+                    Logging::logError(ss.str());
                     return false;
                 }
 
@@ -109,7 +109,7 @@ public:
                 {
                     std::stringstream ss;
                     ss << "Cannot open file '"<< fname << "'\n";
-                    Logging::doLog(Logging::LogType::ERROR, ss.str());
+                    Logging::logError(ss.str());
                     return false;
                 }
 
@@ -118,20 +118,20 @@ public:
                 {
                     std::stringstream ss;
                     ss << "Failed to load '"<< fname << "'\n";
-                    Logging::doLog(Logging::LogType::ERROR, ss.str());
+                    Logging::logError(ss.str());
                     return false;
                 }
             }
         }
         else if (m_namedParams.contains("sdc"))
         {
-            Logging::doLog(Logging::LogType::ERROR, "Not implemented.\n");
+            Logging::logError("Not implemented.\n");
             return false;
 
         }
         else
         {
-            doLog(Logging::LogType::ERROR, "Missing file type, use -verilog, -lib, -lef or -sdc\n");
+            Logging::logError("Missing file type, use -verilog, -lib, -lef or -sdc\n");
             return false;
         }
 

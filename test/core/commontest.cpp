@@ -51,6 +51,16 @@ BOOST_AUTO_TEST_CASE(check_replace_keys_in_braces)
     auto result = LunaCore::replaceKeysInBraces(container, src);
 
     BOOST_CHECK(result == "Nile Rodgers is quite funky! {BOOTSY_BABY}");
+
+    // test with the database object
+    LunaCore::Database db;
+
+    db.m_properties[LunaCore::Database::propPDKRoot] = "Nile";
+    db.m_properties[LunaCore::Database::propProjectRoot] = "Rodgers";
+
+    result = LunaCore::replaceKeysInBraces(db.m_properties, src);
+
+    BOOST_CHECK(result == "Nile Rodgers is quite funky! {BOOTSY_BABY}");
 }
 
 BOOST_AUTO_TEST_SUITE_END()

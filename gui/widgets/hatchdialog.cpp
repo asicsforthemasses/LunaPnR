@@ -40,6 +40,6 @@ HatchDialog::HatchDialog(HatchLibrary &hatchLibrary, QWidget *parent, Qt::Window
 void HatchDialog::onHatchClicked(int index)
 {
     m_hatchIndex = index;
-    Logging::doLog(Logging::LogType::VERBOSE, "onHatchClicked index = %d\n", index);
+    Logging::logVerbose("onHatchClicked index = %d\n", index);
     accept();
 }

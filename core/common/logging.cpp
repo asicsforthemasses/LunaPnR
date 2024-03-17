@@ -7,36 +7,41 @@
 #include <cstdio>
 #include <cstdarg>
 #include <array>
+#include <string_view>
 #include "logging.h"
+
+namespace Logging
+{
+
 
 class DefaultLogOutputHandler : public Logging::LogOutputHandler
 {
 public:
-    void print(Logging::LogType level, const std::string &txt) override
+    void print(LogType level, const std::string &txt) override
     {
         print(level, std::string_view(txt));
     }
 
-    void print(Logging::LogType level, const std::string_view &txt) override
+    void print(LogType level, const std::string_view &txt) override
     {
         std::stringstream ss;
         switch(level)
         {
-        case Logging::LogType::PRINT:
+        case LogType::PRINT:
             break;
-        case Logging::LogType::INFO:
+        case LogType::INFO:
             ss << FGINFO   << "[INFO] ";
             break;
-        case Logging::LogType::DEBUG:
+        case LogType::DEBUG:
             ss << FGDEBUG  << "[DBG ] ";
             break;
-        case Logging::LogType::WARNING:
+        case LogType::WARNING:
             ss << FGWARN   << "[WARN] ";
             break;
-        case Logging::LogType::ERROR:
+        case LogType::ERROR:
             ss << FGERR    << "[ERR ] ";
             break;
-        case Logging::LogType::VERBOSE:
+        case LogType::VERBOSE:
             ss << FGVERB   << "[VERB] ";
             break;
         default:
@@ -64,30 +69,25 @@ protected:
 };
 
 static DefaultLogOutputHandler gs_defaultLogHandler;
-static Logging::LogType gs_loglevel = Logging::LogType::WARNING;
-static Logging::LogOutputHandler *gs_logOutputHandler = nullptr;
+static LogType gs_loglevel = LogType::WARNING;
+static LogOutputHandler *gs_logOutputHandler = nullptr;
 
-void Logging::setOutputHandler(Logging::LogOutputHandler *handler)
+void setOutputHandler(Logging::LogOutputHandler *handler)
 {
     gs_logOutputHandler = handler;
 }
 
-void Logging::setLogLevel(LogType level)
+void setLogLevel(LogType level)
 {
     gs_loglevel = level;
 }
 
-Logging::LogType Logging::getLogLevel()
+LogType getLogLevel()
 {
     return gs_loglevel;
 }
 
-void Logging::doLog(LogType t, const std::string &txt)
-{
-    Logging::doLog(t, txt.c_str());
-}
-
-void Logging::doLog(LogType t, const char *format, ...)
+void doLog(LogType t, const char *format, va_list args)
 {
     if (t < gs_loglevel)
     {
@@ -97,10 +97,7 @@ void Logging::doLog(LogType t, const char *format, ...)
     std::array<char, 2048> buffer;
     buffer.at(0) = 0;
 
-    va_list argptr;
-    va_start(argptr, format);
-    vsnprintf(&buffer[0], buffer.size(), format, argptr);
-    va_end(argptr);
+    vsnprintf(&buffer[0], buffer.size(), format, args);
 
     if (gs_logOutputHandler == nullptr)
     {
@@ -112,32 +109,52 @@ void Logging::doLog(LogType t, const char *format, ...)
     }
 }
 
-void Logging::doLog(LogType t, const std::stringstream &txt)
+void logError(std::string_view fmt, ...)
 {
-    if (t < gs_loglevel)
-    {
-        return;
-    }
-
-    if (gs_logOutputHandler == nullptr)
-    {
-        gs_defaultLogHandler.print(t, txt.str());
-    }
-    else
-    {
-        gs_logOutputHandler->print(t, txt.str());
-    }
+    std::va_list args;
+    va_start(args, fmt);
+    doLog(Logging::LogType::ERROR, fmt.data(), args);
+    va_end(args);
 }
 
-std::string Logging::fmt(const char *format, ...)
+void logWarning(std::string_view fmt, ...)
 {
-    std::array<char, 2048> buffer;
-    buffer.at(0) = 0;
-
-    va_list argptr;
-    va_start(argptr, format);
-    vsnprintf(&buffer[0], buffer.size(), format, argptr);
-    va_end(argptr);
-
-    return &buffer[0];
+    std::va_list args;
+    va_start(args, fmt);
+    doLog(Logging::LogType::WARNING, fmt.data(), args);
+    va_end(args);
 }
+
+void logVerbose(std::string_view fmt, ...)
+{
+    std::va_list args;
+    va_start(args, fmt);
+    doLog(Logging::LogType::VERBOSE, fmt.data(), args);
+    va_end(args);
+}
+
+void logDebug(std::string_view fmt, ...)
+{
+    std::va_list args;
+    va_start(args, fmt);
+    doLog(Logging::LogType::DEBUG, fmt.data(), args);
+    va_end(args);
+}
+
+void logPrint(std::string_view fmt, ...)
+{
+    std::va_list args;
+    va_start(args, fmt);
+    doLog(Logging::LogType::PRINT, fmt.data(), args);
+    va_end(args);
+}
+
+void logInfo(std::string_view fmt, ...)
+{
+    std::va_list args;
+    va_start(args, fmt);
+    doLog(Logging::LogType::INFO, fmt.data(), args);
+    va_end(args);
+}
+
+}; //namespace

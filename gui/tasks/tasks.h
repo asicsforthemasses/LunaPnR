@@ -65,9 +65,9 @@ public:
 protected:
     virtual void execute(GUI::Database &db, ProgressCallback callback) = 0;
 
-    void error(const std::string &txt);
-    void warning(const std::string &txt);
-    void info(const std::string &txt);
+    void error(const std::string_view fmt, ...);
+    void warning(const std::string_view fmt, ...);
+    void info(const std::string_view fmt, ...);
     void done();
 
     std::string             m_name = {"UNDEFINED"};         ///< task name

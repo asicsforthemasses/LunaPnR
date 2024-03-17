@@ -37,12 +37,12 @@ void Tasks::Place::execute(GUI::Database &database, ProgressCallback callback)
         auto pinInstance = netlist->lookupInstance(pin->m_name);
         if (!pinInstance.isValid())
         {
-            error(Logging::fmt("Module %s does not have a pin instance corresponding to pin %s!\n", topModule->name().c_str(), pin->m_name.c_str()));
+            error("Module %s does not have a pin instance corresponding to pin %s!\n", topModule->name().c_str(), pin->m_name.c_str());
             return;
         }
         if (!pinInstance->isPlaced())
         {
-            error(Logging::fmt("Pin %s of module %s has not been placed!\n", pin->m_name.c_str(), topModule->name().c_str()));
+            error("Pin %s of module %s has not been placed!\n", pin->m_name.c_str(), topModule->name().c_str());
             return;
         }
     }

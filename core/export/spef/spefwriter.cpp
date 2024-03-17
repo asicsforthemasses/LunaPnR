@@ -38,13 +38,13 @@ bool LunaCore::SPEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Modul
 {
     if (!os.good())
     {
-        Logging::doLog(Logging::LogType::ERROR, "SPEF writer: output stream is invalid!\n");
+        Logging::logError("SPEF writer: output stream is invalid!\n");
         return false;
     }
 
     if (!module)
     {
-        Logging::doLog(Logging::LogType::ERROR, "SPEF writer: module is nullptr!\n");
+        Logging::logError("SPEF writer: module is nullptr!\n");
         return false;
     }
 
@@ -174,13 +174,13 @@ bool LunaCore::SPEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Modul
 
             if (!srcPin.isValid())
             {
-                Logging::doLog(Logging::LogType::ERROR, "Invalid pin %ld key on instance %s of type %s\n",
+                Logging::logError("Invalid pin %ld key on instance %s of type %s\n",
                     connIter->m_pinKey, srcIns->name().c_str(), srcIns->getArchetypeName().c_str());
             }
 
             if (!srcIns)
             {
-                Logging::doLog(Logging::LogType::ERROR, "Invalid instance key: %ld\n", connIter->m_instanceKey);
+                Logging::logError("Invalid instance key: %ld\n", connIter->m_instanceKey);
             }
 
             std::string srcName;
@@ -201,13 +201,13 @@ bool LunaCore::SPEF::write(std::ostream &os, const std::shared_ptr<ChipDB::Modul
 
                 if (!dstPin.isValid())
                 {
-                    Logging::doLog(Logging::LogType::ERROR, "Invalid pin %ld key on instance %s of type %s\n",
+                    Logging::logError("Invalid pin %ld key on instance %s of type %s\n",
                         connIter->m_pinKey, dstIns->name().c_str(), dstIns->getArchetypeName().c_str());
                 }
 
                 if (!dstIns)
                 {
-                    Logging::doLog(Logging::LogType::ERROR, "Invalid instance key: %ld\n", connIter->m_instanceKey);
+                    Logging::logError("Invalid instance key: %ld\n", connIter->m_instanceKey);
                 }
 
                 std::string dstName;
@@ -276,7 +276,7 @@ bool LunaCore::SPEF::write(const std::string &filename, const std::shared_ptr<Ch
     std::ofstream ofile(filename);
     if (!ofile.good())
     {
-        Logging::doLog(Logging::LogType::ERROR,"SPEF writer: cannot open file %s for writing!\n", filename.c_str());
+        Logging::logError("SPEF writer: cannot open file %s for writing!\n", filename.c_str());
         return false;
     }
 

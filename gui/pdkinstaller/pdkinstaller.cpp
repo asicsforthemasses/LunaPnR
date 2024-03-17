@@ -357,7 +357,7 @@ void PDKInstallDialog::onDownloaded(QString filename)
 {
     std::stringstream ss;
     ss << "Downloaded " << filename.toStdString() << "\n";
-    Logging::doLog(Logging::LogType::INFO, ss.str());
+    Logging::logInfo(ss.str());
 
     if (m_downloader.empty())
     {

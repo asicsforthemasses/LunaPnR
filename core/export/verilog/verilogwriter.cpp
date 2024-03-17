@@ -55,7 +55,7 @@ bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod)
 
                 if (!pinInfo.isValid())
                 {
-                    Logging::doLog(Logging::LogType::ERROR,"Port net cannot be resolved to module pin!\n");
+                    Logging::logError("Port net cannot be resolved to module pin!\n");
                     return false;
                 }
 
@@ -71,7 +71,7 @@ bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod)
                     os << "inout ";
                     break;
                 default:
-                    Logging::doLog(Logging::LogType::ERROR, "Verilog writer: unsupported pin type %s\n", toString(pinInfo->m_iotype).c_str());
+                    Logging::logError("Verilog writer: unsupported pin type %s\n", toString(pinInfo->m_iotype).c_str());
                     return false;
                 }
                 os << escapeVerilogName(netPtr->name()) << ";\n";
@@ -89,17 +89,17 @@ bool Writer::write(std::ostream &os, const std::shared_ptr<ChipDB::Module> mod)
     }
     catch(std::runtime_error &e)
     {
-        Logging::doLog(Logging::LogType::ERROR, e.what());
+        Logging::logError(e.what());
         return false;
     }
     catch(std::out_of_range &e)
     {
-        Logging::doLog(Logging::LogType::ERROR, e.what());
+        Logging::logError(e.what());
         return false;
     }
     catch(std::invalid_argument &e)
     {
-        Logging::doLog(Logging::LogType::ERROR, e.what());
+        Logging::logError(e.what());
         return false;
     }
 
@@ -180,7 +180,7 @@ namespace LunaCore::Verilog
             case ChipDB::InstanceType::PIN:
                 break;
             case ChipDB::InstanceType::MODULE:
-                Logging::doLog(Logging::LogType::ERROR, "Verilog writer: does not support embedded modules\n");
+                Logging::logError("Verilog writer: does not support embedded modules\n");
                 return;
             case ChipDB::InstanceType::NETCON:
                 {
@@ -196,7 +196,7 @@ namespace LunaCore::Verilog
                 }
                 break;
             case ChipDB::InstanceType::UNKNOWN:
-                Logging::doLog(Logging::LogType::ERROR, "Verilog writer: unexpected instance type 'UNKNOWN'\n");
+                Logging::logError("Verilog writer: unexpected instance type 'UNKNOWN'\n");
                 return;
             default:
 
@@ -277,13 +277,13 @@ namespace LunaCore::Verilog
 
         void visit(const ChipDB::Cell *cell) override
         {
-            Logging::doLog(Logging::LogType::ERROR,"Verilog writer: cannot write Cell to netlist\n");
+            Logging::logError("Verilog writer: cannot write Cell to netlist\n");
             m_ok = false;
         }
 
         void visit(const ChipDB::Module *module) override
         {
-            Logging::doLog(Logging::LogType::ERROR,"Verilog writer: cannot write sub-module %s to netlist\n", module->name().c_str());
+            Logging::logError("Verilog writer: cannot write sub-module %s to netlist\n", module->name().c_str());
             m_ok = false;
         }
 

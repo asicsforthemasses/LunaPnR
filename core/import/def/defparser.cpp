@@ -428,13 +428,13 @@ bool Parser::parse(const std::string &defstring)
             }
             else if (!m_tokstr.empty())
             {
-                Logging::doLog(Logging::LogType::VERBOSE, "  DEF skipping: %s on line %u\n", m_tokstr.c_str(), m_lineNum);
+                Logging::logVerbose("  DEF skipping: %s on line %u\n", m_tokstr.c_str(), m_lineNum);
             }
             break;
         default:
             if (!m_tokstr.empty())
             {
-                Logging::doLog(Logging::LogType::VERBOSE, "  DEF skipping: %s on line %u\n", m_tokstr.c_str(), m_lineNum);
+                Logging::logVerbose("  DEF skipping: %s on line %u\n", m_tokstr.c_str(), m_lineNum);
             }
             break;
         }
@@ -449,7 +449,7 @@ void Parser::error(const char *errstr) const
 {
     std::stringstream ss;
     ss << "Line " << m_lineNum << " col " << m_col << " : " << errstr << "\n";
-    Logging::doLog(Logging::LogType::ERROR, ss.str());
+    Logging::logError(ss.str());
     throw std::runtime_error(ss.str());
 }
 
@@ -457,7 +457,7 @@ void Parser::error(const std::string &errstr) const
 {
     std::stringstream ss;
     ss << "Line " << m_lineNum << " col " << m_col << " : " << errstr << "\n";
-    Logging::doLog(Logging::LogType::ERROR, ss.str());
+    Logging::logError(ss.str());
     throw std::runtime_error(ss.str());
 }
 
@@ -961,7 +961,7 @@ bool Parser::parseUntilEnd(const std::string &postfix)
         m_curtok = tokenize(m_tokstr);
         if (!m_tokstr.empty())
         {
-            Logging::doLog(Logging::LogType::VERBOSE,"  DEF skipping: %s on line %d\n", m_tokstr.c_str(), m_lineNum);
+            Logging::logVerbose("  DEF skipping: %s on line %d\n", m_tokstr.c_str(), m_lineNum);
         }
 
         if (m_curtok == TOK_IDENT)
@@ -978,7 +978,7 @@ bool Parser::parseUntilEnd(const std::string &postfix)
             {
                 if (!m_tokstr.empty())
                 {
-                    Logging::doLog(Logging::LogType::VERBOSE,"  DEF skipping: %s on line %d\n", m_tokstr.c_str(), m_lineNum);
+                    Logging::logVerbose("  DEF skipping: %s on line %d\n", m_tokstr.c_str(), m_lineNum);
                 }
             }
         }

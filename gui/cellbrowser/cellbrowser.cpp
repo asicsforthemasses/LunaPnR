@@ -181,7 +181,7 @@ void CellBrowser::onCellSelectionChanged(const QItemSelection &cur, const QItemS
             m_cellInfoModel->setCell(cell);
             m_layerView->update();   // ??
             update();
-            Logging::doLog(Logging::LogType::VERBOSE, "Selected cell %s\n", cell->name().c_str());
+            Logging::logVerbose("Selected cell %s\n", cell->name().c_str());
         }
     }
 }

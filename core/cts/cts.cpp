@@ -8,12 +8,12 @@ using namespace LunaCore::CTS;
 void MeanAndMedianCTS::recursiveSubdivision(const ChipDB::Netlist &netlist, CTSNodeList &nodes,
     SegmentList &segments, SegmentIndex topSegIndex, int level)
 {
-    if (nodes.size() == 1) 
-    {        
+    if (nodes.size() == 1)
+    {
         return;
     }
 
-    if (nodes.size() == 0) 
+    if (nodes.size() == 0)
     {
         return;
     }
@@ -55,7 +55,7 @@ void MeanAndMedianCTS::recursiveSubdivision(const ChipDB::Netlist &netlist, CTSN
 
     // route from leftCoord  -> blCoord, leftCoord  -> tlCoord
     SegmentIndex bl_top = -1;
-    if (!bl.empty()) 
+    if (!bl.empty())
     {
         if (bl.size() == 1)
             bl_top = segments.createSegment(leftCoord, blCoord, leftSegIndex, bl.front(), level + 2);
@@ -66,7 +66,7 @@ void MeanAndMedianCTS::recursiveSubdivision(const ChipDB::Netlist &netlist, CTSN
     }
 
     SegmentIndex tl_top = -1;
-    if (!tl.empty()) 
+    if (!tl.empty())
     {
         if (tl.size() == 1)
             tl_top = segments.createSegment(leftCoord, tlCoord, leftSegIndex, tl.front(), level + 2);
@@ -75,10 +75,10 @@ void MeanAndMedianCTS::recursiveSubdivision(const ChipDB::Netlist &netlist, CTSN
 
         segments.at(leftSegIndex).addChild(tl_top);
     }
-    
+
     // route from rightCoord -> brCoord, rightCoord -> trCoord
     SegmentIndex br_top = -1;
-    if (!br.empty()) 
+    if (!br.empty())
     {
         if (br.size() == 1)
             br_top = segments.createSegment(rightCoord, brCoord, rightSegIndex, br.front(), level + 2);
@@ -87,9 +87,9 @@ void MeanAndMedianCTS::recursiveSubdivision(const ChipDB::Netlist &netlist, CTSN
 
         segments.at(rightSegIndex).addChild(br_top);
     }
-    
+
     SegmentIndex tr_top = -1;
-    if (!tr.empty()) 
+    if (!tr.empty())
     {
         if (tr.size() == 1)
             tr_top = segments.createSegment(rightCoord, trCoord, rightSegIndex, tr.front(), level + 2);
@@ -98,7 +98,7 @@ void MeanAndMedianCTS::recursiveSubdivision(const ChipDB::Netlist &netlist, CTSN
 
         segments.at(rightSegIndex).addChild(tr_top);
     }
-    
+
     // we don't need the intermediate lists anymore
     left.clear();
     right.clear();
@@ -118,7 +118,7 @@ std::optional<MeanAndMedianCTS::SegmentList> MeanAndMedianCTS::generateTree
     auto clockNet = netlist.lookupNet(clockNetName);
     if (!clockNet.isValid())
     {
-        Logging::doLog(Logging::LogType::ERROR, "CTS cannot find the specified clock net %s\n", clockNetName.c_str());
+        Logging::logError("CTS cannot find the specified clock net %s\n", clockNetName.c_str());
         return std::nullopt;
     }
 
@@ -134,27 +134,27 @@ std::optional<MeanAndMedianCTS::SegmentList> MeanAndMedianCTS::generateTree
         auto ins = netlist.lookupInstance(conn.m_instanceKey);
         if (!ins)
         {
-            Logging::doLog(Logging::LogType::ERROR, "CTS cannot find instance with key %d\n", conn.m_instanceKey);
+            Logging::logError("CTS cannot find instance with key %d\n", conn.m_instanceKey);
             return std::nullopt;
         }
 
         if (!ins->isPlaced())
         {
-            Logging::doLog(Logging::LogType::ERROR, "CTS: instance %s (%s) has not been placed - aborting!\n", ins->name().c_str(), ins->getArchetypeName().c_str());
+            Logging::logError("CTS: instance %s (%s) has not been placed - aborting!\n", ins->name().c_str(), ins->getArchetypeName().c_str());
             return std::nullopt;
         }
 
         auto pin = ins->getPin(conn.m_pinKey);
         if (!pin.isValid())
         {
-            Logging::doLog(Logging::LogType::ERROR, "CTS: pin with key %ld on instance %s is invalid - aborting!\n", conn.m_pinKey, ins->name().c_str());
-            return std::nullopt;            
+            Logging::logError("CTS: pin with key %ld on instance %s is invalid - aborting!\n", conn.m_pinKey, ins->name().c_str());
+            return std::nullopt;
         }
 
         if (!pin.m_pinInfo)
         {
-            Logging::doLog(Logging::LogType::ERROR, "CTS: pin info with key %ld on instance %s is invalid - aborting!\n", conn.m_pinKey, ins->name().c_str());
-            return std::nullopt;            
+            Logging::logError("CTS: pin info with key %ld on instance %s is invalid - aborting!\n", conn.m_pinKey, ins->name().c_str());
+            return std::nullopt;
         }
 
         if (pin.m_pinInfo->isOutput())
@@ -171,19 +171,19 @@ std::optional<MeanAndMedianCTS::SegmentList> MeanAndMedianCTS::generateTree
 
     if (driverCount == 0)
     {
-        Logging::doLog(Logging::LogType::ERROR, "CTS: could not find a driver for clock net - aborting!\n");
-        return std::nullopt;                    
+        Logging::logError("CTS: could not find a driver for clock net - aborting!\n");
+        return std::nullopt;
     }
 
     if (driverCount > 1)
     {
-        Logging::doLog(Logging::LogType::ERROR, "CTS: clock net has more than one driver - aborting!\n");
-        return std::nullopt;                    
+        Logging::logError("CTS: clock net has more than one driver - aborting!\n");
+        return std::nullopt;
     }
 
     if (clkNodes.size() == 0)
     {
-        Logging::doLog(Logging::LogType::ERROR, "CTS: did not find any instances - aborting!\n");
+        Logging::logError("CTS: did not find any instances - aborting!\n");
         return std::nullopt;
     }
 
@@ -232,7 +232,7 @@ void CTSNodeList::sortAlongAxis(const ChipDB::Netlist &netlist, const Axis axis)
     auto const& instances = netlist.m_instances;
     if (axis == Axis::X)
     {
-        std::sort(m_nodes.begin(), m_nodes.end(), 
+        std::sort(m_nodes.begin(), m_nodes.end(),
             [&instances](const CTSNode &node1, const CTSNode &node2)
             {
                 return instances[node1.m_insKey]->m_pos.m_x < instances[node2.m_insKey]->m_pos.m_x;
@@ -243,20 +243,20 @@ void CTSNodeList::sortAlongAxis(const ChipDB::Netlist &netlist, const Axis axis)
         {
             assert(instances[m_nodes.at(0).m_insKey]->m_pos.m_x <= instances[m_nodes.at(1).m_insKey]->m_pos.m_x);
         }
-    }    
+    }
     else
     {
-        std::sort(m_nodes.begin(), m_nodes.end(), 
+        std::sort(m_nodes.begin(), m_nodes.end(),
             [&instances](const CTSNode &node1, const CTSNode &node2)
             {
                 return instances[node1.m_insKey]->m_pos.m_y < instances[node2.m_insKey]->m_pos.m_y;
             }
-        );        
+        );
 
         if (m_nodes.size() >= 2)
         {
             assert(instances[m_nodes.at(0).m_insKey]->m_pos.m_y <= instances[m_nodes.at(1).m_insKey]->m_pos.m_y);
-        }        
+        }
     }
 }
 
@@ -270,7 +270,7 @@ ChipDB::Coord64 CTSNodeList::mean(const ChipDB::Netlist &netlist) const
     float total_y{0};
     auto const& instances = netlist.m_instances;
     for(auto const& node : m_nodes)
-    {   
+    {
         auto const &ins = instances[node.m_insKey];
         assert(ins);
         total_x += static_cast<float>(ins->m_pos.m_x);
@@ -280,19 +280,19 @@ ChipDB::Coord64 CTSNodeList::mean(const ChipDB::Netlist &netlist) const
     total_x /= static_cast<float>(m_nodes.size());
     total_y /= static_cast<float>(m_nodes.size());
 
-    return {static_cast<ChipDB::CoordType>(total_x), 
+    return {static_cast<ChipDB::CoordType>(total_x),
         static_cast<ChipDB::CoordType>(total_y)};
 }
 
-float MeanAndMedianCTS::calcSegmentLoadCapacitance(SegmentIndex index, const SegmentList &segments, 
+float MeanAndMedianCTS::calcSegmentLoadCapacitance(SegmentIndex index, const SegmentList &segments,
     const ChipDB::Netlist &netlist) const
 {
     auto const& seg = segments.at(index);
-    
+
     // if the segment has a cell, return the pin capacitance
     if (seg.hasCell())
     {
-        return seg.m_cell.m_capacitance; 
+        return seg.m_cell.m_capacitance;
     }
 
     float totalCap = 0.0;
@@ -303,8 +303,8 @@ float MeanAndMedianCTS::calcSegmentLoadCapacitance(SegmentIndex index, const Seg
     return totalCap;
 }
 
-MeanAndMedianCTS::BufferResult MeanAndMedianCTS::insertBuffers(SegmentList &segments, 
-        SegmentIndex segIndex, 
+MeanAndMedianCTS::BufferResult MeanAndMedianCTS::insertBuffers(SegmentList &segments,
+        SegmentIndex segIndex,
         ChipDB::Netlist &netlist,
         const CTSInfo &ctsInfo)
 {
@@ -325,7 +325,7 @@ MeanAndMedianCTS::BufferResult MeanAndMedianCTS::insertBuffers(SegmentList &segm
     for(auto const& child : seg.m_children)
     {
         auto subtreeResult = insertBuffers(segments, child, netlist, ctsInfo);
-        
+
         bresult.m_totalCapacitance += subtreeResult.m_totalCapacitance;
 
         // add the sinks to the current list
@@ -338,7 +338,7 @@ MeanAndMedianCTS::BufferResult MeanAndMedianCTS::insertBuffers(SegmentList &segm
     {
         std::stringstream ss;
         ss << "ctsbuffer_L" << seg.m_level << "_" << netlist.createUniqueID();
-        auto bufferIns = std::make_shared<ChipDB::Instance>(ss.str(), 
+        auto bufferIns = std::make_shared<ChipDB::Instance>(ss.str(),
             ChipDB::InstanceType::CELL, ctsInfo.m_bufferCell);
         auto bufInsKeyPtrOpt = netlist.m_instances.add(bufferIns);
         if (!bufInsKeyPtrOpt)
@@ -351,17 +351,17 @@ MeanAndMedianCTS::BufferResult MeanAndMedianCTS::insertBuffers(SegmentList &segm
         {
             throw std::runtime_error("cts cannot create buffer");
         }
-        
+
         // place the buffer at the segment end position.
         bufferIns->m_pos = seg.m_end;
         bufferIns->m_placementInfo = ChipDB::PlacementInfo::PLACED;
 
         // connect all sinks to this buffer via a new net
         ss.str("");
-        ss << "ctsnet_" << netlist.createUniqueID();        
+        ss << "ctsnet_" << netlist.createUniqueID();
         auto bufNet = netlist.createNet(ss.str());
 
-        Logging::doLog(Logging::LogType::VERBOSE, "  created net %s key=%ld\n", bufNet->name().c_str(), bufNet.key());
+        Logging::logVerbose("  created net %s key=%ld\n", bufNet->name().c_str(), bufNet.key());
 
         if (!bufNet.isValid())
         {

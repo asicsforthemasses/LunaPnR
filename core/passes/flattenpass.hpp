@@ -28,7 +28,7 @@ public:
     {
         if (m_namedParams.contains("module"))
         {
-            doLog(Logging::LogType::ERROR, "Not implemented yet\n");
+            Logging::logError("Not implemented yet\n");
             return false;
         }
         return true;

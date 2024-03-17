@@ -21,7 +21,7 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
         return;
     }
 
-    info(Logging::fmt("Checking timing using module: %s\n", topModule->name().c_str()));
+    info("Checking timing using module: %s\n", topModule->name().c_str());
 
     auto spefTempFile = LunaCore::createTempFile("spef");
     if (m_mode == Mode::WITHSPEF)
@@ -68,7 +68,7 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
     cmd << database.m_projectSetup.m_openSTALocation;
     cmd << " -no_splash -exit " << tclFileDescriptor->m_name << "\n";
 
-    info(Logging::fmt("Running %s\n", cmd.str().c_str()));
+    info("Running %s\n", cmd.str().c_str());
 
     GUI::OpenSTAParser parser;
 
@@ -105,16 +105,16 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
     {
         if (iter->m_slack >= 0.0)
         {
-            info(Logging::fmt("  From %s to %s -> slack %f %s\n",
+            info("  From %s to %s -> slack %f %s\n",
                 iter->m_source.c_str(), iter->m_destination.c_str(),
                 iter->m_slack * timeUnits.first,
-                timeUnits.second.c_str()));
+                timeUnits.second.c_str());
         }
         else
         {
-            error(Logging::fmt("  From %s to %s -> slack %f %s  FAILED\n",
+            error("  From %s to %s -> slack %f %s  FAILED\n",
                 iter->m_source.c_str(), iter->m_destination.c_str(),
-                iter->m_slack * timeUnits.first, timeUnits.second.c_str()));
+                iter->m_slack * timeUnits.first, timeUnits.second.c_str());
             timingErrors = true;
         }
         pathsReported++;
@@ -162,7 +162,7 @@ void Tasks::CheckTiming::execute(GUI::Database &database, ProgressCallback callb
 
     if (warnings != 0)
     {
-        warning(Logging::fmt("Timing analysis reports %d warnings!\n", warnings));
+        warning("Timing analysis reports %d warnings!\n", warnings);
     }
     else
     {

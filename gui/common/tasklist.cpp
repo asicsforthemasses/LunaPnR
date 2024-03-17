@@ -51,7 +51,7 @@ bool TaskList::executeToTask(Database &db, const std::string &taskName)
     if (taskIter == m_nameToIndex.end())
     {
         // task name not found
-        Logging::doLog(Logging::LogType::ERROR, Logging::fmt("TaskList: Cannot find task %s\n", taskName.c_str()));
+        Logging::logError("TaskList: Cannot find task %s\n", taskName.c_str());
         return false;
     }
 
@@ -59,7 +59,7 @@ bool TaskList::executeToTask(Database &db, const std::string &taskName)
 
     if (lastTaskId >= m_tasks.size())
     {
-        Logging::doLog(Logging::LogType::ERROR, Logging::fmt("TaskList: Task ID for %s is out of range\n", taskName.c_str()));
+        Logging::logError("TaskList: Task ID for %s is out of range\n", taskName.c_str());
         return false;
     }
 
@@ -106,7 +106,7 @@ void TaskList::taskThread(Database &db, size_t firstTask, size_t lastTask, QObje
             if (!m_tasks.at(idx))
             {
                 // unique_ptr is null!
-                Logging::doLog(Logging::LogType::ERROR,"TaskList: task ptr is null!\n");
+                Logging::logError("TaskList: task ptr is null!\n");
                 return;
             }
 

@@ -294,7 +294,7 @@ void TechBrowser::onLayerSelectionChanged(const QItemSelection &cur, const QItem
             }
 
             update();
-            Logging::doLog(Logging::LogType::VERBOSE, "Selected layer %s\n", layer->name().c_str());
+            Logging::logVerbose("Selected layer %s\n", layer->name().c_str());
         }
     }
 }
@@ -447,7 +447,7 @@ void TechBrowser::onSiteSelectionChanged(const QItemSelection &cur, const QItemS
             }
 #endif
             update();
-            Logging::doLog(Logging::LogType::VERBOSE, "Selected site %s\n", site->name().c_str());
+            Logging::logVerbose("Selected site %s\n", site->name().c_str());
         }
     }
 }

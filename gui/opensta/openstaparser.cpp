@@ -50,7 +50,7 @@ bool OpenSTAParser::submitLine(const std::string &line)
         {
             m_timeMult = std::stod(matches.str(1));
             m_timeUnit = matches.str(2);
-            Logging::doLog(Logging::LogType::VERBOSE,"OpenSTA time unit: %f %s\n", m_timeMult, m_timeUnit.c_str());
+            Logging::logVerbose("OpenSTA time unit: %f %s\n", m_timeMult, m_timeUnit.c_str());
         }
         break;
     case ParseState::CHECKSETUP:
@@ -71,7 +71,7 @@ bool OpenSTAParser::submitLine(const std::string &line)
             }
             else
             {
-                Logging::doLog(Logging::LogType::VERBOSE,"CheckTiming: all nets have SPEF annotations\n");
+                Logging::logVerbose("CheckTiming: all nets have SPEF annotations\n");
             }
         }
         else if (std::regex_search(line, matches, m_spefCheck2))
@@ -85,7 +85,7 @@ bool OpenSTAParser::submitLine(const std::string &line)
             }
             else
             {
-                Logging::doLog(Logging::LogType::VERBOSE,"CheckTiming: all nets have SPEF annotations\n");
+                Logging::logVerbose("CheckTiming: all nets have SPEF annotations\n");
             }
         }
         break;

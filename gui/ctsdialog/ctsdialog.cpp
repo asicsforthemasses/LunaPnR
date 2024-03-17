@@ -92,7 +92,7 @@ void CTSDialog::accept()
     }
     catch(std::invalid_argument &e)
     {
-        Logging::doLog(Logging::LogType::ERROR, "Invalid CTS max cap value");
+        Logging::logError("Invalid CTS max cap value");
         QDialog::reject();
     }
 

@@ -33,7 +33,7 @@ public:
 
         for (const auto & entry : std::filesystem::directory_iterator(path))
         {
-            Logging::doLog(Logging::LogType::INFO, "  %s\n", entry.path().string().c_str());
+            Logging::logInfo("  %s\n", entry.path().string().c_str());
         }
 
         return true;
@@ -83,7 +83,7 @@ public:
         std::filesystem::path path = ".";
         if (m_params.empty())
         {
-            Logging::doLog(Logging::LogType::ERROR, "Missing directory parameter\n");
+            Logging::logError("Missing directory parameter\n");
             return false;
         }
 
@@ -93,7 +93,7 @@ public:
         }
         catch(const std::exception& e)
         {
-            Logging::doLog(Logging::LogType::ERROR, "%s\n", e.what());
+            Logging::logError("%s\n", e.what());
         }
 
         return true;
@@ -141,7 +141,7 @@ public:
     [[nodiscard]] bool execute(Database &database) override
     {
         auto path = std::filesystem::current_path();
-        Logging::doLog(Logging::LogType::ERROR, "%s\n", path.string().c_str());
+        Logging::logError("%s\n", path.string().c_str());
         return true;
     }
 

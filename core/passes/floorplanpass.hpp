@@ -71,13 +71,13 @@ public:
                 auto ioMarginsOpt = findIOMarginsBasedOnCornerCells();
                 if (!ioMarginsOpt)
                 {
-                    Logging::doLog(Logging::LogType::WARNING, "Cannot find any IO corner cells to set the padring margins.\n");
+                    Logging::logWarning("Cannot find any IO corner cells to set the padring margins.\n");
                 }
             }
         }
         catch(const std::exception& e)
         {
-            Logging::doLog(Logging::LogType::ERROR, "Cannot parse one of the parameter numbers.\n");
+            Logging::logError("Cannot parse one of the parameter numbers.\n");
             return false;
         }
 

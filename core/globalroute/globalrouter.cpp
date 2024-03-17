@@ -24,14 +24,14 @@ std::optional<GlobalRouter::TrackInfo> GlobalRouter::Router::calcNumberOfTracks(
 {
     if (design.m_techLib->getNumberOfSites() == 0)
     {
-        Logging::doLog(Logging::LogType::ERROR, "determineGridCellSize: no sites defined in tech lib\n");
+        Logging::logError("determineGridCellSize: no sites defined in tech lib\n");
         return std::nullopt;
     }
 
     auto site = design.m_techLib->lookupSiteInfo(siteName);
     if (!site.isValid())
     {
-        Logging::doLog(Logging::LogType::ERROR,"determineGridCellSize: site %s not found\n", siteName.c_str());
+        Logging::logError("determineGridCellSize: site %s not found\n", siteName.c_str());
         return std::nullopt;
     }
 
@@ -69,14 +69,14 @@ std::optional<ChipDB::Size64> GlobalRouter::Router::determineGridCellSize(const 
 {
     if (design.m_techLib->getNumberOfSites() == 0)
     {
-        Logging::doLog(Logging::LogType::ERROR, "determineGridCellSize: no sites defined in tech lib\n");
+        Logging::logError("determineGridCellSize: no sites defined in tech lib\n");
         return std::nullopt;
     }
 
     auto site = design.m_techLib->lookupSiteInfo(siteName);
     if (!site.isValid())
     {
-        Logging::doLog(Logging::LogType::ERROR,"determineGridCellSize: site %s not found\n", siteName.c_str());
+        Logging::logError("determineGridCellSize: site %s not found\n", siteName.c_str());
         return std::nullopt;
     }
 
@@ -84,14 +84,14 @@ std::optional<ChipDB::Size64> GlobalRouter::Router::determineGridCellSize(const 
 
     if ((minStdCellSize.m_x == 0) || (minStdCellSize.m_y == 0))
     {
-        Logging::doLog(Logging::LogType::ERROR,"determineGridCellSize: minimum standard cell size is ill-defined: %ld, %ld\n",
+        Logging::logError("determineGridCellSize: minimum standard cell size is ill-defined: %ld, %ld\n",
             minStdCellSize.m_x, minStdCellSize.m_y);
         return std::nullopt;
     }
 
     auto const& layers = design.m_techLib->layers();
 
-    Logging::doLog(Logging::LogType::VERBOSE, "determineGridCellSize: minimum standard cell size is: %ld, %ld\n",
+    Logging::logVerbose("determineGridCellSize: minimum standard cell size is: %ld, %ld\n",
         minStdCellSize.m_x, minStdCellSize.m_y);
 
     float hRoutesInMinCell = 0.0;  // number of horizontal routes per min std cell size
@@ -116,26 +116,26 @@ std::optional<ChipDB::Size64> GlobalRouter::Router::determineGridCellSize(const 
 
     if ((hRoutesInMinCell <= 0.0) || (vRoutesInMinCell <= 0.0))
     {
-        Logging::doLog(Logging::LogType::ERROR, "determineGridCellSize: routes per minimum standard cell: h=%f v=%f are ill-defined.\n",
+        Logging::logError("determineGridCellSize: routes per minimum standard cell: h=%f v=%f are ill-defined.\n",
             hRoutesInMinCell, vRoutesInMinCell);
         return std::nullopt;
     }
     else
     {
-        Logging::doLog(Logging::LogType::VERBOSE, "determineGridCellSize: routes per minimum standard cell: h=%f v=%f\n",
+        Logging::logVerbose("determineGridCellSize: routes per minimum standard cell: h=%f v=%f\n",
             hRoutesInMinCell, vRoutesInMinCell);
     }
 
     int heightUnits = static_cast<int>(std::ceil(static_cast<float>(hRoutes / hRoutesInMinCell)));
     int widthUnits  = static_cast<int>(std::ceil(static_cast<float>(vRoutes / vRoutesInMinCell)));
 
-    Logging::doLog(Logging::LogType::VERBOSE,"determineGridCellSize: routing grid in std cell units w=%d, h=%d\n",
+    Logging::logVerbose("determineGridCellSize: routing grid in std cell units w=%d, h=%d\n",
         widthUnits, heightUnits);
 
     ChipDB::CoordType w = widthUnits * minStdCellSize.m_x;
     ChipDB::CoordType h = heightUnits * minStdCellSize.m_y;
 
-    Logging::doLog(Logging::LogType::INFO,"Routing grid cell size: w=%d nm  h=%d nm\n",
+    Logging::logInfo("Routing grid cell size: w=%d nm  h=%d nm\n",
         w, h);
 
     return ChipDB::Size64{w,h};
@@ -145,7 +145,7 @@ std::optional<LunaCore::GlobalRouter::SegmentList> GlobalRouter::Router::routeTw
 {
     if (!m_grid)
     {
-        Logging::doLog(Logging::LogType::DEBUG, "GlobalRouter::Router::routeSegment m_grid == nullptr\n");
+        Logging::logDebug("GlobalRouter::Router::routeSegment m_grid == nullptr\n");
         return std::nullopt;
     }
 
@@ -155,14 +155,14 @@ std::optional<LunaCore::GlobalRouter::SegmentList> GlobalRouter::Router::routeTw
 
     if (!m_grid->isValidGridCoord(sourceLoc))
     {
-        Logging::doLog(Logging::LogType::VERBOSE, "GlobalRouter::Router::routeSegment loc1 (%lu,%lu) is invalid\n",
+        Logging::logVerbose("GlobalRouter::Router::routeSegment loc1 (%lu,%lu) is invalid\n",
             sourceLoc.m_x, sourceLoc.m_y);
         return std::nullopt;
     }
 
     if (!m_grid->isValidGridCoord(targetLoc))
     {
-        Logging::doLog(Logging::LogType::VERBOSE, "GlobalRouter::Router::routeSegment loc2 (%lu,%lu) is invalid\n",
+        Logging::logVerbose("GlobalRouter::Router::routeSegment loc2 (%lu,%lu) is invalid\n",
             targetLoc.m_x, targetLoc.m_y);
         return std::nullopt;
     }
@@ -198,7 +198,7 @@ std::optional<LunaCore::GlobalRouter::SegmentList> GlobalRouter::Router::routeTw
         if (wavefront.empty())
         {
             // no path found!
-            Logging::doLog(Logging::LogType::VERBOSE, "  maze: path not found\n");
+            Logging::logVerbose("  maze: path not found\n");
             return std::nullopt;
         }
 
@@ -260,7 +260,7 @@ std::optional<LunaCore::GlobalRouter::SegmentList> GlobalRouter::Router::routeTw
                 // exit at the end of the track when we get to the source
                 if (backtrackPos == sourceLoc)
                 {
-                    Logging::doLog(Logging::LogType::VERBOSE, "  maze evaluations: %lu\n", evaluations);
+                    Logging::logVerbose("  maze evaluations: %lu\n", evaluations);
                     return std::move(segments);
                 }
 
@@ -427,7 +427,7 @@ std::optional<LunaCore::GlobalRouter::SegmentList> GlobalRouter::Router::routeNe
 {
     if (!m_grid)
     {
-        Logging::doLog(Logging::LogType::ERROR, "GlobalRouter::Router::routeNet grid is nullptr - createGrid wasn't called.\n");
+        Logging::logError("GlobalRouter::Router::routeNet grid is nullptr - createGrid wasn't called.\n");
         return std::nullopt;
     }
 
@@ -435,7 +435,7 @@ std::optional<LunaCore::GlobalRouter::SegmentList> GlobalRouter::Router::routeNe
 
     if (tree.size() != netNodes.size())
     {
-        Logging::doLog(Logging::LogType::ERROR, "GlobalRouter::Prim didn't return enough nodes (expected %lu but got %lu).\n", netNodes.size(), tree.size());
+        Logging::logError("GlobalRouter::Prim didn't return enough nodes (expected %lu but got %lu).\n", netNodes.size(), tree.size());
         return std::nullopt;
     }
 
@@ -452,7 +452,7 @@ std::optional<LunaCore::GlobalRouter::SegmentList> GlobalRouter::Router::routeNe
 
             if (!segments)
             {
-                Logging::doLog(Logging::LogType::ERROR,"GlobalRouter::Router::routeNet could not complete route %s (%lu nodes)\n",
+                Logging::logError("GlobalRouter::Router::routeNet could not complete route %s (%lu nodes)\n",
                     netName.c_str(), netNodes.size());
                 return std::nullopt;
             }
@@ -489,7 +489,7 @@ void GlobalRouter::Router::updateCapacity(const SegmentList &segments) const
 {
     if (!m_grid)
     {
-        Logging::doLog(Logging::LogType::ERROR, "GlobalRouter::Router::updateCapacity grid is nullptr - createGrid wasn't called.\n");
+        Logging::logError("GlobalRouter::Router::updateCapacity grid is nullptr - createGrid wasn't called.\n");
     }
 
     for(auto seg : segments)
@@ -507,7 +507,7 @@ void GlobalRouter::Router::updateCapacity(const SegmentList &segments) const
                 std::stringstream ss;
                 ss << "GlobalRouter::Router::updateCapacity point " << gridCoord << " is not within the grid!";
                 ss << "  segment start: " << seg->m_start << " len: " << seg->m_length << "\n";
-                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                Logging::logError(ss.str());
                 return;
             }
 
@@ -536,7 +536,7 @@ void GlobalRouter::Router::updateCapacity(const SegmentList &segments) const
                 gridCoord = south(gridCoord);
                 break;
             default:
-                Logging::doLog(Logging::LogType::ERROR, "GlobalRouter::Router::updateCapacity segment has no direction!\n");
+                Logging::logError("GlobalRouter::Router::updateCapacity segment has no direction!\n");
                 return;
             }
         }

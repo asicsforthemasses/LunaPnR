@@ -132,7 +132,7 @@ bool FMPart::init(FMContainer &container)
 
         if (node.m_instance == nullptr)
         {
-            Logging::doLog(Logging::LogType::WARNING, "FMPart::init encountered nullptr instance (ID=%d) in node list\n", node.m_self);
+            Logging::logWarning("FMPart::init encountered nullptr instance (ID=%d) in node list\n", node.m_self);
             return false;
         }
 
@@ -146,12 +146,12 @@ bool FMPart::init(FMContainer &container)
             auto distanceToPartition1 = distanceToPartition(container.m_partitions[1], insPtr->m_pos);
             if (distanceToPartition0 < distanceToPartition1)
             {
-                Logging::doLog(Logging::LogType::VERBOSE, "  Add pin %s (%lld, %lld) to partition %d\n", insPtr->name().c_str(), insPtr->m_pos.m_x, insPtr->m_pos.m_y, 0);
+                Logging::logVerbose("  Add pin %s (%lld, %lld) to partition %d\n", insPtr->name().c_str(), insPtr->m_pos.m_x, insPtr->m_pos.m_y, 0);
                 node.m_partitionId = 0;
             }
             else
             {
-                Logging::doLog(Logging::LogType::VERBOSE, "  Add pin %s (%lld, %lld) to partition %d\n", insPtr->name().c_str(), insPtr->m_pos.m_x, insPtr->m_pos.m_y, 1);
+                Logging::logVerbose("  Add pin %s (%lld, %lld) to partition %d\n", insPtr->name().c_str(), insPtr->m_pos.m_x, insPtr->m_pos.m_y, 1);
                 node.m_partitionId = 1;
             }
             node.fix();
@@ -388,7 +388,7 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId, FMContainer &container)
             // check: count should be 1 or 0
             if (count > 1)
             {
-                Logging::doLog(Logging::LogType::ERROR,"FMPart::moveNodeAndUpdateNeightbours internal error: count != 1\n");
+                Logging::logError("FMPart::moveNodeAndUpdateNeightbours internal error: count != 1\n");
             }
         }
 
@@ -434,7 +434,7 @@ void FMPart::moveNodeAndUpdateNeighbours(NodeId nodeId, FMContainer &container)
             // check: count should be 1 or 0
             if (count > 1)
             {
-                Logging::doLog(Logging::LogType::ERROR,"FMPart::moveNodeAndUpdateNeightbours internal error: count != 1\n");
+                Logging::logError("FMPart::moveNodeAndUpdateNeightbours internal error: count != 1\n");
             }
         }
     }
@@ -471,7 +471,7 @@ void FMPart::exportToDot(std::ostream &dotFile, FMContainer &container)
             auto const& pin = node.m_instance->getPin(0);
             if (!pin.isValid())
             {
-                Logging::doLog(Logging::LogType::ERROR, "FMPart:: cannot find pinInfo\n");
+                Logging::logError("FMPart:: cannot find pinInfo\n");
                 continue;
             }
 
@@ -662,11 +662,11 @@ bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
 
     if (!init(container))
     {
-        Logging::doLog(Logging::LogType::ERROR,"FMPart::init failed\n");
+        Logging::logError("FMPart::init failed\n");
         return false;
     }
 
-    Logging::doLog(Logging::LogType::VERBOSE, "  Pre-partitioning cost: %lld\n", calculateNetCutCost(container));
+    Logging::logVerbose("  Pre-partitioning cost: %lld\n", calculateNetCutCost(container));
 
     int64_t minCost = std::numeric_limits<int64_t>::max();
     size_t  cyclesSinceMinCostSeen = 0;
@@ -676,7 +676,7 @@ bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
         auto cost = cycle(container);
         cycleCount++;
 
-        Logging::doLog(Logging::LogType::VERBOSE,"  Cost of cycle %d = %lld\n", cycleCount, cost);
+        Logging::logVerbose("  Cost of cycle %d = %lld\n", cycleCount, cost);
         if (cost < minCost)
         {
             cyclesSinceMinCostSeen = 0;
@@ -685,7 +685,7 @@ bool FMPart::doPartitioning(ChipDB::Netlist *nl, FMContainer &container)
         }
         cyclesSinceMinCostSeen++;
     }
-    Logging::doLog(Logging::LogType::VERBOSE, "  Post-partitioning cost: %lld\n",minCost);
+    Logging::logVerbose("  Post-partitioning cost: %lld\n",minCost);
 
     return true;
 }

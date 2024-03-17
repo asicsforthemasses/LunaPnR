@@ -18,7 +18,7 @@ ReaderImpl::ReaderImpl(Design &design)
 
 void ReaderImpl::onDesign(const std::string &designName)
 {
-    Logging::doLog(Logging::LogType::INFO, "DEFReader: design %s\n", designName.c_str());
+    Logging::logInfo("DEFReader: design %s\n", designName.c_str());
 
     auto modKeyPtr = m_design.m_moduleLib->lookupModule(designName);
     if (!modKeyPtr.isValid())
@@ -35,13 +35,13 @@ void ReaderImpl::onDesign(const std::string &designName)
 
 void ReaderImpl::onEndDesign(const std::string &designName)
 {
-    Logging::doLog(Logging::LogType::VERBOSE, "DEFReader: end design %s\n", designName.c_str());
+    Logging::logVerbose("DEFReader: end design %s\n", designName.c_str());
     m_module.reset();
 }
 
 void ReaderImpl::onComponent(const std::string &insName, const std::string &archetype)
 {
-    Logging::doLog(Logging::LogType::VERBOSE, "DEFReader: ins %s archetype %s\n", insName.c_str(), archetype.c_str());
+    Logging::logVerbose("DEFReader: ins %s archetype %s\n", insName.c_str(), archetype.c_str());
 
     if (!m_module) return;
 
@@ -74,5 +74,5 @@ void ReaderImpl::onComponentPlacement(const ChipDB::Coord64 &pos,
 
 void ReaderImpl::onEndParse()
 {
-    Logging::doLog(Logging::LogType::VERBOSE, "DEFReader: done\n");
+    Logging::logVerbose("DEFReader: done\n");
 }

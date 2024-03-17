@@ -36,7 +36,7 @@ public:
             {
                 std::stringstream ss;
                 ss << "read -verilog requires exactly two parameters\n";
-                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                Logging::logError(ss.str());
                 return false;
             }
 
@@ -48,7 +48,7 @@ public:
             {
                 std::stringstream ss;
                 ss << "cannot find module '"<< moduleName << "'\n";
-                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                Logging::logError(ss.str());
                 return false;
             }
 
@@ -56,7 +56,7 @@ public:
             {
                 std::stringstream ss;
                 ss << "'"<< fname << "' is a directory\n";
-                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                Logging::logError(ss.str());
                 return false;
             }
 
@@ -65,7 +65,7 @@ public:
             {
                 std::stringstream ss;
                 ss << "Cannot open file '"<< fname << "'\n";
-                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                Logging::logError(ss.str());
                 return false;
             }
 
@@ -73,14 +73,14 @@ public:
             {
                 std::stringstream ss;
                 ss << "Failed to load '"<< fname << "'\n";
-                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                Logging::logError(ss.str());
                 return false;
             }
             else
             {
                 std::stringstream ss;
                 ss << "Module '" << modKp->name() << " has been exported to " << fname << "'\n";
-                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                Logging::logInfo(ss.str());
                 return true;
             }
         }
@@ -91,7 +91,7 @@ public:
             {
                 std::stringstream ss;
                 ss << "read -txt requires exactly two parameters\n";
-                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                Logging::logError(ss.str());
                 return false;
             }
 
@@ -103,7 +103,7 @@ public:
             {
                 std::stringstream ss;
                 ss << "cannot find module '"<< moduleName << "'\n";
-                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                Logging::logError(ss.str());
                 return false;
             }
 
@@ -111,7 +111,7 @@ public:
             {
                 std::stringstream ss;
                 ss << "'"<< fname << "' is a directory\n";
-                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                Logging::logError(ss.str());
                 return false;
             }
 
@@ -120,7 +120,7 @@ public:
             {
                 std::stringstream ss;
                 ss << "Cannot open file '"<< fname << "'\n";
-                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                Logging::logError(ss.str());
                 return false;
             }
 
@@ -128,20 +128,20 @@ public:
             {
                 std::stringstream ss;
                 ss << "Failed to load '"<< fname << "'\n";
-                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                Logging::logError(ss.str());
                 return false;
             }
             else
             {
                 std::stringstream ss;
                 ss << "Module '" << modKp->name() << " has been exported to " << fname << "'\n";
-                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                Logging::logInfo(ss.str());
                 return true;
             }
         }
         else
         {
-            doLog(Logging::LogType::ERROR, "Missing file type, use -verilog, -def or -txt\n");
+            Logging::logError("Missing file type, use -verilog, -def or -txt\n");
             return false;
         }
 

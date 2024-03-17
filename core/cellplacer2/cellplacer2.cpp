@@ -82,7 +82,7 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
 
             if (netId == ChipDB::ObjectNotFound)
             {
-                doLog(Logging::LogType::WARNING, Logging::fmt("Net left unconnected on instance %s\n", srcGate.name().c_str()));
+                Logging::logWarning("Net left unconnected on instance %s\n", srcGate.name().c_str());
                 continue;
             }
 
@@ -90,7 +90,7 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
 
             if (net.numberOfConnections() <= 1)
             {
-                doLog(Logging::LogType::WARNING, Logging::fmt("Net %s has 1 or fewer connections!\n", net.name().c_str()));
+                Logging::logWarning("Net %s has 1 or fewer connections!\n", net.name().c_str());
                 continue;
             }
 
@@ -294,13 +294,13 @@ bool Placer::place(ChipDB::Netlist &netlist,
     // sanity checks
     if (floorplan.minimumCellSize().isNullSize())
     {
-        Logging::doLog(Logging::LogType::ERROR,"Placer: minimum cell size has not been defined for the core area!\n");
+        Logging::logError("Placer: minimum cell size has not been defined for the core area!\n");
         return false;
     }
 
     if (floorplan.rows().size() == 0)
     {
-        Logging::doLog(Logging::LogType::ERROR,"Placer: no row have been defined in the floorplan!\n");
+        Logging::logError("Placer: no row have been defined in the floorplan!\n");
         return false;
     }
 
@@ -312,8 +312,7 @@ bool Placer::place(ChipDB::Netlist &netlist,
         static_cast<double>(regionSize.m_y)*nm2um;
 
     auto utilization = static_cast<float>(totalCellArea / regionArea);
-    Logging::doLog(Logging::LogType::INFO, "Core utilization is %f percent\n",
-        utilization*100.0f);
+    Logging::logInfo("Core utilization is %f percent\n", utilization*100.0f);
 
     m_maxLevels = maxLevels;
     m_minInstancesInRegion = minInstances;
@@ -343,14 +342,14 @@ bool Placer::place(ChipDB::Netlist &netlist,
         if (!netlist.m_instances.at(gateId)->isFixed())
         {
             auto newLocation = gateCenterPos.toCoord64();
-            Logging::doLog(Logging::LogType::VERBOSE, "Ins %s -> pos %d,%d\n", netlist.m_instances.at(gateId)->name().c_str(),
+            Logging::logVerbose("Ins %s -> pos %d,%d\n", netlist.m_instances.at(gateId)->name().c_str(),
                 newLocation.m_x, newLocation.m_y);
             netlist.m_instances.at(gateId)->setCenter(newLocation);
             netlist.m_instances.at(gateId)->m_placementInfo = ChipDB::PlacementInfo::PLACED;
         }
     }
 
-    Logging::doLog(Logging::LogType::INFO, "Running row legalizer\n");
+    Logging::logInfo("Running row legalizer\n");
 
     // legalise the cells
     LunaCore::Legalizer cellLegalizer;
@@ -360,9 +359,9 @@ bool Placer::place(ChipDB::Netlist &netlist,
     }
 
     auto hpwl = LunaCore::NetlistTools::calcHPWL(netlist);
-    Logging::doLog(Logging::LogType::INFO, "HPWL = %f *1e6 nm\n", hpwl / 1.0e6);
+    Logging::logInfo("HPWL = %f *1e6 nm\n", hpwl / 1.0e6);
 
-    Logging::doLog(Logging::LogType::INFO, "Placement done\n");
+    Logging::logInfo("Placement done\n");
     //TODO: end-case placement
 
     return true;
@@ -422,12 +421,12 @@ void Placer::cycle(ChipDB::Netlist &netlist, std::deque<std::unique_ptr<Placemen
 
             if (cutDir == Direction::HORIZONTAL)
             {
-                Logging::doLog(Logging::LogType::INFO, "  cut position at x=%f\n", cutPos.m_x);
+                Logging::logInfo("  cut position at x=%f\n", cutPos.m_x);
                 cutPosition = cutPos.m_x;
             }
             else
             {
-                Logging::doLog(Logging::LogType::INFO, "  cut position at y=%f\n", cutPos.m_y);
+                Logging::logInfo("  cut position at y=%f\n", cutPos.m_y);
                 cutPosition = cutPos.m_y;
             }
 

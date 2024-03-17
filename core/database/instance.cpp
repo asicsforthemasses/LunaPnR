@@ -106,7 +106,7 @@ bool Instance::setPinNet(PinObjectKey pinKey, NetObjectKey netKey)
 {
     if (!m_cell)
     {
-        Logging::doLog(Logging::LogType::WARNING, "Instance::setPinNet failed for pin id %d and net id %d\n", pinKey, netKey);
+        Logging::logWarning("Instance::setPinNet failed for pin id %d and net id %d\n", pinKey, netKey);
         return false;
     }
 

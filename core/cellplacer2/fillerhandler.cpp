@@ -26,18 +26,17 @@ void FillerHandler::identifyFillers(const ChipDB::CellLib &cellLib)
     sortFillers();
 
     // report fillers
-    Logging::doLog(Logging::LogType::VERBOSE, "FillerHandler identified the following filler cells:\n");
+    Logging::logVerbose("FillerHandler identified the following filler cells:\n");
     for(auto const& filler : m_fillers)
     {
-        Logging::doLog(Logging::LogType::VERBOSE,
-            "Filler %s width %d nm\n", filler.m_name.c_str(), filler.m_size.m_x);
+        Logging::logVerbose("Filler %s width %d nm\n", filler.m_name.c_str(), filler.m_size.m_x);
     }
 }
 
 void FillerHandler::sortFillers()
 {
     // sort fillers in width, largest first
-    std::sort(m_fillers.begin(), m_fillers.end(), 
+    std::sort(m_fillers.begin(), m_fillers.end(),
         [this](const FillerInfo &filler1, const FillerInfo &filler2)
         {
             return filler1.m_size.m_x > filler2.m_size.m_x;
@@ -51,7 +50,7 @@ bool FillerHandler::addFillerByName(const ChipDB::CellLib &cellLib, const std::s
     if (isFillerAlreadyInList(fillerName))
     {
         return true;
-    }    
+    }
 
     auto cellPtr = cellLib.lookupCell(fillerName);
 
@@ -69,7 +68,7 @@ bool FillerHandler::addFillerByName(const ChipDB::CellLib &cellLib, const std::s
 
 bool FillerHandler::isFillerAlreadyInList(const std::string &name) const
 {
-    auto iter = std::find_if(m_fillers.begin(), m_fillers.end(), 
+    auto iter = std::find_if(m_fillers.begin(), m_fillers.end(),
         [&name](const auto &fillerInfo)
         {
             return fillerInfo.m_name == name;
@@ -83,7 +82,7 @@ bool FillerHandler::placeFillers(ChipDB::Design &design, const ChipDB::Region &r
 {
     if (m_fillers.size() == 0)
     {
-        Logging::doLog(Logging::LogType::ERROR, "FillerHandler has no filler cells!\n");
+        Logging::logError("FillerHandler has no filler cells!\n");
         return false;
     }
 
@@ -109,7 +108,7 @@ bool FillerHandler::placeFillers(ChipDB::Design &design, const ChipDB::Region &r
         }
 
         // sort cells in x direction
-        std::sort(cellsInRow.begin(), cellsInRow.end(), 
+        std::sort(cellsInRow.begin(), cellsInRow.end(),
             [&cellsInRow, &netlist](auto cellKey1, auto cellKey2)
             {
                 const auto& ins1 = netlist.m_instances.at(cellKey1);
@@ -119,13 +118,13 @@ bool FillerHandler::placeFillers(ChipDB::Design &design, const ChipDB::Region &r
         );
 
         bool debug = true;
-        if (debug) Logging::doLog(Logging::LogType::INFO, "  Row: \n");
+        if (debug) Logging::logInfo("  Row: \n");
 
         ChipDB::CoordType leftPos = row.m_rect.m_ll.m_x;
         for(auto cellKey : cellsInRow)
         {
             const auto& ins = netlist.m_instances.at(cellKey);
-            if (debug) Logging::doLog(Logging::LogType::INFO, "    ins: %s at %d,%d\n", ins->name().c_str(), ins->m_pos.m_x, ins->m_pos.m_y);
+            if (debug) Logging::logInfo("    ins: %s at %d,%d\n", ins->name().c_str(), ins->m_pos.m_x, ins->m_pos.m_y);
             if (ins->m_pos.m_x > leftPos)
             {
                 ChipDB::Coord64 lowerLeftPos{leftPos, row.m_rect.m_ll.m_y};
@@ -140,7 +139,7 @@ bool FillerHandler::placeFillers(ChipDB::Design &design, const ChipDB::Region &r
             else
             {
                 leftPos += ins->instanceSize().m_x;
-            }            
+            }
         }
 
         // see if there is space left at the end of the row
@@ -152,16 +151,16 @@ bool FillerHandler::placeFillers(ChipDB::Design &design, const ChipDB::Region &r
             if (!fillSpaceWithFillers(design, netlist, lowerLeftPos, gapWidth))
             {
                 return false;
-            }            
+            }
         }
     }
 
     return true;
 }
 
-bool FillerHandler::fillSpaceWithFillers(const ChipDB::Design &design, 
-    ChipDB::Netlist &netlist, 
-    const ChipDB::Coord64 &lowerLeftPos, 
+bool FillerHandler::fillSpaceWithFillers(const ChipDB::Design &design,
+    ChipDB::Netlist &netlist,
+    const ChipDB::Coord64 &lowerLeftPos,
     const ChipDB::CoordType width)
 {
     auto currentPos = lowerLeftPos;
@@ -185,7 +184,7 @@ bool FillerHandler::fillSpaceWithFillers(const ChipDB::Design &design,
             std::stringstream ss;
             ss << "_filler_" << m_fillerID++;
 
-            auto fillerInstance = std::make_shared<ChipDB::Instance>(ss.str(), 
+            auto fillerInstance = std::make_shared<ChipDB::Instance>(ss.str(),
                 ChipDB::InstanceType::CELL,
                 cellPtr);
 
@@ -200,7 +199,7 @@ bool FillerHandler::fillSpaceWithFillers(const ChipDB::Design &design,
         else
         {
             // no fillers to plug this remaining size :-/
-            Logging::doLog(Logging::LogType::WARNING,"FillerHandler cannot find a filler to fill width %d\n", spaceRemaining);
+            Logging::logWarning("FillerHandler cannot find a filler to fill width %d\n", spaceRemaining);
             return true;
         }
     }

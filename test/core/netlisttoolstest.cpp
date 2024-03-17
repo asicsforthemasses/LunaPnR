@@ -41,7 +41,7 @@ BOOST_AUTO_TEST_CASE(check_histogram)
 
     for(auto pair : histogram)
     {
-        Logging::doLog(Logging::LogType::VERBOSE, "  size %d -> %d occurences\n", pair.first, pair.second);
+        Logging::logVerbose("  size %d -> %d occurences\n", pair.first, pair.second);
     }
 
     BOOST_CHECK(histogram[2] == 17);
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(check_histogram_2)
 
     for(auto pair : histogram)
     {
-        Logging::doLog(Logging::LogType::VERBOSE, "  size %d -> %d occurences\n", pair.first, pair.second);
+        Logging::logVerbose("  size %d -> %d occurences\n", pair.first, pair.second);
     }
 
     BOOST_CHECK(histogram[2] == 5843);
@@ -94,12 +94,12 @@ BOOST_AUTO_TEST_CASE(check_histogram_2)
     {
         if (net->numberOfConnections() == 1)
         {
-            Logging::doLog(Logging::LogType::INFO, "  Degenerate net: %s\n", net->name().c_str());
+            Logging::logInfo("  Degenerate net: %s\n", net->name().c_str());
             degenerateCount++;
         }
         if (degenerateCount == 10)
         {
-            Logging::doLog(Logging::LogType::INFO, "  skipping other nets..\n");
+            Logging::logInfo("  skipping other nets..\n");
             break;
         }
     }

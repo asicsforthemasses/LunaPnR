@@ -33,7 +33,7 @@ public:
             {
                 std::stringstream ss;
                 ss << "Cannot load " << scriptFilename << "\n";
-                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                Logging::logError(ss.str());
                 return false;
             }
 
@@ -42,13 +42,13 @@ public:
             {
                 std::stringstream ss;
                 ss << "Cannot load " << scriptFilename << "\n";
-                Logging::doLog(Logging::LogType::ERROR, ss.str());
+                Logging::logError(ss.str());
                 return false;
             }
 
             std::stringstream ss;
             ss << "Running script " << scriptFilename << "\n";
-            Logging::doLog(Logging::LogType::INFO, ss.str());
+            Logging::logInfo(ss.str());
 
             std::string line;
             while(std::getline(infile, line))
@@ -65,14 +65,14 @@ public:
                 if (!Passes::run(database, line))
                 {
                     ss << "Script " << scriptFilename << " error\n";
-                    Logging::doLog(Logging::LogType::INFO, ss.str());
+                    Logging::logInfo(ss.str());
                     return false;
                 }
             }
 
             ss.str("");
             ss << "Script " << scriptFilename << " done\n";
-            Logging::doLog(Logging::LogType::INFO, ss.str());
+            Logging::logInfo(ss.str());
         }
 
         return true;

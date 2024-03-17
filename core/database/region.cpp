@@ -59,7 +59,7 @@ std::shared_ptr<ChipDB::Region> ChipDB::createRegion(
     auto rowWidth  = minCellSize.m_x*static_cast<int64_t>(std::floor(regionPlacementSize.m_x / minCellSize.m_x));
     auto rowHeight = minCellSize.m_y;
 
-    Logging::doLog(Logging::LogType::VERBOSE, "createRegion: %ld x %ld - #rows %ld\n", region->m_rect.width(), region->m_rect.height(),
+    Logging::logVerbose("createRegion: %ld x %ld - #rows %ld\n", region->m_rect.width(), region->m_rect.height(),
         rowCount);
 
     // create rows inside region

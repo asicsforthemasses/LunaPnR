@@ -147,7 +147,7 @@ bool LayerRenderInfoDB::readJson(const std::string &txt)
     auto doc = QJsonDocument::fromJson(QByteArray(txt.c_str(), txt.size()));
     if (doc.isNull())
     {
-        Logging::doLog(Logging::LogType::ERROR, "Cannot load JSON layer setup file - JSON does not appear to be valid\n");
+        Logging::logError("Cannot load JSON layer setup file - JSON does not appear to be valid\n");
         return false;
     }
 
@@ -166,18 +166,18 @@ bool LayerRenderInfoDB::readJson(const std::string &txt)
             auto layerOpt = add(layerObj);
             if (!layerOpt.has_value())
             {
-                Logging::doLog(Logging::LogType::ERROR, "Cannot add layer %s to database - already exists!\n", layerObj->name().c_str());
+                Logging::logError("Cannot add layer %s to database - already exists!\n", layerObj->name().c_str());
             }
         }
     }
     else
     {
-        Logging::doLog(Logging::LogType::ERROR, "Cannot load JSON layer setup file - JSON does not contain a layers array\n");
+        Logging::logError("Cannot load JSON layer setup file - JSON does not contain a layers array\n");
         return false;
     }
 
     notifyAll();
-    Logging::doLog(Logging::LogType::VERBOSE,"Loaded %d layers from JSON file\n", m_objects.size());
+    Logging::logVerbose("Loaded %d layers from JSON file\n", m_objects.size());
     return true;
 }
 
@@ -214,7 +214,7 @@ ChipDB::KeyObjPair<GUI::LayerRenderInfo> LayerRenderInfoDB::createLayer(const st
         else
         {
             // internal error?
-            Logging::doLog(Logging::LogType::ERROR,"LayerRenderInfoDB::createLayer internal error\n");
+            Logging::logError("LayerRenderInfoDB::createLayer internal error\n");
             return ChipDB::KeyObjPair<GUI::LayerRenderInfo>();
         }
     }

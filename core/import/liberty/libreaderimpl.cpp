@@ -37,7 +37,7 @@ void ReaderImpl::parseLeakagePowerUnit(const std::string &value)
         }
     }
 
-    Logging::doLog(Logging::LogType::WARNING, "Power leakage unit %s in Liberty file is malformed.\n", value.c_str());
+    Logging::logWarning("Power leakage unit %s in Liberty file is malformed.\n", value.c_str());
 }
 
 void ReaderImpl::parseCapacitanceUnit(const std::string &value, const std::string &unit)
@@ -52,7 +52,7 @@ void ReaderImpl::parseCapacitanceUnit(const std::string &value, const std::strin
     }
     else
     {
-        Logging::doLog(Logging::LogType::WARNING, "Capacitance unit %s in Liberty file is malformed.\n", unit.c_str());
+        Logging::logWarning("Capacitance unit %s in Liberty file is malformed.\n", unit.c_str());
         m_capacitanceUnit = 1e-12;
     }
 }
@@ -101,7 +101,7 @@ void ReaderImpl::onGroup(const std::string &group, const std::string &name)
         }
         else
         {
-            Logging::doLog(Logging::LogType::ERROR, "DBLibertyReader: cell ptr should exist but doesn't.");
+            Logging::logError("DBLibertyReader: cell ptr should exist but doesn't.");
         }
 
         m_groupStack.push(GT_PIN);
@@ -126,7 +126,7 @@ void ReaderImpl::onSimpleAttribute(const std::string &name, const std::string &v
     {
         if (!m_curPin)
         {
-            Logging::doLog(Logging::LogType::ERROR, "onSimpleAttribute pin = nullptr\n");
+            Logging::logError("onSimpleAttribute pin = nullptr\n");
             return;
         }
 
@@ -187,7 +187,7 @@ void ReaderImpl::onSimpleAttribute(const std::string &name, const std::string &v
     {
         if (m_curCell == nullptr)
         {
-            Logging::doLog(Logging::LogType::ERROR, "onSimpleAttribute cell = nullptr\n");
+            Logging::logError("onSimpleAttribute cell = nullptr\n");
             return;
         }
 

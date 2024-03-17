@@ -224,7 +224,7 @@ bool Lexer::execute(const std::string &src, std::vector<token> &tokens)
                 }
                 break;
             default:
-                Logging::doLog(Logging::LogType::ERROR,"Skipping %c (%d) on line %d\n", c,
+                Logging::logError("Skipping %c (%d) on line %d\n", c,
                     static_cast<uint32_t>(c), m_line);
                 advance();
                 break;
@@ -341,7 +341,7 @@ bool Lexer::execute(const std::string &src, std::vector<token> &tokens)
                 }
                 else
                 {
-                    Logging::doLog(Logging::LogType::ERROR, "Expected 'd' or 'h' or 'b' after bit width specification.\n");
+                    Logging::logError("Expected 'd' or 'h' or 'b' after bit width specification.\n");
                     return false;
                 }
             }
@@ -423,12 +423,12 @@ bool Lexer::execute(const std::string &src, std::vector<token> &tokens)
         }
         else
         {
-            Logging::doLog(Logging::LogType::ERROR,"Error: incorrect state\n");
+            Logging::logError("Error: incorrect state\n");
             return false;
         }
     }
 
-    Logging::doLog(Logging::LogType::VERBOSE, "Lexer processed %d lines\n", m_line);
+    Logging::logVerbose("Lexer processed %d lines\n", m_line);
 
     return true;
 }

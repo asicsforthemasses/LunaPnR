@@ -41,20 +41,20 @@ std::optional<LunaCore::PPM::Bitmap>
     std::smatch matches;
     if (!std::regex_search(headerString, matches, re_Header))
     {
-        Logging::doLog(Logging::LogType::ERROR,"PPM::read could not find a valid header\n");
+        Logging::logError("PPM::read could not find a valid header\n");
         return std::nullopt;
     }
     else
     {
         auto width  = std::stoul(matches.str(1));
         auto height = std::stoul(matches.str(2));
-        Logging::doLog(Logging::LogType::VERBOSE,"Loading PPM %lu x %lu\n",
+        Logging::logVerbose("Loading PPM %lu x %lu\n",
             width, height);
 
         // some arbitrary sanity checking..
         if ((width > 10240) || (height > 10240))
         {
-            Logging::doLog(Logging::LogType::ERROR,"PPM::read PPM too big! (max width or height is 10240.\n");
+            Logging::logError("PPM::read PPM too big! (max width or height is 10240.\n");
             return std::nullopt;
         }
 

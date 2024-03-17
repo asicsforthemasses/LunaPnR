@@ -30,22 +30,22 @@ public:
     {
         if (m_namedParams.contains("design"))
         {
-            doLog(Logging::LogType::ERROR, "Not implemented yet\n");
+            Logging::logError("Not implemented yet\n");
             return false;
         }
         else if (m_namedParams.contains("timing"))
         {
-            doLog(Logging::LogType::ERROR, "Not implemented yet\n");
+            Logging::logError("Not implemented yet\n");
             return false;
         }
         else if (m_namedParams.contains("drc"))
         {
-            doLog(Logging::LogType::ERROR, "Not implemented yet\n");
+            Logging::logError("Not implemented yet\n");
             return false;
         }
         else
         {
-            doLog(Logging::LogType::ERROR, "Missing check type, use -design, -timing or -drc\n");
+            Logging::logError("Missing check type, use -design, -timing or -drc\n");
             return false;
         }
 

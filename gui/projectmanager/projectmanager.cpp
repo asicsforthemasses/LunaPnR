@@ -307,7 +307,7 @@ void ProjectManager::onWriteToDef(QString actionName)
         std::ofstream ofile(fileName.toStdString());
         if (!ofile.good())
         {
-            Logging::doLog(Logging::LogType::ERROR, "Could not open DEF file for writing!\n");
+            Logging::logError("Could not open DEF file for writing!\n");
 /*
             int ret = QMessageBox::critical(this, tr("File Save Error"),
                                tr("Could open the DEF file for saving."),
@@ -320,12 +320,12 @@ void ProjectManager::onWriteToDef(QString actionName)
         auto topModulePtr = m_db.design().getTopModule();
         if (!topModulePtr)
         {
-            Logging::doLog(Logging::LogType::ERROR, "Could not write DEF file: top module not set!\n");
+            Logging::logError("Could not write DEF file: top module not set!\n");
             return;
         }
 
         LunaCore::DEF::write(ofile, topModulePtr);
         ofile.close();
-        Logging::doLog(Logging::LogType::INFO, "DEF file written!\n");
+        Logging::logInfo("DEF file written!\n");
     }
 }

@@ -374,7 +374,7 @@ bool Parser::parse(const std::string &lefstring)
         m_curtok = tokenize(m_tokstr);
         if (m_curtok == TOK_ERR)
         {
-            Logging::doLog(Logging::LogType::ERROR, "LEF parse error, current character = '%c' (0x%02X)\n", peek(), static_cast<uint32_t>(peek()));
+            Logging::logError("LEF parse error, current character = '%c' (0x%02X)\n", peek(), static_cast<uint32_t>(peek()));
             error("");
             return false;
         }
@@ -425,14 +425,14 @@ bool Parser::parse(const std::string &lefstring)
             {
                 if (!m_tokstr.empty())
                 {
-                    Logging::doLog(Logging::LogType::VERBOSE, "  LEF skipping: %s on line %u\n", m_tokstr.c_str(), m_lineNum);
+                    Logging::logVerbose("  LEF skipping: %s on line %u\n", m_tokstr.c_str(), m_lineNum);
                 }
             }
             break;
         default:
             if (!m_tokstr.empty())
             {
-                Logging::doLog(Logging::LogType::VERBOSE, "  LEF skipping: %s on line %u\n", m_tokstr.c_str(), m_lineNum);
+                Logging::logVerbose("  LEF skipping: %s on line %u\n", m_tokstr.c_str(), m_lineNum);
             }
             break;
         }
@@ -447,7 +447,7 @@ void Parser::error(const char *errstr) const
 {
     std::stringstream ss;
     ss << "Line " << m_lineNum << " col " << m_col << " : " << errstr << "\n";
-    Logging::doLog(Logging::LogType::ERROR, ss.str());
+    Logging::logError(ss.str());
     throw std::runtime_error(ss.str());
 }
 
@@ -455,7 +455,7 @@ void Parser::error(const std::string &errstr) const
 {
     std::stringstream ss;
     ss << "Line " << m_lineNum << " col " << m_col << " : " << errstr << "\n";
-    Logging::doLog(Logging::LogType::ERROR, ss.str());
+    Logging::logError(ss.str());
     throw std::runtime_error(ss.str());
 }
 
@@ -1615,7 +1615,7 @@ bool Parser::parseLayerItem()
     }
     ss << "\n";
 
-    Logging::doLog(Logging::LogType::INFO, ss.str());
+    Logging::logInfo(ss.str());
     if (m_curtok == TOK_EOF)
     {
         error("Unexpected end of file");
@@ -2038,7 +2038,7 @@ bool Parser::parseSiteItem()
     }
     ss << "\n";
 
-    Logging::doLog(Logging::LogType::INFO, ss.str());
+    Logging::logInfo(ss.str());
     if (m_curtok == TOK_EOF)
     {
         error("Unexpected end of file");
@@ -2559,7 +2559,7 @@ bool Parser::parseLayerSpacingTable()
         m_curtok = tokenize(m_tokstr);
     };
 
-    Logging::doLog(Logging::LogType::VERBOSE, "Skipping SPACINGTABLE in layer\n");
+    Logging::logVerbose("Skipping SPACINGTABLE in layer\n");
 
     // when we end up here,
     // we either have a TOK_SEMICOL or TOK_EOF

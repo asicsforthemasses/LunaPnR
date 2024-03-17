@@ -201,7 +201,7 @@ bool LunaCore::Legalizer::legalize(const ChipDB::Floorplan &floorplan, ChipDB::N
 
     if (minCellWidth == 0)
     {
-        Logging::doLog(Logging::LogType::ERROR,"Legalizer::legalize: min cell width has not been defined for core area.\n");
+        Logging::logError("Legalizer::legalize: min cell width has not been defined for core area.\n");
         return false;
     }
 

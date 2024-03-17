@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
+#include <cstdarg>
 #include "tasks.h"
 #include "common/logging.h"
 
@@ -22,20 +23,30 @@ bool Task::run(GUI::Database &db, ProgressCallback callback)
     return m_status.load() == Status::DONE_OK;
 }
 
-void Task::error(const std::string &txt)
+void Task::error(const std::string_view fmt, ...)
 {
-    Logging::doLog(Logging::LogType::ERROR, txt);
+    std::va_list args;
+    va_start(args, fmt);
+    Logging::logError(fmt, args);
+    va_end(args);
+
     m_status.store(Status::DONE_ERROR);
 }
 
-void Task::warning(const std::string &txt)
+void Task::warning(const std::string_view fmt, ...)
 {
-    Logging::doLog(Logging::LogType::WARNING, txt);
+    std::va_list args;
+    va_start(args, fmt);
+    Logging::logWarning(fmt, args);
+    va_end(args);
 }
 
-void Task::info(const std::string &txt)
+void Task::info(const std::string_view fmt, ...)
 {
-    Logging::doLog(Logging::LogType::INFO, txt);
+    std::va_list args;
+    va_start(args, fmt);
+    Logging::logInfo(fmt, args);
+    va_end(args);
 }
 
 void Task::done()

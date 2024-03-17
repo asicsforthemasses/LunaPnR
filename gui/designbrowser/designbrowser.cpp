@@ -80,7 +80,7 @@ void DesignBrowser::onModuleSelectionChanged(const QItemSelection &cur, const QI
         {
             m_moduleInfoModel->setModule(module);
             update();
-            Logging::doLog(Logging::LogType::VERBOSE, "Selected module %s\n", module->name().c_str());
+            Logging::logVerbose("Selected module %s\n", module->name().c_str());
         }
     }
 }

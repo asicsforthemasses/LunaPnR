@@ -799,7 +799,7 @@ BOOST_AUTO_TEST_CASE(can_partition_nerv_concise)
 
     if (!partitioner.doPartitioning(modKeyObjPair->m_netlist.get(), container))
     {
-        Logging::doLog(Logging::LogType::ERROR, "Partitioning failed!\n");
+        Logging::logError("Partitioning failed!\n");
         BOOST_CHECK(false);
     }
 
