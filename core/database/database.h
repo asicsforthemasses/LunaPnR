@@ -23,8 +23,8 @@ struct Database
     ChipDB::Design      m_design;
     ChipDB::Properties  m_properties;   ///< global properties, such as paths etc.
 
-    constexpr static const std::string_view propPDKRoot{"PDKROOT"};
-    constexpr static const std::string_view propProjectRoot{"PROJECTROOT"};
+    constexpr static const std::string_view propPDKRoot{"PDKROOT"};         ///< property key for full path to the PDK directory
+    constexpr static const std::string_view propProjectRoot{"PROJECTROOT"}; ///< property key for full path to the project directory
 };
 
 };
