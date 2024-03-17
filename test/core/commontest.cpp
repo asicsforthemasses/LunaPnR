@@ -44,13 +44,13 @@ BOOST_AUTO_TEST_CASE(check_replace_keys_in_braces)
     std::unordered_map<std::string, std::string> container;
 
     container["PDKROOT"] = "Nile";
-    container["PROJECTROOT"] = "Rogers";
+    container["PROJECTROOT"] = "Rodgers";
 
-    std::string src = "{PDKROOT} {PROJECTROOT} is quite funky!";
+    std::string src = "{PDKROOT} {PROJECTROOT} is quite funky! {BOOTSY_BABY}";
 
     auto result = LunaCore::replaceKeysInBraces(container, src);
 
-    BOOST_CHECK(result == "Nile Rogers is quite funky!");
+    BOOST_CHECK(result == "Nile Rodgers is quite funky! {BOOTSY_BABY}");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
