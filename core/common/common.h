@@ -10,3 +10,4 @@
 #include "matrix.h"
 #include "subprocess.h"
 #include "tomlhelpers.h"
+#include "objectptr.hpp"

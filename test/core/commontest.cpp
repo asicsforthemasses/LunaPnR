@@ -63,4 +63,23 @@ BOOST_AUTO_TEST_CASE(check_replace_keys_in_braces)
     BOOST_CHECK(result == "Nile Rodgers is quite funky! {BOOTSY_BABY}");
 }
 
+struct MyObject
+{
+    int m_value{1};
+};
+
+BOOST_AUTO_TEST_CASE(check_objectptr)
+{
+    auto obj1 = LunaCore::ObjectPtr<MyObject>();
+
+    BOOST_CHECK(static_cast<bool>(obj1) == false);
+    BOOST_CHECK(obj1.get() == nullptr);
+
+    obj1 = new MyObject();
+    BOOST_CHECK(static_cast<bool>(obj1) == true);
+    BOOST_CHECK(obj1.get() != nullptr);
+
+    BOOST_CHECK(obj1->m_value == 1);
+}
+
 BOOST_AUTO_TEST_SUITE_END()
