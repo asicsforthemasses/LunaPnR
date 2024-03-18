@@ -205,6 +205,10 @@ add_library(lunacore
     passes/pass.cpp
     passes/passes.cpp
 
+    padring/configreader.cpp
+    padring/padring.cpp
+    padring/padringplacer.cpp
+
     ${PYTHON_SRC}
     globalroute/globalrouter.cpp
     globalroute/prim_private.cpp

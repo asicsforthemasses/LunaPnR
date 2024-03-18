@@ -37,6 +37,11 @@ public:
         return m_coreSize;
     }
 
+    [[nodiscard]] Size64 cornerCellSize() const noexcept
+    {
+        return m_cornerCellSize;
+    }
+
     constexpr void setIO2CoreMargins(const Margins64 &margins) noexcept
     {
         m_io2coreMargins = margins;
@@ -62,24 +67,33 @@ public:
         m_coreSize = coreSize;
     }
 
+    constexpr void setCornerCellSize(const Size64 &cornerCellSize)
+    {
+        m_cornerCellSize = cornerCellSize;
+        //FIXME: we might need to the IO margins
+    }
+
     [[nodiscard]] constexpr auto& rows() noexcept { return m_rows; }
     [[nodiscard]] constexpr auto const& rows() const noexcept { return m_rows; }
 
     constexpr void setMinimumCellSize(const Size64 &minimumCellSize) noexcept
     {
         m_minimumCellSize = minimumCellSize;
+        //FIXME: we might need to update rows
     }
 
     [[nodiscard]] Size64 minimumCellSize() const noexcept
     {
         return m_minimumCellSize;
     }
-protected:
-    Size64    m_coreSize;       ///< core area
-    Margins64 m_io2coreMargins; ///< margins between core and io area
-    Margins64 m_ioMargins;      ///< size of IO area at top, bottom, left and right sides.
 
-    Size64    m_minimumCellSize;
+protected:
+    Size64    m_coreSize;           ///< core area
+    Margins64 m_io2coreMargins;     ///< margins between core and io area
+    Margins64 m_ioMargins;          ///< size of IO area at top, bottom, left and right sides.
+
+    Size64    m_minimumCellSize;    ///< minimum cell size for this site. needs to be set in order to create rows.
+    Size64    m_cornerCellSize;     ///< size of an IO corner cell, so we can create a pad ring.
 
     std::vector<ChipDB::Row> m_rows;
 };

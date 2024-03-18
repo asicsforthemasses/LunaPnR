@@ -31,6 +31,8 @@
 #include "../globalroute/lshape.h"
 
 #include "../passes/passes.hpp"
+#include "../padring/padring.hpp"
+#include "../padring/padringplacer.hpp"
 
 #ifdef USE_PYTHON
 #include "../python/pylunapnr.h"

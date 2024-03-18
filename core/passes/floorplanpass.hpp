@@ -56,14 +56,20 @@ public:
             {
                 auto cornerDimension  = std::stold(m_namedParams.at("cornersize").at(0));
 
-                ChipDB::Margins64 cornerMargins(
+                ChipDB::Margins64 cornerCellMargins(
                     cornerDimension,
                     cornerDimension,
                     cornerDimension,
                     cornerDimension
                 );
 
-                database.m_design.m_floorplan->setIOMargins(cornerMargins);
+                ChipDB::Size64 cornerCellSize(
+                    cornerDimension,
+                    cornerDimension
+                );
+
+                database.m_design.m_floorplan->setCornerCellSize(cornerCellSize);
+                database.m_design.m_floorplan->setIOMargins(cornerCellMargins);
             }
             else
             {
