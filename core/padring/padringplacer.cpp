@@ -52,7 +52,7 @@ public:
         {
             m_padring.m_upperLeftCorner.m_instanceName = instance;
             m_padring.m_upperLeftCorner.m_cellName = cellname;
-            m_padring.m_upperLeftCorner.m_size = cellsize;
+            m_padring.m_upperLeftCorner.m_size = cellsize.m_x;
             m_padring.m_upperLeftCorner.m_itemType = LayoutItem::ItemType::CORNER;
             m_padring.m_upperLeftCorner.m_orientation = ChipDB::Orientation::R0;
         }
@@ -60,7 +60,7 @@ public:
         {
             m_padring.m_upperRightCorner.m_instanceName = instance;
             m_padring.m_upperRightCorner.m_cellName = cellname;
-            m_padring.m_upperRightCorner.m_size = cellsize;
+            m_padring.m_upperRightCorner.m_size = cellsize.m_x;
             m_padring.m_upperRightCorner.m_itemType = LayoutItem::ItemType::CORNER;
             m_padring.m_upperRightCorner.m_orientation = ChipDB::Orientation::R0;
         }
@@ -68,7 +68,7 @@ public:
         {
             m_padring.m_lowerLeftCorner.m_instanceName = instance;
             m_padring.m_lowerLeftCorner.m_cellName = cellname;
-            m_padring.m_lowerLeftCorner.m_size = cellsize;
+            m_padring.m_lowerLeftCorner.m_size = cellsize.m_x;
             m_padring.m_lowerLeftCorner.m_itemType = LayoutItem::ItemType::CORNER;
             m_padring.m_lowerLeftCorner.m_orientation = ChipDB::Orientation::R0;
         }
@@ -76,7 +76,7 @@ public:
         {
             m_padring.m_lowerRightCorner.m_instanceName = instance;
             m_padring.m_lowerRightCorner.m_cellName = cellname;
-            m_padring.m_lowerRightCorner.m_size = cellsize;
+            m_padring.m_lowerRightCorner.m_size = cellsize.m_x;
             m_padring.m_lowerRightCorner.m_itemType = LayoutItem::ItemType::CORNER;
             m_padring.m_lowerRightCorner.m_orientation = ChipDB::Orientation::R0;
         }
@@ -122,7 +122,7 @@ public:
         layoutItem->m_instanceName = instance;
         layoutItem->m_cellName = cellname;
         layoutItem->m_itemType = LayoutItem::ItemType::CELL;
-        layoutItem->m_size = cellsize;
+        layoutItem->m_size = cellsize.m_x;
 
         m_lastLocation = location;
         if (location == "N")
@@ -174,8 +174,8 @@ public:
         layoutItem->m_itemType = LayoutItem::ItemType::FIXEDSPACE;
 
         auto sz = static_cast<ChipDB::CoordType>(space*1000.0f);
-        layoutItem->m_size.m_x = sz;
-        layoutItem->m_size.m_y = sz;
+        layoutItem->m_size = sz;
+        layoutItem->m_size = sz;
 
         if (m_lastLocation == "N")
         {
@@ -232,6 +232,11 @@ bool read(std::istream &is, Database &db, Padring &padring)
     }
 
     return true;
+}
+
+bool place(Database &db, Padring &padring)
+{
+    return padring.layout(db);
 }
 
 };

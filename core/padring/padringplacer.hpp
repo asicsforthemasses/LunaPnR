@@ -12,7 +12,6 @@ namespace LunaCore::Padring
 {
 
 bool read(std::istream &is, Database &db, Padring &padring);
-
-//void place(Database &db);
+bool place(Database &db, Padring &padring);
 
 };

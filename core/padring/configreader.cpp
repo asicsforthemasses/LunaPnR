@@ -195,23 +195,28 @@ bool ConfigReader::parse()
             case Token_t::IDENT:
                 if (tokstr == "CORNER")
                 {
-                    if (!parseCorner()) return false;
+                    if (!parseCorner())
+                        return false;
                 }
                 else if (tokstr == "PAD")
                 {
-                    if (!parsePad()) return false;
+                    if (!parsePad())
+                        return false;
                 }
                 else if (tokstr == "SPACE")
                 {
-                    if (!parseSpace()) return false;
+                    if (!parseSpace())
+                        return false;
                 }
                 else if (tokstr == "FILLER")
                 {
-                    if (!parseFiller()) return false;
+                    if (!parseFiller())
+                        return false;
                 }
                 else if (tokstr == "OFFSET")
                 {
-                    if (!parseOffset()) return false;
+                    if (!parseOffset())
+                        return false;
                 }
                 else
                 {

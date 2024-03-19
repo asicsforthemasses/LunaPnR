@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_SUITE(PadringTest)
 BOOST_AUTO_TEST_CASE(read_padring_config)
 {
     auto oldLevel = Logging::getLogLevel();
-    Logging::setLogLevel(Logging::LogType::DEBUG);
+    Logging::setLogLevel(Logging::LogType::VERBOSE);
 
     std::cout << "--== READ PADRING CONFIG ==--\n";
 
@@ -33,12 +33,19 @@ BOOST_AUTO_TEST_CASE(read_padring_config)
 
     BOOST_REQUIRE(db.m_design.setTopModule("top"));
 
+    db.m_design.m_floorplan->clear();
+    db.m_design.m_floorplan->setCoreSize({1000000, 1000000});
+    db.m_design.m_floorplan->setIO2CoreMargins({1000, 1000, 1000, 1000});
+    db.m_design.m_floorplan->setCornerCellSize({300000,300000});
+    db.m_design.m_floorplan->setIOMargins({300000,300000,300000,300000});
+
     std::ifstream padringconfig("test/files/padring/padring.conf");
     BOOST_REQUIRE(padringconfig.is_open());
 
     LunaCore::Padring::Padring padring;
 
     BOOST_REQUIRE(LunaCore::Padring::read(padringconfig, db, padring));
+    BOOST_CHECK(LunaCore::Padring::place(db, padring));
 
     Logging::setLogLevel(oldLevel);
 };

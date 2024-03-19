@@ -7,6 +7,7 @@
 #include <filesystem>
 #include "common/logging.h"
 #include "import/import.h"
+#include "padring/padringplacer.hpp"
 #include "pass.hpp"
 
 namespace LunaCore::Passes
@@ -125,9 +126,8 @@ public:
         }
         else if (m_namedParams.contains("sdc"))
         {
-            Logging::logError("Not implemented.\n");
+            Logging::logError("Not implemented yet.\n");
             return false;
-
         }
         else
         {

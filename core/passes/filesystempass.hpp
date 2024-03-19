@@ -31,6 +31,12 @@ public:
             path = m_params.front();
         }
 
+        if (!std::filesystem::is_directory(path))
+        {
+            Logging::logError("Not such directory '%s'\n", path.string().c_str());
+            return false;
+        }
+
         for (const auto & entry : std::filesystem::directory_iterator(path))
         {
             Logging::logInfo("  %s\n", entry.path().string().c_str());

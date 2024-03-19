@@ -28,12 +28,12 @@ public:
     {
         if (m_namedParams.contains("net"))
         {
-            doLog(Logging::LogType::ERROR, "Not implemented yet\n");
+            Logging::logError("Not implemented yet\n");
             return false;
         }
         else
         {
-            doLog(Logging::LogType::ERROR, "Missing cts type, use -net\n");
+            Logging::logError("Missing cts type, use -net\n");
             return false;
         }
 
