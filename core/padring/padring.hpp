@@ -32,15 +32,17 @@ public:
         m_cellName = "";
         m_instanceName = "";
         m_orientation = ChipDB::Orientation::UNDEFINED;
-        m_size = 0;
-        m_pos  = 0;
+        m_width  = 0;
+        m_height = 0;
+        m_pos    = 0;
         m_itemType = ItemType::UNDEFINED;
     }
 
     std::string         m_instanceName;
     std::string         m_cellName;
     ChipDB::Orientation m_orientation{ChipDB::Orientation::UNDEFINED};
-    ChipDB::CoordType   m_size{0};
+    ChipDB::CoordType   m_width{0};
+    ChipDB::CoordType   m_height{0};
     ChipDB::CoordType   m_pos{0};
     ItemType m_itemType{ItemType::UNDEFINED};
 };
@@ -105,12 +107,44 @@ public:
     auto begin() const {return m_items.begin(); }
     auto end() const {return m_items.end(); }
 
+    constexpr void setDirection(const Direction &dir) noexcept
+    {
+        m_direction = dir;
+    }
+
+    constexpr auto direction() const noexcept
+    {
+        return m_direction;
+    }
+
+    constexpr void setLayoutRect(const ChipDB::Rect64 &rect)
+    {
+        m_layoutRect = rect;
+    }
+
+    constexpr auto layoutRect() const noexcept
+    {
+        return m_layoutRect;
+    }
+
+    constexpr void setCellOrientation(const ChipDB::Orientation &orientation) noexcept
+    {
+        m_cellOrientation = orientation;
+    }
+
+    constexpr auto cellOrientation() const noexcept
+    {
+        return m_cellOrientation;
+    }
+
 protected:
     Direction m_direction{Direction::UNDEFINED};
     std::list<std::unique_ptr<LayoutItem> > m_items;
 
     std::size_t m_cellCount{0};
     ChipDB::Rect64 m_layoutRect;    ///< the size of the area to use for layout
+
+    ChipDB::Orientation m_cellOrientation{ChipDB::Orientation::UNDEFINED};
 };
 
 class Padring
@@ -130,6 +164,14 @@ public:
     LayoutItem m_upperRightCorner;
     LayoutItem m_lowerLeftCorner;
     LayoutItem m_lowerRightCorner;
+
+protected:
+    bool layoutEdge(Database &db, const LayoutItem &corner1, const LayoutItem &corner2, const Layout &edge);
+
+    bool placeInstance(Database &db,
+        const std::string &insName,
+        const ChipDB::Coord64 &lowerLeftPos,
+        const ChipDB::Orientation &orientation);
 };
 
 };

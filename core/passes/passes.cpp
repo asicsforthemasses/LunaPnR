@@ -17,6 +17,7 @@
 #include "flattenpass.hpp"
 #include "ctspass.hpp"
 #include "padringpass.hpp"
+#include "setpass.hpp"
 
 namespace LunaCore::Passes
 {
@@ -47,6 +48,7 @@ void registerAllPasses()
     registerPass(new FlattenPass());
     registerPass(new CTSPass());
     registerPass(new PadringPass());
+    registerPass(new SetPass());
 }
 
 };

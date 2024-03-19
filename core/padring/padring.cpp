@@ -78,34 +78,121 @@ void Padring::clear()
 */
 bool Padring::layout(Database &db)
 {
-    // place corners
-    auto dieSize = db.m_design.m_floorplan->dieSize();
-    m_upperLeftCorner.m_pos  = 0;
-    m_upperRightCorner.m_pos = dieSize.m_x - m_upperRightCorner.m_size;
+    auto const dieSize = db.m_design.m_floorplan->dieSize();
 
-    if (m_upperRightCorner.m_pos < m_upperLeftCorner.m_size)
+    // place the corner cells
+    placeInstance(db, m_upperLeftCorner.m_instanceName,
+        ChipDB::Coord64{0, dieSize.m_y - m_upperLeftCorner.m_height},
+        ChipDB::Orientation{ChipDB::Orientation::R0});
+
+    placeInstance(db, m_upperRightCorner.m_instanceName,
+        ChipDB::Coord64{dieSize.m_y - m_upperRightCorner.m_width, dieSize.m_y - m_upperRightCorner.m_height},
+        ChipDB::Orientation{ChipDB::Orientation::R0});
+
+    placeInstance(db, m_lowerLeftCorner.m_instanceName,
+        ChipDB::Coord64{0,0},
+        ChipDB::Orientation{ChipDB::Orientation::R0});
+
+    placeInstance(db, m_lowerRightCorner.m_instanceName,
+        ChipDB::Coord64{dieSize.m_y - m_lowerRightCorner.m_width,0},
+        ChipDB::Orientation{ChipDB::Orientation::R0});
+
+    ChipDB::Rect64 rect;
+
+    rect.setLeft(0);
+    rect.setRight(dieSize.m_x);
+    rect.setTop(dieSize.m_y);
+    rect.setBottom(dieSize.m_y - db.m_design.m_floorplan->ioMargins().m_top);
+    m_top.setLayoutRect(rect);
+    m_top.setCellOrientation(ChipDB::Orientation{ChipDB::Orientation::R180});
+    Logging::logVerbose("Top rect   : (%ld %ld) (%ld %ld)\n",
+        rect.left(), rect.bottom(),
+        rect.right(), rect.top());
+    m_top.setDirection(Layout::Direction::HORIZONTAL);
+
+    rect.setLeft(0);
+    rect.setRight(dieSize.m_x);
+    rect.setTop(db.m_design.m_floorplan->ioMargins().m_bottom);
+    rect.setBottom(0);
+    m_bottom.setLayoutRect(rect);
+    m_bottom.setCellOrientation(ChipDB::Orientation{ChipDB::Orientation::R0});
+    Logging::logVerbose("Bottom rect: (%ld %ld) (%ld %ld)\n",
+        rect.left(), rect.bottom(),
+        rect.right(), rect.top());
+    m_bottom.setDirection(Layout::Direction::HORIZONTAL);
+
+    rect.setLeft(0);
+    rect.setRight(db.m_design.m_floorplan->ioMargins().m_left);
+    rect.setTop(dieSize.m_y);
+    rect.setBottom(0);
+    m_left.setLayoutRect(rect);
+    m_left.setCellOrientation(ChipDB::Orientation{ChipDB::Orientation::R90});
+    Logging::logVerbose("Left rect  : (%ld %ld) (%ld %ld)\n",
+        rect.left(), rect.bottom(),
+        rect.right(), rect.top());
+    m_left.setDirection(Layout::Direction::VERTICAL);
+
+    rect.setLeft(dieSize.m_x - db.m_design.m_floorplan->ioMargins().m_right);
+    rect.setRight(dieSize.m_x);
+    rect.setTop(dieSize.m_y);
+    rect.setBottom(0);
+    m_right.setLayoutRect(rect);
+    m_right.setCellOrientation(ChipDB::Orientation{ChipDB::Orientation::R270});
+    Logging::logVerbose("Right rect : (%ld %ld) (%ld %ld)\n",
+        rect.left(), rect.bottom(),
+        rect.right(), rect.top());
+    m_right.setDirection(Layout::Direction::VERTICAL);
+
+    layoutEdge(db, m_upperLeftCorner, m_upperRightCorner, m_top);
+    layoutEdge(db, m_lowerLeftCorner, m_lowerRightCorner, m_bottom);
+    layoutEdge(db, m_lowerLeftCorner, m_upperLeftCorner, m_left);
+    layoutEdge(db, m_lowerRightCorner, m_upperRightCorner, m_right);
+
+    return true;
+}
+
+bool Padring::layoutEdge(Database &db, const LayoutItem &corner1, const LayoutItem &corner2, const Layout &edge)
+{
+    auto const dieSize = db.m_design.m_floorplan->dieSize();
+
+    ChipDB::CoordType corner1Pos = 0;
+    ChipDB::CoordType corner2Pos = 0;
+    ChipDB::CoordType availableWidth = 0;
+
+    if (edge.direction() == Layout::Direction::HORIZONTAL)
+    {
+        corner2Pos = dieSize.m_x - corner2.m_width;
+        availableWidth = dieSize.m_x - corner1.m_width - corner2.m_width;
+    }
+    else
+    {
+        corner2Pos = dieSize.m_y - corner2.m_width;
+        availableWidth = dieSize.m_y - corner1.m_width - corner2.m_width;
+    }
+
+    if (availableWidth < 0)
     {
         Logging::logError("Not enough die space to fit the corner cells");
         return false;
     }
 
-    auto availableWidth = dieSize.m_x - m_upperLeftCorner.m_size - m_lowerLeftCorner.m_size;
-
     std::vector<LayoutItem> items;
-    items.reserve(m_top.cellCount() + 2);   // pads and two corners
-    items.push_back(m_upperLeftCorner);
+    items.reserve(edge.cellCount() + 2);   // pads and two corners
+    items.push_back(corner1);
+    items.back().m_pos = corner1Pos;
 
     ChipDB::CoordType totalPadWidth = 0;
-    for(auto const& item : m_top)
+    for(auto const& item : edge)
     {
         if (item->m_itemType == LayoutItem::ItemType::CELL)
         {
             items.push_back(*item.get());
-            totalPadWidth += item->m_size;
+            totalPadWidth += item->m_width;
         }
     }
 
-    items.push_back(m_upperRightCorner);
+    items.push_back(corner2);
+    items.back().m_pos = corner2Pos;
 
     if (availableWidth < totalPadWidth)
     {
@@ -115,9 +202,8 @@ bool Padring::layout(Database &db)
         return false;
     }
 
-    // layout north
-
-    int matrixDimension = m_top.cellCount();
+    // layout edge
+    int matrixDimension = edge.cellCount();
     LunaCore::Matrix A;
     A.reserveRows(matrixDimension);
 
@@ -140,21 +226,21 @@ bool Padring::layout(Database &db)
             A(rowIdx, rowIdx) += 2.0;
             A(rowIdx, rowIdx-1) += -1.0;
             A(rowIdx, rowIdx+1) += -1.0;
-            Bvec(rowIdx) = prevItem.m_size - iter->m_size;
+            Bvec(rowIdx) = prevItem.m_width - iter->m_width;
         }
         else if (prevItem.m_itemType == LayoutItem::ItemType::CELL)
         {
             // prev item moveable
             A(rowIdx, rowIdx) += 2.0;
             A(rowIdx, rowIdx-1) += -1.0;
-            Bvec(rowIdx) = prevItem.m_size - iter->m_size + nextItem.m_pos;
+            Bvec(rowIdx) = prevItem.m_width - iter->m_width + nextItem.m_pos;
         }
         else if (nextItem.m_itemType == LayoutItem::ItemType::CELL)
         {
             // next item moveable
             A(rowIdx, rowIdx) += 2.0;
             A(rowIdx, rowIdx+1) += -1.0;
-            Bvec(rowIdx) = prevItem.m_size - iter->m_size + prevItem.m_pos;
+            Bvec(rowIdx) = prevItem.m_width - iter->m_width + prevItem.m_pos;
         }
         else
         {
@@ -203,21 +289,48 @@ bool Padring::layout(Database &db)
     {
         if (item.m_itemType == LayoutItem::ItemType::CELL)
         {
-            auto modPtr = db.m_design.getTopModule();
-            auto insKp = modPtr->m_netlist->lookupInstance(item.m_instanceName);
-            if (!insKp.isValid())
+            ChipDB::Coord64 pos;
+
+            if (edge.direction() == Layout::Direction::HORIZONTAL)
+            {
+                pos.m_x = static_cast<ChipDB::CoordType>(std::round(Xvec(rowIdx)));
+                pos.m_y = edge.layoutRect().bottom();
+            }
+            else
+            {
+                pos.m_y = static_cast<ChipDB::CoordType>(std::round(Xvec(rowIdx)));
+                pos.m_x = edge.layoutRect().left();
+            }
+
+            if (!placeInstance(db, item.m_instanceName, pos, edge.cellOrientation()))
             {
                 Logging::logError("Cannot find instance %s in netlist\n", item.m_instanceName.c_str());
                 return false;
             }
 
-            insKp->m_pos.m_x = static_cast<ChipDB::CoordType>(std::round(Bvec(rowIdx)));
-            insKp->m_pos.m_y = dieSize.m_y - insKp->instanceSize().m_y;
-            insKp->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
             rowIdx++;
         }
     }
+    return true;
+}
 
+bool Padring::placeInstance(Database &db,
+    const std::string &insName,
+    const ChipDB::Coord64 &lowerLeftPos,
+    const ChipDB::Orientation &orientation)
+{
+    auto modPtr = db.m_design.getTopModule();
+    auto insKp = modPtr->m_netlist->lookupInstance(insName);
+
+    if (!insKp.isValid())
+    {
+        Logging::logError("Cannot find instance %s in netlist\n", insName);
+        return false;
+    }
+
+    insKp->m_pos = lowerLeftPos;
+    insKp->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
+    insKp->m_orientation = orientation;
     return true;
 }
 

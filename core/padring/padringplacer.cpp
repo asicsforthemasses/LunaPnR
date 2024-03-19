@@ -52,7 +52,8 @@ public:
         {
             m_padring.m_upperLeftCorner.m_instanceName = instance;
             m_padring.m_upperLeftCorner.m_cellName = cellname;
-            m_padring.m_upperLeftCorner.m_size = cellsize.m_x;
+            m_padring.m_upperLeftCorner.m_width = cellsize.m_x;
+            m_padring.m_upperLeftCorner.m_height = cellsize.m_y;
             m_padring.m_upperLeftCorner.m_itemType = LayoutItem::ItemType::CORNER;
             m_padring.m_upperLeftCorner.m_orientation = ChipDB::Orientation::R0;
         }
@@ -60,7 +61,8 @@ public:
         {
             m_padring.m_upperRightCorner.m_instanceName = instance;
             m_padring.m_upperRightCorner.m_cellName = cellname;
-            m_padring.m_upperRightCorner.m_size = cellsize.m_x;
+            m_padring.m_upperRightCorner.m_width  = cellsize.m_x;
+            m_padring.m_upperRightCorner.m_height = cellsize.m_y;
             m_padring.m_upperRightCorner.m_itemType = LayoutItem::ItemType::CORNER;
             m_padring.m_upperRightCorner.m_orientation = ChipDB::Orientation::R0;
         }
@@ -68,7 +70,8 @@ public:
         {
             m_padring.m_lowerLeftCorner.m_instanceName = instance;
             m_padring.m_lowerLeftCorner.m_cellName = cellname;
-            m_padring.m_lowerLeftCorner.m_size = cellsize.m_x;
+            m_padring.m_lowerLeftCorner.m_width = cellsize.m_x;
+            m_padring.m_lowerLeftCorner.m_height = cellsize.m_y;
             m_padring.m_lowerLeftCorner.m_itemType = LayoutItem::ItemType::CORNER;
             m_padring.m_lowerLeftCorner.m_orientation = ChipDB::Orientation::R0;
         }
@@ -76,7 +79,8 @@ public:
         {
             m_padring.m_lowerRightCorner.m_instanceName = instance;
             m_padring.m_lowerRightCorner.m_cellName = cellname;
-            m_padring.m_lowerRightCorner.m_size = cellsize.m_x;
+            m_padring.m_lowerRightCorner.m_width = cellsize.m_x;
+            m_padring.m_lowerRightCorner.m_height = cellsize.m_y;
             m_padring.m_lowerRightCorner.m_itemType = LayoutItem::ItemType::CORNER;
             m_padring.m_lowerRightCorner.m_orientation = ChipDB::Orientation::R0;
         }
@@ -122,7 +126,8 @@ public:
         layoutItem->m_instanceName = instance;
         layoutItem->m_cellName = cellname;
         layoutItem->m_itemType = LayoutItem::ItemType::CELL;
-        layoutItem->m_size = cellsize.m_x;
+        layoutItem->m_width = cellsize.m_x;
+        layoutItem->m_height = cellsize.m_y;
 
         m_lastLocation = location;
         if (location == "N")
@@ -174,8 +179,8 @@ public:
         layoutItem->m_itemType = LayoutItem::ItemType::FIXEDSPACE;
 
         auto sz = static_cast<ChipDB::CoordType>(space*1000.0f);
-        layoutItem->m_size = sz;
-        layoutItem->m_size = sz;
+        layoutItem->m_width  = sz;
+        layoutItem->m_height = 0;
 
         if (m_lastLocation == "N")
         {
