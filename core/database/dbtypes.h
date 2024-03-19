@@ -510,6 +510,30 @@ namespace ChipDB
 
         static constexpr const char* m_name = "Y";
     };
+
+    constexpr ChipDB::Coord64 rotate180(const ChipDB::Coord64 &p) noexcept
+    {
+        ChipDB::Coord64 result;
+        result.m_x = -p.m_x;
+        result.m_y = -p.m_y;
+        return result;
+    };
+
+    constexpr ChipDB::Coord64 rotate90(const ChipDB::Coord64 &p) noexcept
+    {
+        ChipDB::Coord64 result;
+        result.m_x = -p.m_y;
+        result.m_y = p.m_x;
+        return result;
+    };
+
+    constexpr ChipDB::Coord64 rotate270(const ChipDB::Coord64 &p) noexcept
+    {
+        ChipDB::Coord64 result;
+        result.m_x = p.m_y;
+        result.m_y = -p.m_x;
+        return result;
+    };
 };
 
 ChipDB::SymmetryFlags& operator+=(ChipDB::SymmetryFlags &lhs, const uint8_t &rhs);

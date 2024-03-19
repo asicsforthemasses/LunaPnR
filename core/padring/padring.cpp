@@ -87,15 +87,15 @@ bool Padring::layout(Database &db)
 
     placeInstance(db, m_upperRightCorner.m_instanceName,
         ChipDB::Coord64{dieSize.m_y - m_upperRightCorner.m_width, dieSize.m_y - m_upperRightCorner.m_height},
-        ChipDB::Orientation{ChipDB::Orientation::R0});
+        ChipDB::Orientation{ChipDB::Orientation::R90});
 
     placeInstance(db, m_lowerLeftCorner.m_instanceName,
         ChipDB::Coord64{0,0},
-        ChipDB::Orientation{ChipDB::Orientation::R0});
+        ChipDB::Orientation{ChipDB::Orientation::R180});
 
     placeInstance(db, m_lowerRightCorner.m_instanceName,
         ChipDB::Coord64{dieSize.m_y - m_lowerRightCorner.m_width,0},
-        ChipDB::Orientation{ChipDB::Orientation::R0});
+        ChipDB::Orientation{ChipDB::Orientation::R270});
 
     ChipDB::Rect64 rect;
 

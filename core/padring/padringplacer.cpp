@@ -55,7 +55,7 @@ public:
             m_padring.m_upperLeftCorner.m_width = cellsize.m_x;
             m_padring.m_upperLeftCorner.m_height = cellsize.m_y;
             m_padring.m_upperLeftCorner.m_itemType = LayoutItem::ItemType::CORNER;
-            m_padring.m_upperLeftCorner.m_orientation = ChipDB::Orientation::R0;
+            m_padring.m_upperLeftCorner.m_orientation = ChipDB::Orientation::R90;
         }
         else if (location == "NW")
         {
@@ -73,7 +73,7 @@ public:
             m_padring.m_lowerLeftCorner.m_width = cellsize.m_x;
             m_padring.m_lowerLeftCorner.m_height = cellsize.m_y;
             m_padring.m_lowerLeftCorner.m_itemType = LayoutItem::ItemType::CORNER;
-            m_padring.m_lowerLeftCorner.m_orientation = ChipDB::Orientation::R0;
+            m_padring.m_lowerLeftCorner.m_orientation = ChipDB::Orientation::R180;
         }
         else if (location == "SW")
         {
@@ -82,7 +82,7 @@ public:
             m_padring.m_lowerRightCorner.m_width = cellsize.m_x;
             m_padring.m_lowerRightCorner.m_height = cellsize.m_y;
             m_padring.m_lowerRightCorner.m_itemType = LayoutItem::ItemType::CORNER;
-            m_padring.m_lowerRightCorner.m_orientation = ChipDB::Orientation::R0;
+            m_padring.m_lowerRightCorner.m_orientation = ChipDB::Orientation::R270;
         }
         else
         {
@@ -147,7 +147,7 @@ public:
         }
         else if (location == "S")
         {
-            layoutItem->m_orientation = ChipDB::Orientation::R0;
+            layoutItem->m_orientation = ChipDB::Orientation::R180;
             m_padring.m_bottom.insertLayoutItem(layoutItem.release());
         }
         else
@@ -169,6 +169,7 @@ public:
     /** callback for space in microns */
     void onSpace(double space) override
     {
+#if 0
         auto module = m_db.m_design.getTopModule();
         if (!module)
         {
@@ -189,17 +190,17 @@ public:
         }
         else if (m_lastLocation == "W")
         {
-            layoutItem->m_orientation = ChipDB::Orientation::R0;
+            layoutItem->m_orientation = ChipDB::Orientation::R270;
             m_padring.m_left.insertLayoutItem(layoutItem.release());
         }
         else if (m_lastLocation == "E")
         {
-            layoutItem->m_orientation = ChipDB::Orientation::R0;
+            layoutItem->m_orientation = ChipDB::Orientation::R90;
             m_padring.m_right.insertLayoutItem(layoutItem.release());
         }
         else if (m_lastLocation == "S")
         {
-            layoutItem->m_orientation = ChipDB::Orientation::R0;
+            layoutItem->m_orientation = ChipDB::Orientation::R180;
             m_padring.m_bottom.insertLayoutItem(layoutItem.release());
         }
         else
@@ -208,6 +209,8 @@ public:
         }
 
         Logging::logDebug("  SPACE %s %d nm\n", m_lastLocation.c_str(), sz);
+#endif
+        throw std::runtime_error("  Space is not supported\n");
     }
 
 protected:
@@ -216,8 +219,6 @@ protected:
     Padring  &m_padring;
 };
 
-
-//bool place(Database &db, Padring &padring)
 
 bool read(std::istream &is, Database &db, Padring &padring)
 {

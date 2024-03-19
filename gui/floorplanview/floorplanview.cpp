@@ -364,8 +364,57 @@ void FloorplanView::drawRows(QPainter &p, const std::shared_ptr<ChipDB::Region> 
 void FloorplanView::drawCell(QPainter &p, const std::shared_ptr<ChipDB::Instance> ins)
 {
     QRectF cellRect;
-    cellRect.setBottomLeft(m_viewPort.toScreen(ins->m_pos));
-    cellRect.setTopRight(m_viewPort.toScreen(ins->m_pos + ins->instanceSize() ));
+
+    ChipDB::Coord64 ll;
+    ChipDB::Coord64 ur = ins->instanceSize();
+    ChipDB::Coord64 p1{0, ins->instanceSize().m_y / 2};
+    ChipDB::Coord64 p2{ins->instanceSize().m_x / 2, 0};
+
+    // Rotate cell according to the orientation
+    ChipDB::Coord64 offset;
+    switch(ins->m_orientation.value())
+    {
+    case ChipDB::Orientation::R0:
+        // do nothing
+        break;
+    case ChipDB::Orientation::R90:
+        offset = ChipDB::Coord64{ins->instanceSize().m_y, 0};
+        ll = rotate90(ll) + offset;
+        ur = rotate90(ur) + offset;
+        p1 = rotate90(p1) + offset;
+        p2 = rotate90(p2) + offset;
+        break;
+    case ChipDB::Orientation::R180:
+        offset = ChipDB::Coord64{ins->instanceSize().m_x, ins->instanceSize().m_y};
+        ll = rotate180(ll) + offset;
+        ur = rotate180(ur) + offset;
+        p1 = rotate180(p1) + offset;
+        p2 = rotate180(p2) + offset;
+        break;
+    case ChipDB::Orientation::R270:
+        offset = ChipDB::Coord64{0, ins->instanceSize().m_x};
+        ll = rotate270(ll) + offset;
+        ur = rotate270(ur) + offset;
+        p1 = rotate270(p1) + offset;
+        p2 = rotate270(p2) + offset;
+        break;
+    }
+
+    if (ll.m_x > ur.m_x)
+    {
+        std::swap(ll.m_x, ur.m_x);
+    }
+
+    if (ll.m_y > ur.m_y)
+    {
+        std::swap(ll.m_y, ur.m_y);
+    }
+
+    cellRect.setBottomLeft(m_viewPort.toScreen(ll + ins->m_pos));
+    cellRect.setTopRight(m_viewPort.toScreen(ur + ins->m_pos));
+
+    auto p1s = m_viewPort.toScreen(p1 + ins->m_pos);
+    auto p2s = m_viewPort.toScreen(p2 + ins->m_pos);
 
     // check if the instance is in view
     if (!cellRect.intersects(m_viewPort.getScreenRect()))
@@ -375,26 +424,7 @@ void FloorplanView::drawCell(QPainter &p, const std::shared_ptr<ChipDB::Instance
 
     p.setPen(Qt::green);
     p.drawRect(cellRect);
-
-    switch(ins->m_orientation.value())
-    {
-    case ChipDB::Orientation::R0: // aka North
-        {
-            auto p1 = cellRect.bottomLeft() - QPointF{0, cellRect.height() / 2};
-            auto p2 = cellRect.bottomLeft() + QPointF{cellRect.width() / 2, 0};
-            p.drawLine(p1, p2);
-        }
-        break;
-    case ChipDB::Orientation::MX: // aka flipped South
-        {
-            auto p1 = cellRect.topLeft() + QPointF{0, cellRect.height() / 2};
-            auto p2 = cellRect.topLeft() + QPointF{cellRect.width() / 2, 0};
-            p.drawLine(p1, p2);
-        }
-        break;
-    default:
-        break;
-    }
+    p.drawLine(p1s,p2s);
 
     // check if there is enough room to display the cell type
     // if so, draw the instance name and archetype
