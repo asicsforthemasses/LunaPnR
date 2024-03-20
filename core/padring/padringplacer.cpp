@@ -55,7 +55,7 @@ public:
             m_padring.m_upperLeftCorner.m_width = cellsize.m_x;
             m_padring.m_upperLeftCorner.m_height = cellsize.m_y;
             m_padring.m_upperLeftCorner.m_itemType = LayoutItem::ItemType::CORNER;
-            m_padring.m_upperLeftCorner.m_orientation = ChipDB::Orientation::R90;
+            m_padring.m_upperLeftCorner.m_orientation = ChipDB::Orientation::R270;
         }
         else if (location == "NW")
         {
@@ -82,7 +82,7 @@ public:
             m_padring.m_lowerRightCorner.m_width = cellsize.m_x;
             m_padring.m_lowerRightCorner.m_height = cellsize.m_y;
             m_padring.m_lowerRightCorner.m_itemType = LayoutItem::ItemType::CORNER;
-            m_padring.m_lowerRightCorner.m_orientation = ChipDB::Orientation::R270;
+            m_padring.m_lowerRightCorner.m_orientation = ChipDB::Orientation::R90;
         }
         else
         {

@@ -6,9 +6,11 @@ read -lef ./test/files/iit_stdcells/lib/ami035/lib/iit035_stdcells.lef
 read -verilog ./test/files/padring/padring.v
 
 # create floorplan
-floorplan -width 1000000 -height 1000000 -coremargins 1000 1000 1000 1000 -cornersize 300000
+floorplan -width 1000000 -height 1000000 -coremargins 10000 10000 10000 10000 -cornersize 300000
 
 # create padring
 set -loglevel verbose
 padring -place ./test/files/padring/padring.conf -module top
 set -loglevel normal
+
+write -def top ./test/files/results/padring.def

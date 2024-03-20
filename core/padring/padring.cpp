@@ -87,15 +87,15 @@ bool Padring::layout(Database &db)
 
     placeInstance(db, m_upperRightCorner.m_instanceName,
         ChipDB::Coord64{dieSize.m_y - m_upperRightCorner.m_width, dieSize.m_y - m_upperRightCorner.m_height},
-        ChipDB::Orientation{ChipDB::Orientation::R90});
+        ChipDB::Orientation{ChipDB::Orientation::R270});
 
     placeInstance(db, m_lowerLeftCorner.m_instanceName,
         ChipDB::Coord64{0,0},
-        ChipDB::Orientation{ChipDB::Orientation::R180});
+        ChipDB::Orientation{ChipDB::Orientation::R90});
 
     placeInstance(db, m_lowerRightCorner.m_instanceName,
         ChipDB::Coord64{dieSize.m_y - m_lowerRightCorner.m_width,0},
-        ChipDB::Orientation{ChipDB::Orientation::R270});
+        ChipDB::Orientation{ChipDB::Orientation::R180});
 
     ChipDB::Rect64 rect;
 
@@ -104,7 +104,7 @@ bool Padring::layout(Database &db)
     rect.setTop(dieSize.m_y);
     rect.setBottom(dieSize.m_y - db.m_design.m_floorplan->ioMargins().m_top);
     m_top.setLayoutRect(rect);
-    m_top.setCellOrientation(ChipDB::Orientation{ChipDB::Orientation::R180});
+    m_top.setCellOrientation(ChipDB::Orientation{ChipDB::Orientation::R0});
     Logging::logVerbose("Top rect   : (%ld %ld) (%ld %ld)\n",
         rect.left(), rect.bottom(),
         rect.right(), rect.top());
@@ -115,7 +115,7 @@ bool Padring::layout(Database &db)
     rect.setTop(db.m_design.m_floorplan->ioMargins().m_bottom);
     rect.setBottom(0);
     m_bottom.setLayoutRect(rect);
-    m_bottom.setCellOrientation(ChipDB::Orientation{ChipDB::Orientation::R0});
+    m_bottom.setCellOrientation(ChipDB::Orientation{ChipDB::Orientation::R180});
     Logging::logVerbose("Bottom rect: (%ld %ld) (%ld %ld)\n",
         rect.left(), rect.bottom(),
         rect.right(), rect.top());

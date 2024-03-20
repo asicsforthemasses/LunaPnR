@@ -60,7 +60,7 @@ public:
                 return false;
             }
 
-            std::ofstream outfile(fname);
+            std::ofstream outfile(fname, std::ios::out | std::ios::trunc);
             if (!outfile.is_open())
             {
                 std::stringstream ss;
@@ -72,7 +72,7 @@ public:
             if (!LunaCore::Verilog::Writer::write(outfile, modKp.ptr()))
             {
                 std::stringstream ss;
-                ss << "Failed to load '"<< fname << "'\n";
+                ss << "Failed to write '"<< fname << "'\n";
                 Logging::logError(ss.str());
                 return false;
             }
@@ -127,7 +127,7 @@ public:
             if (!LunaCore::TXT::write(outfile, modKp.ptr()))
             {
                 std::stringstream ss;
-                ss << "Failed to load '"<< fname << "'\n";
+                ss << "Failed to write '"<< fname << "'\n";
                 Logging::logError(ss.str());
                 return false;
             }
@@ -138,6 +138,62 @@ public:
                 Logging::logInfo(ss.str());
                 return true;
             }
+        }
+        else if (m_namedParams.contains("def"))
+        {
+            auto params = m_namedParams.at("def");
+            if (params.size() != 2)
+            {
+                std::stringstream ss;
+                ss << "read -def requires exactly two parameters\n";
+                Logging::logError(ss.str());
+                return false;
+            }
+
+            auto moduleName = params.at(0);
+            auto fname      = params.at(1);
+
+            auto modKp = database.m_design.m_moduleLib->lookupModule(moduleName);
+            if (!modKp.isValid())
+            {
+                std::stringstream ss;
+                ss << "cannot find module '"<< moduleName << "'\n";
+                Logging::logError(ss.str());
+                return false;
+            }
+
+            if (std::filesystem::is_directory(fname))
+            {
+                std::stringstream ss;
+                ss << "'"<< fname << "' is a directory\n";
+                Logging::logError(ss.str());
+                return false;
+            }
+
+            std::ofstream outfile(fname, std::ios::out | std::ios::trunc);
+            if (!outfile.is_open())
+            {
+                std::stringstream ss;
+                ss << "Cannot open file '"<< fname << "'\n";
+                Logging::logError(ss.str());
+                return false;
+            }
+
+            if (!LunaCore::DEF::write(outfile, modKp.ptr()))
+            {
+                std::stringstream ss;
+                ss << "Failed to write '"<< fname << "'\n";
+                Logging::logError(ss.str());
+                return false;
+            }
+            else
+            {
+                std::stringstream ss;
+                ss << "Module '" << modKp->name() << " has been exported to " << fname << "'\n";
+                Logging::logInfo(ss.str());
+                return true;
+            }
+
         }
         else
         {
