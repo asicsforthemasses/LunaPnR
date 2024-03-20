@@ -35,6 +35,7 @@ void ReplWidget::keyPressEvent(QKeyEvent *e)
     switch(e->key())
     {
     case Qt::Key_Return:
+    case Qt::Key_Enter:
         handleEnter();
         break;
     case Qt::Key_Backspace:
