@@ -16,7 +16,6 @@ class PlacePass : public Pass
 public:
     PlacePass() : Pass("place")
     {
-        registerNamedParameter("pads", "", 0, false);
         registerNamedParameter("core", "", 0, false);
         registerNamedParameter("cell", "", 0, false);
     }
@@ -28,12 +27,7 @@ public:
     */
     [[nodiscard]] bool execute(Database &database) override
     {
-        if (m_namedParams.contains("pads"))
-        {
-            Logging::logError("Not implemented yet\n");
-            return false;
-        }
-        else if (m_namedParams.contains("core"))
+        if (m_namedParams.contains("core"))
         {
             Logging::logError("Not implemented yet\n");
             return false;
@@ -61,7 +55,6 @@ public:
         ss << "place - place pads/core/cell\n";
         ss << "  place <place type>\n\n";
         ss << "  Place type options:\n";
-        ss << "    -pads    : place the IO pads\n";
         ss << "    -core    : place all core cells\n";
         ss << "    -cell    : place a specific cell at a specified position\n";
         ss << "\n";
@@ -73,7 +66,7 @@ public:
     */
     virtual std::string shortHelp() const noexcept
     {
-        return "place pads/core/cell";
+        return "place core/cell";
     }
 
     /**

@@ -3,41 +3,82 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <QStringList>
+#include <iostream>
 #include <string_view>
+#include <filesystem>
 #include "cmdcompleter.hpp"
 
 namespace GUI
 {
 
-std::list<QString> LunaCommandCompleter::tryComplete(const QString &str)
+QString longestCommonPrefix(QStringList &list)
 {
-    std::list<QString> results;
+    if (list.empty()) return "";
+
+    if (list.size() == 1) return list.front();
+
+    std::sort(list.begin(), list.end());
+
+    auto minLength = std::min(list.front().size(), list.back().size());
+
+    auto first = list.front();
+    auto last  = list.back();
+    std::size_t idx = 0;
+    while( (idx < minLength) && (first.at(idx) == last.at(idx)))
+    {
+        idx++;
+    }
+
+    return first.first(idx);
+}
+
+QString LunaCommandCompleter::tryComplete(const QString &str)
+{
+    QStringList options;
 
     // for now, we just return the first option
     for(auto const& word : m_words)
     {
         if (word.startsWith(str))
         {
-            results.push_back(word);
-            return results;
+            options.push_back(word);
         }
     }
 
-    // return if there are 0 or 1 solutions
-    if (results.size() <= 1)
+    auto prefix = longestCommonPrefix(options);
+
+    if (prefix.isEmpty())
     {
-        return results;
+        options.clear();
+        // try to see if it's a filesystem path?
+        try
+        {
+            auto p = std::filesystem::path(str.toStdString());
+            auto lastPart = *std::prev(p.end());
+            auto pp = p.parent_path();
+
+            for(auto const& entry : std::filesystem::directory_iterator(pp))
+            {
+                QString entryPath = QString::fromStdString(entry.path().string());
+                std::cout << "entryPath: " << entryPath.toStdString() << "\n";
+                if (entryPath.startsWith(str))
+                {
+                    options.push_back(entryPath);
+                }
+            }
+
+            prefix = longestCommonPrefix(options);
+        }
+        catch(std::exception &e)
+        {
+            // ignore exceptions caused by std::filesystem
+            // in the command completer
+        }
+
+        //auto currentPath = std::filesystem::current_path();
     }
 
-    QString prefix = str;
-
-    // find the longest common prefix
-    for(auto const& option : results)
-    {
-
-    }
-
-    return results;
+    return prefix;
 }
 
 };

@@ -205,6 +205,8 @@ bool Pass::processParameters(ArgList args)
 std::vector<std::string> getNamesOfPasses()
 {
     std::vector<std::string> names;
+    names.push_back("help");
+
     for(auto const &pass : gs_passes.m_passes)
     {
         names.push_back(pass.first);

@@ -4,6 +4,7 @@
 
 #pragma once
 #include <QString>
+#include <QStringList>
 #include <QPlainTextEdit>
 #include <deque>
 #include <memory>
@@ -21,12 +22,10 @@ public:
     /** command completer interface */
     struct ICompleter
     {
-        /** try complete should return one string if there is one option.
-            if there are two or more options, the first entry in the list
-            must be the longest common prefix of the options, followed
-            by all the options.
+        /** try complete should return one string.
+            FIXME: return all options and the longest common prefix
         */
-        virtual std::list<QString> tryComplete(const QString &str) = 0;
+        virtual QString tryComplete(const QString &str) = 0;
     };
 
     /** retrieve the user prompt */

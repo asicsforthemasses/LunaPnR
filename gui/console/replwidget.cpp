@@ -3,6 +3,9 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include <cassert>
+#include <iostream>
+#include <span>
+#include <algorithm>
 
 #include "replwidget.hpp"
 #include <QTextBlock>
@@ -235,20 +238,13 @@ void ReplWidget::handleCompleter()
     auto result = strGetLastToken(getCommand());
     if (result.m_str.isEmpty()) return; // command/token list is empty
 
-    auto options = m_completer->tryComplete(result.m_str);
+    auto option = m_completer->tryComplete(result.m_str);
 
-    // the options list can never have a length of 2.
-    assert(options.size() != 2);
-
-    if (options.size() == 1)
+    if (!option.isEmpty())
     {
         auto cmd = getCommand().first(result.m_offset);
-        cmd.append(options.front());
+        cmd.append(option);
         setCommand(cmd);
-    }
-    else
-    {
-        auto commonPrefix = options.front();
     }
 }
 
