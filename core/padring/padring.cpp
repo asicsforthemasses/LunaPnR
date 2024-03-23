@@ -2,6 +2,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
+#include <cassert>
 #include "padring.hpp"
 #include "common/matrix.h"
 #include "common/logging.h"
@@ -143,12 +144,20 @@ bool Padring::layout(Database &db)
         rect.right(), rect.top());
     m_right.setDirection(Layout::Direction::VERTICAL);
 
-    layoutEdge(db, m_upperLeftCorner, m_upperRightCorner, m_top);
-    layoutEdge(db, m_lowerLeftCorner, m_lowerRightCorner, m_bottom);
-    layoutEdge(db, m_lowerLeftCorner, m_upperLeftCorner, m_left);
-    layoutEdge(db, m_lowerRightCorner, m_upperRightCorner, m_right);
+    bool ok = true;
+    auto spacers = findSpacers(db);
+    if (spacers.empty())
+    {
+        Logging::logError("Cannot fill gaps between pads: no spacers/filler cells found\n");
+        ok = false;
+    }
 
-    return true;
+    ok = ok & layoutEdge(db, m_upperLeftCorner, m_upperRightCorner, m_top);
+    ok = ok & layoutEdge(db, m_lowerLeftCorner, m_lowerRightCorner, m_bottom);
+    ok = ok & layoutEdge(db, m_lowerLeftCorner, m_upperLeftCorner, m_left);
+    ok = ok & layoutEdge(db, m_lowerRightCorner, m_upperRightCorner, m_right);
+
+    return ok;
 }
 
 bool Padring::layoutEdge(Database &db, const LayoutItem &corner1, const LayoutItem &corner2, const Layout &edge)
@@ -332,6 +341,30 @@ bool Padring::placeInstance(Database &db,
     insKp->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
     insKp->m_orientation = orientation;
     return true;
+}
+
+std::vector<Padring::Spacer> Padring::findSpacers(Database &db) const
+{
+    assert(db.m_design.m_cellLib);
+
+    std::vector<Spacer> spacers;
+    for(auto const& cell : *db.m_design.m_cellLib)
+    {
+        if ((cell->m_class == ChipDB::CellClass::PAD) &&
+            (cell->m_subclass == ChipDB::CellSubclass::SPACER))
+        {
+            Spacer s;
+            s.m_name    = cell->name();
+            s.m_width   = cell->m_size.m_x;
+            s.m_offset  = cell->m_offset;
+            spacers.emplace_back(s);
+
+            Logging::logVerbose("  Found spacer %s width %ld\n", s.m_name.c_str(),
+                s.m_width);
+        }
+    }
+
+    return spacers;
 }
 
 };

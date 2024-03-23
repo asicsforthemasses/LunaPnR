@@ -165,6 +165,15 @@ public:
     LayoutItem m_lowerLeftCorner;
     LayoutItem m_lowerRightCorner;
 
+    struct Spacer
+    {
+        std::string         m_name;
+        ChipDB::CoordType   m_width{0};
+        ChipDB::Coord64     m_offset;
+    };
+
+    std::vector<Spacer> findSpacers(Database &db) const;
+
 protected:
     bool layoutEdge(Database &db, const LayoutItem &corner1, const LayoutItem &corner2, const Layout &edge);
 

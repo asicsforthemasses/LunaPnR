@@ -19,6 +19,9 @@ public:
     {
         registerNamedParameter("loglevel", "", 1, false);
         registerNamedParameter("top", "", 1, false);
+        registerNamedParameter("cell", "", 1, false);
+        registerNamedParameter("class", "", 1, false);
+        registerNamedParameter("subclass", "", 1, false);
     }
 
     virtual ~SetPass() = default;
@@ -52,9 +55,32 @@ public:
 
             return false;
         }
+        else if (m_namedParams.contains("cell"))
+        {
+            auto cellName = m_namedParams.at("cell").front();
+
+            auto cellKp = database.m_design.m_cellLib->lookupCell(cellName);
+            if (!cellKp.isValid())
+            {
+                Logging::logError("Cannot find cell %s\n", cellName.c_str());
+                return false;
+            }
+
+            if (m_namedParams.contains("subclass"))
+            {
+                cellKp->m_subclass.fromString(m_namedParams.at("subclass").at(0));
+            }
+
+            if (m_namedParams.contains("class"))
+            {
+                cellKp->m_class.fromString(m_namedParams.at("class").at(0));
+            }
+
+            return true;
+        }
         else
         {
-            Logging::logError("Missing parameters, use -loglevel or -top\n");
+            Logging::logError("Missing parameters, use -loglevel, -top or -cell\n");
             return false;
         }
 
@@ -70,8 +96,10 @@ public:
         ss << "set - set stuff\n";
         ss << "  set <set type>\n\n";
         ss << "  set type options:\n";
-        ss << "    -loglevel <level>    : set log level to NORMAL, DEBUG or VERBOSE.\n";
-        ss << "    -top <module name>   : set top level module\n";
+        ss << "    -loglevel <level>                    : set log level to NORMAL, DEBUG or VERBOSE.\n";
+        ss << "    -top <module name>                   : set top level module\n";
+        ss << "    -cell <cell name> -class <class>     : change cell class\n";
+        ss << "    -cell <cell name> -subclass <sclass> : change cell subclass\n";
         ss << "\n";
         return ss.str();
     }
