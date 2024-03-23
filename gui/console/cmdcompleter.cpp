@@ -74,8 +74,6 @@ QString LunaCommandCompleter::tryComplete(const QString &str)
             // ignore exceptions caused by std::filesystem
             // in the command completer
         }
-
-        //auto currentPath = std::filesystem::current_path();
     }
 
     return prefix;
