@@ -17,4 +17,6 @@ set -cell PADNC50 -subclass SPACER
 padring -place ./test/files/padring/padring.conf -module top
 
 write -def top ./test/files/results/padring.def
+set -loglevel VERBOSE
 write -gds2 top ./test/files/results/padring.gds
+set -loglevel NORMAL

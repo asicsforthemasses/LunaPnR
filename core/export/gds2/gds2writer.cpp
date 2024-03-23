@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include "gds2writer.hpp"
 #include "common/gds2defs.hpp"
 
@@ -81,6 +85,15 @@ bool write(std::ostream &os, const Database &database, const std::string &module
 
     // write cells
 
+    for(auto const ins : moduleKp->m_netlist->m_instances)
+    {
+        Logging::logVerbose("  Instance %s %s\n", ins->name().c_str(), ins->getArchetypeName().c_str());
+        if (ins.isValid())
+        {
+            write(os, *ins);
+        }
+    }
+
     // write epilog
 
     // ENDSTR
@@ -91,6 +104,7 @@ bool write(std::ostream &os, const Database &database, const std::string &module
     write16(os, 0x0004);    // Len = 4
     write16(os, 0x0400);    // ENDLIB id
 
+    os.flush();
     return true;
 };
 
@@ -161,94 +175,77 @@ void write(std::ostream &os, const ChipDB::Instance &instance)
     uint32_t rot = 0;                   // rotation in degrees
     bool     flip = false;              // true if cell is to be flipped (GDS2 flipping style!)
 
-#if 0
     // process regular cells that have N,S,E,W
     // locations
-    if (item->m_location == "N")
+    if (instance.m_orientation == ChipDB::Orientation::R0)
     {
-        // North orientation, rotation = 180 degrees
-        if (item->m_flipped)
+        // North orientation, rotation = 0 degrees
+        //if (item->m_flipped)
+        if (false)
         {
-            flip = true;
+            px += instance.instanceSize().m_x;
+            rot = 180;
+        }
+        else
+        {
+            //flip = true;
             rot = 0;
         }
-        else
-        {
-            px += item->m_lefinfo->m_sx;
-            rot = 180;
-        }
     }
-    else if (item->m_location == "S")
+    else if (instance.m_orientation == ChipDB::Orientation::R180)
     {
-        // South orientation, rotation = 0 degrees
-        if (item->m_flipped)
+        // South orientation, rotation = 180 degrees
+        if (false)
         {
             flip = true;
             rot = 180;
-            px += item->m_lefinfo->m_sx;
+            px += instance.instanceSize().m_x;
         }
         else
         {
-            // nothing
+            rot = 180;
+            px += instance.instanceSize().m_x;
+            py += instance.instanceSize().m_y;
         }
     }
-    else if (item->m_location == "E")
+    else if (instance.m_orientation == ChipDB::Orientation::R270)
     {
-        if (item->m_flipped)
+        if (false)
         {
             flip = true;
             rot = 270;
-            py += item->m_lefinfo->m_sx;
+            py += instance.instanceSize().m_x;
         }
         else
         {
-            rot = 90;
+            rot = 270;
+            py += instance.instanceSize().m_x;
         }
     }
-    else if (item->m_location == "W")
+    else if (instance.m_orientation == ChipDB::Orientation::R90)
     {
-        if (item->m_flipped)
+        if (false)
         {
             flip = true;
             rot = 90;
         }
         else
         {
-            py += item->m_lefinfo->m_sx;
-            rot = 270;
+            px += instance.instanceSize().m_y;
+            rot = 90;
         }
     }
-    // process corner cells that have NE,NW,SE,SW locations
-    else if (item->m_location == "NW")
-    {
-        rot = 270;
-    }
-    else if (item->m_location == "SE")
-    {
-        px += item->m_lefinfo->m_sy;
-        rot = 90;
-    }
-    else if (item->m_location == "NE")
-    {
-        px += item->m_lefinfo->m_sx;
-        rot = 180;
-    }
-    else if (item->m_location == "SW")
-    {
-        // nothing.
-    }
-#endif
-
 
     // SREF
     write16(os, 0x0004);    // Len
     write16(os, 0x0A00);    // SREF id
 
     // SNAME
-    uint32_t bytes = instance.name().size() + (instance.name().size() % 2);
+    auto const sname = instance.getArchetypeName();
+    uint32_t bytes = sname.size() + (sname.size() % 2);
     write16(os, bytes+4);   // Len
     write16(os, 0x1206);    // SNAME
-    write(os, instance.name());
+    write(os, sname);
 
     // check for FLIP
     if (flip)
