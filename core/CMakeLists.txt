@@ -196,6 +196,7 @@ add_library(lunacore
     import/verilog/verilogreader.cpp
     import/ppm/ppmreader.cpp
     export/svg/svgwriter.cpp
+    export/gds2/gds2writer.cpp
     export/dot/dotwriter.cpp
     export/def/defwriter.cpp
     export/ppm/ppmwriter.cpp

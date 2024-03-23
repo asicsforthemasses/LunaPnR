@@ -39,6 +39,11 @@ public:
         return m_topModule;
     }
 
+    std::shared_ptr<ChipDB::Module> getTopModule() const
+    {
+        return m_topModule;
+    }
+
     auto& properties() noexcept
     {
         return m_properties;

@@ -20,6 +20,7 @@ public:
         registerNamedParameter("verilog", "", 2, false);
         registerNamedParameter("def", "", 2, false);
         registerNamedParameter("txt", "", 2, false);
+        registerNamedParameter("gds2", "", 2, false);
     }
 
     virtual ~WritePass() = default;
@@ -79,7 +80,7 @@ public:
             else
             {
                 std::stringstream ss;
-                ss << "Module '" << modKp->name() << " has been exported to " << fname << "'\n";
+                ss << "Module '" << modKp->name() << "' has been exported to " << fname << "'\n";
                 Logging::logInfo(ss.str());
                 return true;
             }
@@ -134,7 +135,7 @@ public:
             else
             {
                 std::stringstream ss;
-                ss << "Module '" << modKp->name() << " has been exported to " << fname << "'\n";
+                ss << "Module '" << modKp->name() << "' has been exported to " << fname << "'\n";
                 Logging::logInfo(ss.str());
                 return true;
             }
@@ -189,15 +190,60 @@ public:
             else
             {
                 std::stringstream ss;
-                ss << "Module '" << modKp->name() << " has been exported to " << fname << "'\n";
+                ss << "Module '" << modKp->name() << "' has been exported to " << fname << "'\n";
                 Logging::logInfo(ss.str());
                 return true;
             }
+        }
+        else if (m_namedParams.contains("gds2"))
+        {
+            auto params = m_namedParams.at("gds2");
+            if (params.size() != 2)
+            {
+                std::stringstream ss;
+                ss << "read -gds2 requires exactly two parameters\n";
+                Logging::logError(ss.str());
+                return false;
+            }
 
+            auto moduleName = params.at(0);
+            auto fname      = params.at(1);
+
+            if (std::filesystem::is_directory(fname))
+            {
+                std::stringstream ss;
+                ss << "'"<< fname << "' is a directory\n";
+                Logging::logError(ss.str());
+                return false;
+            }
+
+            std::ofstream outfile(fname, std::ios::out | std::ios::trunc);
+            if (!outfile.is_open())
+            {
+                std::stringstream ss;
+                ss << "Cannot open file '"<< fname << "'\n";
+                Logging::logError(ss.str());
+                return false;
+            }
+
+            if (!LunaCore::GDS2::write(outfile, database, moduleName))
+            {
+                std::stringstream ss;
+                ss << "Failed to write '"<< fname << "'\n";
+                Logging::logError(ss.str());
+                return false;
+            }
+            else
+            {
+                std::stringstream ss;
+                ss << "Module '" << moduleName << "' has been exported to " << fname << "'\n";
+                Logging::logInfo(ss.str());
+                return true;
+            }
         }
         else
         {
-            Logging::logError("Missing file type, use -verilog, -def or -txt\n");
+            Logging::logError("Missing file type, use -verilog, -def, -gds2 or -txt\n");
             return false;
         }
 
@@ -215,6 +261,7 @@ public:
         ss << "  File type options:\n";
         ss << "    -verilog : write a Verilog netlist\n";
         ss << "    -def     : write a DEF design file\n";
+        ss << "    -gds2    : write a GDS2 design file\n";
         ss << "    -txt     : write a TXT file\n";
         ss << "\n";
         return ss.str();
