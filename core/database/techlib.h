@@ -161,9 +161,9 @@ protected:
 class TechLib
 {
 public:
-    TechLib() : m_manufacturingGrid(0) {}
+    TechLib() = default;
 
-    int32_t                  m_manufacturingGrid; // in nm.
+    ChipDB::CoordType m_manufacturingGrid{1}; // in nm.
 
     void clear();
 
@@ -209,8 +209,6 @@ public:
     void removeLayerListener(ChipDB::INamedStorageListener *listener);
     void addSiteListener(ChipDB::INamedStorageListener *listener);
     void removeSiteListener(ChipDB::INamedStorageListener *listener);
-
-    void contentsChanged() const;
 
 protected:
     NamedStorage<LayerInfo>  m_layers;

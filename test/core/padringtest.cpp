@@ -27,6 +27,11 @@ BOOST_AUTO_TEST_CASE(read_padring_config)
     BOOST_REQUIRE(leffile.is_open());
     BOOST_REQUIRE(ChipDB::LEF::Reader::load(db.m_design, leffile));
 
+    leffile.close();
+    leffile.open("test/files/iit_stdcells_extra/fake_pad_fillers35.lef");
+    BOOST_REQUIRE(leffile.is_open());
+    BOOST_REQUIRE(ChipDB::LEF::Reader::load(db.m_design, leffile));
+
     std::ifstream verilogfile("test/files/padring/padring.v");
     BOOST_REQUIRE(verilogfile.is_open());
     BOOST_REQUIRE(ChipDB::Verilog::Reader::load(db.m_design, verilogfile));
@@ -35,9 +40,16 @@ BOOST_AUTO_TEST_CASE(read_padring_config)
 
     db.m_design.m_floorplan->clear();
     db.m_design.m_floorplan->setCoreSize({1000000, 1000000});
-    db.m_design.m_floorplan->setIO2CoreMargins({1000, 1000, 1000, 1000});
+    db.m_design.m_floorplan->setIO2CoreMargins({10000, 10000, 10000, 10000});
     db.m_design.m_floorplan->setCornerCellSize({300000,300000});
     db.m_design.m_floorplan->setIOMargins({300000,300000,300000,300000});
+
+    // fix the PDK
+    LunaCore::Passes::registerAllPasses();
+    LunaCore::Passes::run(db, "set -cell PADNC -subclass SPACER");
+    LunaCore::Passes::run(db, "set -cell PADNC5 -subclass SPACER");
+    LunaCore::Passes::run(db, "set -cell PADNC10 -subclass SPACER");
+    LunaCore::Passes::run(db, "set -cell PADNC50 -subclass SPACER");
 
     std::ifstream padringconfig("test/files/padring/padring.conf");
     BOOST_REQUIRE(padringconfig.is_open());

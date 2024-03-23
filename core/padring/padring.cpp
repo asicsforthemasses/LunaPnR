@@ -300,6 +300,18 @@ bool Padring::layoutEdge(Database &db, const LayoutItem &corner1, const LayoutIt
     // keep track of the end of the previous cell
     // so we know if there is a gap
     ChipDB::CoordType prevPos = 0;
+    ChipDB::CoordType placementGrid = db.m_design.m_techLib->m_manufacturingGrid;
+
+    if (!m_spacers.empty())
+    {
+        placementGrid = m_spacers.back().m_width;
+    }
+    else
+    {
+        Logging::logWarning("No padring spacers found: using manufacturing grid (%ld nm) for alignment\n",
+            placementGrid);
+    }
+
     for(auto &item : items)
     {
         if ((item.m_itemType == LayoutItem::ItemType::CELL))
@@ -310,7 +322,7 @@ bool Padring::layoutEdge(Database &db, const LayoutItem &corner1, const LayoutIt
             {
                 pos.m_x = roundToValidPos(
                     Xvec(rowIdx),
-                    m_spacers.back().m_width,
+                    placementGrid,
                     corner1.m_width);
 
                 item.m_pos = pos.m_x;
@@ -332,7 +344,7 @@ bool Padring::layoutEdge(Database &db, const LayoutItem &corner1, const LayoutIt
             {
                 pos.m_y = roundToValidPos(
                     Xvec(rowIdx),
-                    m_spacers.back().m_width,
+                    placementGrid,
                     corner1.m_width);
 
                 item.m_pos = pos.m_y;

@@ -57,7 +57,7 @@ void TechLib::clear()
 {
     m_layers.clear();
     m_sites.clear();
-    m_manufacturingGrid = 0;
+    m_manufacturingGrid = 1;
 }
 
 KeyObjPair<LayerInfo> TechLib::createLayer(const std::string &name)
@@ -122,8 +122,10 @@ void TechLib::removeSiteListener(ChipDB::INamedStorageListener *listener)
     m_sites.removeListener(listener);
 }
 
+#if 0
 void TechLib::contentsChanged() const
 {
     m_sites.contentsChanged();
     m_layers.contentsChanged();
 }
+#endif
