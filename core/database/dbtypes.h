@@ -22,6 +22,7 @@ namespace ChipDB
     using NetObjectKey      = int32_t;
     using PinObjectKey      = int32_t;
     using InstanceObjectKey = int32_t;
+    using CellObjectKey     = int32_t;
     using ModuleObjectKey   = int32_t;
 
     static constexpr ObjectKey ObjectNotFound = -1;

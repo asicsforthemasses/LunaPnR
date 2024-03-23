@@ -165,22 +165,40 @@ public:
     LayoutItem m_lowerLeftCorner;
     LayoutItem m_lowerRightCorner;
 
-    struct Spacer
-    {
-        std::string         m_name;
-        ChipDB::CoordType   m_width{0};
-        ChipDB::Coord64     m_offset;
-    };
-
-    std::vector<Spacer> findSpacers(Database &db) const;
-
 protected:
     bool layoutEdge(Database &db, const LayoutItem &corner1, const LayoutItem &corner2, const Layout &edge);
+
+    // fill gap using filler cells, from 'from' to 'to' and
+    // 'otherAxis' is the coordinate of the axis perpendicular to the from-to axis.
+    bool fillGap(
+        Database &db,
+        const Layout::Direction dir,
+        const ChipDB::CoordType otherAxis,
+        const ChipDB::CoordType from,
+        const ChipDB::CoordType to,
+        const ChipDB::Orientation &orientation);
 
     bool placeInstance(Database &db,
         const std::string &insName,
         const ChipDB::Coord64 &lowerLeftPos,
         const ChipDB::Orientation &orientation);
+
+    struct Spacer
+    {
+        ChipDB::CellObjectKey m_cellKey{ChipDB::ObjectNotFound};
+        std::string         m_name;
+        ChipDB::CoordType   m_width{0};
+        ChipDB::Coord64     m_offset;
+    };
+
+    void findSpacers(Database &db);
+
+    ChipDB::CoordType roundToValidPos(ChipDB::CoordType coord,
+        ChipDB::CoordType smallestSpacerWidth,
+        ChipDB::CoordType corner1EdgePos) const;
+
+    std::vector<Spacer> m_spacers;
+    int32_t             m_fillerCount{0};
 };
 
 };

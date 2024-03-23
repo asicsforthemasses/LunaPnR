@@ -145,13 +145,14 @@ bool Padring::layout(Database &db)
     m_right.setDirection(Layout::Direction::VERTICAL);
 
     bool ok = true;
-    auto spacers = findSpacers(db);
-    if (spacers.empty())
+    findSpacers(db);
+    if (m_spacers.empty())
     {
         Logging::logError("Cannot fill gaps between pads: no spacers/filler cells found\n");
         ok = false;
     }
 
+    m_fillerCount = 0;
     ok = ok & layoutEdge(db, m_upperLeftCorner, m_upperRightCorner, m_top);
     ok = ok & layoutEdge(db, m_lowerLeftCorner, m_lowerRightCorner, m_bottom);
     ok = ok & layoutEdge(db, m_lowerLeftCorner, m_upperLeftCorner, m_left);
@@ -293,21 +294,59 @@ bool Padring::layoutEdge(Database &db, const LayoutItem &corner1, const LayoutIt
     }
 
     // fix the position of the cells
+    // FIXME: make sure the cells align to the manufacturing grid
     rowIdx = 0;
-    for(const auto &item : items)
+
+    // keep track of the end of the previous cell
+    // so we know if there is a gap
+    ChipDB::CoordType prevPos = 0;
+    for(auto &item : items)
     {
-        if (item.m_itemType == LayoutItem::ItemType::CELL)
+        if ((item.m_itemType == LayoutItem::ItemType::CELL))
         {
             ChipDB::Coord64 pos;
 
             if (edge.direction() == Layout::Direction::HORIZONTAL)
             {
-                pos.m_x = static_cast<ChipDB::CoordType>(std::round(Xvec(rowIdx)));
+                pos.m_x = roundToValidPos(
+                    Xvec(rowIdx),
+                    m_spacers.back().m_width,
+                    corner1.m_width);
+
+                item.m_pos = pos.m_x;
+
+                if (pos.m_x != prevPos)
+                {
+                    // fill gap
+                    fillGap(db,
+                        Layout::Direction::HORIZONTAL,
+                        edge.layoutRect().bottom(),
+                        prevPos,
+                        pos.m_x,
+                        edge.cellOrientation());
+                }
+
                 pos.m_y = edge.layoutRect().bottom();
             }
             else
             {
-                pos.m_y = static_cast<ChipDB::CoordType>(std::round(Xvec(rowIdx)));
+                pos.m_y = roundToValidPos(
+                    Xvec(rowIdx),
+                    m_spacers.back().m_width,
+                    corner1.m_width);
+
+                item.m_pos = pos.m_y;
+
+                if (pos.m_y != prevPos)
+                {
+                    // fill gap
+                    fillGap(db, Layout::Direction::VERTICAL,
+                        edge.layoutRect().left(),
+                        prevPos,
+                        pos.m_y,
+                        edge.cellOrientation());
+                }
+
                 pos.m_x = edge.layoutRect().left();
             }
 
@@ -319,7 +358,117 @@ bool Padring::layoutEdge(Database &db, const LayoutItem &corner1, const LayoutIt
 
             rowIdx++;
         }
+
+        if ((item.m_itemType == LayoutItem::ItemType::CORNER) && (prevPos != 0))
+        {
+            // fill any gap between the last pad and corner2
+            if (edge.direction() == Layout::Direction::HORIZONTAL)
+            {
+                auto pos = edge.layoutRect().right() - corner2.m_width;
+                if (pos != prevPos)
+                {
+                    // fill gap
+                    fillGap(db,
+                        Layout::Direction::HORIZONTAL,
+                        edge.layoutRect().bottom(),
+                        prevPos,
+                        pos,
+                        edge.cellOrientation());
+                }
+            }
+            else
+            {
+                auto pos = edge.layoutRect().top() - corner2.m_width;
+                if (pos != prevPos)
+                {
+                    // fill gap
+                    fillGap(db, Layout::Direction::VERTICAL,
+                        edge.layoutRect().left(),
+                        prevPos,
+                        pos,
+                        edge.cellOrientation());
+                }
+            }
+        }
+
+        prevPos = item.m_pos + item.m_width;
     }
+
+    return true;
+}
+
+// note: spacers must be sorter, largest first.
+bool Padring::fillGap(
+    Database &db,
+    const Layout::Direction dir,
+    const ChipDB::CoordType otherAxis,
+    const ChipDB::CoordType from,
+    const ChipDB::CoordType to,
+    const ChipDB::Orientation &orientation
+    )
+{
+    ChipDB::CoordType gapLeft = to - from;
+
+    // we simply take a greedy approach and hope the gap can always be filled
+    // with a proper cell library, this will be the case.
+
+    auto topModule = db.m_design.getTopModule();
+    if (!topModule)
+    {
+        Logging::logError("Top module not set\n");
+        return false;
+    }
+
+    bool updated = true;
+    ChipDB::CoordType curPos = from;
+    while ((gapLeft > 0) && updated)
+    {
+        updated = false;
+
+        for(auto const &spacer : m_spacers)
+        {
+            if (gapLeft >= spacer.m_width)
+            {
+                updated = true;
+
+                std::stringstream ss;
+                ss << "_padring_fill_" << m_fillerCount++;
+
+                auto cellPtr = db.m_design.m_cellLib->lookupCell(spacer.m_cellKey);
+                if (!cellPtr)
+                {
+                    Logging::logError("Cannot find spacer %s in cell library\n", spacer.m_name.c_str());
+                    return false;
+                }
+
+                auto insPtr = std::make_shared<ChipDB::Instance>(ss.str(), ChipDB::InstanceType::CELL, cellPtr);
+                topModule->addInstance(insPtr);
+
+                if (dir == Layout::Direction::HORIZONTAL)
+                {
+                    insPtr->m_pos.m_x = curPos;
+                    insPtr->m_pos.m_y = otherAxis;
+                }
+                else
+                {
+                    insPtr->m_pos.m_x = otherAxis;
+                    insPtr->m_pos.m_y = curPos;
+                }
+
+                insPtr->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
+                insPtr->m_orientation = orientation;
+                curPos  += spacer.m_width;
+                gapLeft -= spacer.m_width;
+            }
+        }
+
+        if (!updated)
+        {
+            Logging::logError("Cannot fill gap %ld nm: no suitable spacer\n", gapLeft);
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -343,11 +492,11 @@ bool Padring::placeInstance(Database &db,
     return true;
 }
 
-std::vector<Padring::Spacer> Padring::findSpacers(Database &db) const
+void Padring::findSpacers(Database &db)
 {
     assert(db.m_design.m_cellLib);
 
-    std::vector<Spacer> spacers;
+    m_spacers.clear();
     for(auto const& cell : *db.m_design.m_cellLib)
     {
         if ((cell->m_class == ChipDB::CellClass::PAD) &&
@@ -357,14 +506,31 @@ std::vector<Padring::Spacer> Padring::findSpacers(Database &db) const
             s.m_name    = cell->name();
             s.m_width   = cell->m_size.m_x;
             s.m_offset  = cell->m_offset;
-            spacers.emplace_back(s);
+            s.m_cellKey = cell.key();
+            m_spacers.emplace_back(s);
 
             Logging::logVerbose("  Found spacer %s width %ld\n", s.m_name.c_str(),
                 s.m_width);
         }
     }
 
-    return spacers;
+    // sort spacers, largest first
+    std::sort(m_spacers.begin(), m_spacers.end(),
+        [&](const Spacer &s1, const Spacer &s2)
+        {
+            return s1.m_width > s2.m_width;
+        }
+    );
+}
+
+ChipDB::CoordType Padring::roundToValidPos(ChipDB::CoordType coord,
+    ChipDB::CoordType smallestSpacerWidth,
+    ChipDB::CoordType corner1EdgePos) const
+{
+    auto delta = coord - corner1EdgePos;
+    float spacerCellCount = std::round(static_cast<float>(delta) / static_cast<float>(smallestSpacerWidth)) * smallestSpacerWidth;
+
+    return corner1EdgePos + static_cast<ChipDB::CoordType>(spacerCellCount);
 }
 
 };
