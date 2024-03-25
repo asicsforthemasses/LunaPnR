@@ -11,6 +11,95 @@
 namespace LunaCore::Padring
 {
 
+std::optional<ChipDB::Orientation> flipPad(const ChipDB::Orientation &cellOrientation,
+    const ChipDB::Orientation &defaultOrientation)
+{
+    int32_t angle = 0;
+
+    switch(defaultOrientation.value())
+    {
+    case ChipDB::Orientation::R0:
+        angle = 0;
+        break;
+    case ChipDB::Orientation::R90:
+        angle = -90;
+        break;
+    case ChipDB::Orientation::R180:
+        angle = -180;
+        break;
+    case ChipDB::Orientation::R270:
+        angle = -270;
+        break;
+    case ChipDB::Orientation::UNDEFINED:
+        Logging::logWarning("Cell default orientation is undefined\n");
+        return std::nullopt;
+    default:
+        Logging::logWarning("Cell orientation %s is unsupported (MX,MY,MX90,MY90)\n",
+            defaultOrientation.toCString());
+        return std::nullopt;
+    }
+
+    // add the desired orientation of the corner cell
+    bool flipped = false;
+    switch(cellOrientation.value())
+    {
+    case ChipDB::Orientation::R0:
+        break;
+    case ChipDB::Orientation::MY:
+        flipped = true;
+        break;
+    case ChipDB::Orientation::R90:
+        angle += 90;
+        break;
+    case ChipDB::Orientation::MX90:
+        angle += 90;
+        flipped = true;
+        break;
+    case ChipDB::Orientation::R180:
+        angle += 180;
+        break;
+    case ChipDB::Orientation::MX:
+        angle += 180;
+        flipped = true;
+        break;
+    case ChipDB::Orientation::R270:
+        angle += 270;
+        break;
+    case ChipDB::Orientation::MY90:
+        angle += 270;
+        flipped = true;
+        break;
+    default:
+        // do nothing
+        break;
+    }
+
+    // make sure the angle is between 0 .. 359
+    while(angle < 0) angle += 360;
+    angle = angle % 360;
+
+    switch(angle)
+    {
+    case 0:
+        if (flipped) return ChipDB::Orientation{ChipDB::Orientation::MY};
+        return ChipDB::Orientation{ChipDB::Orientation::R0};
+    case 90:
+        if (flipped) return ChipDB::Orientation{ChipDB::Orientation::MX90};
+        return ChipDB::Orientation{ChipDB::Orientation::R90};
+    case 180:
+        if (flipped) return ChipDB::Orientation{ChipDB::Orientation::MX};
+        return ChipDB::Orientation{ChipDB::Orientation::R180};
+    case 270:
+        if (flipped) return ChipDB::Orientation{ChipDB::Orientation::MY90};
+        return ChipDB::Orientation{ChipDB::Orientation::R270};
+    default:
+        Logging::logError("Cannot determine orientation for corner cell with angle = %d\n", angle);
+        break;
+    }
+
+    return std::nullopt;
+}
+
 std::optional<ChipDB::Orientation> flipCorner(const ChipDB::Orientation &cornerOrientation,
     const ChipDB::CellSubclass &cornerSubclass)
 {
@@ -75,6 +164,8 @@ std::optional<ChipDB::Orientation> flipCorner(const ChipDB::Orientation &cornerO
     }
     return std::nullopt;
 }
+
+
 
 void Padring::clear()
 {
@@ -171,47 +262,48 @@ bool Padring::layout(Database &db)
     rect.setTop(dieSize.m_y);
     rect.setBottom(dieSize.m_y - db.m_design.m_floorplan->ioMargins().m_top);
     m_top.setLayoutRect(rect);
-    m_top.setCellOrientation(ChipDB::Orientation{ChipDB::Orientation::R0});
-    m_top.setPadAlignment(Layout::PadAlignment::TOP);
+    m_top.setDefaultCellOrientation(m_defaultPadOrientation);
+    m_top.setLocation(Layout::Location::TOP);
 
     Logging::logVerbose("Top rect   : (%ld %ld) (%ld %ld)\n",
         rect.left(), rect.bottom(),
         rect.right(), rect.top());
-    m_top.setDirection(Layout::Direction::HORIZONTAL);
 
     rect.setLeft(0);
     rect.setRight(dieSize.m_x);
     rect.setTop(db.m_design.m_floorplan->ioMargins().m_bottom);
     rect.setBottom(0);
     m_bottom.setLayoutRect(rect);
-    m_bottom.setCellOrientation(ChipDB::Orientation{ChipDB::Orientation::R180});
+    m_bottom.setDefaultCellOrientation(m_defaultPadOrientation);
+    m_bottom.setLocation(Layout::Location::BOTTOM);
+
     Logging::logVerbose("Bottom rect: (%ld %ld) (%ld %ld)\n",
         rect.left(), rect.bottom(),
         rect.right(), rect.top());
-    m_bottom.setDirection(Layout::Direction::HORIZONTAL);
 
     rect.setLeft(0);
     rect.setRight(db.m_design.m_floorplan->ioMargins().m_left);
     rect.setTop(dieSize.m_y);
     rect.setBottom(0);
     m_left.setLayoutRect(rect);
-    m_left.setCellOrientation(ChipDB::Orientation{ChipDB::Orientation::R90});
+    m_left.setDefaultCellOrientation(m_defaultPadOrientation);
+    m_left.setLocation(Layout::Location::LEFT);
+
     Logging::logVerbose("Left rect  : (%ld %ld) (%ld %ld)\n",
         rect.left(), rect.bottom(),
         rect.right(), rect.top());
-    m_left.setDirection(Layout::Direction::VERTICAL);
 
     rect.setLeft(dieSize.m_x - db.m_design.m_floorplan->ioMargins().m_right);
     rect.setRight(dieSize.m_x);
     rect.setTop(dieSize.m_y);
     rect.setBottom(0);
     m_right.setLayoutRect(rect);
-    m_right.setCellOrientation(ChipDB::Orientation{ChipDB::Orientation::R270});
-    m_right.setPadAlignment(Layout::PadAlignment::RIGHT);
+    m_right.setDefaultCellOrientation(m_defaultPadOrientation);
+    m_right.setLocation(Layout::Location::RIGHT);
+
     Logging::logVerbose("Right rect : (%ld %ld) (%ld %ld)\n",
         rect.left(), rect.bottom(),
         rect.right(), rect.top());
-    m_right.setDirection(Layout::Direction::VERTICAL);
 
     bool ok = true;
     findSpacers(db);
@@ -373,7 +465,7 @@ bool Padring::layoutEdge(Database &db, const LayoutItem &corner1, const LayoutIt
 
     if (!m_spacers.empty())
     {
-        placementGrid = m_spacers.back().m_width;
+        placementGrid = m_spacers.back().width();
     }
     else
     {
@@ -400,11 +492,9 @@ bool Padring::layoutEdge(Database &db, const LayoutItem &corner1, const LayoutIt
                 {
                     // fill gap
                     fillGap(db,
-                        Layout::Direction::HORIZONTAL,
-                        edge.layoutRect().bottom(),
+                        edge,
                         prevPos,
-                        pos.m_x,
-                        edge.cellOrientation());
+                        pos.m_x);
                 }
 
                 pos.m_y = edge.layoutRect().bottom();
@@ -421,29 +511,32 @@ bool Padring::layoutEdge(Database &db, const LayoutItem &corner1, const LayoutIt
                 if (pos.m_y != prevPos)
                 {
                     // fill gap
-                    fillGap(db, Layout::Direction::VERTICAL,
-                        edge.layoutRect().left(),
+                    fillGap(db,
+                        edge,
                         prevPos,
-                        pos.m_y,
-                        edge.cellOrientation());
+                        pos.m_y);
                 }
 
                 pos.m_x = edge.layoutRect().left();
             }
 
-            switch(edge.padAlignment())
+            switch(edge.location())
             {
-            case Layout::PadAlignment::RIGHT:
+            case Layout::Location::RIGHT:
                 pos.m_x += corner1.m_height - item.m_height;
                 break;
-            case Layout::PadAlignment::TOP:
+            case Layout::Location::TOP:
                 pos.m_y += corner1.m_height - item.m_height;
                 break;
-            case Layout::PadAlignment::NONE:
+            case Layout::Location::BOTTOM:
+            case Layout::Location::LEFT:
                 break;
             }
 
-            if (!placeInstance(db, item.m_instanceName, pos, edge.cellOrientation()))
+            auto cellOrientationOpt = flipPad(item.m_orientation, edge.defaultCellOrientation());
+            if (!cellOrientationOpt) return false;
+
+            if (!placeInstance(db, item.m_instanceName, pos, cellOrientationOpt.value()))
             {
                 Logging::logError("Cannot find instance %s in netlist\n", item.m_instanceName.c_str());
                 return false;
@@ -462,11 +555,9 @@ bool Padring::layoutEdge(Database &db, const LayoutItem &corner1, const LayoutIt
                 {
                     // fill gap
                     fillGap(db,
-                        Layout::Direction::HORIZONTAL,
-                        edge.layoutRect().bottom(),
+                        edge,
                         prevPos,
-                        pos,
-                        edge.cellOrientation());
+                        pos);
                 }
             }
             else
@@ -475,11 +566,10 @@ bool Padring::layoutEdge(Database &db, const LayoutItem &corner1, const LayoutIt
                 if (pos != prevPos)
                 {
                     // fill gap
-                    fillGap(db, Layout::Direction::VERTICAL,
-                        edge.layoutRect().left(),
+                    fillGap(db,
+                        edge,
                         prevPos,
-                        pos,
-                        edge.cellOrientation());
+                        pos);
                 }
             }
         }
@@ -493,11 +583,9 @@ bool Padring::layoutEdge(Database &db, const LayoutItem &corner1, const LayoutIt
 // note: spacers must be sorter, largest first.
 bool Padring::fillGap(
     Database &db,
-    const Layout::Direction dir,
-    const ChipDB::CoordType otherAxis,
+    const Layout &edge,
     const ChipDB::CoordType from,
-    const ChipDB::CoordType to,
-    const ChipDB::Orientation &orientation
+    const ChipDB::CoordType to
     )
 {
     ChipDB::CoordType gapLeft = to - from;
@@ -518,7 +606,7 @@ bool Padring::fillGap(
 
     while ((spacerIter != m_spacers.end()) && (gapLeft > 0))
     {
-        if (gapLeft >= spacerIter->m_width)
+        if (gapLeft >= spacerIter->width())
         {
             std::stringstream ss;
             ss << "_padring_fill_" << m_fillerCount++;
@@ -533,21 +621,48 @@ bool Padring::fillGap(
             auto insPtr = std::make_shared<ChipDB::Instance>(ss.str(), ChipDB::InstanceType::CELL, cellPtr);
             topModule->addInstance(insPtr);
 
-            if (dir == Layout::Direction::HORIZONTAL)
+            ChipDB::Orientation edgeOrientation{ChipDB::Orientation::UNDEFINED};
+            ChipDB::CoordType offset{0};    // offset to align the cell to the outside edge of the padring.
+            switch(edge.location())
             {
+            case Layout::Location::TOP:
+                offset = edge.layoutRect().height() - cellPtr->m_size.m_y;
                 insPtr->m_pos.m_x = curPos;
-                insPtr->m_pos.m_y = otherAxis;
-            }
-            else
-            {
-                insPtr->m_pos.m_x = otherAxis;
+                insPtr->m_pos.m_y = edge.layoutRect().bottom() + offset;
+                edgeOrientation = ChipDB::Orientation::R0;
+                break;
+            case Layout::Location::BOTTOM:
+                insPtr->m_pos.m_x = curPos;
+                insPtr->m_pos.m_y = edge.layoutRect().bottom();
+                edgeOrientation = ChipDB::Orientation::R180;
+                break;
+            case Layout::Location::LEFT:
                 insPtr->m_pos.m_y = curPos;
+                insPtr->m_pos.m_x = edge.layoutRect().left();
+                edgeOrientation = ChipDB::Orientation::R90;
+                break;
+            case Layout::Location::RIGHT:
+                offset = edge.layoutRect().width() - cellPtr->m_size.m_y;
+                insPtr->m_pos.m_y = curPos;
+                insPtr->m_pos.m_x = edge.layoutRect().left() + offset;
+                edgeOrientation = ChipDB::Orientation::R270;
+                break;
+            case Layout::Location::UNDEFINED:
+                Logging::logError("Edge location is undefined\n");
+                return false;
+            }
+
+            auto fillerOrientationOpt = flipPad(edgeOrientation, edge.defaultCellOrientation());
+
+            if (!fillerOrientationOpt)
+            {
+                return false;
             }
 
             insPtr->m_placementInfo = ChipDB::PlacementInfo::PLACEDANDFIXED;
-            insPtr->m_orientation = orientation;
-            curPos  += spacerIter->m_width;
-            gapLeft -= spacerIter->m_width;
+            insPtr->m_orientation = fillerOrientationOpt.value();
+            curPos  += spacerIter->width();
+            gapLeft -= spacerIter->width();
         }
         else
         {
@@ -622,13 +737,12 @@ void Padring::findSpacers(Database &db)
         {
             Spacer s;
             s.m_name    = cell->name();
-            s.m_width   = cell->m_size.m_x;
+            s.m_size    = cell->m_size;
             s.m_offset  = cell->m_offset;
             s.m_cellKey = cell.key();
             m_spacers.emplace_back(s);
 
-            Logging::logVerbose("  Found spacer %s width %ld\n", s.m_name.c_str(),
-                s.m_width);
+            Logging::logVerbose("  Found spacer %s width %ld\n", s.m_name.c_str(), s.width());
         }
     }
 
@@ -638,7 +752,7 @@ void Padring::findSpacers(Database &db)
     std::sort(m_spacers.begin(), m_spacers.end(),
         [&](const Spacer &s1, const Spacer &s2)
         {
-            return s1.m_width > s2.m_width;
+            return s1.width() > s2.width();
         }
     );
 }

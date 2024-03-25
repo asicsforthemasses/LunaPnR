@@ -6,6 +6,8 @@
 #include <algorithm>
 #include <cstdarg>
 #include "common/logging.h"
+#include "common/strutils.hpp"
+#include "database/enums.h"
 #include "configreader.hpp"
 
 namespace LunaCore::Padring
@@ -208,6 +210,12 @@ bool ConfigReader::parse()
                     if (!parseSpace())
                         return false;
                 }
+                else if (tokstr == "DEFAULTORIENTATION")
+                {
+                    if (!parseDefaultPadOrientation())
+                        return false;
+                }
+#if 0
                 else if (tokstr == "FILLER")
                 {
                     if (!parseFiller())
@@ -218,6 +226,7 @@ bool ConfigReader::parse()
                     if (!parseOffset())
                         return false;
                 }
+#endif
                 else
                 {
                     std::stringstream ss;
@@ -273,18 +282,18 @@ bool ConfigReader::parsePad()
         return false;
     }
 
-#if 0
+#if 1
     // parse optional 'FLIP' argument for flipped cells
-    tok = tokenize(cellname);
-    if ((tok == Token_t::IDENT) && (cellname == "FLIP"))
+    tok = tokenize(tokstr);
+    if ((tok == Token_t::IDENT) && (tokstr == "FLIP"))
     {
         flipped = true;
-        tok = tokenize(cellname);
+        tok = tokenize(tokstr);
     }
 #endif
 
     // expect semicol
-    tok = tokenize(tokstr);
+    //tok = tokenize(tokstr);
     if (tok != Token_t::SEMICOL)
     {
         error("Expected ;\n");
@@ -382,7 +391,7 @@ bool ConfigReader::parseSpace()
     return true;
 }
 
-
+#if 0
 bool ConfigReader::parseOffset()
 {
     // OFFSET: g
@@ -442,6 +451,51 @@ bool ConfigReader::parseFiller()
     }
 
     onFiller(fillerName);
+    return true;
+}
+#endif
+
+bool ConfigReader::parseDefaultPadOrientation()
+{
+    std::string orientation, tokstr;
+
+    auto tok = tokenize(orientation);
+    if ((tok != Token_t::IDENT) || orientation.empty())
+    {
+        Logging::logError("Expected an orientation (N, E, S, W)\n");
+        return false;
+    }
+
+    ChipDB::Orientation defaultPadOrientation;
+    switch(LunaCore::toupper(orientation).at(0))
+    {
+    case 'N':
+        defaultPadOrientation.fromString("R0");
+        break;
+    case 'S':
+        defaultPadOrientation.fromString("R180");
+        break;
+    case 'E':
+        defaultPadOrientation.fromString("R270");
+        break;
+    case 'W':
+        defaultPadOrientation.fromString("R90");
+        break;
+    default:
+        Logging::logError("Do no recognize %s as a valid orientation\n", orientation.c_str());
+        return false;
+    }
+
+    // expect semicol
+    tok = tokenize(tokstr);
+    if (tok != Token_t::SEMICOL)
+    {
+        error("Expected ;\n");
+        return false;
+    }
+
+    onDefaultPadOrientation(defaultPadOrientation);
+
     return true;
 }
 

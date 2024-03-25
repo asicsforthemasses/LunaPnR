@@ -59,6 +59,15 @@ public:
         VERTICAL
     };
 
+    enum class Location
+    {
+        UNDEFINED,
+        TOP,
+        BOTTOM,
+        LEFT,
+        RIGHT
+    };
+
     Layout() = default;
 
     void clear()
@@ -109,14 +118,31 @@ public:
     auto begin() const {return m_items.begin(); }
     auto end() const {return m_items.end(); }
 
-    constexpr void setDirection(const Direction &dir) noexcept
+    constexpr void setLocation(const Location &loc) noexcept
     {
-        m_direction = dir;
+        m_location = loc;
     }
 
-    constexpr auto direction() const noexcept
+    constexpr auto location() const noexcept
     {
-        return m_direction;
+        return m_location;
+    }
+
+    constexpr Direction direction() const noexcept
+    {
+        switch(m_location)
+        {
+        case Location::UNDEFINED:
+            return Direction::UNDEFINED;
+        case Location::LEFT:
+        case Location::RIGHT:
+            return Direction::VERTICAL;
+        case Location::TOP:
+        case Location::BOTTOM:
+            return Direction::HORIZONTAL;
+        }
+
+        return Direction::UNDEFINED;
     }
 
     constexpr void setLayoutRect(const ChipDB::Rect64 &rect)
@@ -129,14 +155,14 @@ public:
         return m_layoutRect;
     }
 
-    constexpr void setCellOrientation(const ChipDB::Orientation &orientation) noexcept
+    constexpr void setDefaultCellOrientation(const ChipDB::Orientation &orientation) noexcept
     {
-        m_cellOrientation = orientation;
+        m_defaultCellOrientation = orientation;
     }
 
-    constexpr auto cellOrientation() const noexcept
+    constexpr auto defaultCellOrientation() const noexcept
     {
-        return m_cellOrientation;
+        return m_defaultCellOrientation;
     }
 
     /** pad alignment for when corner cells are larger than pads */
@@ -147,26 +173,16 @@ public:
         RIGHT
     };
 
-    constexpr void setPadAlignment(PadAlignment alignment) noexcept
-    {
-        m_padAlignment = alignment;
-    }
-
-    [[nodiscard]] constexpr auto padAlignment() const noexcept
-    {
-        return m_padAlignment;
-    }
-
 protected:
+    Location m_location{Location::UNDEFINED};
+
     Direction m_direction{Direction::UNDEFINED};
     std::list<std::unique_ptr<LayoutItem> > m_items;
-
-    PadAlignment m_padAlignment{PadAlignment::NONE};
 
     std::size_t m_cellCount{0};
     ChipDB::Rect64 m_layoutRect;    ///< the size of the area to use for layout
 
-    ChipDB::Orientation m_cellOrientation{ChipDB::Orientation::UNDEFINED};
+    ChipDB::Orientation m_defaultCellOrientation{ChipDB::Orientation::UNDEFINED};
 };
 
 class Padring
@@ -187,6 +203,11 @@ public:
     LayoutItem m_lowerLeftCorner;
     LayoutItem m_lowerRightCorner;
 
+    constexpr void setDefaultPadOrientation(const ChipDB::Orientation &orientation) noexcept
+    {
+        m_defaultPadOrientation = orientation;
+    }
+
 protected:
     bool layoutEdge(Database &db, const LayoutItem &corner1, const LayoutItem &corner2, const Layout &edge);
 
@@ -194,11 +215,9 @@ protected:
     // 'otherAxis' is the coordinate of the axis perpendicular to the from-to axis.
     bool fillGap(
         Database &db,
-        const Layout::Direction dir,
-        const ChipDB::CoordType otherAxis,
+        const Layout &edge,
         const ChipDB::CoordType from,
-        const ChipDB::CoordType to,
-        const ChipDB::Orientation &orientation);
+        const ChipDB::CoordType to);
 
     bool placeInstance(Database &db,
         const std::string &insName,
@@ -209,8 +228,11 @@ protected:
     {
         ChipDB::CellObjectKey m_cellKey{ChipDB::ObjectNotFound};
         std::string         m_name;
-        ChipDB::CoordType   m_width{0};
+        ChipDB::Size64      m_size;
         ChipDB::Coord64     m_offset;
+
+        [[nodiscard]] constexpr auto width() const noexcept { return m_size.m_x; }
+        [[nodiscard]] constexpr auto height() const noexcept { return m_size.m_y; }
     };
 
     void findSpacers(Database &db);
@@ -221,6 +243,7 @@ protected:
 
     std::vector<Spacer> m_spacers;
     int32_t             m_fillerCount{0};
+    ChipDB::Orientation m_defaultPadOrientation{ChipDB::Orientation{ChipDB::Orientation::R180}};
 };
 
 };

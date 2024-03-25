@@ -118,10 +118,10 @@ CPMAddPackage("gh:marzer/tomlplusplus#v3.3.0")
 ########################################################################
 # Generate enums from the .toml specification
 ########################################################################
-add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/common/enums.h
-    COMMAND $<TARGET_FILE:enumgen> ${CMAKE_CURRENT_SOURCE_DIR}/common/enums.toml ${CMAKE_CURRENT_SOURCE_DIR}/common/enums.h
+add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/database/enums.h
+    COMMAND $<TARGET_FILE:enumgen> ${CMAKE_CURRENT_SOURCE_DIR}/database/enums.toml ${CMAKE_CURRENT_SOURCE_DIR}/database/enums.h
     COMMENT "Generating enums ..."
-    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/common/enums.toml enumgen
+    DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/database/enums.toml enumgen
 )
 
 if (USE_PYTHON)

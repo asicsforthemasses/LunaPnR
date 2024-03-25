@@ -79,11 +79,18 @@ public:
         std::cout << "Offset " << offset << "\n";
     }
 
+    /** callback for offset in microns */
+    virtual void onDefaultPadOrientation(const ChipDB::Orientation &orientation)
+    {
+        std::cout << "Default pad orientation " << orientation << "\n";
+    }
+
     /** return the number of pad cells (excluding corners) */
     constexpr uint32_t getPadCellCount() const noexcept
     {
         return m_padCount;
     }
+
 
 protected:
     constexpr bool isWhitespace(char c) const
@@ -129,8 +136,9 @@ protected:
     bool parsePad();
     bool parseCorner();
     bool parseSpace();
-    bool parseOffset();
-    bool parseFiller();
+    //bool parseOffset();
+    //bool parseFiller();
+    bool parseDefaultPadOrientation();
 
     constexpr bool match(char c) noexcept
     {

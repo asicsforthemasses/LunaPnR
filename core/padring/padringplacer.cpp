@@ -133,42 +133,42 @@ public:
         if (location == "N")
         {
             layoutItem->m_orientation = ChipDB::Orientation::R0;
-            m_padring.m_top.insertLayoutItem(layoutItem.release());
-
             if (flipped)
             {
                 layoutItem->m_orientation = ChipDB::Orientation::MY;
             }
+
+            m_padring.m_top.insertLayoutItem(layoutItem.release());
         }
         else if (location == "W")
         {
-            layoutItem->m_orientation = ChipDB::Orientation::R0;
-            m_padring.m_left.insertLayoutItem(layoutItem.release());
-
+            layoutItem->m_orientation = ChipDB::Orientation::R90;
             if (flipped)
             {
                 layoutItem->m_orientation = ChipDB::Orientation::MX90;
             }
+
+            m_padring.m_left.insertLayoutItem(layoutItem.release());
         }
         else if (location == "E")
         {
-            layoutItem->m_orientation = ChipDB::Orientation::R0;
-            m_padring.m_right.insertLayoutItem(layoutItem.release());
-
+            layoutItem->m_orientation = ChipDB::Orientation::R270;
             if (flipped)
             {
                 layoutItem->m_orientation = ChipDB::Orientation::MY90;
             }
+
+            m_padring.m_right.insertLayoutItem(layoutItem.release());
         }
         else if (location == "S")
         {
             layoutItem->m_orientation = ChipDB::Orientation::R180;
-            m_padring.m_bottom.insertLayoutItem(layoutItem.release());
-
             if (flipped)
             {
                 layoutItem->m_orientation = ChipDB::Orientation::MX;
             }
+
+            m_padring.m_bottom.insertLayoutItem(layoutItem.release());
         }
         else
         {
@@ -231,6 +231,11 @@ public:
         Logging::logDebug("  SPACE %s %d nm\n", m_lastLocation.c_str(), sz);
 #endif
         throw std::runtime_error("  Space is not supported\n");
+    }
+
+    void onDefaultPadOrientation(const ChipDB::Orientation &orientation) override
+    {
+        m_padring.setDefaultPadOrientation(orientation);
     }
 
 protected:
