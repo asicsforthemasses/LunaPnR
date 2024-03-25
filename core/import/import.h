@@ -13,3 +13,4 @@
 #include "verilog/veriloglexer.h"
 #include "verilog/verilogreader.h"
 #include "ppm/ppmreader.h"
+#include "gds2/gds2reader.hpp"

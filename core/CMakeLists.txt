@@ -195,6 +195,7 @@ add_library(lunacore
     import/verilog/verilogparser.cpp
     import/verilog/verilogreader.cpp
     import/ppm/ppmreader.cpp
+    import/gds2/gds2reader.cpp
     export/svg/svgwriter.cpp
     export/gds2/gds2writer.cpp
     export/dot/dotwriter.cpp
@@ -206,6 +207,7 @@ add_library(lunacore
 
     passes/pass.cpp
     passes/passes.cpp
+    passes/gdsmerge.cpp
 
     padring/configreader.cpp
     padring/padring.cpp

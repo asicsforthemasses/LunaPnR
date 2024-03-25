@@ -82,7 +82,13 @@ static Passes gs_passes;
 
 bool runPass(Database &database, const std::string &passName, ArgList args)
 {
-    return gs_passes.runPass(database, passName, args);
+    auto result = gs_passes.runPass(database, passName, args);
+    if (result)
+    {
+        Logging::logInfo("%s ok\n", passName.c_str());
+    }
+
+    return result;
 }
 
 bool registerPass(Pass *pass)

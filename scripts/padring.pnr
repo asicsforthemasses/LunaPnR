@@ -20,3 +20,5 @@ write -def top ./test/files/results/padring.def
 set -loglevel VERBOSE
 write -gds2 top ./test/files/results/padring.gds
 set -loglevel NORMAL
+
+gdsmerge -output ./test/files/results/padring_merged.gds ./test/files/iit_stdcells/lib/source/gds2/iit035_pads.gds2 ./test/files/results/padring.gds

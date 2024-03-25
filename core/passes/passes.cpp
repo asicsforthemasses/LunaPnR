@@ -19,6 +19,7 @@
 #include "padringpass.hpp"
 #include "setpass.hpp"
 #include "clearpass.hpp"
+#include "gdsmerge.hpp"
 
 namespace LunaCore::Passes
 {
@@ -51,6 +52,7 @@ void registerAllPasses()
     registerPass(new PadringPass());
     registerPass(new SetPass());
     registerPass(new ClearPass());
+    registerPass(new GDSMergePass());
 }
 
 };
