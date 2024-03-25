@@ -15,7 +15,6 @@ bool write(std::ostream &os, const Database &database, const std::string &module
 
 namespace LunaCore::GDS2::WriterImpl
 {
-
     void write32(std::ostream &os, uint32_t value);
     void write16(std::ostream &os, uint16_t value);
     void write8(std::ostream &os, uint8_t value);

@@ -36,6 +36,7 @@ public:
         m_height = 0;
         m_pos    = 0;
         m_itemType = ItemType::UNDEFINED;
+        m_subClass = ChipDB::CellSubclass::NONE;
     }
 
     std::string         m_instanceName;
@@ -44,6 +45,7 @@ public:
     ChipDB::CoordType   m_width{0};
     ChipDB::CoordType   m_height{0};
     ChipDB::CoordType   m_pos{0};
+    ChipDB::CellSubclass m_subClass{ChipDB::CellSubclass::NONE};    ///< subclass needed for cornercell default orientation
     ItemType m_itemType{ItemType::UNDEFINED};
 };
 
@@ -137,9 +139,29 @@ public:
         return m_cellOrientation;
     }
 
+    /** pad alignment for when corner cells are larger than pads */
+    enum class PadAlignment
+    {
+        NONE,
+        TOP,
+        RIGHT
+    };
+
+    constexpr void setPadAlignment(PadAlignment alignment) noexcept
+    {
+        m_padAlignment = alignment;
+    }
+
+    [[nodiscard]] constexpr auto padAlignment() const noexcept
+    {
+        return m_padAlignment;
+    }
+
 protected:
     Direction m_direction{Direction::UNDEFINED};
     std::list<std::unique_ptr<LayoutItem> > m_items;
+
+    PadAlignment m_padAlignment{PadAlignment::NONE};
 
     std::size_t m_cellCount{0};
     ChipDB::Rect64 m_layoutRect;    ///< the size of the area to use for layout

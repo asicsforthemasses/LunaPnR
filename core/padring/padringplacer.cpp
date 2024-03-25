@@ -134,21 +134,41 @@ public:
         {
             layoutItem->m_orientation = ChipDB::Orientation::R0;
             m_padring.m_top.insertLayoutItem(layoutItem.release());
+
+            if (flipped)
+            {
+                layoutItem->m_orientation = ChipDB::Orientation::MY;
+            }
         }
         else if (location == "W")
         {
             layoutItem->m_orientation = ChipDB::Orientation::R0;
             m_padring.m_left.insertLayoutItem(layoutItem.release());
+
+            if (flipped)
+            {
+                layoutItem->m_orientation = ChipDB::Orientation::MX90;
+            }
         }
         else if (location == "E")
         {
             layoutItem->m_orientation = ChipDB::Orientation::R0;
             m_padring.m_right.insertLayoutItem(layoutItem.release());
+
+            if (flipped)
+            {
+                layoutItem->m_orientation = ChipDB::Orientation::MY90;
+            }
         }
         else if (location == "S")
         {
             layoutItem->m_orientation = ChipDB::Orientation::R180;
             m_padring.m_bottom.insertLayoutItem(layoutItem.release());
+
+            if (flipped)
+            {
+                layoutItem->m_orientation = ChipDB::Orientation::MX;
+            }
         }
         else
         {
