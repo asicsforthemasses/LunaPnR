@@ -41,9 +41,23 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
         TOML_LIB_PATCH);
 
     // build information string
-    info += "<h2>" + QString(LUNAVERSIONSTRING) + "</h2>";
+    info += "<tt><h2>" + QString(LUNAVERSIONSTRING) + "</h2>";
     info += "<h3>License: GPL v3</h3>";
     info += "Compiled on " __DATE__ " using " + QString(COMPILERVERSIONSTRING) + "<br>";
+    info += "<tt><br>\n";
+    info += "GIT:<br>\n";
+    info += "  Rev    : " + QString(GIT_REV) + "<br>\n";
+    info += "  Branch : '" + QString(GIT_BRANCH) + "'<br>\n";
+
+    QString gitTag{GIT_TAG};
+    if (!gitTag.isEmpty())
+    {
+        info += info += "  Tag    : " + gitTag;
+    }
+
+    info.replace(" " , "&nbsp;");
+
+    info += "</tt><br>\n";
     info += "Additional libraries:";
     info += "<ul>";
     info += "<li>Qt version     " + QString(QT_VERSION_STR) + "</li>";
