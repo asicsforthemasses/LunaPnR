@@ -1,4 +1,5 @@
-message("Retrieving GIT repo status")
+message("********************************************************************************")
+message("** Retrieving GIT repo status:")
 
 execute_process(COMMAND git log --pretty=format:'%h' -n 1
                 OUTPUT_VARIABLE GIT_REV
@@ -44,4 +45,5 @@ if (NOT "${VERSION}" STREQUAL "${VERSION_}")
     file(WRITE ${CMAKE_CURRENT_SOURCE_DIR}/version/gitversion.cpp "${VERSION}")
 endif()
 
-message("revision '${GIT_REV}${GIT_DIFF}'   tag: '${GIT_TAG}'   branch: '${GIT_BRANCH}'")
+message("**    Revision '${GIT_REV}${GIT_DIFF}'   tag: '${GIT_TAG}'   branch: '${GIT_BRANCH}'")
+message("********************************************************************************")
