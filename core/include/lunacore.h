@@ -8,10 +8,11 @@
 #include "../import/import.h"
 #include "../database/database.h"
 
+#include "../algebra/sparsematrix.hpp"
+#include "../algebra/cgsolver.hpp"
+
 #include "../cellplacer/cellplacer.h"
-//#include "../cellplacer/qplacer.h"
 #include "../cellplacer/qlaplacer.h"
-//#include "../cellplacer/densitybitmap.h"
 #include "../cellplacer/netlistsplitter.h"
 #include "../cellplacer/rowlegalizer.h"
 #include "../cellplacer2/cellplacer2.h"

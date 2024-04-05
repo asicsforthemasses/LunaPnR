@@ -1,8 +1,8 @@
 ##  LunaPnR Source Code
 ##
 ##  SPDX-License-Identifier: GPL-3.0-only
-##  SPDX-FileCopyrightText: 2022,2023 Niels Moseley <asicsforthemasses@gmail.com>
-##  
+##  SPDX-FileCopyrightText: 2022,2024 Niels Moseley <asicsforthemasses@gmail.com>
+##
 
 cmake_minimum_required(VERSION 3.20)
 

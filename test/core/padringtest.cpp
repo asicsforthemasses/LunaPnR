@@ -17,7 +17,7 @@ BOOST_AUTO_TEST_SUITE(PadringTest)
 BOOST_AUTO_TEST_CASE(read_padring_config)
 {
     auto oldLevel = Logging::getLogLevel();
-    Logging::setLogLevel(Logging::LogType::VERBOSE);
+    //Logging::setLogLevel(Logging::LogType::VERBOSE);
 
     std::cout << "--== READ PADRING CONFIG ==--\n";
 
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE(read_padring_config)
     BOOST_REQUIRE(LunaCore::Padring::read(padringconfig, db, padring));
     BOOST_CHECK(LunaCore::Padring::place(db, padring));
 
-    Logging::setLogLevel(oldLevel);
+    //Logging::setLogLevel(oldLevel);
 };
 
 BOOST_AUTO_TEST_SUITE_END()
