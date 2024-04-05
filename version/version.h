@@ -5,6 +5,7 @@
 #pragma once
 
 extern const char *LUNAVERSIONSTRING;
+extern const char *COMPILER_VERSION;
 extern const char* GIT_REV;
 extern const char* GIT_TAG;
 extern const char* GIT_BRANCH;

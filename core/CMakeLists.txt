@@ -148,6 +148,8 @@ endif()
 # main core
 add_library(lunacore
     ../version/version.cpp
+    ../version/gitversion.cpp
+    ../version/compilerversion.cpp
     common/logging.cpp
     common/fileutils.cpp
     common/matrix.cpp

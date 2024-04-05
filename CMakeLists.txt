@@ -6,6 +6,8 @@
 
 cmake_minimum_required(VERSION 3.20)
 
+enable_language(CXX C)
+
 OPTION(ENABLE_PACKAGING "Enable packaging" ON)
 OPTION(USE_PYTHON "Enabled Python scripting" OFF)
 OPTION(BUILD_DOC "Build documentation" OFF)
@@ -56,10 +58,14 @@ endif(USE_PYTHON)
 ## Setup LunaPnR version string
 ############################################################
 
-project(luna_pnr VERSION 0.1.6 HOMEPAGE_URL https://www.asicsforthemasses.com)
+project(luna_pnr VERSION 0.1.6 HOMEPAGE_URL https://www.asicsforthemasses.com LANGUAGES CXX C)
 
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
-    message("!!!! Building debug binaries !!!!")
+    message("")
+    message("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    message("!!!! Building debug binaries                                                !!!!")
+    message("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    message("")
     set(LUNAVERSIONSTRING "LunaPnR version ${CMAKE_PROJECT_VERSION} DEBUG")
     set(SHORTLUNAVERSIONSTRING "version ${CMAKE_PROJECT_VERSION} DEBUG")
 ELSE()
@@ -67,25 +73,25 @@ ELSE()
     set(SHORTLUNAVERSIONSTRING "version ${CMAKE_PROJECT_VERSION}")
 ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
 
+message(STATUS "LunaPnR Version : ${LUNAVERSIONSTRING}")
+message(STATUS "Compiler is     : ${CMAKE_CXX_COMPILER}")
+
 set(LUNADOCVERSIONSTRING "LunaPnR version ${CMAKE_PROJECT_VERSION}")
 
-message(STATUS LunaPnR Version: ${LUNAVERSIONSTRING})
-
 configure_file(${PROJECT_SOURCE_DIR}/version/version.cpp.in ${PROJECT_SOURCE_DIR}/version/version.cpp @ONLY)
+configure_file(${PROJECT_SOURCE_DIR}/version/compilerversion.cmake.in ${PROJECT_SOURCE_DIR}/version/compilerversion.cmake @ONLY)
 
-# Always produce a gitversion.cpp
-add_custom_target(generate_gitversion ALL
-    ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/repoversion.cmake"
-    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/repoversion.cmake"
+############################################################
+# Always produce a gitversion.cpp and compilerversion.cpp
+############################################################
+
+add_custom_target(generate_versions ALL
+    ${CMAKE_COMMAND} -P "${PROJECT_SOURCE_DIR}/cmake/repoversion.cmake"
+    ${CMAKE_COMMAND} -P "${PROJECT_SOURCE_DIR}/version/compilerversion.cmake"
+    DEPENDS "${PROJECT_SOURCE_DIR}/cmake/repoversion.cmake" "${PROJECT_SOURCE_DIR}/version/compilerversion.cmake"
+    BYPRODUCTS "${PROJECT_SOURCE_DIR}/version/gitversion.cpp" "${PROJECT_SOURCE_DIR}/version/compilerversion.cpp"
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 )
-
-############################################################
-## Setup Compiler version string
-############################################################
-
-set (COMPILERVERSION "\"${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}\"")
-add_definitions(-DCOMPILERVERSIONSTRING=${COMPILERVERSION})
 
 ############################################################
 ## UNIX specific options

@@ -14,6 +14,8 @@ test/files/ihp130
 test/files/results
 version/version.cpp
 version/gitversion.cpp
+version/compilerversion.cpp
+version/compilerversion.cmake
 noshare
 attic
 _packages

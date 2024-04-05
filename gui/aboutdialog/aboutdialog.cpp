@@ -43,7 +43,7 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
     // build information string
     info += "<tt><h2>" + QString(LUNAVERSIONSTRING) + "</h2>";
     info += "<h3>License: GPL v3</h3>";
-    info += "Compiled on " __DATE__ " using " + QString(COMPILERVERSIONSTRING) + "<br>";
+    info += "Compiled on " __DATE__ "<br>using <small>" + QString(COMPILER_VERSION) + "</small><br>";
     info += "<tt><br>\n";
     info += "GIT:<br>\n";
     info += "  Rev    : " + QString(GIT_REV) + "<br>\n";
