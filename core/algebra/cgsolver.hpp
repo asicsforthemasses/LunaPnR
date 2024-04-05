@@ -6,30 +6,24 @@
 #include <cassert>
 #include <cmath>
 #include <algorithm>
-#include <numeric>
 #include <limits>
+#include "vector.hpp"
 #include "sparsematrix.hpp"
 
 namespace LunaCore::Algebra::CGSolver
 {
 
-template<typename T>
-constexpr auto norm2(const Vector<T> &vec) noexcept
-{
-    return std::inner_product(vec.begin(), vec.end(), vec.begin(), 0.0f);
-}
-
-template<typename T>
-constexpr auto dot(const Vector<T> &vec1, const Vector<T> &vec2) noexcept
-{
-    return std::inner_product(vec1.begin(), vec1.end(), vec2.begin(), 0.0f);
-}
-
-/** simple Jacobi/diagonal preconditioner */
+/** A Simple Jacobi/diagonal preconditioner.
+    A preconditioner makes the conjugate gradient solver converge more quickly.
+*/
 template<class T>
 class Preconditioner
 {
 public:
+
+    /** Create a diagonal/Jacobi preconditioner based on the matrix A.
+        @param[in] mat the 'A' matrix of the linear system Ax=b.
+    */
     Preconditioner(const SparseMatrix<T> &mat)
     {
         auto const N = mat.rowCount();
@@ -48,28 +42,38 @@ public:
         }
     }
 
+    /** Solve for and return the pre-conditioned A matix.
+        Used internally by the conjugate gradient solver.
+    */
     [[nodiscard]] constexpr Vector<T> solve(const Vector<T> &v) const noexcept
     {
         return m_invdiag*v;
     }
 
 protected:
-    Vector<T> m_invdiag;
+    Vector<T> m_invdiag;    ///< inverted diagonal vector of matrix A.
 };
 
+
+
+/** result type for 'solve' */
 struct ComputeInfo
 {
-    std::size_t m_iterations{0};  ///< number of iterations used to deliver the solution
-    float       m_error{0.0f};
+    std::size_t m_iterations{0};    ///< number of iterations used to deliver the solution
+    float       m_error{0.0f};      ///< error sqrt(|residual|^2 / |b|^2)
 };
 
-/** Ax = b linear system solver
+
+
+/** Ax = b linear system solver based on conjugate gradient iterations
+    @tparam T the datatype of the matrix and vectors.
     @param[in] mat the A matrix.
-    @param[in] ths the b vector.
+    @param[in] rhs the b vector.
     @param[out] x   the solution vector.
     @param[in] preconditioner callable 'Vector<T> solve(const Vector<T> &v) const'
     @param[in] tolerance maximum L1 norm of residual / b.
     @param[in] maxIter maximum iterations the solver may use to arrive at a solution.
+    @return information about the error and the number of iterations.
 
     See: https://en.wikipedia.org/wiki/Conjugate_gradient_method
 */

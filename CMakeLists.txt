@@ -6,7 +6,7 @@
 
 cmake_minimum_required(VERSION 3.20)
 
-OPTION(ENABLE_PACKAGING "ENABLE_PACKAGING Option" ON)
+OPTION(ENABLE_PACKAGING "Enable packaging" ON)
 OPTION(USE_PYTHON "Enabled Python scripting" OFF)
 OPTION(BUILD_DOC "Build documentation" OFF)
 
@@ -67,9 +67,17 @@ ELSE()
     set(SHORTLUNAVERSIONSTRING "version ${CMAKE_PROJECT_VERSION}")
 ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
 
+set(LUNADOCVERSIONSTRING "LunaPnR version ${CMAKE_PROJECT_VERSION}")
+
 message(STATUS LunaPnR Version: ${LUNAVERSIONSTRING})
 
 configure_file(${PROJECT_SOURCE_DIR}/version/version.cpp.in ${PROJECT_SOURCE_DIR}/version/version.cpp @ONLY)
+
+# Always produce a gitversion.cpp
+add_custom_target(generate_gitversion ALL
+    ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/repoversion.cmake"
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+)
 
 ############################################################
 ## Setup Compiler version string
@@ -110,25 +118,27 @@ endif(MSVC)
 # Source Documentation
 ########################################################################
 
-find_package(Doxygen)
-if (DOXYGEN_FOUND)
-    # set input and output files
-    set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in)
-    set(DOXYGEN_OUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile)
+if (BUILD_DOC)
+    find_package(Doxygen)
+    if (DOXYGEN_FOUND)
+        # set input and output files
+        set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in)
+        set(DOXYGEN_OUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile)
 
-    # request to configure the file
-    configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
-    message("Doxygen build started")
+        # request to configure the file
+        configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
+        message("Doxygen build started")
 
-    # note the option ALL which allows to build the docs together with the application
-    add_custom_target(doc_doxygen ALL
-        COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        COMMENT "Generating API documentation with Doxygen"
-        VERBATIM )
-else (DOXYGEN_FOUND)
-    message("Doxygen need to be installed to generate the doxygen documentation")
-endif (DOXYGEN_FOUND)
+        # note the option ALL which allows to build the docs together with the application
+        add_custom_target(doc_doxygen ALL
+            COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            COMMENT "Generating API documentation with Doxygen"
+            VERBATIM )
+    else (DOXYGEN_FOUND)
+        message("Doxygen need to be installed to generate the doxygen documentation")
+    endif (DOXYGEN_FOUND)
+endif(BUILD_DOC)
 
 ############################################################
 ## Main project

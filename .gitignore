@@ -13,6 +13,7 @@ test/files/sky130
 test/files/ihp130
 test/files/results
 version/version.cpp
+version/gitversion.cpp
 noshare
 attic
 _packages

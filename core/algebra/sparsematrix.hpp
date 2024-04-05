@@ -8,10 +8,12 @@
 #include <vector>
 #include <algorithm>
 #include <iterator>
+#include "vector.hpp"
 
 namespace LunaCore::Algebra
 {
 
+/** A sparse matrix class */
 template<class T>
 class SparseMatrix
 {
@@ -35,6 +37,9 @@ public:
         m_rows.resize(rowCount);
     }
 
+    /** get the matrix entry at (row, column).
+        if it doesn't exist, throw a std::out_of_range exception.
+    */
     [[nodiscard]] const T& at(std::size_t row, std::size_t col) const
     {
         if (row >= m_rows.size())
@@ -68,6 +73,9 @@ public:
         return iter->m_value;
     }
 
+    /** get the matrix entry at (row, column).
+        if it doesn't exist, create it.
+    */
     [[nodiscard]] T& at(std::size_t row, std::size_t col)
     {
         if (row >= m_rows.size())
@@ -110,21 +118,27 @@ public:
         return iter->m_value;
     }
 
+    /** return the number of non-zero entries in the matrix. */
     [[nodiscard]] constexpr auto nonzeroCount() const noexcept
     {
         return m_entries;
     }
 
+    /** return the number of rows in the matrix. */
     [[nodiscard]] constexpr auto rowCount() const noexcept
     {
         return m_rows.size();
     }
 
+    /** return the number non-zero entries of the specified row.
+        throws std::out_of_range exception when the row does not exist.
+    */
     [[nodiscard]] constexpr auto rowEntryCount(std::size_t row) const
     {
         return m_rows.at(row).size();
     }
 
+    /** A structure used to return matrix entries by the iterators */
     struct RowColValue
     {
         std::size_t m_row{0};
@@ -132,6 +146,7 @@ public:
         T           m_value{0.0f};
     };
 
+    /** a SparseMatrix iterator. */
     class ConstIterator
     {
     public:
@@ -241,55 +256,6 @@ protected:
     std::size_t m_entries{0};
 };
 
-template<typename T>
-class Vector
-{
-public:
-    Vector() = default;
-    Vector(std::size_t sz, T value = 0) : m_vec(sz, value) {}
-
-    void zero() noexcept
-    {
-        m_vec.assign(m_vec.size(), 0);
-    }
-
-    [[nodiscard]] constexpr auto size() const noexcept
-    {
-        return m_vec.size();
-    }
-
-    constexpr void resize(std::size_t sz) noexcept
-    {
-        m_vec.resize(sz, 0);
-    }
-
-    constexpr auto begin() const noexcept
-    {
-        return m_vec.begin();
-    }
-
-    constexpr auto end() const noexcept
-    {
-        return m_vec.end();
-    }
-
-    constexpr auto begin() noexcept
-    {
-        return m_vec.begin();
-    }
-
-    constexpr auto end() noexcept
-    {
-        return m_vec.end();
-    }
-
-
-    [[nodiscard]] constexpr T& at(std::size_t index) { return m_vec.at(index); }
-    [[nodiscard]] constexpr const T& at(std::size_t index) const { return m_vec.at(index); }
-
-protected:
-    std::vector<T> m_vec;
-};
 
 template<class T>
 Vector<T> operator*(const SparseMatrix<T> &matrix, const Vector<T> &x)
@@ -315,62 +281,6 @@ Vector<T> operator*(const SparseMatrix<T> &matrix, const Vector<T> &x)
     return result;
 }
 
-template<class T>
-Vector<T> operator-(const Vector<T> &v1, const Vector<T> &v2)
-{
-    const std::size_t N = v1.size();
-    assert(N == v2.size());
-
-    auto result = v1;
-
-    for(std::size_t idx=0; idx<v1.size(); idx++)
-    {
-        result.at(idx) -= v2.at(idx);
-    }
-    return result;
-}
-
-template<class T>
-Vector<T> operator+(const Vector<T> &v1, const Vector<T> &v2)
-{
-    const std::size_t N = v1.size();
-    assert(N == v2.size());
-
-    auto result = v1;
-
-    for(std::size_t idx=0; idx<v1.size(); idx++)
-    {
-        result.at(idx) += v2.at(idx);
-    }
-    return result;
-}
-
-template<class T>
-Vector<T> operator*(T factor, const Vector<T> &v2)
-{
-    const std::size_t N = v2.size();
-    Vector<T> result = v2;
-
-    for(auto &value : result)
-    {
-        value *= factor;
-    }
-    return result;
-}
-
-template<class T>
-Vector<T> operator*(const Vector<T> &v1, const Vector<T> &v2)
-{
-    const std::size_t N = v1.size();
-    assert(v2.size() == N);
-    Vector<T> result = v1;
-
-    for(std::size_t idx=0; idx<v1.size(); idx++)
-    {
-        result.at(idx) = v1.at(idx) * v2.at(idx);
-    }
-    return result;
-}
 
 
 };

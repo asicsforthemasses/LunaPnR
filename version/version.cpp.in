@@ -6,4 +6,5 @@
 //
 
 #include "version.h"
+#include "gitversion.cpp"
 const char *LUNAVERSIONSTRING = "@LUNAVERSIONSTRING@";
