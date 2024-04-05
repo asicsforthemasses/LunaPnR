@@ -1,7 +1,7 @@
 message("********************************************************************************")
 message("** Retrieving GIT repo status:")
 
-execute_process(COMMAND git log --pretty=format:'%h' -n 1
+execute_process(COMMAND git log --pretty=format:'%H' -n 1
                 OUTPUT_VARIABLE GIT_REV
                 ERROR_QUIET)
 

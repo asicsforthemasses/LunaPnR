@@ -76,6 +76,7 @@ configure_file(${PROJECT_SOURCE_DIR}/version/version.cpp.in ${PROJECT_SOURCE_DIR
 # Always produce a gitversion.cpp
 add_custom_target(generate_gitversion ALL
     ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/repoversion.cmake"
+    DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/cmake/repoversion.cmake"
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 )
 
