@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
+//
+// SPDX-License-Identifier: GPL-3.0-only
 
 #include "lunacore.h"
 #include <boost/test/unit_test.hpp>
@@ -25,13 +28,6 @@ BOOST_AUTO_TEST_CASE(cgsolvertest)
     const float tol = 1e-3f;
     LunaCore::Algebra::Vector<float> x(2);
     auto info = LunaCore::Algebra::CGSolver::solve(m, b, x, precon, tol);
-
-#if 0
-    for(auto const &value : x)
-    {
-        std::cout << value << "\n";
-    }
-#endif
 
     Logging::logInfo("  Solver iterations: %lu\n", info.m_iterations);
     Logging::logInfo("         error     : %f  (tol = %f)\n", info.m_error, tol);
