@@ -74,7 +74,8 @@ ELSE()
 ENDIF(CMAKE_BUILD_TYPE MATCHES Debug)
 
 message(STATUS "LunaPnR Version : ${LUNAVERSIONSTRING}")
-message(STATUS "Compiler is     : ${CMAKE_CXX_COMPILER}")
+FILE(REAL_PATH ${CMAKE_CXX_COMPILER} REAL_COMPILER_PATH)
+message(STATUS "Compiler is     : ${REAL_COMPILER_PATH}")
 
 set(LUNADOCVERSIONSTRING "LunaPnR version ${CMAKE_PROJECT_VERSION}")
 
@@ -89,7 +90,9 @@ add_custom_target(generate_versions ALL
     ${CMAKE_COMMAND} -P "${PROJECT_SOURCE_DIR}/cmake/repoversion.cmake"
     ${CMAKE_COMMAND} -P "${PROJECT_SOURCE_DIR}/version/compilerversion.cmake"
     DEPENDS "${PROJECT_SOURCE_DIR}/cmake/repoversion.cmake" "${PROJECT_SOURCE_DIR}/version/compilerversion.cmake"
-    BYPRODUCTS "${PROJECT_SOURCE_DIR}/version/gitversion.cpp" "${PROJECT_SOURCE_DIR}/version/compilerversion.cpp"
+    BYPRODUCTS
+        "${PROJECT_SOURCE_DIR}/version/gitversion.cpp"
+        "${PROJECT_SOURCE_DIR}/version/compilerversion.cpp"
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 )
 

@@ -37,6 +37,12 @@ public:
         m_rows.resize(rowCount);
     }
 
+    /** resize the matrix to the specified number of rows */
+    void resize(std::size_t rows)
+    {
+        m_rows.resize(rows);
+    }
+
     /** get the matrix entry at (row, column).
         if it doesn't exist, throw a std::out_of_range exception.
     */

@@ -51,9 +51,14 @@ public:
         }
         else if (m_namedParams.contains("top"))
         {
-            auto moduleName = m_namedParams.at("top").front();
+            auto const& moduleName = m_namedParams.at("top").front();
 
-            return false;
+            if (!database.m_design.setTopModule(moduleName))
+            {
+                Logging::logError("Could not set top module to %s\n", moduleName.c_str());
+                return false;
+            }
+            return true;
         }
         else if (m_namedParams.contains("cell"))
         {

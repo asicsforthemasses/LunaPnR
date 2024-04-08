@@ -183,6 +183,9 @@ add_library(lunacore
     cellplacer/qlaplacer.cpp
     cellplacer/rowlegalizer.cpp
 
+    quickplace/quickplace.cpp
+    quickplace/quickplace_impl.cpp
+
     partitioner/fmpart.cpp
     import/liberty/libparser.cpp
     import/liberty/libreader.cpp
