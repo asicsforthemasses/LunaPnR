@@ -109,6 +109,21 @@ BOOST_AUTO_TEST_CASE(check_AreaOverlap)
 
     auto overlap1 = ChipDB::areaOverlap(r1,r2);
     BOOST_CHECK(overlap1 == 100.0f);
+
+    // no overlap
+    r2 = r2.movedBy(ChipDB::Coord64{10,10});
+    auto overlap2 = ChipDB::areaOverlap(r1,r2);
+    BOOST_CHECK(overlap2 == 0.0f);
+
+    // 25% overlap
+    r2 = r2.movedBy(ChipDB::Coord64{-5,-5});
+    auto overlap3 = ChipDB::areaOverlap(r1,r2);
+    BOOST_CHECK(overlap3 == 25.0f);
+
+    // no overlap #2
+    r2 = r2.movedBy(ChipDB::Coord64{-15,-15});
+    auto overlap4 = ChipDB::areaOverlap(r1,r2);
+    BOOST_CHECK(overlap4 == 0.0f);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
