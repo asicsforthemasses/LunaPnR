@@ -4,6 +4,7 @@
 
 #pragma once
 
+#include "numerical.hpp"
 #include "fileutils.h"
 #include "strutils.hpp"
 #include "logging.h"

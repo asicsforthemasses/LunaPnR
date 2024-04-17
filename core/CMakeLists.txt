@@ -185,6 +185,7 @@ add_library(lunacore
 
     quickplace/quickplace.cpp
     quickplace/quickplace_impl.cpp
+    quickplace/diffusion.cpp
 
     partitioner/fmpart.cpp
     import/liberty/libparser.cpp

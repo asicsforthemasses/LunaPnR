@@ -99,5 +99,16 @@ BOOST_AUTO_TEST_CASE(check_Rect64)
     BOOST_CHECK(r1.top() == r1_reference.top());
 }
 
+BOOST_AUTO_TEST_CASE(check_AreaOverlap)
+{
+    std::cout << "--== CHECK AREAOVERLAP ==--\n";
+
+    // check 100% overlap
+    auto r1 = ChipDB::Rect64{{0,0},{10,10}};
+    auto r2 = ChipDB::Rect64{{0,0},{10,10}};
+
+    auto overlap1 = ChipDB::areaOverlap(r1,r2);
+    BOOST_CHECK(overlap1 == 100.0f);
+}
 
 BOOST_AUTO_TEST_SUITE_END()

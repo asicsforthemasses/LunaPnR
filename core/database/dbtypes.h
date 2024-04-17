@@ -402,6 +402,20 @@ namespace ChipDB
 
     };
 
+    /** returns the area of overlap in nm^2 */
+    [[nodiscard]] constexpr float areaOverlap(const ChipDB::Rect64 &r1, const ChipDB::Rect64 &r2) noexcept
+    {
+        auto xo = std::min(r1.right(), r2.right()) - std::max(r1.left(), r2.left());
+        auto yo = std::min(r1.top(), r2.top()) - std::max(r1.bottom(), r2.bottom());
+
+        if ((xo > 0) && (yo > 0))
+        {
+            return static_cast<float>(xo)*static_cast<float>(yo);
+        }
+
+        return 0.0f;
+    }
+
 #if 0
     struct Polygon64
     {

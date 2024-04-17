@@ -18,6 +18,7 @@ public:
     InfoPass() : Pass("info")
     {
         registerNamedParameter("cells", "", 0, false);
+        registerNamedParameter("sites", "", 0, false);
         registerNamedParameter("cell", "", 1, false);
         registerNamedParameter("floorplan", "", 0, false);
     }
@@ -72,7 +73,7 @@ public:
 
         if (m_namedParams.contains("floorplan"))
         {
-            auto &fp = database.m_design.m_floorplan;
+            auto fp = database.m_design.m_floorplan;
             Logging::logInfo("Floorplan:\n");
             Logging::logInfo("    Die size    %d x %d nm\n", fp->dieSize().m_x, fp->dieSize().m_y);
             Logging::logInfo("    Core size   %d x %d nm\n", fp->coreSize().m_x, fp->coreSize().m_y);
@@ -86,6 +87,19 @@ public:
             Logging::logInfo("        Right   %d nm\n", fp->ioMargins().right());
             Logging::logInfo("        Top     %d nm\n", fp->ioMargins().top());
             Logging::logInfo("        Bottom  %d nm\n", fp->ioMargins().bottom());
+        }
+
+        if (m_namedParams.contains("sites"))
+        {
+            Logging::logInfo("Sites:\n");
+            auto const& sites = database.m_design.m_techLib->sites();
+            for(auto const& site : sites)
+            {
+                Logging::logInfo("    Site      %s\n", site->name().c_str());
+                Logging::logInfo("    Class     %s\n", toString(site->m_class).c_str());
+                Logging::logInfo("    Symmetry  %s\n", toString(site->m_symmetry).c_str());
+                Logging::logInfo("    Size      %ld x %ld nm\n", site->m_size.m_x, site->m_size.m_y);
+            }
         }
 
         return true;
@@ -103,6 +117,7 @@ public:
         ss << "    -cell <cellname>   : show data on a specific cell\n";
         ss << "    -cells             : show all the available cells\n";
         ss << "    -floorplan         : show floorplan data\n";
+        ss << "    -sites             : show all available site data\n";
         ss << "\n";
         return ss.str();
     }

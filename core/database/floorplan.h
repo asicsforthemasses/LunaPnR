@@ -6,6 +6,7 @@
 #pragma once
 
 #include <optional>
+#include <string>
 #include "dbtypes.h"
 #include "namedstorage.h"
 #include "region.h"
@@ -40,6 +41,26 @@ public:
     [[nodiscard]] Size64 cornerCellSize() const noexcept
     {
         return m_cornerCellSize;
+    }
+
+    void setCoreSiteName(const std::string &coreSiteName) noexcept
+    {
+        m_coreSiteName = coreSiteName;
+    }
+
+    void setIOSiteName(const std::string &ioSiteName) noexcept
+    {
+        m_ioSiteName = ioSiteName;
+    }
+
+    const std::string& coreSiteName() const noexcept
+    {
+        return m_coreSiteName;
+    }
+
+    const std::string& ioSiteName() const noexcept
+    {
+        return m_ioSiteName;
     }
 
     constexpr void setIO2CoreMargins(const Margins64 &margins) noexcept
@@ -94,6 +115,9 @@ protected:
 
     Size64    m_minimumCellSize;    ///< minimum cell size for this site. needs to be set in order to create rows.
     Size64    m_cornerCellSize;     ///< size of an IO corner cell, so we can create a pad ring.
+
+    std::string m_coreSiteName;     ///< site name of the core area
+    std::string m_ioSiteName;       ///< site name of pad/IO area
 
     std::vector<ChipDB::Row> m_rows;
 };

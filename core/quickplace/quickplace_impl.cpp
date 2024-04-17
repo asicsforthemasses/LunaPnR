@@ -4,7 +4,7 @@
 
 #include "common/logging.h"
 #include "quickplace_impl.hpp"
-
+#include "diffusion.hpp"
 namespace LunaCore::QuickPlace
 {
 
@@ -254,6 +254,15 @@ bool PlacerImpl::place(Database &db, ChipDB::Module &mod)
         insPtr->m_pos.m_x = static_cast<ChipDB::CoordType>(Rx.at(rowIdx)) - sz.m_x/2;
         insPtr->m_pos.m_y = static_cast<ChipDB::CoordType>(Ry.at(rowIdx)) - sz.m_y/2;
         insPtr->m_placementInfo = ChipDB::PlacementInfo::PLACED;
+    }
+
+    auto placementRect = db.m_design.m_floorplan->coreRect();
+
+    Diffusion diff(db, mod, placementRect);
+    if (!diff.init())
+    {
+        Logging::logError("  Diffusion init failed\n");
+        return false;
     }
 
     return true;

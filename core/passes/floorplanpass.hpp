@@ -3,7 +3,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #pragma once
-#include "common/logging.h"
+#include "common/common.h"
 #include "pass.hpp"
 
 namespace LunaCore::Passes
@@ -18,6 +18,7 @@ public:
         registerNamedParameter("height", "", 1, true);
         registerNamedParameter("coremargins", "", 4, true);
         registerNamedParameter("cornersize", "", 1, true);
+        registerNamedParameter("site", "", 1, true);
     }
 
     virtual ~Floorplan() = default;
@@ -37,11 +38,23 @@ public:
             auto topStr    = m_namedParams.at("coremargins").at(2);
             auto bottomStr = m_namedParams.at("coremargins").at(3);
 
+            auto siteStr = m_namedParams.at("site").at(0);
+
+            auto siteKp = database.m_design.m_techLib->sites()[siteStr];
+            if (!siteKp.isValid())
+            {
+                Logging::logError("Cannot find site %s in the database.\n", siteStr.c_str());
+                return false;
+            }
+
+            auto siteSize = siteKp->m_size;
+
             ChipDB::Coord64 coreSize;
-            coreSize.m_x = std::stold(widthStr);
-            coreSize.m_y = std::stold(heightStr);
+            coreSize.m_x = roundUp(std::stoll(widthStr), siteSize.m_x);
+            coreSize.m_y = roundUp(std::stoll(heightStr), siteSize.m_y);
 
             database.m_design.m_floorplan->setCoreSize(coreSize);
+            database.m_design.m_floorplan->setCoreSiteName(siteStr);
 
             ChipDB::Margins64 io2coreMargins(
                 std::stold(topStr),
