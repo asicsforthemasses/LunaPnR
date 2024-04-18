@@ -116,6 +116,8 @@ void Diffusion::step(float dt)
             float frac_x = static_cast<float>(pos.m_x % binSize.m_x) / static_cast<float>(binSize.m_x);
             float frac_y = static_cast<float>(pos.m_y % binSize.m_y) / static_cast<float>(binSize.m_y);
 
+            // find the 4 closest cells to the instance
+
             float ivx = 0.0f;   // interpolated velocity
             float ivy = 0.0f;
 
@@ -155,6 +157,13 @@ void Diffusion::step(float dt)
                 ivy = bin1.m_vy + frac_y*(bin2.m_vy-bin1.m_vy);
             }
 
+            // move the instance based on the calculate velocity
+            // note: we need to multiply by the bin size because
+            // that is the unit used by the density map..
+            insKp->m_pos = ChipDB::Coord64(
+                static_cast<ChipDB::CoordType>(insKp->m_pos.m_x + dt*ivx*binSize.m_x),
+                static_cast<ChipDB::CoordType>(insKp->m_pos.m_y + dt*ivy*binSize.m_y)
+            );
         }
     }
 

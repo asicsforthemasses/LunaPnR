@@ -77,6 +77,11 @@ public:
         return bin(x,y);
     }
 
+    constexpr const BinInfo& at(const int x, const int y) const noexcept
+    {
+        return bin(x,y);
+    }
+
     [[nodiscard]] constexpr BinCount getBinCount() const noexcept
     {
         return m_binCount;
@@ -117,6 +122,16 @@ protected:
         return m_bins.at(yIndex*m_binCount.m_x + xIndex);
     }
 
+    [[nodiscard]] constexpr const BinInfo& bin(const int xIndex,  const int yIndex) const noexcept
+    {
+        if ((xIndex < 0) || (yIndex < 0) || (xIndex >= m_binCount.m_x) || (yIndex >= m_binCount.m_y))
+        {
+            return m_dummy2;
+        }
+
+        return m_bins.at(yIndex*m_binCount.m_x + xIndex);
+    }
+
     /** Update the bins an instance occupies.
     */
     void updateBins(const ChipDB::Instance &ins)
@@ -152,6 +167,7 @@ protected:
     float m_binArea{0.0};       ///< area of one bin in nm^2
 
     BinCount m_binCount;        ///< number of bins in the horizontal and vertical direction
+    BinInfo m_dummy2{0};        ///< dummy density entry for out-of-bound bin access
     BinInfo m_dummy{0};         ///< dummy density entry for out-of-bound bin access
 
     std::vector<BinInfo> m_bins;
@@ -161,7 +177,9 @@ protected:
 class Diffusion
 {
 public:
-    Diffusion(Database &db, ChipDB::Module &mod,
+
+    Diffusion(Database &db,
+        ChipDB::Module &mod,
         const ChipDB::Rect64 &placementRect);
 
     bool init();
