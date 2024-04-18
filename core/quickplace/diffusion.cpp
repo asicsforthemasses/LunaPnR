@@ -11,7 +11,7 @@ Diffusion::Diffusion(Database &db, ChipDB::Module &mod,
 
 }
 
-bool Diffusion::init(const float maxDensity)
+std::optional<std::size_t> Diffusion::init(const float maxDensity)
 {
     m_maxDensity = maxDensity;
 
@@ -21,7 +21,7 @@ bool Diffusion::init(const float maxDensity)
     if (!siteKp.isValid())
     {
         Logging::logError("Could not find site %s\n", siteName.c_str());
-        return false;
+        return std::nullopt;
     }
 
     m_coreSiteSize = siteKp->m_size;
@@ -42,18 +42,44 @@ bool Diffusion::init(const float maxDensity)
         m_averageSize.m_y * cellsPerDimension
         };
 
+    // make sure we have at least 10 bins in either direction
+    float xbinCount = m_placementRect.getSize().m_x / binSize.m_x;
+    float ybinCount = m_placementRect.getSize().m_y / binSize.m_y;
+
+    if (xbinCount < 10.0f)
+    {
+        binSize.m_x = m_placementRect.getSize().m_x / 10;
+        Logging::logWarning("Diffusion x bin count < 10: reducing the bin size.\n");
+    }
+
+    if (ybinCount < 10.0f)
+    {
+        binSize.m_y = m_placementRect.getSize().m_y / 10;
+        Logging::logWarning("Diffusion y bin count < 10: reducing the bin size.\n");
+    }
+
     Logging::logDebug("  bin size is %ld x %ld nm\n",
         binSize.m_x, binSize.m_y);
 
     m_bins.init(binSize, m_placementRect);
 
-    initDensityMap(m_maxDensity);
-
-    return true;
+    return initDensityMap();
 }
 
-void Diffusion::initDensityMap(const float maxDensity)
+std::size_t Diffusion::initDensityMap()
 {
+    return renewDensities();
+}
+
+std::size_t Diffusion::renewDensities()
+{
+    std::size_t overflowCount = 0;
+
+    for(auto &b : m_bins)
+    {
+        b.m_density = 0.0f;
+    }
+
     auto const& instances = m_mod.m_netlist->m_instances;
     for(auto insKp : instances)
     {
@@ -76,8 +102,9 @@ void Diffusion::initDensityMap(const float maxDensity)
     for(auto &b : m_bins)
     {
         maxBinDensity = std::max(maxBinDensity, b.m_density);
-        if (b.m_density >= maxDensity)
+        if (b.m_density >= m_maxDensity)
         {
+            overflowCount++;
             areaOverDMax += binArea_um2;
         }
         else
@@ -90,17 +117,20 @@ void Diffusion::initDensityMap(const float maxDensity)
 
     const double ratio = areaOverDMax / areaLessThanDMax;
     Logging::logDebug("  max bin density        : %f\n", maxBinDensity);
+    Logging::logDebug("  bin overflow count     : %lu\n", overflowCount);
     Logging::logDebug("  difussion density ratio: %f\n", ratio);
 
     for(auto &b : m_bins)
     {
-        if (b.m_density < maxDensity)
+        if (b.m_density < m_maxDensity)
         {
-            b.m_density = maxDensity - (maxDensity - b.m_density)*ratio;
+            b.m_density = m_maxDensity - (m_maxDensity - b.m_density)*ratio;
         }
     }
 
-    m_bins.setBoundaryDensity(maxDensity - maxDensity*ratio);
+    m_bins.setBoundaryDensity(m_maxDensity - m_maxDensity*ratio);
+
+    return overflowCount;
 }
 
 void Diffusion::step(float dt)
@@ -158,6 +188,11 @@ void Diffusion::step(float dt)
             // the bin. we base the 2D linear interpolation on that
             // as well as which surrounding bins to use.
             pos -= m_placementRect.m_ll;    // compensate for bin area offset
+
+            // use the center of the instance
+            auto isz = insKp->instanceSize();
+            pos += ChipDB::Coord64(isz.m_x/2, isz.m_y/2);
+
             float frac_x = static_cast<float>(pos.m_x % binSize.m_x) / static_cast<float>(binSize.m_x);
             float frac_y = static_cast<float>(pos.m_y % binSize.m_y) / static_cast<float>(binSize.m_y);
 

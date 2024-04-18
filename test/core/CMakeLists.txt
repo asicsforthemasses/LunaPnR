@@ -13,7 +13,23 @@ project(test_suite)
 
 find_package(Boost QUIET COMPONENTS filesystem system unit_test_framework REQUIRED)
 
+###########################################################
+# TinyTestPP frame work
+# linking name: tinytestpp
+###########################################################
+
+option(UseTinyTestPP "Use TinyTestPP test framework" ON)
+
+if(UseTinyTestPP)
+    CPMAddPackage("bb:trcwm/tinytestpp#main")
+    target_compile_definitions(tinytestpp PRIVATE -DUSE_TINYTESTPP_MAIN=OFF)  # disable the main, conflicts with BOOST::TEST
+endif(UseTinyTestPP)
+
+
+###########################################################
 # collect all source files
+###########################################################
+
 file(GLOB_RECURSE SOURCES LIST_DIRECTORIES true *.h *.cpp)
 
 ###########################################################
@@ -42,7 +58,7 @@ add_custom_target(iitcells DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/../files/iit_stdc
 
 # test executable
 add_executable(core_test ${SOURCES})
-target_link_libraries(core_test lunacore ${Boost_LIBRARIES})
+target_link_libraries(core_test lunacore ${Boost_LIBRARIES} tinytestpp)
 target_include_directories(core_test PRIVATE ../../core/include)
 add_dependencies(core_test iitcells)
 

@@ -191,16 +191,23 @@ public:
         ChipDB::Module &mod,
         const ChipDB::Rect64 &placementRect);
 
-    bool init(const float maxDensity);
+    /** returns the number of bins that are above the maxDensity threshold */
+    std::optional<std::size_t> init(const float maxDensity);
 
     /** update placement of cells based on the bin densities
         @param[in] dt time step (should be smaller than 1.0?)
     */
     void step(float dt);
 
+    /** update the density map based on the actual instances,
+        not the predicted densities.
+        call this every 5 or so iterations.
+    */
+    std::size_t renewDensities();
+
 protected:
     bool calcAverageInstanceSize();
-    void initDensityMap(const float maxDensity);
+    std::size_t initDensityMap();   ///<
 
     LunaCore::Database &m_db;       ///< database
     ChipDB::Module &m_mod;          ///< the module to place
