@@ -2,6 +2,7 @@
 #include <vector>
 #include <optional>
 #include <cmath>
+#include <memory>
 #include "database/database.h"
 
 namespace LunaCore::QuickPlace
@@ -9,23 +10,43 @@ namespace LunaCore::QuickPlace
 
 class Bin2D
 {
-    using Density = float;  ///< type for bin density information
-
 public:
-    Bin2D(const ChipDB::Size64 &binSize, const ChipDB::Rect64 &extents)
-        : m_binSize(binSize),
-          m_extents(extents)
+    struct BinInfo
     {
+        float m_density{0.0};   ///< density of bin
+        float m_dnew{0.0};      ///< new density of bin
+        float m_vx{0.0};        ///< cell x velocity in the middle of the bin
+        float m_vy{0.0};        ///< cell y velocity in the middle of the bin
+    };
+
+    struct BinCount
+    {
+        int m_x{0};
+        int m_y{0};
+    };
+
+    Bin2D() = default;
+
+    void init(const ChipDB::Size64 &binSize, const ChipDB::Rect64 &extents)
+    {
+        m_binSize = binSize;
+        m_extents = extents;
+
         m_sz = m_extents.getSize();
 
-        m_xBinCount = static_cast<int>(std::ceil(m_sz.m_x / static_cast<float>(binSize.m_x)));
-        m_yBinCount = static_cast<int>(std::ceil(m_sz.m_y / static_cast<float>(binSize.m_y)));
+        m_binCount.m_x = static_cast<int>(std::ceil(m_sz.m_x / static_cast<float>(binSize.m_x)));
+        m_binCount.m_y = static_cast<int>(std::ceil(m_sz.m_y / static_cast<float>(binSize.m_y)));
+
+        // sanity?
+        if (m_binCount.m_x == 0) m_binCount.m_x++;
+        if (m_binCount.m_y == 0) m_binCount.m_y++;
 
         m_binArea = static_cast<float>(binSize.m_x * binSize.m_y);
 
-        m_bins.resize(m_xBinCount*m_yBinCount, 0);
+        m_bins.clear();
+        m_bins.resize(m_binCount.m_x*m_binCount.m_y);
 
-        Logging::logDebug("Bin2D : bin cound is %ld x %ld\n", m_xBinCount, m_yBinCount);
+        Logging::logDebug("  bin count is %ld x %ld\n", m_binCount.m_x, m_binCount.m_y);
     }
 
     struct BinIndex
@@ -51,10 +72,57 @@ public:
         return bindex;
     }
 
+    constexpr BinInfo& at(const int x, const int y) noexcept
+    {
+        return bin(x,y);
+    }
+
+    [[nodiscard]] constexpr BinCount getBinCount() const noexcept
+    {
+        return m_binCount;
+    }
+
+    [[nodiscard]] auto begin() noexcept
+    {
+        return m_bins.begin();
+    }
+
+    [[nodiscard]] auto end() noexcept
+    {
+        return m_bins.end();
+    }
+
+    [[nodiscard]] constexpr auto getBinSize() const noexcept
+    {
+        return m_binSize;
+    }
+
+    void addInstance(const ChipDB::Instance &ins)
+    {
+        updateBins(ins);
+    }
+
+protected:
+
+    [[nodiscard]] constexpr BinInfo& bin(const int xIndex,  const int yIndex) noexcept
+    {
+        if ((xIndex < 0) || (yIndex < 0) || (xIndex >= m_binCount.m_x) || (yIndex >= m_binCount.m_y))
+        {
+            m_dummy.m_density = 0.0f;
+            m_dummy.m_vx = 0.0f;
+            m_dummy.m_vy = 0.0f;
+            return m_dummy;
+        }
+
+        return m_bins.at(yIndex*m_binCount.m_x + xIndex);
+    }
+
     /** Update the bins an instance occupies.
     */
     void updateBins(const ChipDB::Instance &ins)
     {
+        assert(m_binArea > 0.0f);
+
         ChipDB::Rect64 insRect{ins.m_pos, ins.m_pos + ins.instanceSize()};
 
         auto const llBinIndex = binIndex(insRect.m_ll);
@@ -64,43 +132,29 @@ public:
         {
             for(auto xBinIndex = llBinIndex.m_x; xBinIndex <= urBinIndex.m_x; xBinIndex++)
             {
-                ChipDB::Rect64 binRect;
-                auto overlap = ChipDB::areaOverlap(binRect, insRect);
+                ChipDB::Coord64 binLL   // lower left position of bin
+                {
+                    m_extents.m_ll.m_x + xBinIndex * m_binSize.m_x,
+                    m_extents.m_ll.m_y + yBinIndex * m_binSize.m_y
+                };
+
+                ChipDB::Rect64 binRect{binLL, binLL+m_binSize};
+                auto overlapFactor = ChipDB::areaOverlap(binRect, insRect) / m_binArea;
+
+                bin(xBinIndex, yBinIndex).m_density += overlapFactor;
             }
         }
-
-        auto const center = insRect.center();
-        auto const bindex = binIndex(center);
-        if (bindex.isValid(m_sz))
-        {
-            //auto o = insRect.intersect();
-        }
     }
 
-protected:
-    ChipDB::Size64 m_sz;
-    ChipDB::Rect64 m_extents;
-    ChipDB::Size64 m_binSize;
-    float m_binArea{0.0};
+    ChipDB::Size64 m_sz;        ///< total size of the binned area
+    ChipDB::Rect64 m_extents;   ///< extents of the binned area
+    ChipDB::Size64 m_binSize;   ///< size of one bin in nm
+    float m_binArea{0.0};       ///< area of one bin in nm^2
 
-    int m_xBinCount{0};
-    int m_yBinCount{0};
+    BinCount m_binCount;        ///< number of bins in the horizontal and vertical direction
+    BinInfo m_dummy{0};         ///< dummy density entry for out-of-bound bin access
 
-    /** return the area of overlap in nm^2 */
-    float areaOverlap(const ChipDB::Rect64 &r1, const ChipDB::Rect64 &r2)
-    {
-        auto xo = std::min(r1.right(), r2.right()) - std::max(r1.left(), r2.left());
-        auto yo = std::min(r1.top(), r2.top()) - std::max(r1.bottom(), r2.bottom());
-
-        if ((xo > 0) && (yo > 0))
-        {
-            return static_cast<float>(xo)*static_cast<float>(yo);
-        }
-
-        return 0.0f;
-    }
-
-    std::vector<Density> m_bins;
+    std::vector<BinInfo> m_bins;
 };
 
 /** diffusion placer */
@@ -111,16 +165,23 @@ public:
         const ChipDB::Rect64 &placementRect);
 
     bool init();
+
+    /** update placement of cells based on the bin densities
+        @param[in] dt time step (should be smaller than 1.0?)
+    */
     void step(float dt);
 
 protected:
     bool calcAverageInstanceSize();
+    void initDensityMap();
 
     LunaCore::Database &m_db;       ///< database
     ChipDB::Module &m_mod;          ///< the module to place
     ChipDB::Rect64 m_placementRect; ///< placement area/rectangle
     ChipDB::Size64 m_averageSize;   ///< average instance size
     ChipDB::Size64 m_coreSiteSize;  ///< core site placement size
+
+    Bin2D m_bins;
 };
 
 };
