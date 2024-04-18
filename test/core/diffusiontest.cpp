@@ -21,9 +21,9 @@ public:
         {
         }
 
-    bool init()
+    bool init(const float maxDensity)
     {
-        return LunaCore::QuickPlace::Diffusion::init();
+        return LunaCore::QuickPlace::Diffusion::init(maxDensity);
     }
 
     auto & binAt(const int x, const int y)
@@ -62,6 +62,8 @@ static void writePPM(const std::string &filename, ChipDB::Module &mod,
         }
     }
 
+    bm.m_data.at(0) = LunaCore::PPM::RGB{255,0,0};
+
     LunaCore::PPM::write(filename, bm);
 }
 
@@ -87,9 +89,14 @@ struct FlipY
 
 static bool writeFloorplan(const std::string &filename,
     LunaCore::Database &db,
-    ChipDB::Module &mod)
+    const ChipDB::Module &mod,
+    const LunaCore::QuickPlace::Bin2D &bins,
+    const float maxDensity)
 {
     auto const& floorplan = db.m_design.m_floorplan->coreRect();
+
+    auto bc = bins.getBinCount();
+    auto bs = bins.getBinSize();
 
     TinySVGPP::Canvas canvas;
     canvas.setSize(floorplan.getSize().m_x, floorplan.getSize().m_y);
@@ -103,6 +110,29 @@ static bool writeFloorplan(const std::string &filename,
 
     canvas.fill("black").rect(TinySVGPP::Point{0,0},
         toSVGPt(floorplan.getSize()));
+
+    // draw bins
+    canvas.fill("white", false).stroke("white");
+    float unitLength = static_cast<float>(std::min(bs.m_x, bs.m_y));
+    for(int y=0; y<bc.m_y; y++)
+    {
+        for(int x=0; x<bc.m_x; x++)
+        {
+            // draw bin
+            auto const binLL = flipy(toSVGPt(ChipDB::Coord64{x*bs.m_x, y*bs.m_y}));
+            auto const binUR = flipy(toSVGPt(ChipDB::Coord64{x*bs.m_x + bs.m_x, y*bs.m_y + bs.m_y}));
+
+            if (bins.at(x,y).m_density > maxDensity)
+            {
+                canvas.stroke("red");
+            }
+            else
+            {
+                canvas.stroke("white");
+            }
+            canvas.opacity(0.25f).rect(binLL, binUR);
+        }
+    }
 
     auto const& instances = mod.m_netlist->m_instances;
 
@@ -155,8 +185,8 @@ static bool writeVelocityVectors(const std::string &filename,
         for(int x=0; x<bc.m_x; x++)
         {
             // draw bin
-            auto const binLL = flipy(toSVGPt(ChipDB::Coord64{x*bs.m_x, y*bs.m_y}));
-            auto const binUR = flipy(toSVGPt(ChipDB::Coord64{x*bs.m_x + bs.m_x, y*bs.m_y + bs.m_y}));
+            auto const binLL = toSVGPt(ChipDB::Coord64{x*bs.m_x, y*bs.m_y});
+            auto const binUR = toSVGPt(ChipDB::Coord64{x*bs.m_x + bs.m_x, y*bs.m_y + bs.m_y});
             canvas.opacity(0.25f).rect(binLL, binUR);
 
             // draw the velocity vector
@@ -164,7 +194,7 @@ static bool writeVelocityVectors(const std::string &filename,
             auto const& bin = bins.at(x,y);
             float mag2 = bin.m_vx*bin.m_vx + bin.m_vy*bin.m_vy;
 
-            if (mag2 > 0.01f)
+            if (mag2 > 0.001f)
             {
                 auto binCenter = TinySVGPP::Point{(binLL.x + binUR.x)/2.0f, (binLL.y + binUR.y)/2.0f};
                 auto vecStart = binCenter;
@@ -183,7 +213,6 @@ static bool writeVelocityVectors(const std::string &filename,
     canvas.toSVG(svgfile);
     return true;
 }
-
 
 BOOST_AUTO_TEST_CASE(diffusiontest, * boost::unit_test::tolerance(0.00001))
 {
@@ -220,7 +249,8 @@ BOOST_AUTO_TEST_CASE(diffusiontest, * boost::unit_test::tolerance(0.00001))
 
     // init diffusor
     auto diff = std::make_unique<DiffusionTester>(db, *topKp, placementRect);
-    BOOST_CHECK(diff->init());
+    const float maxDensity = 0.75f;
+    BOOST_CHECK(diff->init(maxDensity));
 
     // bins are 50x50 = 2500 nm^2
     // cell1 is 10x10 = 100 nm^2
@@ -245,7 +275,7 @@ BOOST_AUTO_TEST_CASE(diffusiontest, * boost::unit_test::tolerance(0.00001))
         topKp->addInstance(ins);
     }
 
-    BOOST_CHECK(diff->init());
+    BOOST_CHECK(diff->init(maxDensity));
 
     // check that the new instances are not just in bin(0,0)
     BOOST_CHECK(diff->binAt(10,10).m_density > 0.0f);
@@ -259,7 +289,7 @@ BOOST_AUTO_TEST_CASE(diffusiontest, * boost::unit_test::tolerance(0.00001))
         ss << iter;
 
         writePPM("test/files/results/diff" + ss.str() + ".ppm", *topKp, diff->bins());
-        BOOST_REQUIRE(writeFloorplan("test/files/results/diff_fp"  + ss.str() + ".svg", db, *topKp));
+        BOOST_REQUIRE(writeFloorplan("test/files/results/diff_fp"  + ss.str() + ".svg", db, *topKp, diff->bins(), maxDensity));
         BOOST_REQUIRE(writeVelocityVectors("test/files/results/diff_vec" + ss.str() + ".svg", db, diff->bins()));
 
         diff->step(0.2f);

@@ -107,13 +107,20 @@ public:
         updateBins(ins);
     }
 
+    constexpr void setBoundaryDensity(const float density) noexcept
+    {
+        m_boundaryDensity  = density;
+        m_dummy.m_density  = m_boundaryDensity;
+        m_dummy2.m_density = m_boundaryDensity;
+    }
+
 protected:
 
     [[nodiscard]] constexpr BinInfo& bin(const int xIndex,  const int yIndex) noexcept
     {
         if ((xIndex < 0) || (yIndex < 0) || (xIndex >= m_binCount.m_x) || (yIndex >= m_binCount.m_y))
         {
-            m_dummy.m_density = 0.0f;
+            m_dummy.m_density = m_boundaryDensity;
             m_dummy.m_vx = 0.0f;
             m_dummy.m_vy = 0.0f;
             return m_dummy;
@@ -170,6 +177,8 @@ protected:
     BinInfo m_dummy2{0};        ///< dummy density entry for out-of-bound bin access
     BinInfo m_dummy{0};         ///< dummy density entry for out-of-bound bin access
 
+    float m_boundaryDensity{0.0f};  ///< density returned for bins beyond the boundary
+
     std::vector<BinInfo> m_bins;
 };
 
@@ -182,7 +191,7 @@ public:
         ChipDB::Module &mod,
         const ChipDB::Rect64 &placementRect);
 
-    bool init();
+    bool init(const float maxDensity);
 
     /** update placement of cells based on the bin densities
         @param[in] dt time step (should be smaller than 1.0?)
@@ -191,13 +200,15 @@ public:
 
 protected:
     bool calcAverageInstanceSize();
-    void initDensityMap();
+    void initDensityMap(const float maxDensity);
 
     LunaCore::Database &m_db;       ///< database
     ChipDB::Module &m_mod;          ///< the module to place
     ChipDB::Rect64 m_placementRect; ///< placement area/rectangle
     ChipDB::Size64 m_averageSize;   ///< average instance size
-    ChipDB::Size64 m_coreSiteSize;  ///< core site placement size
+    ChipDB::Size64 m_coreSiteSize;  ///< core site minimum cell size / minimum placement grid
+
+    float m_maxDensity{0.75f};      ///< maximum cell density per bin
 
     Bin2D m_bins;
 };

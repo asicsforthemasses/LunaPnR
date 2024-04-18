@@ -11,8 +11,10 @@ Diffusion::Diffusion(Database &db, ChipDB::Module &mod,
 
 }
 
-bool Diffusion::init()
+bool Diffusion::init(const float maxDensity)
 {
+    m_maxDensity = maxDensity;
+
     auto siteName = m_db.m_design.m_floorplan->coreSiteName();
     auto siteKp = m_db.m_design.m_techLib->sites()[siteName];
 
@@ -45,12 +47,12 @@ bool Diffusion::init()
 
     m_bins.init(binSize, m_placementRect);
 
-    initDensityMap();
+    initDensityMap(m_maxDensity);
 
     return true;
 }
 
-void Diffusion::initDensityMap()
+void Diffusion::initDensityMap(const float maxDensity)
 {
     auto const& instances = m_mod.m_netlist->m_instances;
     for(auto insKp : instances)
@@ -58,6 +60,47 @@ void Diffusion::initDensityMap()
         assert(insKp.isValid());
         m_bins.addInstance(*insKp);
     }
+
+    // fill bins that are below max density
+    // so that the average density of the
+    // binned area equals maxDensity
+    // this avoids superfluous spreading
+
+    double areaLessThanDMax = 0.0;
+    double areaOverDMax = 0.0;
+    const double binArea_um2 = (m_bins.getBinSize().m_x*m_bins.getBinSize().m_y) * 1e-6;   // um^2
+
+    assert(binArea_um2 > 0.0);
+
+    float maxBinDensity = 0.0f;
+    for(auto &b : m_bins)
+    {
+        maxBinDensity = std::max(maxBinDensity, b.m_density);
+        if (b.m_density >= maxDensity)
+        {
+            areaOverDMax += binArea_um2;
+        }
+        else
+        {
+            areaLessThanDMax += binArea_um2;
+        }
+    }
+
+    assert(areaLessThanDMax > 0.0);
+
+    const double ratio = areaOverDMax / areaLessThanDMax;
+    Logging::logDebug("  max bin density        : %f\n", maxBinDensity);
+    Logging::logDebug("  difussion density ratio: %f\n", ratio);
+
+    for(auto &b : m_bins)
+    {
+        if (b.m_density < maxDensity)
+        {
+            b.m_density = maxDensity - (maxDensity - b.m_density)*ratio;
+        }
+    }
+
+    m_bins.setBoundaryDensity(maxDensity - maxDensity*ratio);
 }
 
 void Diffusion::step(float dt)
@@ -78,18 +121,20 @@ void Diffusion::step(float dt)
             auto const& d_top    = m_bins.at(x,y+1).m_density;
             auto const& d_bottom = m_bins.at(x,y-1).m_density;
 
-            if ((d_right + d_left) > eps)
+            assert(b.m_density >= 0.0f);
+
+            if (b.m_density > eps)
             {
-                b.m_vx = -(d_right - d_left) / (d_right + d_left);
+                b.m_vx = -0.5f*(d_right - d_left) / b.m_density;
             }
             else
             {
                 b.m_vx = 0.0f;
             }
 
-            if ((d_top + d_bottom) > eps)
+            if (b.m_density > eps)
             {
-                b.m_vy = -(d_top - d_bottom) / (d_top + d_bottom);
+                b.m_vy = -0.5f*(d_top - d_bottom) / b.m_density;
             }
             else
             {
@@ -117,45 +162,44 @@ void Diffusion::step(float dt)
             float frac_y = static_cast<float>(pos.m_y % binSize.m_y) / static_cast<float>(binSize.m_y);
 
             // find the 4 closest cells to the instance
-
-            float ivx = 0.0f;   // interpolated velocity
-            float ivy = 0.0f;
-
-            auto &bin1 = m_bins.at(bindex.m_x, bindex.m_y);
-
-            if (frac_x < 0.5f)
+            float alpha = frac_x;
+            float beta  = frac_y;
+            if (frac_x <= 0.5f)
             {
-                // interpolate with the bin to the left
-                auto &bin2 = m_bins.at(bindex.m_x-1, bindex.m_y);
-
-                frac_x += 0.5f;
-                ivx = bin2.m_vx + frac_x*(bin1.m_vx-bin2.m_vx);
+                bindex.m_x--;
+                alpha += 0.5f;
             }
             else
             {
-                // interpolate with the bin to the right
-                auto &bin2 = m_bins.at(bindex.m_x+1, bindex.m_y);
-
-                frac_x -= 0.5f;
-                ivx = bin1.m_vx + frac_x*(bin2.m_vx-bin1.m_vx);
+                alpha -= 0.5f;
             }
 
-            if (frac_y < 0.5f)
+            if (frac_y <= 0.5f)
             {
-                // interpolate with the bin to the bottom
-                auto &bin2 = m_bins.at(bindex.m_x, bindex.m_y-1);
-
-                frac_y += 0.5f;
-                ivy = bin2.m_vy + frac_y*(bin1.m_vy-bin2.m_vy);
+                bindex.m_y--;
+                beta += 0.5f;
             }
             else
             {
-                // interpolate with the bin to the top
-                auto &bin2 = m_bins.at(bindex.m_x, bindex.m_y+1);
-
-                frac_y -= 0.5f;
-                ivy = bin1.m_vy + frac_y*(bin2.m_vy-bin1.m_vy);
+                beta -= 0.5f;
             }
+
+            auto const& bin1 = m_bins.at(bindex.m_x, bindex.m_y);
+            float ivx = bin1.m_vx;
+            ivx += alpha*(m_bins.at(bindex.m_x+1, bindex.m_y).m_vx-bin1.m_vx);
+            ivx += beta*(m_bins.at(bindex.m_x, bindex.m_y+1).m_vx-bin1.m_vx);
+            ivx += alpha*beta*(bin1.m_vx + m_bins.at(bindex.m_x+1, bindex.m_y+1).m_vx
+                - m_bins.at(bindex.m_x+1, bindex.m_y).m_vx
+                - m_bins.at(bindex.m_x, bindex.m_y+1).m_vx
+                );
+
+            float ivy = bin1.m_vy;
+            ivy += alpha*(m_bins.at(bindex.m_x+1, bindex.m_y).m_vy-bin1.m_vy);
+            ivy += beta*(m_bins.at(bindex.m_x, bindex.m_y+1).m_vy-bin1.m_vy);
+            ivy += alpha*beta*(bin1.m_vy + m_bins.at(bindex.m_x+1, bindex.m_y+1).m_vy
+                - m_bins.at(bindex.m_x+1, bindex.m_y).m_vy
+                - m_bins.at(bindex.m_x, bindex.m_y+1).m_vy
+                );
 
             // move the instance based on the calculate velocity
             // note: we need to multiply by the bin size because
@@ -185,8 +229,9 @@ void Diffusion::step(float dt)
             auto const& d_top    = m_bins.at(x,y+1).m_density;
             auto const& d_bottom = m_bins.at(x,y-1).m_density;
 
-            b.m_dnew  = (dt/2.0) * (d_right+d_left-2.0*b.m_density);
-            b.m_dnew += (dt/2.0) * (d_top+d_bottom-2.0*b.m_density);
+            b.m_dnew = b.m_density;
+            b.m_dnew += (dt/2.0) * (d_right+d_left-2.0f*b.m_density);
+            b.m_dnew += (dt/2.0) * (d_top+d_bottom-2.0f*b.m_density);
         }
     }
 

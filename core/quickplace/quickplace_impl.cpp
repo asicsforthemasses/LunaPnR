@@ -259,7 +259,8 @@ bool PlacerImpl::place(Database &db, ChipDB::Module &mod)
     auto placementRect = db.m_design.m_floorplan->coreRect();
 
     Diffusion diff(db, mod, placementRect);
-    if (!diff.init())
+    const float maxDensity = 0.75f;
+    if (!diff.init(maxDensity))
     {
         Logging::logError("  Diffusion init failed\n");
         return false;
