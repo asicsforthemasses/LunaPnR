@@ -1,6 +1,9 @@
 #pragma once
 #include <shared_mutex>
 
+namespace LunaCore
+{
+
 /** Helper class to provide resource locking in a multithreaded environment.
 
     Obtain a read-write lock by calling the lock() method.
@@ -209,3 +212,5 @@ protected:
     mutable std::shared_mutex m_mutex;
     T m_object;
 };
+
+};  // namespace
