@@ -12,4 +12,5 @@
 #include "subprocess.h"
 #include "tomlhelpers.h"
 #include "objectptr.hpp"
+#include "mtqueue.hpp"
 #include "gds2defs.hpp"
