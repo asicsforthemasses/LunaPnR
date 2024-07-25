@@ -4,6 +4,11 @@
 namespace LunaCore::QuickPlace
 {
 
+// Note: need to convert to floating point instance position
+// so that instances do share coordinates less often.
+// Another technique is to slightly randomize the positions, by 1nm
+// We probably need an intelligent end placer to fix this..
+
 Diffusion::Diffusion(Database &db, ChipDB::Module &mod,
     const ChipDB::Rect64 &placementRect)
     : m_db(db), m_mod(mod), m_placementRect(placementRect)
