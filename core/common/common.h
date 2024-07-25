@@ -13,4 +13,5 @@
 #include "tomlhelpers.h"
 #include "objectptr.hpp"
 #include "mtqueue.hpp"
+#include "lockable.hpp"
 #include "gds2defs.hpp"

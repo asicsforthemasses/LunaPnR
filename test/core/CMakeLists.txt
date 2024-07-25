@@ -22,7 +22,7 @@ option(UseTinyTestPP "Use TinyTestPP test framework" ON)
 
 if(UseTinyTestPP)
     CPMAddPackage("bb:trcwm/tinytestpp#main")
-    target_compile_definitions(tinytestpp PRIVATE -DUSE_TINYTESTPP_MAIN=OFF)  # disable the main, conflicts with BOOST::TEST
+    target_compile_definitions(tinytestpp PRIVATE -DUSE_TINYTESTPP_MAIN=OFF -DBUILD_DOC=OFF)  # disable the main, conflicts with BOOST::TEST
 endif(UseTinyTestPP)
 
 

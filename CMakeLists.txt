@@ -10,7 +10,7 @@ enable_language(CXX C)
 
 OPTION(ENABLE_PACKAGING "Enable packaging" ON)
 OPTION(USE_PYTHON "Enabled Python scripting" OFF)
-OPTION(BUILD_DOC "Build documentation" OFF)
+OPTION(BUILD_DOC "Build documentation" ON)
 
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_CXX_STANDARD 20)
