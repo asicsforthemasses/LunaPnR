@@ -11,9 +11,6 @@
 #include <stdexcept>
 #include <algorithm>
 #include <iostream>
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#include <Eigen/IterativeLinearSolvers>
 #include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(GDS2Test)

@@ -1,7 +1,7 @@
 ##  LunaPnR Source Code
 ##
 ##  SPDX-License-Identifier: GPL-3.0-only
-##  SPDX-FileCopyrightText: 2022,2023 Niels Moseley <asicsforthemasses@gmail.com>
+##  SPDX-FileCopyrightText: 2022, 2024 Niels Moseley <asicsforthemasses@gmail.com>
 ##
 
 project(lunacore LANGUAGES CXX)
@@ -80,12 +80,6 @@ CPMAddPackage("bb:trcwm/tinysvgpp#main")
 
 CPMAddPackage("bb:trcwm/strutilspp#main")
 
-########################################################################
-# Add Eigen3
-########################################################################
-
-find_package (Eigen3 3.3 REQUIRED NO_MODULE)
-
 if (WIN32)
     set(PLATFORMSRC
         common/subprocess_win.cpp
@@ -123,27 +117,6 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/database/enums.h
     COMMENT "Generating enums ..."
     DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/database/enums.toml enumgen
 )
-
-if (USE_PYTHON)
-    set (PYTHON_SRC
-        python/pylunapnr.cpp
-        python/converters.cpp
-        python/consoleredirect.cpp
-        python/types/pypin.cpp
-        python/types/pynet.cpp
-        python/types/pynets.cpp
-        python/types/pycell.cpp
-        python/types/pycelllib.cpp
-        python/types/pypininfo.cpp
-        python/types/pypininfolist.cpp
-        python/types/pyinstance.cpp
-        python/types/pyinstances.cpp
-        python/types/pylayerinfo.cpp
-        python/types/pytechlayers.cpp
-        python/types/pysiteinfo.cpp
-        python/types/pytechsites.cpp
-    )
-endif()
 
 # main core
 add_library(lunacore
@@ -213,7 +186,6 @@ add_library(lunacore
     padring/padring.cpp
     padring/padringplacer.cpp
 
-    ${PYTHON_SRC}
     globalroute/globalrouter.cpp
     globalroute/prim_private.cpp
     globalroute/prim.cpp
@@ -224,10 +196,9 @@ add_library(lunacore
     )
 
 target_include_directories(lunacore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_include_directories(lunacore PRIVATE ${PYTHON_INCLUDE_DIRS})
 target_include_directories(lunacore PUBLIC ../contrib)
 target_include_directories(lunacore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(lunacore Eigen3::Eigen ${PYTHON_LIBRARIES} tinysvgpp strutilspp tomlplusplus::tomlplusplus)
+target_link_libraries(lunacore tinysvgpp strutilspp tomlplusplus::tomlplusplus)
 
 ## main: lunapnrcon console version
 add_executable(lunapnrcon main.cpp)

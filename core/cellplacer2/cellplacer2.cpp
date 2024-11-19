@@ -18,7 +18,7 @@ void Placer::mapGatesToMatrixRows(const ChipDB::Netlist &netlist,
     const PlacementRegion &r,
     GateToRowContainer &gate2Row)
 {
-    Matrix::RowIndex rowCounter = 0;
+    RowIndex rowCounter = 0;
     gate2Row.clear();
 
     for(auto gateId : r.m_gatesInRegion)
@@ -31,7 +31,7 @@ void Placer::mapGatesToMatrixRows(const ChipDB::Netlist &netlist,
     }
 }
 
-LunaCore::Matrix::RowIndex Placer::findRowOfGate(const GateToRowContainer &gate2Row,
+Placer::RowIndex Placer::findRowOfGate(const GateToRowContainer &gate2Row,
     const GateId gateId) const noexcept
 {
     auto iter = gate2Row.find(gateId);
@@ -53,13 +53,13 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
 
     auto Nrows = gates2Row.size();
 
-    Matrix Amat(Nrows);
+    Algebra::SparseMatrix<float> Amat(Nrows);
 
-    Eigen::VectorXd Bvec_x(Nrows);
-    Eigen::VectorXd Bvec_y(Nrows);
+    Algebra::Vector<float> Bvec_x(Nrows);
+    Algebra::Vector<float> Bvec_y(Nrows);
 
-    Bvec_x.setZero();
-    Bvec_y.setZero();
+    Bvec_x.zero();
+    Bvec_y.zero();
 
     std::size_t fixups = 0;
     for(auto row : gates2Row)
@@ -105,7 +105,7 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
                 auto dstGateId = netConnect.m_instanceKey;
                 if (dstGateId == srcGateId) continue;   // skip self references.
 
-                Amat(rowIndex,rowIndex) += weight;   // A(row,row) += net weight
+                Amat.at(rowIndex,rowIndex) += weight;   // A(row,row) += net weight
 
                 auto const& dstGate = netlist.m_instances.atRef(dstGateId);
                 auto const dstGatePos = m_gatePositions.at(dstGateId);
@@ -157,17 +157,16 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
         }
     }
 
-    Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Upper | Eigen::Lower> solver;
+    
 
-    Eigen::SparseMatrix<double> eigenAmat(Nrows, Nrows);
+    //Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Upper | Eigen::Lower> solver;
+    //Eigen::SparseMatrix<double> eigenAmat(Nrows, Nrows);
+    //toEigen(Amat, eigenAmat);
+    //eigenAmat.makeCompressed();
+    //solver.compute(eigenAmat);
 
-    toEigen(Amat, eigenAmat);
-
-    eigenAmat.makeCompressed();
-    solver.compute(eigenAmat);
-
-    Eigen::VectorXd xvec;
-    Eigen::VectorXd yvec;
+    Algebra::Vector<float> xvec;
+    Algebra::Vector<float> yvec;
 
     // if we have a small number of rows, don't use multi-threading
     // as the thread startup time will become dominant --> assumption..
@@ -175,13 +174,20 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
     // ibm18, limit 20 rows -> 25s
     // ibm18, limit 50 rows -> 25s
     //if (Nrows < 20)
+    
+    Algebra::CGSolver::JacobiPreconditioner<float> precond(Amat);
+
+    Algebra::CGSolver::ComputeInfo info_x;
+    Algebra::CGSolver::ComputeInfo info_y;
+
     if (true)
     {
-        xvec = solver.solve(Bvec_x);
-        yvec = solver.solve(Bvec_y);
+        info_x = Algebra::CGSolver::solve(Amat, Bvec_x, xvec, precond);
+        info_y = Algebra::CGSolver::solve(Amat, Bvec_y, yvec, precond);
     }
     else
     {
+#if 0        
         std::thread worker1(
             [&solver, &Bvec_x, &xvec]()
             {
@@ -196,6 +202,7 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
         );
         worker1.join();
         worker2.join();
+#endif
     }
 
     // check if all gates are within the region
@@ -213,7 +220,7 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
         if (!region.contains(newGateLocation, absTol))
         {
             std::cout << "Gate: (id=" << gateId << ") old pos: " << oldGateLocation << " new pos: " << newGateLocation << " Region: " << region << "\n";
-            std::cout << "A matrix row: " << eigenAmat.row(rowId);
+            //std::cout << "A matrix row: " << Amat.at(rowId);
             std::cout << "B vec x     : " << Bvec_x[rowId] << "\n";
             std::cout << "B vec y     : " << Bvec_y[rowId] << "\n";
             std::cout << "rowId       : " << rowId << "\n";

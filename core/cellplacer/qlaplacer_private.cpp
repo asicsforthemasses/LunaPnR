@@ -7,10 +7,6 @@
 #include <sstream>
 #include <random>
 #include <deque>
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
-#include <Eigen/IterativeLinearSolvers>
 
 #include "common/logging.h"
 #include "qlaplacer.h"
@@ -20,6 +16,7 @@ using namespace LunaCore::QLAPlacer::Private;
 
 using QLAPlacerNetlist = LunaCore::QPlacer::PlacerNetlist;
 
+#if 0
 std::string toString(Eigen::ComputationInfo info)
 {
     std::string str;
@@ -37,6 +34,7 @@ std::string toString(Eigen::ComputationInfo info)
 
     return "Unknown";
 }
+#endif
 
 bool LunaCore::QLAPlacer::Private::doInitialPlacement(const ChipDB::Rect64 &regionRect, QLAPlacerNetlist &netlist)
 {
@@ -283,11 +281,13 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
     LunaCore::QLAPlacer::Private::SolverData XSolverData;
     LunaCore::QLAPlacer::Private::SolverData YSolverData;
 
-    XSolverData.m_Amat.reserveRows(netlist.numberOfNodes());    // rough estimate of rows
-    XSolverData.m_Bvec = Eigen::VectorXd::Zero(netlist.numberOfNodes());
+    XSolverData.m_Amat.resize(netlist.numberOfNodes());    // rough estimate of rows
+    XSolverData.m_Bvec.resize(netlist.numberOfNodes());
+    XSolverData.m_Bvec.zero();
 
-    YSolverData.m_Amat.reserveRows(netlist.numberOfNodes());    // rough estimate of rows
-    YSolverData.m_Bvec = Eigen::VectorXd::Zero(netlist.numberOfNodes());
+    YSolverData.m_Amat.resize(netlist.numberOfNodes());    // rough estimate of rows
+    YSolverData.m_Bvec.resize(netlist.numberOfNodes());
+    YSolverData.m_Bvec.zero();
 
     ssize_t netIdx = 0;
     for(auto const& net : netlist.m_nets)
@@ -411,35 +411,43 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
 #endif
 
     Logging::logInfo("Calling solver\n");
-    Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Upper | Eigen::Lower> solver;
+    //Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Upper | Eigen::Lower> solver;
+    //Algebra::SparseMatrix<double> EigenMatX(netlist.numberOfNodes(), netlist.numberOfNodes());
+    //LunaCore::toEigen(XSolverData.m_Amat, EigenMatX);
+    //EigenMatX.makeCompressed();
+    //solver.compute(EigenMatX);
 
-    Eigen::SparseMatrix<double> EigenMatX(netlist.numberOfNodes(), netlist.numberOfNodes());
-    LunaCore::toEigen(XSolverData.m_Amat, EigenMatX);
+    Algebra::CGSolver::JacobiPreconditioner preconX(XSolverData.m_Amat);
+    Algebra::CGSolver::JacobiPreconditioner preconY(YSolverData.m_Amat);
 
-    EigenMatX.makeCompressed();
-    solver.compute(EigenMatX);
-    Eigen::VectorXd xpos = solver.solve(XSolverData.m_Bvec);
-    //auto xpos_err  = solver.error();
-    auto xpos_info = solver.info();
+    Algebra::Vector<float> xpos;
+    Algebra::Vector<float> ypos;
 
+    Algebra::CGSolver::ComputeInfo info_x = Algebra::CGSolver::solve(
+        XSolverData.m_Amat, 
+        XSolverData.m_Bvec,
+        xpos,
+        preconX
+        );
+
+    Algebra::CGSolver::ComputeInfo info_y = Algebra::CGSolver::solve(
+        YSolverData.m_Amat,
+        YSolverData.m_Bvec,
+        ypos,
+        preconY
+        );
+
+#if 0
     if (xpos_info != Eigen::ComputationInfo::Success)
     {
         Logging::logWarning("  Eigen reports error code %s for x axis\n", toString(xpos_info).c_str());
     }
+#endif
 
-    Eigen::SparseMatrix<double> EigenMatY(netlist.numberOfNodes(), netlist.numberOfNodes());
-    LunaCore::toEigen(YSolverData.m_Amat, EigenMatY);
-
-    EigenMatY.makeCompressed();
-    solver.compute(EigenMatY);
-    Eigen::VectorXd  ypos = solver.solve(YSolverData.m_Bvec);
-    //auto ypos_err  = solver.error();
-    auto ypos_info = solver.info();
-
-    if (ypos_info != Eigen::ComputationInfo::Success)
-    {
-        Logging::logWarning("  Eigen reports error code %s for y axis\n", toString(ypos_info).c_str());
-    }
+    std::stringstream ss;
+    ss << "  X solver: " << info_x << "\n";
+    ss << "  Y solver: " << info_y << "\n";
+    Logging::logInfo(ss.str());
 
     ssize_t fixedNodes = 0;
     ssize_t idx = 0;

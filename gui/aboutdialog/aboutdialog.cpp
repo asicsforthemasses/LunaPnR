@@ -14,7 +14,7 @@
 #endif
 
 #include "widgets/flatimage.h"
-#include <Eigen/Core>
+//#include <Eigen/Core>
 #include <toml++/toml.h>
 
 using namespace GUI;
@@ -30,11 +30,6 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
 
     QString info;
 
-    const auto eigenVersion = QString::asprintf("%d.%d.%d",
-        EIGEN_WORLD_VERSION,
-        EIGEN_MAJOR_VERSION,
-        EIGEN_MINOR_VERSION);
-
     const auto tomlVersion = QString::asprintf("%d.%d.%d",
         TOML_LIB_MAJOR,
         TOML_LIB_MINOR,
@@ -47,12 +42,6 @@ AboutDialog::AboutDialog(QWidget *parent) : QDialog(parent)
     info += "Additional libraries:";
     info += "<ul>";
     info += "<li>Qt version     " + QString(QT_VERSION_STR) + "</li>";
-
-#ifdef USE_PYTHON
-    info += "<li>Python version " + QString(PY_VERSION) + "</li>";
-#endif
-
-    info += "<li>Eigen3 version " + eigenVersion + "</li>";
     info += "<li>Toml++ version " + tomlVersion + "</li>";
     info += "</ul>";
 

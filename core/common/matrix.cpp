@@ -4,6 +4,7 @@
 
 #include "matrix.h"
 
+#if 0
 void LunaCore::toEigen(const Matrix &matrix, Eigen::SparseMatrix<double> &eigenMatrix) noexcept
 {
     auto nnz = matrix.nonZeroItemCount();
@@ -22,3 +23,4 @@ void LunaCore::toEigen(const Matrix &matrix, Eigen::SparseMatrix<double> &eigenM
 
     eigenMatrix.setFromTriplets(triples.begin(), triples.end());
 }
+#endif

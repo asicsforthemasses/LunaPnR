@@ -7,13 +7,8 @@
 #include <deque>
 #include <memory>
 
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
-#include <Eigen/IterativeLinearSolvers>
-
 #include "database/database.h"
-#include "common/matrix.h"
+#include "algebra/algebra.hpp"
 
 namespace LunaCore::CellPlacer2
 {
@@ -107,7 +102,8 @@ public:
         std::size_t maxLevels, std::size_t minInstances);
 
 protected:
-    using GateToRowContainer = std::unordered_map<GateId, Matrix::RowIndex>;
+    using RowIndex = uint32_t;
+    using GateToRowContainer = std::unordered_map<GateId, RowIndex>;
     using GatePosContainer   = std::unordered_map<GateId, PointF>;
 
     /** place the cells/gates/instances in the PlacementRegion using
@@ -118,7 +114,7 @@ protected:
 
     void cycle(ChipDB::Netlist &netlist, std::deque<std::unique_ptr<PlacementRegion>> &regions);
 
-    [[nodiscard]] Matrix::RowIndex findRowOfGate(const GateToRowContainer &gate2Row,
+    [[nodiscard]] RowIndex findRowOfGate(const GateToRowContainer &gate2Row,
         const GateId gateId) const noexcept;
 
     [[nodiscard]] PointF propagate(const PlacementRegion &region, const PointF &p) const;

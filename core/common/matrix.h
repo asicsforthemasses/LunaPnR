@@ -5,7 +5,6 @@
 #pragma once
 #include <unordered_map>
 #include <cstdlib>
-#include <Eigen/Sparse>
 
 namespace LunaCore
 {
@@ -110,6 +109,6 @@ struct Matrix
 };
 
     /** fill an Eigen3 matrix with data from LunaCore::Matrix */
-    void toEigen(const Matrix &matrix, Eigen::SparseMatrix<double> &eigenMatrix) noexcept;
+    //void toEigen(const Matrix &matrix, Eigen::SparseMatrix<double> &eigenMatrix) noexcept;
 
 };

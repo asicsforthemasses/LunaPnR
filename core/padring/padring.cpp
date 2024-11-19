@@ -5,7 +5,7 @@
 #include <cassert>
 #include <optional>
 #include "padring.hpp"
-#include "common/matrix.h"
+#include "algebra/algebra.hpp"
 #include "common/logging.h"
 
 namespace LunaCore::Padring
@@ -324,6 +324,8 @@ bool Padring::layout(Database &db)
 
 bool Padring::layoutEdge(Database &db, const LayoutItem &corner1, const LayoutItem &corner2, const Layout &edge)
 {
+    using namespace LunaCore::Algebra;
+
     auto const dieSize = db.m_design.m_floorplan->dieSize();
 
     ChipDB::CoordType corner1Pos = 0;
@@ -375,11 +377,9 @@ bool Padring::layoutEdge(Database &db, const LayoutItem &corner1, const LayoutIt
 
     // layout edge
     int matrixDimension = edge.cellCount();
-    LunaCore::Matrix A;
-    A.reserveRows(matrixDimension);
-
-    Eigen::VectorXd Bvec(matrixDimension);
-    Bvec.setZero();
+    Algebra::SparseMatrix<float> A(matrixDimension);
+    Algebra::Vector<float> Bvec(matrixDimension);
+    Bvec.zero();
 
     auto iter = std::next(items.begin());   // points to first moveable pad/cell
     auto last = std::prev(items.end());     // points to last corner cell
@@ -397,21 +397,21 @@ bool Padring::layoutEdge(Database &db, const LayoutItem &corner1, const LayoutIt
             A(rowIdx, rowIdx) += 2.0;
             A(rowIdx, rowIdx-1) += -1.0;
             A(rowIdx, rowIdx+1) += -1.0;
-            Bvec(rowIdx) = prevItem.m_width - iter->m_width;
+            Bvec[rowIdx] = prevItem.m_width - iter->m_width;
         }
         else if (prevItem.m_itemType == LayoutItem::ItemType::CELL)
         {
             // prev item moveable
             A(rowIdx, rowIdx) += 2.0;
             A(rowIdx, rowIdx-1) += -1.0;
-            Bvec(rowIdx) = prevItem.m_width - iter->m_width + nextItem.m_pos;
+            Bvec[rowIdx] = prevItem.m_width - iter->m_width + nextItem.m_pos;
         }
         else if (nextItem.m_itemType == LayoutItem::ItemType::CELL)
         {
             // next item moveable
             A(rowIdx, rowIdx) += 2.0;
             A(rowIdx, rowIdx+1) += -1.0;
-            Bvec(rowIdx) = prevItem.m_width - iter->m_width + prevItem.m_pos;
+            Bvec[rowIdx] = prevItem.m_width - iter->m_width + prevItem.m_pos;
         }
         else
         {
@@ -422,21 +422,26 @@ bool Padring::layoutEdge(Database &db, const LayoutItem &corner1, const LayoutIt
         iter++;
     }
 
-    Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Upper | Eigen::Lower> solver;
-    Eigen::SparseMatrix<double> eigenAmat(matrixDimension, matrixDimension);
-    toEigen(A, eigenAmat);
+    //Eigen::ConjugateGradient<Eigen::SparseMatrix<double>, Eigen::Upper | Eigen::Lower> solver;
+    //Eigen::SparseMatrix<double> eigenAmat(matrixDimension, matrixDimension);
+    //toEigen(A, eigenAmat);
 
-    eigenAmat.makeCompressed();
-    solver.compute(eigenAmat);
+    //eigenAmat.makeCompressed();
+    //solver.compute(eigenAmat);
 
-    Eigen::VectorXd Xvec;
-    Xvec = solver.solve(Bvec);
+    //Eigen::VectorXd Xvec;
+    //Xvec = solver.solve(Bvec);
+    Algebra::Vector<float> Xvec(A.rowCount());
+    Xvec.zero();
+
+    Algebra::CGSolver::JacobiPreconditioner precon(A);
+    Algebra::CGSolver::solve(A, Bvec, Xvec, precon);
 
     if (Logging::getLogLevel() == Logging::LogType::VERBOSE)
     {
         std::stringstream ss;
         ss << "\n A = \n";
-        ss << Eigen::MatrixXd(eigenAmat) << "\n";
+        ss << A << "\n";
 
         Logging::logVerbose("%s\n", ss.str().c_str());
 

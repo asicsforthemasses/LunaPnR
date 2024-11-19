@@ -10,24 +10,18 @@
 
 #pragma once
 
-#include <Eigen/Core>
-#include <Eigen/Dense>
-#include <Eigen/Sparse>
-#include <Eigen/IterativeLinearSolvers>
-
 #include <functional>
 
 #include "database/database.h"
-#include "common/matrix.h"
+#include "algebra/algebra.hpp"
 #include "qplacertypes.h"
 
 namespace LunaCore::QLAPlacer::Private
 {
     struct SolverData
     {
-        //Eigen::SparseMatrix<double> m_Amat;
-        LunaCore::Matrix m_Amat;
-        Eigen::VectorXd m_Bvec;
+        Algebra::SparseMatrix<float> m_Amat;
+        Algebra::Vector<float>       m_Bvec;
     };
 
     struct Block
