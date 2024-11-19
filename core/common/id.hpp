@@ -10,6 +10,10 @@ namespace LunaCore
 
 /** An ID type with tag. The C++ type checker uses the tag
     to differentiate between different ID types.
+
+    Conversions to std::size_t and int are supported so
+    IDs can be used to index containers.
+
  */
 template<typename tag>
 class MyID

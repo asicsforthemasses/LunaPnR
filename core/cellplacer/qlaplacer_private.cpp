@@ -7,10 +7,13 @@
 #include <sstream>
 #include <random>
 #include <deque>
+
+#if 0
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <Eigen/IterativeLinearSolvers>
+#endif
 
 #include "common/logging.h"
 #include "qlaplacer.h"

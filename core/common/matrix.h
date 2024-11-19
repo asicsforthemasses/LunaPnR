@@ -5,7 +5,7 @@
 #pragma once
 #include <unordered_map>
 #include <cstdlib>
-#include <Eigen/Sparse>
+//#include <Eigen/Sparse>
 
 namespace LunaCore
 {

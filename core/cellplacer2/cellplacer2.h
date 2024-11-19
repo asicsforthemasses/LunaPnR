@@ -7,13 +7,15 @@
 #include <deque>
 #include <memory>
 
+#if 0
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <Eigen/IterativeLinearSolvers>
+#endif
 
 #include "database/database.h"
-#include "common/matrix.h"
+#include "algebra/sparsematrix.hpp"
 
 namespace LunaCore::CellPlacer2
 {

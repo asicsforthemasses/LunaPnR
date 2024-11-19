@@ -10,15 +10,17 @@
 
 #pragma once
 
+#if 0
 #include <Eigen/Core>
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <Eigen/IterativeLinearSolvers>
+#endif
 
 #include <functional>
 
 #include "database/database.h"
-#include "common/matrix.h"
+#include "algebra/sparsematrix.hpp"
 #include "qplacertypes.h"
 
 namespace LunaCore::QLAPlacer::Private

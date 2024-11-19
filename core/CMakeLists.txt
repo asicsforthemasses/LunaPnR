@@ -84,7 +84,7 @@ CPMAddPackage("bb:trcwm/strutilspp#main")
 # Add Eigen3
 ########################################################################
 
-find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+#find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 
 if (WIN32)
     set(PLATFORMSRC
@@ -152,7 +152,6 @@ add_library(lunacore
     ../version/compilerversion.cpp
     common/logging.cpp
     common/fileutils.cpp
-    common/matrix.cpp
     common/gds2defs.cpp
 
     database/enums.h
@@ -233,7 +232,7 @@ target_include_directories(lunacore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(lunacore PRIVATE ${PYTHON_INCLUDE_DIRS})
 target_include_directories(lunacore PUBLIC ../contrib)
 target_include_directories(lunacore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(lunacore Eigen3::Eigen ${PYTHON_LIBRARIES} tinysvgpp strutilspp tomlplusplus::tomlplusplus)
+target_link_libraries(lunacore ${PYTHON_LIBRARIES} tinysvgpp strutilspp tomlplusplus::tomlplusplus)
 #target_link_libraries(lunacore ${PYTHON_LIBRARIES} tinysvgpp strutilspp tomlplusplus::tomlplusplus)
 
 ## main: lunapnrcon console version
