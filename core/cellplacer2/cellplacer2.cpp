@@ -177,8 +177,8 @@ void Placer::placeRegion(ChipDB::Netlist &netlist, PlacementRegion &region)
     
     Algebra::CGSolver::JacobiPreconditioner<float> precond(Amat);
 
-    Algebra::CGSolver::ComputeInfo info_x;
-    Algebra::CGSolver::ComputeInfo info_y;
+    Algebra::ComputeInfo info_x;
+    Algebra::ComputeInfo info_y;
 
     if (true)
     {

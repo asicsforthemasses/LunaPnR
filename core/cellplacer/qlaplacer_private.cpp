@@ -423,14 +423,14 @@ bool LunaCore::QLAPlacer::Private::doQuadraticB2B(LunaCore::QPlacer::PlacerNetli
     Algebra::Vector<float> xpos;
     Algebra::Vector<float> ypos;
 
-    Algebra::CGSolver::ComputeInfo info_x = Algebra::CGSolver::solve(
+    Algebra::ComputeInfo info_x = Algebra::CGSolver::solve(
         XSolverData.m_Amat, 
         XSolverData.m_Bvec,
         xpos,
         preconX
         );
 
-    Algebra::CGSolver::ComputeInfo info_y = Algebra::CGSolver::solve(
+    Algebra::ComputeInfo info_y = Algebra::CGSolver::solve(
         YSolverData.m_Amat,
         YSolverData.m_Bvec,
         ypos,
