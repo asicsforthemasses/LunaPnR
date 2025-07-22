@@ -6,6 +6,7 @@
 
 #include "fileutils.h"
 #include "strutils.hpp"
+#include "idiagnostics.hpp"
 #include "logging.h"
 #include "matrix.h"
 #include "subprocess.h"

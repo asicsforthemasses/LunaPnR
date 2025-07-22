@@ -125,6 +125,7 @@ add_library(lunacore
     common/fileutils.cpp
     common/matrix.cpp
     common/gds2defs.cpp
+    common/idiagnostics.cpp
 
     database/enums.h
     database/dbtypes.cpp

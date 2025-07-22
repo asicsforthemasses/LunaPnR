@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2025 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -6,14 +6,33 @@
 #include <cstdlib>
 #include <vector>
 #include <list>
+#include <sstream>
 #include <string>
 #include <string_view>
+#include <codecvt>
+#include <locale>
 #include <limits>
 #include <algorithm>
 #include <regex>
 
+typedef std::basic_stringstream<char32_t> u32sstream;
+
 namespace LunaCore
 {
+
+/** convert a 32-bit char string to UTF-8 */
+inline std::string toUTF8(const std::u32string &s)
+{
+    std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
+    return conv.to_bytes(s);
+}
+
+/** convert a UTF-8 char string to UTF-32 */
+inline std::u32string toUTF32(const std::string &s)
+{
+    std::wstring_convert<std::codecvt_utf8<char32_t>, char32_t> conv;
+    return conv.from_bytes(s);
+}
 
 /** convert a string to upper case */
 inline std::string toupper(const std::string &text)
