@@ -15,10 +15,10 @@ class IDiagnostics
 public:
     virtual ~IDiagnostics() = default;
 
-    virtual void info(const char *fmt, ...)  =  0;
-    virtual void debug(const char *fmt, ...) =  0;
-    virtual void error(const char *fmt, ...) =  0;
-    virtual void warn(const char *fmt, ...)  =  0;
+    virtual void info(const char *fmt, ...)  =  0;  ///< send info to the user, assumes UTF-8.
+    virtual void debug(const char *fmt, ...) =  0;  ///< send debug info to the user, assumes UTF-8.
+    virtual void error(const char *fmt, ...) =  0;  ///< send error info to the user, assumes UTF-8.
+    virtual void warn(const char *fmt, ...)  =  0;  ///< send warning info to the user, assumes UTF-8.
 
     void info(u32sstream &txt);
     void debug(u32sstream &txt);
