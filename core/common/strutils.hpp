@@ -15,10 +15,38 @@
 #include <algorithm>
 #include <regex>
 
-typedef std::basic_stringstream<char32_t> u32sstream;
+/** \addtogroup string_utils
+  String and character encoding utilities
+  @{
+*/
+
+typedef std::basic_stringstream<char32_t> u32sstream;   ///< a stringstream based on char32_t
+
+/**
+ @}
+*/
 
 namespace LunaCore
 {
+
+/** \addtogroup string_utils
+*  String and character encoding utilities
+* @{
+*/
+
+/** Colors for ANSI terminals */
+namespace ANSI
+{
+    constexpr const char black[]  = "\033[1;30m";
+    constexpr const char red[]    = "\033[1;31m";
+    constexpr const char green[]  = "\033[1;32m";
+    constexpr const char yellow[] = "\033[1;33m";
+    constexpr const char blue[]   = "\033[1;34m";
+    constexpr const char purple[] = "\033[1;35m";
+    constexpr const char cyan[]   = "\033[1;36m";
+    constexpr const char white[]  = "\033[1;37m";
+    constexpr const char normal[] = "\033[0m";
+};
 
 /** convert a 32-bit char string to UTF-8 */
 inline std::string toUTF8(const std::u32string &s)
@@ -187,5 +215,7 @@ inline std::string replaceKeysInBraces(const auto &container, const std::string 
     }
     return result;
 }
+
+/** @} */
 
 };

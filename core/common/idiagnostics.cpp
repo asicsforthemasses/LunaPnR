@@ -3,6 +3,8 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include "idiagnostics.hpp"
+#include <cstdio>
+#include <cstdarg>
 
 namespace LunaCore
 {
@@ -85,6 +87,58 @@ void IDiagnostics::error(std::u32string &txt)
 void IDiagnostics::warn(std::u32string &txt)
 {
     warn("%s", toUTF8(txt).c_str());
+}
+
+void ConsoleDiagnostics::info(const char *fmt, ...)
+{
+    if (enableANSIColors)
+        printf("%s[INFO] %s", ANSI::white, ANSI::normal);
+    else
+        printf("[INFO] ");
+
+    va_list lst;
+    va_start(lst, fmt);
+    vprintf(fmt, lst);
+    va_end(lst);
+}
+
+void ConsoleDiagnostics::debug(const char *fmt, ...)
+{
+    if (enableANSIColors)
+        printf("%s[DBG ] %s", ANSI::green, ANSI::normal);
+    else 
+        printf("[DBG ] ");
+
+    va_list lst;
+    va_start(lst, fmt);
+    vprintf(fmt, lst);
+    va_end(lst);
+}
+
+void ConsoleDiagnostics::error(const char *fmt, ...)
+{
+    if (enableANSIColors)
+        printf("%s[ERR ] %s", ANSI::red, ANSI::normal);
+    else
+        printf("[ERR ] ");
+
+    va_list lst;
+    va_start(lst, fmt);
+    vprintf(fmt, lst);
+    va_end(lst);
+}
+
+void ConsoleDiagnostics::warn(const char *fmt, ...)
+{
+    if (enableANSIColors)
+        printf("%s[WARN] %s", ANSI::yellow, ANSI::normal);
+    else
+        printf("[WARN] ");
+
+    va_list lst;
+    va_start(lst, fmt);
+    vprintf(fmt, lst);
+    va_end(lst);
 }
 
 };

@@ -42,4 +42,22 @@ public:
 
 };
 
+/** Diagnostics class that sends everything to an ANSI console. */
+class ConsoleDiagnostics : public IDiagnostics
+{
+public:
+    void info(const char *fmt, ...) override;  ///< send info to the user, assumes UTF-8.
+    void debug(const char *fmt, ...) override;  ///< send debug info to the user, assumes UTF-8.
+    void error(const char *fmt, ...) override;  ///< send error info to the user, assumes UTF-8.
+    void warn(const char *fmt, ...)  override;  ///< send warning info to the user, assumes UTF-8.
+
+    constexpr void enableANSIColors(bool enabled) noexcept
+    {
+        m_enableANSIColors = enabled;
+    }
+
+protected:
+    bool m_enableANSIColors{false};
+};
+
 };
