@@ -91,7 +91,7 @@ void IDiagnostics::warn(std::u32string &txt)
 
 void ConsoleDiagnostics::info(const char *fmt, ...)
 {
-    if (enableANSIColors)
+    if (m_enableANSIColors)
         printf("%s[INFO] %s", ANSI::white, ANSI::normal);
     else
         printf("[INFO] ");
@@ -104,7 +104,7 @@ void ConsoleDiagnostics::info(const char *fmt, ...)
 
 void ConsoleDiagnostics::debug(const char *fmt, ...)
 {
-    if (enableANSIColors)
+    if (m_enableANSIColors)
         printf("%s[DBG ] %s", ANSI::green, ANSI::normal);
     else 
         printf("[DBG ] ");
@@ -117,7 +117,7 @@ void ConsoleDiagnostics::debug(const char *fmt, ...)
 
 void ConsoleDiagnostics::error(const char *fmt, ...)
 {
-    if (enableANSIColors)
+    if (m_enableANSIColors)
         printf("%s[ERR ] %s", ANSI::red, ANSI::normal);
     else
         printf("[ERR ] ");
@@ -130,7 +130,7 @@ void ConsoleDiagnostics::error(const char *fmt, ...)
 
 void ConsoleDiagnostics::warn(const char *fmt, ...)
 {
-    if (enableANSIColors)
+    if (m_enableANSIColors)
         printf("%s[WARN] %s", ANSI::yellow, ANSI::normal);
     else
         printf("[WARN] ");

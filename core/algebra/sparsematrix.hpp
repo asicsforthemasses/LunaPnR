@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
+// SPDX-FileCopyrightText: 2021-2025 Niels Moseley <asicsforthemasses@gmail.com>
 //
 // SPDX-License-Identifier: GPL-3.0-only
 
@@ -13,7 +13,7 @@
 namespace LunaCore::Algebra
 {
 
-/** A sparse matrix class */
+/** A sparse matrix class for algebraic operations*/
 template<class T>
 class SparseMatrix
 {

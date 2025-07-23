@@ -15,7 +15,7 @@
 #include <algorithm>
 #include <regex>
 
-/** \addtogroup string_utils
+/** \addtogroup string_utils String utilities
   String and character encoding utilities
   @{
 */

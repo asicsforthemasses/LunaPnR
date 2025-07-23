@@ -1,4 +1,4 @@
-## SPDX-FileCopyrightText: 2021-2024 Niels Moseley <asicsforthemasses@gmail.com>
+## SPDX-FileCopyrightText: 2021-2025 Niels Moseley <asicsforthemasses@gmail.com>
 ##
 ## SPDX-License-Identifier: GPL-3.0-only
 
@@ -7,6 +7,11 @@ cmake_minimum_required(VERSION 3.20)
 set(CMAKE_POSITION_INDEPENDENT_CODE OFF)
 
 find_package(Qt6 REQUIRED QUIET COMPONENTS Core Widgets Gui Network)
+
+get_property(loc TARGET Qt6::Core PROPERTY IMPORTED_LOCATION)
+message("************************************************************")
+message(STATUS "Qt6 location: ${loc}")
+message("************************************************************")
 
 if (USE_PYTHON)
     find_package(PythonLibs 3.8 REQUIRED COMPONENTS Interpreter Development)
