@@ -36,7 +36,7 @@ struct MSTreeNode
 
     void addEdge(NodeId child, const ChipDB::Coord64 &childPos);
 
-    bool operator==(const MSTreeNode &rhs) noexcept;
+    bool operator==(const MSTreeNode &rhs) const noexcept;
 };
 
 using MSTree = std::vector<MSTreeNode>;

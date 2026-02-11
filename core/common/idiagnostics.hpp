@@ -20,25 +20,6 @@ public:
     virtual void error(const char *fmt, ...) =  0;  ///< send error info to the user, assumes UTF-8.
     virtual void warn(const char *fmt, ...)  =  0;  ///< send warning info to the user, assumes UTF-8.
 
-    void info(u32sstream &txt);
-    void debug(u32sstream &txt);
-    void error(u32sstream &txt);
-    void warn(u32sstream &txt);
-
-    void info(std::stringstream &txt);
-    void debug(std::stringstream &txt);
-    void error(std::stringstream &txt);
-    void warn(std::stringstream &txt);
-
-    void info(std::string &txt);
-    void debug(std::string &txt);
-    void error(std::string &txt);
-    void warn(std::string &txt);
-
-    void info(std::u32string &txt);
-    void debug(std::u32string &txt);
-    void error(std::u32string &txt);
-    void warn(std::u32string &txt);
 
 };
 

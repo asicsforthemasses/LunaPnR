@@ -15,24 +15,10 @@
 #include <algorithm>
 #include <regex>
 
-/** \addtogroup string_utils String utilities
-  String and character encoding utilities
-  @{
-*/
-
 typedef std::basic_stringstream<char32_t> u32sstream;   ///< a stringstream based on char32_t
-
-/**
- @}
-*/
 
 namespace LunaCore
 {
-
-/** \addtogroup string_utils
-*  String and character encoding utilities
-* @{
-*/
 
 /** Colors for ANSI terminals */
 namespace ANSI
@@ -215,7 +201,5 @@ inline std::string replaceKeysInBraces(const auto &container, const std::string 
     }
     return result;
 }
-
-/** @} */
 
 };

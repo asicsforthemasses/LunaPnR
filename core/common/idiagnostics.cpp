@@ -9,6 +9,7 @@
 namespace LunaCore
 {
 
+#if 0    
 void IDiagnostics::info(u32sstream &txt)
 {
     info("%s", toUTF8(txt.str()).c_str());
@@ -88,6 +89,7 @@ void IDiagnostics::warn(std::u32string &txt)
 {
     warn("%s", toUTF8(txt).c_str());
 }
+#endif
 
 void ConsoleDiagnostics::info(const char *fmt, ...)
 {

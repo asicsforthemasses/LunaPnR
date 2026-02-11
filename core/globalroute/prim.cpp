@@ -11,7 +11,7 @@
 using namespace LunaCore::Prim;
 using namespace LunaCore::Prim::Private;
 
-bool LunaCore::Prim::MSTreeNode::operator==(const MSTreeNode &rhs) noexcept
+bool LunaCore::Prim::MSTreeNode::operator==(const MSTreeNode &rhs) const noexcept
 {
     if (m_pos != rhs.m_pos) return false;
     if (m_parent != rhs.m_parent) return false;
